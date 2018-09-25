@@ -1,0 +1,35 @@
+{
+  "name": "hjudgeWeb",
+  "private": true,
+  "version": "0.0.0",
+  "devDependencies": {
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "aspnet-webpack": "^3.0.0",
+    "babel-loader": "^8.0.2",
+    "babel-polyfill": "^6.26.0",
+    "css-loader": "^1.0.0",
+    "event-source-polyfill": "^0.0.16",
+    "file-loader": "^2.0.0",
+    "isomorphic-fetch": "^2.2.1",
+    "material-design-icons-iconfont": "^3.0.3",
+    "mini-css-extract-plugin": "^0.4.3",
+    "style-loader": "^0.23.0",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "url-loader": "^1.1.1",
+    "vue": "^2.5.17",
+    "vue-cli-plugin-vuetify": "^0.2.0",
+    "vue-loader": "^15.4.2",
+    "vue-router": "^3.0.1",
+    "vue-template-compiler": "^2.5.17",
+    "vuetify": "^1.2.4",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-middleware": "^3.3.0",
+    "webpack-hot-middleware": "^2.24.0"
+  },
+  "dependencies": {},
+  "scripts": {
+    "build": "webpack"
+  }
+}
