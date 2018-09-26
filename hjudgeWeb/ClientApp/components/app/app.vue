@@ -1,8 +1,8 @@
 ﻿<template>
     <v-app>
-        <navmenu></navmenu>
+        <navmenu v-on:register="test"></navmenu>
         <transition name="fade">
-            <router-view></router-view>
+            <router-view v-on:register="test" keep-alive></router-view>
         </transition>
         <v-footer class="pa-3 blue darken-2">
             <v-spacer></v-spacer>

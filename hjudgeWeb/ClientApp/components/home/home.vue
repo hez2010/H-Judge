@@ -6,9 +6,7 @@
                           align-center
                           justify-center
                           class="white--text">
-                    <img src="assets/logo.png" alt="Vuetify.js" height="200">
-                    <h1 class="white--text mb-2 display-1 text-xs-center">H::Judge</h1>
-                    <div class="subheading mb-3 text-xs-center">你的专属评测系统</div>
+                    <img src="assets/hjudge.png" alt="H::Judge" height="200">
 
                     <v-btn class="blue lighten-2 mt-5"
                            dark
@@ -26,9 +24,9 @@
                       align-center>
                 <v-flex xs12 sm4 class="my-3">
                     <div class="text-xs-center">
-                        <h2 class="headline">The best way to start developing</h2>
+                        <h2 class="headline">H::Judge</h2>
                         <span class="subheading">
-                            Cras facilisis mi vitae nunc
+                            专为你设计的评测系统
                         </span>
                     </div>
                 </v-flex>
@@ -44,9 +42,7 @@
                                         <div class="headline text-xs-center">Material Design</div>
                                     </v-card-title>
                                     <v-card-text>
-                                        Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                        Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
+                                        重新设计的 H::Judge，采用 Material Design 风格设计，界面美观却不失操作的便捷性。
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -56,12 +52,10 @@
                                         <v-icon x-large class="blue--text text--lighten-2">flash_on</v-icon>
                                     </v-card-text>
                                     <v-card-title primary-title class="layout justify-center">
-                                        <div class="headline">Fast development</div>
+                                        <div class="headline">Fast Judge</div>
                                     </v-card-title>
                                     <v-card-text>
-                                        Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                        Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
+                                        H::Judge 使用了高速的评测机和评测算法，可以让每一个提交都能在短时间内得到评测结果。
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -71,12 +65,10 @@
                                         <v-icon x-large class="blue--text text--lighten-2">build</v-icon>
                                     </v-card-text>
                                     <v-card-title primary-title class="layout justify-center">
-                                        <div class="headline text-xs-center">Completely Open Sourced</div>
+                                        <div class="headline text-xs-center">Study Assistant</div>
                                     </v-card-title>
                                     <v-card-text>
-                                        Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                        Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
+                                        H::Judge 中丰富的题目和比赛将助力你的程序设计学习/比赛生涯，快速提升你的编程水平。
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -89,13 +81,12 @@
         <section>
             <v-parallax src="assets/section.jpg" height="380">
                 <v-layout column align-center justify-center>
-                    <div class="headline white--text mb-3 text-xs-center">Web development has never been easier</div>
-                    <em>Kick-start your application today</em>
+                    <div class="headline white--text mb-3 text-xs-center">算法学习从未如此便捷</div>
                     <v-btn class="blue lighten-2 mt-5"
                            dark
                            large
-                           href="/pre-made-themes">
-                        Get Started
+                           @click="register">
+                        现在注册
                     </v-btn>
                 </v-layout>
             </v-parallax>
@@ -107,46 +98,28 @@
                     <v-flex xs12 sm4>
                         <v-card class="elevation-0 transparent">
                             <v-card-title primary-title class="layout justify-center">
-                                <div class="headline">Company info</div>
+                                <div class="headline">关于 H::Judge</div>
                             </v-card-title>
                             <v-card-text>
-                                Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
+                                H::Judge 前身为 hjudge，经重新设计后功能性和速度都大幅提升。
                             </v-card-text>
                         </v-card>
                     </v-flex>
                     <v-flex xs12 sm4 offset-sm1>
                         <v-card class="elevation-0 transparent">
                             <v-card-title primary-title class="layout justify-center">
-                                <div class="headline">Contact us</div>
+                                <div class="headline">联系方式</div>
                             </v-card-title>
                             <v-card-text>
-                                Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
+                                如在使用中遇到问题，请联系我们。
                             </v-card-text>
                             <v-list class="transparent">
-                                <v-list-tile>
-                                    <v-list-tile-action>
-                                        <v-icon class="blue--text text--lighten-2">phone</v-icon>
-                                    </v-list-tile-action>
-                                    <v-list-tile-content>
-                                        <v-list-tile-title>777-867-5309</v-list-tile-title>
-                                    </v-list-tile-content>
-                                </v-list-tile>
-                                <v-list-tile>
-                                    <v-list-tile-action>
-                                        <v-icon class="blue--text text--lighten-2">place</v-icon>
-                                    </v-list-tile-action>
-                                    <v-list-tile-content>
-                                        <v-list-tile-title>Chicago, US</v-list-tile-title>
-                                    </v-list-tile-content>
-                                </v-list-tile>
                                 <v-list-tile>
                                     <v-list-tile-action>
                                         <v-icon class="blue--text text--lighten-2">email</v-icon>
                                     </v-list-tile-action>
                                     <v-list-tile-content>
-                                        <v-list-tile-title>john@vuetifyjs.com</v-list-tile-title>
+                                        <v-list-tile-title>hez2010@126.com</v-list-tile-title>
                                     </v-list-tile-content>
                                 </v-list-tile>
                             </v-list>

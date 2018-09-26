@@ -73,7 +73,7 @@
                 <v-icon>apps</v-icon>
             </v-btn>
             <v-btn icon>
-                <v-icon>account_circle</v-icon>
+                <v-icon @click="test">account_circle</v-icon>
             </v-btn>
             <v-btn icon large>
                 <v-avatar size="32px" tile>

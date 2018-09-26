@@ -1,5 +1,5 @@
 ﻿export default {
-    data: () => ({
+    data: {
         drawer: null,
         items: [
             { icon: 'home', text: '主页', link: '/' },
@@ -22,5 +22,10 @@
             },
             { icon: 'help', text: '关于', link: '/About' }
         ]
-    })
-}
+    },
+    methods: {
+        test: function () {
+            this.$emit('register');
+        }
+    }
+};
