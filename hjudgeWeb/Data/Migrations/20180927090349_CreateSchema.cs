@@ -39,13 +39,7 @@ namespace hjudgeWeb.Data.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    Coins = table.Column<long>(nullable: false),
-                    Experience = table.Column<long>(nullable: false),
-                    Privilege = table.Column<int>(nullable: false),
-                    Avatar = table.Column<byte[]>(nullable: true),
-                    OtherInfo = table.Column<string>(nullable: true)
+                    AccessFailedCount = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,8 +59,9 @@ namespace hjudgeWeb.Data.Migrations
                     Password = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
-                    SpecifyCompetitors = table.Column<int>(nullable: false),
-                    Hidden = table.Column<bool>(nullable: false)
+                    SpecifyCompetitors = table.Column<bool>(nullable: false),
+                    Hidden = table.Column<bool>(nullable: false),
+                    AdditionalInfo = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -83,34 +78,12 @@ namespace hjudgeWeb.Data.Migrations
                     Name = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     CreationTime = table.Column<DateTime>(nullable: false),
-                    IsPrivate = table.Column<bool>(nullable: false)
+                    IsPrivate = table.Column<bool>(nullable: false),
+                    AdditionalInfo = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Group", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Judge",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(nullable: true),
-                    JudgeTime = table.Column<DateTime>(nullable: false),
-                    ProblemId = table.Column<int>(nullable: false),
-                    ContestId = table.Column<int>(nullable: true),
-                    Code = table.Column<string>(nullable: true),
-                    Result = table.Column<string>(nullable: true),
-                    Type = table.Column<int>(nullable: false),
-                    Description = table.Column<string>(nullable: true),
-                    ResultType = table.Column<int>(nullable: false),
-                    Language = table.Column<string>(nullable: true),
-                    Logs = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Judge", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -144,7 +117,12 @@ namespace hjudgeWeb.Data.Migrations
                     Type = table.Column<int>(nullable: false),
                     Description = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
-                    Hidden = table.Column<bool>(nullable: false)
+                    Hidden = table.Column<bool>(nullable: false),
+                    AcceptCount = table.Column<int>(nullable: true, defaultValueSql: "0")
+                        .Annotation("Sqlite:Autoincrement", true),
+                    SubmissionCount = table.Column<int>(nullable: true, defaultValueSql: "0")
+                        .Annotation("Sqlite:Autoincrement", true),
+                    AdditionalInfo = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -274,7 +252,33 @@ namespace hjudgeWeb.Data.Migrations
                         column: x => x.ContestId,
                         principalTable: "Contest",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GroupContestConfig",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    GroupId = table.Column<int>(nullable: true),
+                    ContestId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupContestConfig", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GroupContestConfig_Contest_ContestId",
+                        column: x => x.ContestId,
+                        principalTable: "Contest",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_GroupContestConfig_Group_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Group",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -284,7 +288,7 @@ namespace hjudgeWeb.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     UserId = table.Column<string>(nullable: true),
-                    GroupId = table.Column<int>(nullable: false),
+                    GroupId = table.Column<int>(nullable: true),
                     JoinTime = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
@@ -295,7 +299,7 @@ namespace hjudgeWeb.Data.Migrations
                         column: x => x.GroupId,
                         principalTable: "Group",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -305,7 +309,7 @@ namespace hjudgeWeb.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     OperationTime = table.Column<DateTime>(nullable: false),
-                    MessageId = table.Column<int>(nullable: false),
+                    MessageId = table.Column<int>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
                     Status = table.Column<int>(nullable: false)
                 },
@@ -317,7 +321,80 @@ namespace hjudgeWeb.Data.Migrations
                         column: x => x.MessageId,
                         principalTable: "Message",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContestProblemConfig",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ContestId = table.Column<int>(nullable: true),
+                    ProblemId = table.Column<int>(nullable: true),
+                    AcceptCount = table.Column<int>(nullable: true, defaultValueSql: "0")
+                        .Annotation("Sqlite:Autoincrement", true),
+                    SubmissionCount = table.Column<int>(nullable: true, defaultValueSql: "0")
+                        .Annotation("Sqlite:Autoincrement", true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContestProblemConfig", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ContestProblemConfig_Contest_ContestId",
+                        column: x => x.ContestId,
+                        principalTable: "Contest",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ContestProblemConfig_Problem_ProblemId",
+                        column: x => x.ProblemId,
+                        principalTable: "Problem",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Judge",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<string>(nullable: true),
+                    JudgeTime = table.Column<DateTime>(nullable: false),
+                    ProblemId = table.Column<int>(nullable: true),
+                    ContestId = table.Column<int>(nullable: true),
+                    GroupId = table.Column<int>(nullable: true),
+                    Code = table.Column<string>(nullable: true),
+                    Result = table.Column<string>(nullable: true),
+                    Type = table.Column<int>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    ResultType = table.Column<int>(nullable: false),
+                    Language = table.Column<string>(nullable: true),
+                    Logs = table.Column<string>(nullable: true),
+                    AdditionalInfo = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Judge", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Judge_Contest_ContestId",
+                        column: x => x.ContestId,
+                        principalTable: "Contest",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Judge_Group_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Group",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Judge_Problem_ProblemId",
+                        column: x => x.ProblemId,
+                        principalTable: "Problem",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -358,14 +435,49 @@ namespace hjudgeWeb.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ContestProblemConfig_ContestId",
+                table: "ContestProblemConfig",
+                column: "ContestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContestProblemConfig_ProblemId",
+                table: "ContestProblemConfig",
+                column: "ProblemId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ContestRegister_ContestId",
                 table: "ContestRegister",
                 column: "ContestId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GroupContestConfig_ContestId",
+                table: "GroupContestConfig",
+                column: "ContestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GroupContestConfig_GroupId",
+                table: "GroupContestConfig",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GroupJoin_GroupId",
                 table: "GroupJoin",
                 column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Judge_ContestId",
+                table: "Judge",
+                column: "ContestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Judge_GroupId",
+                table: "Judge",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Judge_ProblemId",
+                table: "Judge",
+                column: "ProblemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MessageStatus_MessageId",
@@ -391,7 +503,13 @@ namespace hjudgeWeb.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "ContestProblemConfig");
+
+            migrationBuilder.DropTable(
                 name: "ContestRegister");
+
+            migrationBuilder.DropTable(
+                name: "GroupContestConfig");
 
             migrationBuilder.DropTable(
                 name: "GroupJoin");
@@ -401,9 +519,6 @@ namespace hjudgeWeb.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "MessageStatus");
-
-            migrationBuilder.DropTable(
-                name: "Problem");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -416,6 +531,9 @@ namespace hjudgeWeb.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Group");
+
+            migrationBuilder.DropTable(
+                name: "Problem");
 
             migrationBuilder.DropTable(
                 name: "Message");

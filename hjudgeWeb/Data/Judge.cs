@@ -1,14 +1,15 @@
-using System;
+﻿using System;
 
 namespace hjudgeWeb.Data
 {
-    public class Judge
+    public partial class Judge
     {
         public int Id { get; set; }
         public string UserId { get; set; }
         public DateTime JudgeTime { get; set; }
-        public int ProblemId { get; set; }
+        public int? ProblemId { get; set; }
         public int? ContestId { get; set; }
+        public int? GroupId { get; set; }
         public string Code { get; set; }
         public string Result { get; set; }
         public int Type { get; set; }
@@ -16,5 +17,10 @@ namespace hjudgeWeb.Data
         public int ResultType { get; set; }
         public string Language { get; set; }
         public string Logs { get; set; }
+        public string AdditionalInfo { get; set; }
+
+        public Contest Contest { get; set; }
+        public Group Group { get; set; }
+        public Problem Problem { get; set; }
     }
 }

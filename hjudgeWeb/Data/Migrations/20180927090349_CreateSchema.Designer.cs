@@ -9,7 +9,7 @@ using hjudgeWeb.Data;
 namespace hjudgeWeb.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180918050009_CreateSchema")]
+    [Migration("20180927090349_CreateSchema")]
     partial class CreateSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,8 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("AdditionalInfo");
+
                     b.Property<string>("Config");
 
                     b.Property<string>("Description");
@@ -35,7 +37,7 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("Password");
 
-                    b.Property<int>("SpecifyCompetitors");
+                    b.Property<bool>("SpecifyCompetitors");
 
                     b.Property<DateTime>("StartTime");
 
@@ -44,6 +46,32 @@ namespace hjudgeWeb.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Contest");
+                });
+
+            modelBuilder.Entity("hjudgeWeb.Data.ContestProblemConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("AcceptCount")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("0");
+
+                    b.Property<int?>("ContestId");
+
+                    b.Property<int?>("ProblemId");
+
+                    b.Property<int?>("SubmissionCount")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContestId");
+
+                    b.HasIndex("ProblemId");
+
+                    b.ToTable("ContestProblemConfig");
                 });
 
             modelBuilder.Entity("hjudgeWeb.Data.ContestRegister", b =>
@@ -67,6 +95,8 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("AdditionalInfo");
+
                     b.Property<DateTime>("CreationTime");
 
                     b.Property<string>("Description");
@@ -82,12 +112,30 @@ namespace hjudgeWeb.Data.Migrations
                     b.ToTable("Group");
                 });
 
+            modelBuilder.Entity("hjudgeWeb.Data.GroupContestConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("ContestId");
+
+                    b.Property<int?>("GroupId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContestId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupContestConfig");
+                });
+
             modelBuilder.Entity("hjudgeWeb.Data.GroupJoin", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("GroupId");
+                    b.Property<int?>("GroupId");
 
                     b.Property<DateTime>("JoinTime");
 
@@ -100,72 +148,12 @@ namespace hjudgeWeb.Data.Migrations
                     b.ToTable("GroupJoin");
                 });
 
-            modelBuilder.Entity("hjudgeWeb.Data.Identity.UserInfo", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AccessFailedCount");
-
-                    b.Property<byte[]>("Avatar");
-
-                    b.Property<long>("Coins");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256);
-
-                    b.Property<bool>("EmailConfirmed");
-
-                    b.Property<long>("Experience");
-
-                    b.Property<bool>("LockoutEnabled");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("OtherInfo");
-
-                    b.Property<string>("PasswordHash");
-
-                    b.Property<string>("PhoneNumber");
-
-                    b.Property<bool>("PhoneNumberConfirmed");
-
-                    b.Property<int>("Privilege");
-
-                    b.Property<string>("SecurityStamp");
-
-                    b.Property<bool>("TwoFactorEnabled");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasName("UserNameIndex");
-
-                    b.ToTable("AspNetUsers");
-                });
-
             modelBuilder.Entity("hjudgeWeb.Data.Judge", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("AdditionalInfo");
 
                     b.Property<string>("Code");
 
@@ -173,13 +161,15 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("Description");
 
+                    b.Property<int?>("GroupId");
+
                     b.Property<DateTime>("JudgeTime");
 
                     b.Property<string>("Language");
 
                     b.Property<string>("Logs");
 
-                    b.Property<int>("ProblemId");
+                    b.Property<int?>("ProblemId");
 
                     b.Property<string>("Result");
 
@@ -190,6 +180,12 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<string>("UserId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContestId");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("ProblemId");
 
                     b.ToTable("Judge");
                 });
@@ -221,7 +217,7 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("MessageId");
+                    b.Property<int?>("MessageId");
 
                     b.Property<DateTime>("OperationTime");
 
@@ -241,6 +237,12 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int?>("AcceptCount")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("0");
+
+                    b.Property<string>("AdditionalInfo");
+
                     b.Property<string>("Config");
 
                     b.Property<DateTime>("CreationTime");
@@ -252,6 +254,10 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<int>("Level");
 
                     b.Property<string>("Name");
+
+                    b.Property<int?>("SubmissionCount")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("0");
 
                     b.Property<int>("Type");
 
@@ -302,6 +308,56 @@ namespace hjudgeWeb.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AccessFailedCount");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256);
+
+                    b.Property<bool>("EmailConfirmed");
+
+                    b.Property<bool>("LockoutEnabled");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("PasswordHash");
+
+                    b.Property<string>("PhoneNumber");
+
+                    b.Property<bool>("PhoneNumberConfirmed");
+
+                    b.Property<string>("SecurityStamp");
+
+                    b.Property<bool>("TwoFactorEnabled");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -373,28 +429,62 @@ namespace hjudgeWeb.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("hjudgeWeb.Data.ContestProblemConfig", b =>
+                {
+                    b.HasOne("hjudgeWeb.Data.Contest", "Contest")
+                        .WithMany("ContestProblemConfig")
+                        .HasForeignKey("ContestId");
+
+                    b.HasOne("hjudgeWeb.Data.Problem", "Problem")
+                        .WithMany("ContestProblemConfig")
+                        .HasForeignKey("ProblemId");
+                });
+
             modelBuilder.Entity("hjudgeWeb.Data.ContestRegister", b =>
                 {
                     b.HasOne("hjudgeWeb.Data.Contest", "Contest")
                         .WithMany("ContestRegister")
-                        .HasForeignKey("ContestId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ContestId");
+                });
+
+            modelBuilder.Entity("hjudgeWeb.Data.GroupContestConfig", b =>
+                {
+                    b.HasOne("hjudgeWeb.Data.Contest", "Contest")
+                        .WithMany("GroupContestConfig")
+                        .HasForeignKey("ContestId");
+
+                    b.HasOne("hjudgeWeb.Data.Group", "Group")
+                        .WithMany("GroupContestConfig")
+                        .HasForeignKey("GroupId");
                 });
 
             modelBuilder.Entity("hjudgeWeb.Data.GroupJoin", b =>
                 {
                     b.HasOne("hjudgeWeb.Data.Group", "Group")
                         .WithMany("GroupJoin")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("GroupId");
+                });
+
+            modelBuilder.Entity("hjudgeWeb.Data.Judge", b =>
+                {
+                    b.HasOne("hjudgeWeb.Data.Contest", "Contest")
+                        .WithMany("Judge")
+                        .HasForeignKey("ContestId");
+
+                    b.HasOne("hjudgeWeb.Data.Group", "Group")
+                        .WithMany("Judge")
+                        .HasForeignKey("GroupId");
+
+                    b.HasOne("hjudgeWeb.Data.Problem", "Problem")
+                        .WithMany("Judge")
+                        .HasForeignKey("ProblemId");
                 });
 
             modelBuilder.Entity("hjudgeWeb.Data.MessageStatus", b =>
                 {
                     b.HasOne("hjudgeWeb.Data.Message", "Message")
                         .WithMany("MessageStatus")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("MessageId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -407,7 +497,7 @@ namespace hjudgeWeb.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("hjudgeWeb.Data.Identity.UserInfo")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -415,7 +505,7 @@ namespace hjudgeWeb.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("hjudgeWeb.Data.Identity.UserInfo")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -428,7 +518,7 @@ namespace hjudgeWeb.Data.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("hjudgeWeb.Data.Identity.UserInfo")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -436,7 +526,7 @@ namespace hjudgeWeb.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("hjudgeWeb.Data.Identity.UserInfo")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
