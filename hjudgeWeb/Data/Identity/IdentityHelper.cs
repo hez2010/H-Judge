@@ -14,7 +14,7 @@ namespace hjudgeWeb.Data.Identity
 
         public static List<OtherInfoList> GetOtherUserInfo(string rawInfo)
         {
-            var otherInfo = JsonConvert.DeserializeObject<OtherUserInfo>(rawInfo);
+            var otherInfo = JsonConvert.DeserializeObject<OtherUserInfo>(rawInfo ?? string.Empty);
             var properties = typeof(OtherInfoList).GetProperties();
             var otherInfoList = new List<OtherInfoList>();
             foreach (var property in properties)

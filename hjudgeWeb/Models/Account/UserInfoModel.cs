@@ -14,6 +14,7 @@ namespace hjudgeWeb.Models.Account
         public string Name { get; set; }
         public long Coins { get; set; }
         public long Experience { get; set; }
+        public int Privilege { get; set; }
         public List<OtherInfoList> OtherInfo { get; set; }
         public bool IsSignedIn { get; set; }
     }

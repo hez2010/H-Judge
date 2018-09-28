@@ -92,7 +92,7 @@
                     </v-card-title>
                     <v-card-actions>
                         <v-btn color="primary" to='/Account'>门户</v-btn>
-                        <v-btn color="primary">退出</v-btn>
+                        <v-btn color="primary" @click="logout">退出</v-btn>
                     </v-card-actions>
                 </v-card>
                 <v-card light v-else>

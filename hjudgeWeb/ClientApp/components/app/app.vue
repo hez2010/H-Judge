@@ -2,7 +2,7 @@
     <v-app light>
         <navmenu v-on:register="test" :user="userInfo"></navmenu>
         <v-content>
-            <router-view v-on:register="test" :user="userInfo" keep-alive></router-view>
+            <router-view :user="userInfo" keep-alive></router-view>
         </v-content>
         <v-footer class="pa-3 blue darken-2">
             <v-spacer></v-spacer>

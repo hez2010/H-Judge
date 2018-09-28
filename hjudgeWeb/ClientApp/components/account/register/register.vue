@@ -29,7 +29,7 @@
                               type="password"
                               required>
                 </v-text-field>
-                <v-btn :disabled="!valid"
+                <v-btn :disabled="!valid || submitting"
                        @click="register"
                        color="primary">
                     注册

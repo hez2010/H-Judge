@@ -64,6 +64,7 @@ namespace hjudgeWeb.Controllers
             userInfo.UserName = user.UserName;
             userInfo.OtherInfo = IdentityHelper.GetOtherUserInfo(user.OtherInfo);
             userInfo.Name = user.Name;
+            userInfo.Privilege = user.Privilege;
             return userInfo;
         }
 
@@ -125,6 +126,12 @@ namespace hjudgeWeb.Controllers
                 await _signInManager.SignInAsync(user, false);
             }
             return ret;
+        }
+
+        [HttpPost]
+        public async Task Logout()
+        {
+            await _signInManager.SignOutAsync();
         }
     }
 }

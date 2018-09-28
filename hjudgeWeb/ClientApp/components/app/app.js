@@ -3,7 +3,7 @@ import { Get } from '../../utilities/requestHelper';
 
 export default {
     data: () => ({
-        userInfo: null
+        userInfo: {}
     }),
     components: {
         navmenu: navmenu
@@ -15,8 +15,6 @@ export default {
             .catch(() => alert('网络错误'));
     },
     methods: {
-        test: function () {
-            alert('hhss');
-        }
+
     }
 };

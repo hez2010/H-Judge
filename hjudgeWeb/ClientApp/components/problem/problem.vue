@@ -1,7 +1,7 @@
 ﻿<template>
     <v-container fluid fill-height>
         <v-layout justify-center align-center>
-            <p>正在使劲加载中……</p>
+            <p>正在加载...</p>
         </v-layout>
     </v-container>
 </template>

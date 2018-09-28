@@ -3,6 +3,7 @@
 export default {
     data: () => ({
         valid: false,
+        submitting: false,
         username: '',
         usernameRules: [
             v => !!v || '请输入用户名',
@@ -16,6 +17,7 @@ export default {
     methods: {
         login: function () {
             if (this.$refs.form.validate()) {
+                this.submitting = true;
                 Post('/Account/Login', { username: this.username, password: this.password })
                     .then(res => res.json())
                     .then(data => {
@@ -24,9 +26,13 @@ export default {
                         }
                         else {
                             alert(data.errorMessage);
+                            this.submitting = false;
                         }
                     })
-                    .catch(() => alert('登录失败'));
+                    .catch(() => {
+                        alert('登录失败');
+                        this.submitting = false;
+                    });
             }
         }
     }

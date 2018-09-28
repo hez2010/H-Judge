@@ -21,7 +21,7 @@
                     <div class="text-xs-center">
                         <h2 class="headline">H::Judge</h2>
                         <span class="subheading">
-                            专为你设计的评测系统
+                            为你量身定做的评测系统
                         </span>
                     </div>
                 </v-flex>
@@ -76,12 +76,10 @@
         <section>
             <v-parallax src="assets/section.jpg" height="380">
                 <v-layout column align-center justify-center>
-                    <div class="headline white--text mb-3 text-xs-center">还等什么呢？现在就加入 H::Judge！</div>
-                    <v-btn class="blue lighten-2 mt-5"
-                           dark
-                           large
-                           @click="register">
-                        立即加入
+                    <div class="headline white--text mb-3 text-xs-center">H::Judge 每天都在进步</div>
+                    <p>更新日志中记录了 H::Judge 的每一次更新内容，每一次的更新都是为了带来更好的体验</p>
+                    <v-btn class="blue lighten-2 mt-5" dark large to="/About">
+                        了解详情
                     </v-btn>
                 </v-layout>
             </v-parallax>
