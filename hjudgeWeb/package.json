@@ -6,7 +6,7 @@
     "@babel/core": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "aspnet-webpack": "^3.0.0",
-    "babel-loader": "^8.0.2",
+    "babel-loader": "^8.0.4",
     "babel-polyfill": "^6.26.0",
     "css-loader": "^1.0.0",
     "event-source-polyfill": "^0.0.16",
@@ -22,11 +22,11 @@
     "vue-loader": "^15.4.2",
     "vue-router": "^3.0.1",
     "vue-template-compiler": "^2.5.17",
-    "vuetify": "^1.2.4",
-    "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.0",
-    "webpack-dev-middleware": "^3.3.0",
-    "webpack-hot-middleware": "^2.24.0"
+    "vuetify": "^1.2.5",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-middleware": "^3.4.0",
+    "webpack-hot-middleware": "^2.24.2"
   },
   "dependencies": {},
   "scripts": {

@@ -39,7 +39,13 @@ namespace hjudgeWeb.Data.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Coins = table.Column<long>(nullable: false),
+                    Experience = table.Column<long>(nullable: false),
+                    Privilege = table.Column<int>(nullable: false),
+                    Avatar = table.Column<byte[]>(nullable: true),
+                    OtherInfo = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

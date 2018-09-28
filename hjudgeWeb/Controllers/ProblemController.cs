@@ -40,25 +40,20 @@ namespace hjudgeWeb.Controllers
         {
             return privilege >= 1 && privilege <= 3;
         }
-
-        public class Quantity
-        {
-            public int Start { get; set; }
-            public int Count { get; set; }
-        }
+        
         /// <summary>
         /// 获取题目列表
         /// </summary>
         /// <param name="quantity">数量信息</param>
         /// <returns>题目列表</returns>
-        [HttpPost]
-        public async Task<List<ProblemListItemModel>> GetProblemList([FromBody]Quantity quantity)
+        [HttpGet]
+        public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 20)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var problems = HasAdminPrivilege(privilege) ? db.Problem : db.Problem.Where(i => !i.Hidden);
-                var list = problems.Skip(quantity.Start).Take(quantity.Count).Select(i => new ProblemListItemModel
+                var list = problems.Skip(start).Take(count).Select(i => new ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,

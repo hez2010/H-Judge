@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using hjudgeWeb.Data.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace hjudgeWeb.Data
 {
-    public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public partial class ApplicationDbContext : IdentityDbContext<UserInfo>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

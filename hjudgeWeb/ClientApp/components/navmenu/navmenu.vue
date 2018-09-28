@@ -27,7 +27,10 @@
                         <v-list-tile slot="activator">
                             <v-list-tile-content>
                                 <v-list-tile-title>
-                                    <a v-link="{ path: '{{item.text}}'}">
+                                    <router-link :to="{ path: '{{item.link}}'}" v-if="item.link">
+                                        {{ item.text }}
+                                    </router-link>
+                                    <a v-else>
                                         {{ item.text }}
                                     </a>
                                 </v-list-tile-title>
@@ -60,7 +63,7 @@
             </v-list>
         </v-navigation-drawer>
         <v-toolbar :clipped-left="$vuetify.breakpoint.lgAndUp"
-                   color="blue darken-3"
+                   color="primary"
                    dark
                    app
                    fixed>
@@ -69,12 +72,47 @@
                 <span class="hidden-sm-and-down">H::Judge</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon>
-                <v-icon title="更多功能">apps</v-icon>
-            </v-btn>
-            <v-btn icon>
-                <v-icon @click="test" title="个人账户">account_circle</v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+                <v-btn slot="activator" icon>
+                    <v-icon>apps</v-icon>
+                </v-btn>
+                <span>更多功能</span>
+            </v-tooltip>
+
+            <v-menu offset-y>
+                <v-tooltip slot="activator" bottom>
+                    <v-btn slot="activator" icon>
+                        <v-icon>account_circle</v-icon>
+                    </v-btn>
+                    <span>个人账户</span>
+                </v-tooltip>
+                <v-card light v-if="user.isSignedIn">
+                    <v-card-title primary-title>
+                        <h4>欢迎你，{{user.userName}}！</h4>
+                    </v-card-title>
+                    <v-card-actions>
+                        <v-btn color="primary" to='/Account'>门户</v-btn>
+                        <v-btn color="primary">退出</v-btn>
+                    </v-card-actions>
+                </v-card>
+                <v-card light v-else>
+                    <v-card-title primary-title>
+                        <h4>欢迎来到 H::Judge！</h4>
+                    </v-card-title>
+                    <v-card-actions>
+                        <div>
+                            <v-dialog v-model="loginDialog" width="500">
+                                <v-btn slot="activator" color="primary">登录</v-btn>
+                                <login></login>
+                            </v-dialog>
+                            <v-dialog v-model="registerDialog" width="500">
+                                <v-btn slot="activator" color="primary">注册</v-btn>
+                                <register></register>
+                            </v-dialog>
+                        </div>
+                    </v-card-actions>
+                </v-card>
+            </v-menu>
         </v-toolbar>
     </div>
 </template>

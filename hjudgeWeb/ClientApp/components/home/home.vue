@@ -1,17 +1,12 @@
 ﻿<template>
-    <v-content>
+    <div>
         <section>
             <v-parallax src="assets/hero.jpeg" height="600">
-                <v-layout column
-                          align-center
-                          justify-center
-                          class="white--text">
+                <v-layout column align-center justify-center class="white--text">
                     <img src="assets/hjudge.png" alt="H::Judge" height="200">
 
-                    <v-btn class="blue lighten-2 mt-5"
-                           dark
-                           large>
-                        <router-link style="text-decoration: none; color: white" to="/Problem">进入题库</router-link>
+                    <v-btn class="blue lighten-2 mt-5" dark large to="/Problem">
+                        进入题库
                     </v-btn>
                 </v-layout>
             </v-parallax>
@@ -128,8 +123,7 @@
                 </v-layout>
             </v-container>
         </section>
-    </v-content>
-
+    </div>
 </template>
 
 <script src="./home.js"></script>

@@ -2,7 +2,7 @@
 
 namespace hjudgeWeb.Models.Problem
 {
-    public class ProblemDetailsModel
+    public class ProblemDetailsModel : ResultModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -15,7 +15,5 @@ namespace hjudgeWeb.Models.Problem
         public string UserName { get; set; }
         public int Type { get; set; }
         public bool Hidden { get; set; }
-        public bool IsSucceeded { get; set; }
-        public string ErrorMessage { get; set; }
     }
 }

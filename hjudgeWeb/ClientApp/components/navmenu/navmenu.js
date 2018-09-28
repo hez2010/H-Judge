@@ -1,6 +1,11 @@
-﻿export default {
+﻿import login from '../account/login/login.vue';
+import register from '../account/register/register.vue';
+
+export default {
+    props: ['user'],
     data: () => ({
         drawer: null,
+        loginDialog: false,
         items: [
             { icon: 'home', text: '主页', link: '/' },
             { icon: 'code', text: '题目', link: '/Problem' },
@@ -27,5 +32,9 @@
         test: function () {
             this.$emit('register');
         }
+    },
+    components: {
+        login: login,
+        register: register
     }
 };
