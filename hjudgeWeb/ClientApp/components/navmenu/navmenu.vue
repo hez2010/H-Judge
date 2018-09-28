@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div>
         <v-navigation-drawer :clipped="$vuetify.breakpoint.lgAndUp"
                              v-model="drawer"
@@ -70,16 +70,10 @@
             </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon>
-                <v-icon>apps</v-icon>
+                <v-icon title="更多功能">apps</v-icon>
             </v-btn>
             <v-btn icon>
-                <v-icon @click="test">account_circle</v-icon>
-            </v-btn>
-            <v-btn icon large>
-                <v-avatar size="32px" tile>
-                    <img src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
-                         alt="Vuetify">
-                </v-avatar>
+                <v-icon @click="test" title="个人账户">account_circle</v-icon>
             </v-btn>
         </v-toolbar>
     </div>

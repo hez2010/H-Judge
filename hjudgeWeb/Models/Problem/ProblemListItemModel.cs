@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace hjudgeWeb.Models
+namespace hjudgeWeb.Models.Problem
 {
-    public class ProblemListViewModel
+    public class ProblemListItemModel
     {
         public int Id { get; set; }
         public string Name { get; set; }

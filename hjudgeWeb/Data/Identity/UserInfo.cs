@@ -1,7 +1,33 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace hjudgeWeb.Data.Identity
 {
+    public class OtherUserInfo
+    {
+        [ItemName("学院")]
+        public string Institute { get; set; }
+
+        [ItemName("专业")]
+        public string Major { get; set; }
+
+        [ItemName("年级")]
+        public int Grade { get; set; }
+
+        [ItemName("个性签名")]
+        public string Signature { get; set; }
+    }
+
+    public class ItemNameAttribute : Attribute
+    {
+        public ItemNameAttribute(string v)
+        {
+            ItemName = v;
+        }
+
+        public string ItemName { get; }
+    }
+
     public class UserInfo : IdentityUser
     {
         [PersonalData]

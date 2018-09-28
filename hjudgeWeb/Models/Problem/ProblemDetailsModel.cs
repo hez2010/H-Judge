@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace hjudgeWeb.Models
+namespace hjudgeWeb.Models.Problem
 {
-    public class ProblemViewModel
+    public class ProblemDetailsModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -18,5 +15,7 @@ namespace hjudgeWeb.Models
         public string UserName { get; set; }
         public int Type { get; set; }
         public bool Hidden { get; set; }
+        public bool IsSucceeded { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

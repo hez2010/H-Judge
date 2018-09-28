@@ -81,12 +81,12 @@
         <section>
             <v-parallax src="assets/section.jpg" height="380">
                 <v-layout column align-center justify-center>
-                    <div class="headline white--text mb-3 text-xs-center">算法学习从未如此便捷</div>
+                    <div class="headline white--text mb-3 text-xs-center">还等什么呢？现在就加入 H::Judge！</div>
                     <v-btn class="blue lighten-2 mt-5"
                            dark
                            large
                            @click="register">
-                        现在注册
+                        立即加入
                     </v-btn>
                 </v-layout>
             </v-parallax>
@@ -101,7 +101,7 @@
                                 <div class="headline">关于 H::Judge</div>
                             </v-card-title>
                             <v-card-text>
-                                H::Judge 前身为 hjudge，经重新设计后功能性和速度都大幅提升。
+                                H::Judge 的前身为 hjudge，经重新设计后稳定性、功能性和速度都有了大幅提升。欢迎体验！
                             </v-card-text>
                         </v-card>
                     </v-flex>
@@ -111,7 +111,7 @@
                                 <div class="headline">联系方式</div>
                             </v-card-title>
                             <v-card-text>
-                                如在使用中遇到问题，请联系我们。
+                                如在使用中遇到任何问题，请联系。
                             </v-card-text>
                             <v-list class="transparent">
                                 <v-list-tile>

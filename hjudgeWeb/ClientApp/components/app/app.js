@@ -2,16 +2,16 @@
 import { Get } from '../../utilities/requestHelper';
 
 export default {
-    data: {
+    data: () => ({
         userInfo: null
-    },
+    }),
     components: {
         navmenu: navmenu
     },
     mounted() {
         Get('/Account/GetUserInfo')
             .then(res => res.json())
-            .then(data => this.data.userInfo = data)
+            .then(data => this.userInfo = data)
             .catch(() => alert('网络错误'));
     },
     methods: {
