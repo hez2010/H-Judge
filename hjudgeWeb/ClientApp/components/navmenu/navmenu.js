@@ -35,7 +35,7 @@ export default {
                     }]);
                 }
                 else {
-                    if (this.items[6] !== null) {
+                    if (this.items.length === 7) {
                         this.items = this.items.splice(6, 1);
                     }
                 }

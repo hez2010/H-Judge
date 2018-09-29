@@ -168,7 +168,7 @@ namespace hjudgeCore
                     argsBuilder.Append($" \"{stdOutputFile}\"");
                 }
 
-                var judge = new Process
+                using (var judge = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -180,38 +180,36 @@ namespace hjudgeCore
                         UseShellExecute = false,
                         StandardOutputEncoding = Encoding.UTF8
                     }
-                };
-
-                if (!judge.Start())
+                })
                 {
-                    return (ResultCode.Unknown_Error, 0, null);
-                }
 
-                var (stderr, stdout) = (judge.StandardError, judge.StandardOutput);
-                var error = await stderr.ReadToEndAsync();
-                var output = await stdout.ReadToEndAsync();
+                    if (!judge.Start())
+                    {
+                        return (ResultCode.Unknown_Error, 0, null);
+                    }
 
-                judge.WaitForExit();
+                    var (error, output) = (await judge.StandardError.ReadToEndAsync(), await judge.StandardOutput.ReadToEndAsync());
 
-                if (judge.ExitCode != 0)
-                {
-                    return (ResultCode.Special_Judge_Error, 0, null);
-                }
+                    judge.WaitForExit();
 
-                judge.Dispose();
-
-                try
-                {
-                    var percentage = Convert.ToSingle(output.Trim());
-                    return (
-                        Math.Abs(percentage - 1f) < 0.001 ?
-                            ResultCode.Accepted : ResultCode.Wrong_Answer,
-                        percentage,
-                        error);
-                }
-                catch
-                {
-                    return (ResultCode.Special_Judge_Error, 0, null);
+                    if (judge.ExitCode != 0)
+                    {
+                        return (ResultCode.Special_Judge_Error, 0, null);
+                    }
+                    
+                    try
+                    {
+                        var percentage = Convert.ToSingle(output.Trim());
+                        return (
+                            Math.Abs(percentage - 1f) < 0.001 ?
+                                ResultCode.Accepted : ResultCode.Wrong_Answer,
+                            percentage,
+                            error);
+                    }
+                    catch
+                    {
+                        return (ResultCode.Special_Judge_Error, 0, null);
+                    }
                 }
             }
 
@@ -327,7 +325,7 @@ namespace hjudgeCore
 
         private async Task<string> StaticCheck(StaticCheckOption checker)
         {
-            var sta = new Process
+            using (var sta = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -340,13 +338,30 @@ namespace hjudgeCore
                     UseShellExecute = false,
                     WorkingDirectory = _workingdir
                 }
-            };
-            try
+            })
             {
-                sta.Start();
-                var (stderr, stdout) = (sta.StandardError.ReadToEndAsync(), sta.StandardOutput.ReadToEndAsync());
-                if (!sta.WaitForExit(30 * 1000))
+                try
                 {
+                    sta.Start();
+                    var (stderr, stdout) = (sta.StandardError.ReadToEndAsync(), sta.StandardOutput.ReadToEndAsync());
+                    if (!sta.WaitForExit(30 * 1000))
+                    {
+                        try
+                        {
+                            sta.Kill();
+                        }
+                        catch
+                        {
+                            /* ignored */
+                        }
+
+                        return null;
+                    }
+
+                    var log = MatchProblem(await stdout + "\n" + await stderr, checker.ProblemMatcher)
+                        .Replace(_workingdir, "...")
+                        .Replace(_workingdir.Replace("/", "\\"), "...");
+
                     try
                     {
                         sta.Kill();
@@ -356,38 +371,19 @@ namespace hjudgeCore
                         /* ignored */
                     }
 
-                    return null;
-                }
-
-                var log = MatchProblem(await stdout + "\n" + await stderr, checker.ProblemMatcher)
-                    .Replace(_workingdir, "...")
-                    .Replace(_workingdir.Replace("/", "\\"), "...");
-
-                try
-                {
-                    sta.Kill();
+                    return sta.ExitCode == 0 ? log : null;
                 }
                 catch
                 {
-                    /* ignored */
+                    return null;
                 }
-
-                return sta.ExitCode == 0 ? log : null;
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                sta.Dispose();
             }
         }
 
         private async Task<(bool IsSucceeded, string Logs)> Compile(CompilerOption compiler, List<string> extra)
         {
             extra?.ForEach(i => File.Copy(i, $"{_workingdir}/{Path.GetFileName(i)}", true));
-            var comp = new Process
+            using (var comp = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -400,13 +396,29 @@ namespace hjudgeCore
                     UseShellExecute = false,
                     WorkingDirectory = _workingdir
                 }
-            };
-            try
+            })
             {
-                comp.Start();
-                var (stderr, stdout) = (comp.StandardError.ReadToEndAsync(), comp.StandardOutput.ReadToEndAsync());
-                if (!comp.WaitForExit(30 * 1000))
+                try
                 {
+                    comp.Start();
+                    var (stderr, stdout) = (comp.StandardError.ReadToEndAsync(), comp.StandardOutput.ReadToEndAsync());
+                    if (!comp.WaitForExit(30 * 1000))
+                    {
+                        try
+                        {
+                            comp.Kill();
+                        }
+                        catch
+                        {
+                            /* ignored */
+                        }
+
+                        return (false, null);
+                    }
+
+                    var log = MatchProblem(await stdout + "\n" + await stderr, compiler.ProblemMatcher)
+                        .Replace(_workingdir, "...")
+                        .Replace(_workingdir.Replace("/", "\\"), "...");
                     try
                     {
                         comp.Kill();
@@ -416,35 +428,17 @@ namespace hjudgeCore
                         /* ignored */
                     }
 
-                    return (false, null);
-                }
+                    if (comp.ExitCode != 0 || !File.Exists(compiler.OutputFile))
+                    {
+                        return (false, log);
+                    }
 
-                var log = MatchProblem(await stdout + "\n" + await stderr, compiler.ProblemMatcher)
-                    .Replace(_workingdir, "...")
-                    .Replace(_workingdir.Replace("/", "\\"), "...");
-                try
-                {
-                    comp.Kill();
+                    return (true, log);
                 }
                 catch
                 {
-                    /* ignored */
+                    return (false, null);
                 }
-
-                if (comp.ExitCode != 0 || !File.Exists(compiler.OutputFile))
-                {
-                    return (false, log);
-                }
-
-                return (true, log);
-            }
-            catch
-            {
-                return (false, null);
-            }
-            finally
-            {
-                comp.Dispose();
             }
         }
 

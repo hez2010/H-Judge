@@ -1,8 +1,7 @@
-﻿export default {
-    methods: {
-        register: function () {
-            this.$emit('register');
-        }
-    }
+﻿import { setTitle } from '../../utilities/titleHelper';
 
+export default {
+    mounted: function () {
+        setTitle('主页');
+    }
 };

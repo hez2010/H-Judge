@@ -1,8 +1,34 @@
 ﻿<template>
-    <v-container fluid fill-height>
-        <v-layout justify-center align-center>
-            <p>正在加载...</p>
-        </v-layout>
+    <v-container>
+        <v-card>
+            <v-card-title primary-title>
+                <h2>题目列表</h2>
+            </v-card-title>
+            <v-card-text>
+                <p v-if="loading">正在加载...</p>
+                <v-data-table :headers="headers"
+                              :items="problems"
+                              hide-actions
+                              class="elevation-1"
+                              v-else>
+                    <template slot="items" slot-scope="props">
+                        <td>{{ props.item.id }}</td>
+                        <td>{{ props.item.name }}</td>
+                        <td>{{ props.item.creationTime }}</td>
+                        <td>{{ props.item.type }}</td>
+                        <td>{{ props.item.level }}</td>
+                        <td>{{ props.item.status }}</td>
+                        <td>{{ props.item.acceptCount }}</td>
+                        <td>{{ props.item.submissionCount }}</td>
+                    </template>
+                </v-data-table>
+            </v-card-text>
+            <v-card-action>
+                <div class="text-xs-center">
+                    <v-pagination circle v-model="page" :length="pageCount" :total-visible="7"></v-pagination>
+                </div>
+            </v-card-action>
+        </v-card>
     </v-container>
 </template>
 

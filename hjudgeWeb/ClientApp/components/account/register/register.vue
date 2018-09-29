@@ -1,13 +1,13 @@
 ﻿<template>
     <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>
-            <h3>注册 H::Judge</h3>
+        <v-card-title primary-title>
+            <h2>注册 H::Judge</h2>
         </v-card-title>
         <v-card-text>
             <v-form ref="form" v-model="valid" lazy-validation>
                 <v-text-field v-model="username"
                               :rules="usernameRules"
-                              :counter="10"
+                              :counter="15"
                               label="用户名"
                               required>
                 </v-text-field>

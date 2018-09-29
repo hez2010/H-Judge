@@ -1,7 +1,7 @@
 ﻿<template>
     <v-card>
-        <v-card-title class="headline grey lighten-2" primary-title>
-            <h3>登录 H::Judge</h3>
+        <v-card-title primary-title>
+            <h2>登录 H::Judge</h2>
         </v-card-title>
         <v-card-text>
             <v-form ref="form" v-model="valid" lazy-validation>
@@ -22,6 +22,7 @@
                        color="primary">
                     登录
                 </v-btn>
+                <a>忘记密码</a>
             </v-form>
         </v-card-text>
     </v-card>

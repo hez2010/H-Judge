@@ -40,14 +40,25 @@ namespace hjudgeWeb.Controllers
         {
             return privilege >= 1 && privilege <= 3;
         }
-        
+
+        [HttpGet]
+        public async Task<int> GetProblemCount()
+        {
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var problems = HasAdminPrivilege(privilege) ? db.Problem : db.Problem.Where(i => !i.Hidden);
+                return await problems.CountAsync();
+            }
+        }
+
         /// <summary>
         /// 获取题目列表
         /// </summary>
         /// <param name="quantity">数量信息</param>
         /// <returns>题目列表</returns>
         [HttpGet]
-        public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 20)
+        public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 10)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             using (var db = new ApplicationDbContext(_dbContextOptions))
@@ -58,21 +69,23 @@ namespace hjudgeWeb.Controllers
                     Id = i.Id,
                     Name = i.Name,
                     AcceptCount = i.AcceptCount ?? 0,
+                    RawType = i.Type,
                     SubmissionCount = i.SubmissionCount ?? 0,
-                    CreationTime = i.CreationTime,
-                    Level = i.Level
+                    RawCreationTime = i.CreationTime,
+                    RawLevel = i.Level
                 }).ToList();
 
                 foreach (var i in list)
                 {
                     var submissions = db.Judge.Where(j => j.GroupId == null && j.ContestId == null);
+                    i.RawStatus = 0;
                     if (submissions.Any())
                     {
-                        i.Status = 1;
+                        i.RawStatus = 1;
                     }
                     if (submissions.Any(j => j.ResultType == (int)ResultCode.Accepted))
                     {
-                        i.Status = 2;
+                        i.RawStatus = 2;
                     }
                 }
                 return list;
@@ -102,21 +115,35 @@ namespace hjudgeWeb.Controllers
                     }
                 }
                 var author = await _userManager.FindByIdAsync(problem.UserId);
-                return new ProblemDetailsModel
+
+                var problemDetails = new ProblemDetailsModel
                 {
                     IsSucceeded = true,
                     Id = problem.Id,
                     Hidden = problem.Hidden,
-                    Level = problem.Level,
+                    RawLevel = problem.Level,
                     Name = problem.Name,
-                    Type = problem.Type,
+                    RawType = problem.Type,
                     UserId = problem.UserId,
                     UserName = $"{author?.UserName}",
                     Description = problem.Description,
-                    CreationTime = problem.CreationTime,
+                    RawCreationTime = problem.CreationTime,
                     AcceptCount = problem.AcceptCount ?? 0,
                     SubmissionCount = problem.SubmissionCount ?? 0
                 };
+
+                var submissions = db.Judge.Where(j => j.GroupId == null && j.ContestId == null);
+                problemDetails.RawStatus = 0;
+                if (submissions.Any())
+                {
+                    problemDetails.RawStatus = 1;
+                }
+                if (submissions.Any(j => j.ResultType == (int)ResultCode.Accepted))
+                {
+                    problemDetails.RawStatus = 2;
+                }
+
+                return problemDetails;
             }
         }
     }

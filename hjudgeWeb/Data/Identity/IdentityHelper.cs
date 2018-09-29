@@ -15,7 +15,8 @@ namespace hjudgeWeb.Data.Identity
         public static List<OtherInfoList> GetOtherUserInfo(string rawInfo)
         {
             var otherInfo = JsonConvert.DeserializeObject<OtherUserInfo>(rawInfo ?? string.Empty);
-            var properties = typeof(OtherInfoList).GetProperties();
+            if (otherInfo == null) otherInfo = new OtherUserInfo();
+            var properties = typeof(OtherUserInfo).GetProperties();
             var otherInfoList = new List<OtherInfoList>();
             foreach (var property in properties)
             {
@@ -27,12 +28,12 @@ namespace hjudgeWeb.Data.Identity
                 var attributes = property.GetCustomAttributes(false);
                 foreach (var attribute in attributes)
                 {
-                    if (attribute.GetType().Name == "NameAttribute")
+                    if (attribute.GetType().Name == "ItemNameAttribute")
                     {
                         otherInfoList.Add(new OtherInfoList
                         {
                             Key = property.Name,
-                            Name = attribute.GetType().GetProperty("Name").GetValue(attribute)?.ToString(),
+                            Name = attribute.GetType().GetProperty("ItemName").GetValue(attribute)?.ToString(),
                             Value = property.GetValue(otherInfo)?.ToString()
                         });
                         break;
