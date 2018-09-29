@@ -73,10 +73,16 @@
             </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-tooltip bottom>
-                <v-btn slot="activator" icon>
-                    <v-icon>apps</v-icon>
+                <v-btn @click="goback" slot="activator" icon>
+                    <v-icon>keyboard_arrow_left</v-icon>
                 </v-btn>
-                <span>更多功能</span>
+                <span>后退一步</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+                <v-btn @click="goforward" slot="activator" icon>
+                    <v-icon>keyboard_arrow_right</v-icon>
+                </v-btn>
+                <span>前进一步</span>
             </v-tooltip>
 
             <v-menu offset-y>

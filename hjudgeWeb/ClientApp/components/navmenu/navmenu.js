@@ -46,6 +46,12 @@ export default {
         logout: function () {
             Post('/Account/Logout')
                 .then(() => window.location = '/');
+        },
+        goback: function () {
+            history.go(-1);
+        },
+        goforward: function () {
+            history.go(1);
         }
     },
     components: {
