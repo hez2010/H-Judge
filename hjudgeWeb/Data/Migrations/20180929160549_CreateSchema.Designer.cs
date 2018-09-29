@@ -9,7 +9,7 @@ using hjudgeWeb.Data;
 namespace hjudgeWeb.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180928192410_CreateSchema")]
+    [Migration("20180929160549_CreateSchema")]
     partial class CreateSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -217,7 +217,7 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("AdditionalInfo");
 
-                    b.Property<string>("Code");
+                    b.Property<string>("Content");
 
                     b.Property<int?>("ContestId");
 

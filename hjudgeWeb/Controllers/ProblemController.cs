@@ -92,16 +92,216 @@ namespace hjudgeWeb.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<ProblemDetailsModel> GetProblemDetails(int pid)
+        public class SubmitModel
+        {
+            public int Pid { get; set; }
+            public int Cid { get; set; }
+            public int Gid { get; set; }
+            public string Content { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<SubmitReturnDataModel> Submit([FromBody]SubmitModel submit)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
+                if (submit.Gid != 0)
+                {
+                    var group = await db.Group.FindAsync(submit.Gid);
+                    if (group == null)
+                    {
+                        return new SubmitReturnDataModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+
+                    if (!db.GroupJoin.Any(i => i.GroupId == submit.Gid && i.UserId == user.Id))
+                    {
+                        if (!HasAdminPrivilege(privilege))
+                        {
+                            return new SubmitReturnDataModel
+                            {
+                                IsSucceeded = false,
+                                ErrorMessage = "没有权限"
+                            };
+                        }
+                    }
+
+                    if (!db.GroupContestConfig.Where(i => i.GroupId == submit.Gid).Any(i => i.ContestId == submit.Cid))
+                    {
+                        return new SubmitReturnDataModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+                }
+
+                if (submit.Cid != 0)
+                {
+                    var contest = await db.Contest.FindAsync(submit.Cid);
+                    if (contest == null)
+                    {
+                        return new SubmitReturnDataModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+
+                    if (contest.Hidden)
+                    {
+                        if (!HasAdminPrivilege(privilege))
+                        {
+                            return new SubmitReturnDataModel
+                            {
+                                IsSucceeded = false,
+                                ErrorMessage = "没有权限"
+                            };
+                        }
+                    }
+
+                    if (!db.ContestProblemConfig.Where(i => i.ContestId == submit.Cid).Any(i => i.ProblemId == submit.Pid))
+                    {
+                        return new SubmitReturnDataModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+                }
+
+                var problem = await db.Problem.FindAsync(submit.Pid);
+                if (problem == null)
+                {
+                    return new SubmitReturnDataModel
+                    {
+                        IsSucceeded = false,
+                        ErrorMessage = "题目不存在"
+                    };
+                }
+                if (problem.Hidden)
+                {
+                    if (!HasAdminPrivilege(privilege))
+                    {
+                        return new SubmitReturnDataModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "没有权限"
+                        };
+                    }
+                }
+                var submission = new Data.Judge
+                {
+                    ProblemId = submit.Pid,
+                    Content = submit.Content
+                };
+                if (submit.Cid != 0)
+                {
+                    submission.ContestId = submit.Cid;
+                }
+                if (submit.Gid != 0)
+                {
+                    submission.GroupId = submit.Gid;
+                }
+
+                db.Judge.Add(submission);
+                await db.SaveChangesAsync();
+
+                return new SubmitReturnDataModel
+                {
+                    Id = submission.Id,
+                    IsSucceeded = true,
+                    Redirect = true
+                };
+            }
+        }
+
+        [HttpGet]
+        public async Task<ProblemDetailsModel> GetProblemDetails(int pid, int cid = 0, int gid = 0)
+        {
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                if (gid != 0)
+                {
+                    var group = await db.Group.FindAsync(gid);
+                    if (group == null)
+                    {
+                        return new ProblemDetailsModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+
+                    if (!db.GroupJoin.Any(i => i.GroupId == gid && i.UserId == user.Id))
+                    {
+                        if (!HasAdminPrivilege(privilege))
+                        {
+                            return new ProblemDetailsModel
+                            {
+                                IsSucceeded = false,
+                                ErrorMessage = "没有权限"
+                            };
+                        }
+                    }
+
+                    if (!db.GroupContestConfig.Where(i => i.GroupId == gid).Any(i => i.ContestId == cid))
+                    {
+                        return new ProblemDetailsModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+                }
+
+                if (cid != 0)
+                {
+                    var contest = await db.Contest.FindAsync(cid);
+                    if (contest == null)
+                    {
+                        return new ProblemDetailsModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+
+                    if (contest.Hidden)
+                    {
+                        if (!HasAdminPrivilege(privilege))
+                        {
+                            return new ProblemDetailsModel
+                            {
+                                IsSucceeded = false,
+                                ErrorMessage = "没有权限"
+                            };
+                        }
+                    }
+
+                    if (!db.ContestProblemConfig.Where(i => i.ContestId == cid).Any(i => i.ProblemId == pid))
+                    {
+                        return new ProblemDetailsModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "题目不存在"
+                        };
+                    }
+                }
+
                 var problem = await db.Problem.FindAsync(pid);
                 if (problem == null)
                 {
-                    return null;
+                    return new ProblemDetailsModel
+                    {
+                        IsSucceeded = false,
+                        ErrorMessage = "题目不存在"
+                    };
                 }
                 if (problem.Hidden)
                 {

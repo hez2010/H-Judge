@@ -19,22 +19,30 @@ export default {
             { text: '类型', value: 'type' },
             { text: '难度', value: 'level' },
             { text: '状态', value: 'status' },
-            { text: '通过', value: 'acceptCount' },
-            { text: '提交', value: 'submissionCount' }
+            { text: '通过量', value: 'acceptCount' },
+            { text: '提交量', value: 'submissionCount' }
         ]
     }),
     mounted: function () {
         setTitle('题目');
+        if (!this.$route.params.page) {
+            this.$router.push('/Problem/1');
+            this.page = 1;
+        }
+        else this.page = parseInt(this.$route.params.page);
         Get('/Problem/GetProblemCount')
             .then(res => res.text())
             .then(data => {
                 this.pageCount = Math.ceil(data / 10);
-                this.page = 1;
+                if (this.page > this.pageCount)
+                    this.page = this.pageCount;
             })
             .catch(() => this.pageCount = 0);
     },
     watch: {
         page: function () {
+            this.$router.push('/Problem/' + this.page);
+            this.loading = true;
             Get('/Problem/GetProblemList', { start: (this.page - 1) * 10, count: 10 })
                 .then(res => res.json())
                 .then(data => {
@@ -45,6 +53,11 @@ export default {
                     this.problems = [];
                     this.loading = false;
                 });
+        }
+    },
+    methods: {
+        toDetails: function (id) {
+            this.$router.push('/ProblemDetails/' + id.toString());
         }
     }
 };

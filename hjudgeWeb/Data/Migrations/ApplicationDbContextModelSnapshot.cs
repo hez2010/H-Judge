@@ -215,7 +215,7 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("AdditionalInfo");
 
-                    b.Property<string>("Code");
+                    b.Property<string>("Content");
 
                     b.Property<int?>("ContestId");
 

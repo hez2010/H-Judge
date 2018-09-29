@@ -371,7 +371,7 @@ namespace hjudgeWeb.Data.Migrations
                     ProblemId = table.Column<int>(nullable: true),
                     ContestId = table.Column<int>(nullable: true),
                     GroupId = table.Column<int>(nullable: true),
-                    Code = table.Column<string>(nullable: true),
+                    Content = table.Column<string>(nullable: true),
                     Result = table.Column<string>(nullable: true),
                     Type = table.Column<int>(nullable: false),
                     Description = table.Column<string>(nullable: true),

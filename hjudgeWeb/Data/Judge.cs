@@ -10,7 +10,7 @@ namespace hjudgeWeb.Data
         public int? ProblemId { get; set; }
         public int? ContestId { get; set; }
         public int? GroupId { get; set; }
-        public string Code { get; set; }
+        public string Content { get; set; }
         public string Result { get; set; }
         public int Type { get; set; }
         public string Description { get; set; }

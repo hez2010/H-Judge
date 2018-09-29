@@ -9,17 +9,21 @@
                 <v-data-table :headers="headers"
                               :items="problems"
                               hide-actions
-                              class="elevation-1"
                               v-else>
                     <template slot="items" slot-scope="props">
-                        <td>{{ props.item.id }}</td>
-                        <td>{{ props.item.name }}</td>
-                        <td>{{ props.item.creationTime }}</td>
-                        <td>{{ props.item.type }}</td>
-                        <td>{{ props.item.level }}</td>
-                        <td>{{ props.item.status }}</td>
-                        <td>{{ props.item.acceptCount }}</td>
-                        <td>{{ props.item.submissionCount }}</td>
+                        <tr @click="toDetails(props.item.id)" style="cursor: pointer">
+                            <td>{{ props.item.id }}</td>
+                            <td>{{ props.item.name }}</td>
+                            <td>{{ props.item.creationTime }}</td>
+                            <td>{{ props.item.type }}</td>
+                            <td>{{ props.item.level }}</td>
+                            <td>{{ props.item.status }}</td>
+                            <td>{{ props.item.acceptCount }}</td>
+                            <td>{{ props.item.submissionCount }}</td>
+                        </tr>
+                    </template>
+                    <template slot="no-data">
+                        <p>没有数据 :(</p>
                     </template>
                 </v-data-table>
             </v-card-text>
