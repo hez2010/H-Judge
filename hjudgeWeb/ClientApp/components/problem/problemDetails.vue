@@ -88,7 +88,14 @@
 					</v-card-text>
 					<v-card-text v-else>
 						<v-container>
-							<v-form ref="form" v-model="valid" lazy-validation>
+							<v-form v-if="user.isSignedIn" ref="form" v-model="valid" lazy-validation>
+								<v-select :items="problem.languages"
+										  label="语言"
+										  v-if="problem.rawType === 1"
+										  v-model="language"
+										  required
+										  :rules="languageRules">
+								</v-select>
 								<v-textarea outline
 											v-model="content"
 											:rules="contentRules"
@@ -97,6 +104,7 @@
 								</v-textarea>
 								<v-btn color="primary" :disabled="!valid || submitting" @click="submit">提交</v-btn>
 							</v-form>
+							<p v-else>请登录后再操作</p>
 						</v-container>
 					</v-card-text>
 				</v-tab-item>

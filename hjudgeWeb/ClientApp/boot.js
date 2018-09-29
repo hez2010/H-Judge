@@ -10,6 +10,8 @@ Vue.use(Vuetify);
 
 const routes = [
     { path: '/', component: require('./components/home/home.vue').default },
+    { path: '/Problem/:gid/:cid/:page', component: require('./components/problem/problem.vue').default },
+    { path: '/Problem/:cid/:page', component: require('./components/problem/problem.vue').default },
     { path: '/Problem/:page', component: require('./components/problem/problem.vue').default },
     { path: '/Problem', component: require('./components/problem/problem.vue').default },
     { path: '/ProblemDetails/:gid/:cid/:pid', component: require('./components/problem/problemDetails.vue').default },

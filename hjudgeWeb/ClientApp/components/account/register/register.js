@@ -31,7 +31,7 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data && data.isSucceeded) {
-                            window.location = '/';
+                            window.location.reload();
                         }
                         else {
                             alert(data.errorMessage);

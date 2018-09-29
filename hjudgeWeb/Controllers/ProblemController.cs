@@ -1,10 +1,12 @@
 ﻿using hjudgeCore;
+using hjudgeWeb.Configurations;
 using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Models.Problem;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,7 +60,7 @@ namespace hjudgeWeb.Controllers
         /// <param name="quantity">数量信息</param>
         /// <returns>题目列表</returns>
         [HttpGet]
-        public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 10)
+        public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 10, int cid = 0, int gid = 0)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             using (var db = new ApplicationDbContext(_dbContextOptions))
@@ -77,7 +79,17 @@ namespace hjudgeWeb.Controllers
 
                 foreach (var i in list)
                 {
-                    var submissions = db.Judge.Where(j => j.GroupId == null && j.ContestId == null);
+                    int? groupId = null, contestId = null;
+                    if (gid != 0)
+                    {
+                        groupId = gid;
+                    }
+                    if (cid != 0)
+                    {
+                        contestId = cid;
+                    }
+
+                    var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == i.Id);
                     i.RawStatus = 0;
                     if (submissions.Any())
                     {
@@ -98,6 +110,7 @@ namespace hjudgeWeb.Controllers
             public int Cid { get; set; }
             public int Gid { get; set; }
             public string Content { get; set; }
+            public string Language { get; set; }
         }
 
         [HttpPost]
@@ -197,7 +210,11 @@ namespace hjudgeWeb.Controllers
                 var submission = new Data.Judge
                 {
                     ProblemId = submit.Pid,
-                    Content = submit.Content
+                    Content = submit.Content,
+                    UserId = user.Id,
+                    JudgeTime = DateTime.Now,
+                    Description = "Online Judge",
+                    Language = submit.Language
                 };
                 if (submit.Cid != 0)
                 {
@@ -329,10 +346,20 @@ namespace hjudgeWeb.Controllers
                     Description = problem.Description,
                     RawCreationTime = problem.CreationTime,
                     AcceptCount = problem.AcceptCount ?? 0,
-                    SubmissionCount = problem.SubmissionCount ?? 0
+                    SubmissionCount = problem.SubmissionCount ?? 0,
+                    Languages = Languages.LanguagesList
                 };
+                int? groupId = null, contestId = null;
+                if (gid != 0)
+                {
+                    groupId = gid;
+                }
+                if (cid != 0)
+                {
+                    contestId = cid;
+                }
 
-                var submissions = db.Judge.Where(j => j.GroupId == null && j.ContestId == null);
+                var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == pid);
                 problemDetails.RawStatus = 0;
                 if (submissions.Any())
                 {

@@ -1,6 +1,7 @@
 ﻿import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
+    props: ['user'],
     data: () => ({
         problem: {},
         param: {
@@ -9,6 +10,10 @@ export default {
             gid: 0
         },
         loading: true,
+        language: '',
+        languageRules: [
+            v => !!v || '请选择语言'
+        ],
         content: '',
         contentRules: [
             v => !!v || '请输入提交内容'
@@ -44,6 +49,8 @@ export default {
                 this.submitting = true;
                 let param = this.param;
                 param['content'] = this.content;
+                if (this.problem.rawType === 1)
+                    param['language'] = this.language;
                 Post('/Problem/Submit', param)
                     .then(res => res.json())
                     .then(data => {

@@ -43,7 +43,11 @@ export default {
         page: function () {
             this.$router.push('/Problem/' + this.page);
             this.loading = true;
-            Get('/Problem/GetProblemList', { start: (this.page - 1) * 10, count: 10 })
+            let param = { start: (this.page - 1) * 10, count: 10 };
+            if (this.$route.params.cid) param['cid'] = this.$route.params.cid;
+            if (this.$route.params.gid) param['gid'] = this.$route.params.gid;
+            this.problems = [];
+            Get('/Problem/GetProblemList', param)
                 .then(res => res.json())
                 .then(data => {
                     this.problems = data;

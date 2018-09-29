@@ -5,11 +5,9 @@
                 <h2>题目列表</h2>
             </v-card-title>
             <v-card-text>
-                <p v-if="loading">正在加载...</p>
                 <v-data-table :headers="headers"
                               :items="problems"
-                              hide-actions
-                              v-else>
+                              hide-actions>
                     <template slot="items" slot-scope="props">
                         <tr @click="toDetails(props.item.id)" style="cursor: pointer">
                             <td>{{ props.item.id }}</td>
@@ -23,7 +21,8 @@
                         </tr>
                     </template>
                     <template slot="no-data">
-                        <p>没有数据 :(</p>
+                        <p v-if="loading">正在加载...</p>
+                        <p v-else>没有数据 :(</p>
                     </template>
                 </v-data-table>
             </v-card-text>

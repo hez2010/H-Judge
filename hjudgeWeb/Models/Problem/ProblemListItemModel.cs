@@ -14,7 +14,7 @@ namespace hjudgeWeb.Models.Problem
         public int RawType { get; set; }
         public string Type => RawType == 1 ? "提交代码" : "提交答案";
         public int RawLevel { get; set; }
-        public string Level => Enumerable.Repeat("⭐", RawLevel).Aggregate((accu, next) => accu + next);
+        public string Level => Enumerable.Repeat("⭐", RawLevel).Aggregate(string.Empty, (accu, next) => accu + next);
         public int RawStatus { get; set; }
         public string Status => RawStatus == 0 ? "未尝试" : RawStatus == 1 ? "已尝试" : "已通过";
     }
