@@ -88,16 +88,19 @@ namespace hjudgeWeb.Controllers
                     {
                         contestId = cid;
                     }
-
-                    var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == i.Id);
                     i.RawStatus = 0;
-                    if (submissions.Any())
+                    if (user != null)
                     {
-                        i.RawStatus = 1;
-                    }
-                    if (submissions.Any(j => j.ResultType == (int)ResultCode.Accepted))
-                    {
-                        i.RawStatus = 2;
+                        var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == i.Id && j.UserId == user.Id);
+
+                        if (submissions.Any())
+                        {
+                            i.RawStatus = 1;
+                        }
+                        if (submissions.Any(j => j.ResultType == (int)ResultCode.Accepted))
+                        {
+                            i.RawStatus = 2;
+                        }
                     }
                 }
                 return list;
@@ -359,15 +362,19 @@ namespace hjudgeWeb.Controllers
                     contestId = cid;
                 }
 
-                var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == pid);
                 problemDetails.RawStatus = 0;
-                if (submissions.Any())
+
+                if (user != null)
                 {
-                    problemDetails.RawStatus = 1;
-                }
-                if (submissions.Any(j => j.ResultType == (int)ResultCode.Accepted))
-                {
-                    problemDetails.RawStatus = 2;
+                    var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == pid && j.UserId == user.Id);
+                    if (submissions.Any())
+                    {
+                        problemDetails.RawStatus = 1;
+                    }
+                    if (submissions.Any(j => j.ResultType == (int)ResultCode.Accepted))
+                    {
+                        problemDetails.RawStatus = 2;
+                    }
                 }
 
                 return problemDetails;

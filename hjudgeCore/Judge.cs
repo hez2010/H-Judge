@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace hjudgeCore
@@ -15,27 +14,15 @@ namespace hjudgeCore
     public class Judge
     {
         private readonly string _guid;
-        private readonly string _rootdir;
         private readonly string _workingdir;
 
-        [DllImport("./hjudgeExec.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi,
-            EntryPoint = "#1")]
-        static extern IntPtr Execute(string prarm);
+        [DllImport("./hjudgeExec.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "#1", CharSet = CharSet.Auto)]
+        static extern bool Execute(string prarm, StringBuilder ret);
 
         public Judge(string environments = null)
         {
             _guid = Guid.NewGuid().ToString().Replace("-", "_");
-            _workingdir = $"{Path.GetTempPath()}/hjudgeTest/{_guid}".Replace("\\", "/").Replace("//", "/");
-            if (_workingdir.EndsWith("/"))
-            {
-                _workingdir = _workingdir.Substring(0, _workingdir.Length - 1);
-            }
-
-            _rootdir = $"{Environment.CurrentDirectory.Replace("\\", "/")}".Replace("//", "/");
-            if (_rootdir.EndsWith("/"))
-            {
-                _rootdir = _rootdir.Substring(0, _rootdir.Length - 1);
-            }
+            _workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", _guid);
 
             if (!string.IsNullOrEmpty(environments))
             {
@@ -83,22 +70,28 @@ namespace hjudgeCore
                 var point = new JudgePoint();
                 try
                 {
-                    File.Copy(judgeOption.DataPoints[i].StdInFile, _workingdir + "/" + judgeOption.InputFileName);
-                    File.Copy(judgeOption.DataPoints[i].StdOutFile, $"{_workingdir}/answer_{_guid}.txt");
+                    File.Copy(judgeOption.DataPoints[i].StdInFile, Path.Combine(_workingdir, judgeOption.InputFileName));
+                    File.Copy(judgeOption.DataPoints[i].StdOutFile, Path.Combine(_workingdir, $"answer_{_guid}.txt"));
                     var param = new
                     {
                         judgeOption.RunOption.Exec,
                         judgeOption.RunOption.Args,
                         WorkingDir = _workingdir,
-                        InputFile = _workingdir + "/" + judgeOption.InputFileName,
-                        OutputFile = _workingdir + "/" + judgeOption.OutputFileName,
+                        InputFile = Path.Combine(_workingdir, judgeOption.InputFileName),
+                        OutputFile = Path.Combine(_workingdir, judgeOption.OutputFileName),
                         judgeOption.DataPoints[i].TimeLimit,
                         judgeOption.DataPoints[i].MemoryLimit,
                         IsStdIO = judgeOption.UseStdIO
                     };
-                    var resultPtr = Execute(JsonConvert.SerializeObject(param));
-                    point = JsonConvert.DeserializeObject<JudgePoint>(Marshal.PtrToStringAnsi(resultPtr));
-                    Marshal.FreeHGlobal(resultPtr);
+                    var ret = new StringBuilder(256);
+                    if (Execute(JsonConvert.SerializeObject(param), ret))
+                    {
+                        point = JsonConvert.DeserializeObject<JudgePoint>(ret.ToString());
+                    }
+                    else
+                    {
+                        throw new Exception("Unable to execute target program");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -106,7 +99,7 @@ namespace hjudgeCore
                     point.Result = ResultCode.Unknown_Error;
                 }
 
-                var (resultCode, percentage, extraInfo) = await CompareAsync(_workingdir + "/" + judgeOption.InputFileName, $"{_workingdir}/answer_{_guid}.txt", _workingdir + "/" + judgeOption.OutputFileName, judgeOption);
+                var (resultCode, percentage, extraInfo) = await CompareAsync(Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{_guid}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption);
                 point.Result = resultCode;
                 point.Score = percentage * judgeOption.DataPoints[i].Score;
                 point.ExtraInfo = extraInfo;
@@ -134,9 +127,9 @@ namespace hjudgeCore
 
             try
             {
-                File.Copy(judgeOption.AnswerPoint.AnswerFile, $"{_workingdir}/answer_{_guid}.txt");
-                File.WriteAllText($"{_workingdir}/output_{_guid}.txt", buildOption.Source, Encoding.UTF8);
-                var (resultCode, percentage, extraInfo) = await CompareAsync(null, $"{_workingdir}/answer_{_guid}.txt", $"{_workingdir}/output_{_guid}.txt", judgeOption);
+                File.Copy(judgeOption.AnswerPoint.AnswerFile, Path.Combine(_workingdir, $"answer_{ _guid}.txt"));
+                File.WriteAllText(Path.Combine(_workingdir, $"output_{ _guid}.txt"), buildOption.Source, Encoding.UTF8);
+                var (resultCode, percentage, extraInfo) = await CompareAsync(null, Path.Combine(_workingdir, $"answer_{ _guid}.txt"), Path.Combine(_workingdir, $"output_{ _guid}.txt"), judgeOption);
                 result.JudgePoints[0].Result = resultCode;
                 result.JudgePoints[0].Score = percentage * judgeOption.AnswerPoint.Score;
                 result.JudgePoints[0].ExtraInfo = extraInfo;
@@ -183,9 +176,13 @@ namespace hjudgeCore
                 })
                 {
 
-                    if (!judge.Start())
+                    try
                     {
-                        return (ResultCode.Unknown_Error, 0, null);
+                        judge.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
 
                     var (error, output) = (await judge.StandardError.ReadToEndAsync(), await judge.StandardOutput.ReadToEndAsync());
@@ -196,7 +193,7 @@ namespace hjudgeCore
                     {
                         return (ResultCode.Special_Judge_Error, 0, null);
                     }
-                    
+
                     try
                     {
                         var percentage = Convert.ToSingle(output.Trim());
@@ -221,18 +218,18 @@ namespace hjudgeCore
                 {
                     std = new StreamReader(stdOutputFile, Encoding.UTF8);
                 }
-                catch (IOException)
+                catch (Exception ex)
                 {
-                    Thread.Sleep(50);
+                    std?.Dispose();
                     std = null;
                     retryTimes++;
+                    if (retryTimes > 10)
+                    {
+                        return (ResultCode.Unknown_Error, 0, ex.Message);
+                    }
+                    await Task.Delay(50);
                 }
-            } while (std == null && retryTimes < 200);
-
-            if (std == null)
-            {
-                return (ResultCode.Unknown_Error, 0, "Can not open standard output file");
-            }
+            } while (std == null);
 
             retryTimes = 0;
             do
@@ -241,19 +238,18 @@ namespace hjudgeCore
                 {
                     act = new StreamReader(outputFile, Encoding.UTF8);
                 }
-                catch (IOException)
+                catch (Exception ex)
                 {
-                    Thread.Sleep(50);
+                    act?.Dispose();
                     act = null;
                     retryTimes++;
+                    if (retryTimes > 10)
+                    {
+                        return (ResultCode.Unknown_Error, 0, ex.Message);
+                    }
+                    await Task.Delay(50);
                 }
-            } while (act == null && retryTimes < 200);
-
-            if (act == null)
-            {
-                std.Dispose();
-                return (ResultCode.Unknown_Error, 0, "Can not open output file");
-            }
+            } while (act == null);
 
             var line = 0;
             var result = new JudgePoint
@@ -373,16 +369,16 @@ namespace hjudgeCore
 
                     return sta.ExitCode == 0 ? log : null;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return null;
+                    return ex.Message;
                 }
             }
         }
 
         private async Task<(bool IsSucceeded, string Logs)> Compile(CompilerOption compiler, List<string> extra)
         {
-            extra?.ForEach(i => File.Copy(i, $"{_workingdir}/{Path.GetFileName(i)}", true));
+            extra?.ForEach(i => File.Copy(i, Path.Combine(_workingdir, Path.GetFileName(i)), true));
             using (var comp = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -435,9 +431,9 @@ namespace hjudgeCore
 
                     return (true, log);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return (false, null);
+                    return (false, ex.Message);
                 }
             }
         }

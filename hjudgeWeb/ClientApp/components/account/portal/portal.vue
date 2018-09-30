@@ -19,7 +19,8 @@
                                         </v-chip>
                                     </div>
                                     <div>
-                                        <a>更换头像</a>
+                                        <a @click="selectFile">更换头像</a>
+                                        <input type="file" id="avatar_file" @change="validateFile" accept="image/*" style="filter: alpha(opacity=0); opacity: 0; width: 0; height: 0;" />
                                     </div>
                                     <br />
                                     <div>

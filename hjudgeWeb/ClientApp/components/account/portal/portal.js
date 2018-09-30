@@ -92,6 +92,38 @@ export default {
                         alert(data.errorMessage);
                 })
                 .catch(() => alert('修改失败'));
+        },
+        selectFile: function () {
+            document.getElementById('avatar_file').click();
+        },
+        validateFile: function () {
+            var ele = document.getElementById('avatar_file');
+            const file = ele.files[0];
+            if (!file.type.startsWith('image/')) {
+                alert('所选文件不是图片文件');
+                ele.value = '';
+                return;
+            }
+            if (file.size > 1048576) {
+                alert('图片大小不能大于 1 Mb');
+                ele.value = '';
+                return;
+            }
+            var form = new FormData();
+            form.append('file', file);
+            fetch('/Account/UpdateAvatar', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: form,
+                mode: 'cors',
+                cache: 'default'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.isSucceeded) window.location.reload();
+                    else alert(data.errorMessage);
+                })
+                .catch(() => alert('修改失败'));
         }
     }
 };

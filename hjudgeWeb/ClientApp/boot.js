@@ -17,8 +17,16 @@ const routes = [
     { path: '/ProblemDetails/:gid/:cid/:pid', component: require('./components/problem/problemDetails.vue').default },
     { path: '/ProblemDetails/:cid/:pid', component: require('./components/problem/problemDetails.vue').default },
     { path: '/ProblemDetails/:pid', component: require('./components/problem/problemDetails.vue').default },
+    { path: '/Contest/:gid/:page', component: require('./components/contest/contest.vue').default },
+    { path: '/Contest/:page', component: require('./components/contest/contest.vue').default },
     { path: '/Contest', component: require('./components/contest/contest.vue').default },
+    { path: '/Status/:gid/:cid/:pid/:page', component: require('./components/status/status.vue').default },
+    { path: '/Status/:cid/:pid/:page', component: require('./components/status/status.vue').default },
+    { path: '/Status/:pid/:page', component: require('./components/status/status.vue').default },
     { path: '/Status', component: require('./components/status/status.vue').default },
+    { path: '/Rank/:gid/:cid', component: require('./components/rank/rank.vue').default },
+    { path: '/Rank/:cid', component: require('./components/rank/rank.vue').default },
+    { path: '/Group/:page', component: require('./components/group/group.vue').default },
     { path: '/Group', component: require('./components/group/group.vue').default },
     { path: '/Account', component: require('./components/account/portal/portal.vue').default }
 ];

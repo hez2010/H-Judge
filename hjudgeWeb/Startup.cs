@@ -1,17 +1,17 @@
-using System.Linq;
 using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
+using hjudgeWeb.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.ResponseCompression;
-using hjudgeWeb.Middleware;
+using System.Linq;
 
 namespace hjudgeWeb
 {
@@ -31,7 +31,12 @@ namespace hjudgeWeb
             {
                 options.Providers.Add<BrotliCompressionProvider>();
                 options.EnableForHttps = true;
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "image/svg+xml" });
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] {
+                    "image/svg+xml",
+                    "font/woff",
+                    "font/woff2",
+                    "font/ttf",
+                    "font/eof" });
             });
 
             services.AddDbContext<ApplicationDbContext>(options =>

@@ -2,16 +2,19 @@
 using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Models;
 using hjudgeWeb.Models.Account;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace hjudgeWeb.Controllers
 {
+    [Consumes("application/json", "multipart/form-data")]
     public class AccountController : Controller
     {
         private readonly SignInManager<UserInfo> _signInManager;
@@ -40,6 +43,58 @@ namespace hjudgeWeb.Controllers
                 return Properties.Resource.DefaultAvatar;
             }
             return Convert.ToBase64String(user.Avatar, Base64FormattingOptions.None);
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> UpdateAvatar(IFormFile file)
+        {
+            var result = new ResultModel { IsSucceeded = true };
+            if (!_signInManager.IsSignedIn(User))
+            {
+                result.IsSucceeded = false;
+                result.ErrorMessage = "未登录";
+                return result;
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                result.IsSucceeded = false;
+                result.ErrorMessage = "找不到当前用户";
+                return result;
+            }
+
+            if (file == null)
+            {
+                result.IsSucceeded = false;
+                result.ErrorMessage = "找不到文件";
+                return result;
+            }
+
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                result.IsSucceeded = false;
+                result.ErrorMessage = "只能上传图片文件";
+                return result;
+            }
+
+            if (file.Length > 1048576)
+            {
+                result.IsSucceeded = false;
+                result.ErrorMessage = "图片文件大小不能超过 1 Mb";
+                return result;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                var buffer = new byte[stream.Length];
+                await stream.ReadAsync(buffer);
+                user.Avatar = buffer;
+                await _userManager.UpdateAsync(user);
+            }
+            return result;
         }
 
         [HttpGet]
