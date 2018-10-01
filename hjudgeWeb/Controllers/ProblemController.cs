@@ -6,6 +6,7 @@ using hjudgeWeb.Models.Problem;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +61,7 @@ namespace hjudgeWeb.Controllers
         /// <param name="quantity">数量信息</param>
         /// <returns>题目列表</returns>
         [HttpGet]
-        public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 10, int cid = 0, int gid = 0)
+        public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 10)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             using (var db = new ApplicationDbContext(_dbContextOptions))
@@ -74,24 +75,16 @@ namespace hjudgeWeb.Controllers
                     RawType = i.Type,
                     SubmissionCount = i.SubmissionCount ?? 0,
                     RawCreationTime = i.CreationTime,
-                    RawLevel = i.Level
+                    RawLevel = i.Level,
+                    Hidden = i.Hidden
                 }).ToList();
 
                 foreach (var i in list)
                 {
-                    int? groupId = null, contestId = null;
-                    if (gid != 0)
-                    {
-                        groupId = gid;
-                    }
-                    if (cid != 0)
-                    {
-                        contestId = cid;
-                    }
                     i.RawStatus = 0;
                     if (user != null)
                     {
-                        var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == i.Id && j.UserId == user.Id);
+                        var submissions = db.Judge.Where(j => j.ProblemId == i.Id && j.UserId == user.Id);
 
                         if (submissions.Any())
                         {
@@ -156,6 +149,7 @@ namespace hjudgeWeb.Controllers
                     }
                 }
 
+                var languages = Languages.LanguagesList;
                 if (submit.Cid != 0)
                 {
                     var contest = await db.Contest.FindAsync(submit.Cid);
@@ -168,7 +162,7 @@ namespace hjudgeWeb.Controllers
                         };
                     }
 
-                    if (contest.Hidden)
+                    if (contest.Hidden || !db.ContestRegister.Any(i => i.ContestId == submit.Cid && i.UserId == user.Id))
                     {
                         if (!HasAdminPrivilege(privilege))
                         {
@@ -180,7 +174,7 @@ namespace hjudgeWeb.Controllers
                         }
                     }
 
-                    if (!db.ContestProblemConfig.Where(i => i.ContestId == submit.Cid).Any(i => i.ProblemId == submit.Pid))
+                    if (!db.ContestProblemConfig.Any(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid))
                     {
                         return new SubmitReturnDataModel
                         {
@@ -188,6 +182,21 @@ namespace hjudgeWeb.Controllers
                             ErrorMessage = "题目不存在"
                         };
                     }
+
+                    var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
+                    if (!string.IsNullOrEmpty(config?.Languages))
+                    {
+                        languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    }
+                }
+
+                if (!languages.Contains(submit.Language))
+                {
+                    return new SubmitReturnDataModel
+                    {
+                        IsSucceeded = false,
+                        ErrorMessage = "不支持该语言"
+                    };
                 }
 
                 var problem = await db.Problem.FindAsync(submit.Pid);
@@ -199,18 +208,7 @@ namespace hjudgeWeb.Controllers
                         ErrorMessage = "题目不存在"
                     };
                 }
-                if (problem.Hidden)
-                {
-                    if (!HasAdminPrivilege(privilege))
-                    {
-                        return new SubmitReturnDataModel
-                        {
-                            IsSucceeded = false,
-                            ErrorMessage = "没有权限"
-                        };
-                    }
-                }
-                var submission = new Data.Judge
+                var submission = new Judge
                 {
                     ProblemId = submit.Pid,
                     Content = submit.Content,
@@ -222,7 +220,28 @@ namespace hjudgeWeb.Controllers
                 if (submit.Cid != 0)
                 {
                     submission.ContestId = submit.Cid;
+                    var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid);
+                    if (problemConfig != null)
+                    {
+                        problemConfig.SubmissionCount++;
+                    }
                 }
+                else
+                {
+                    if (problem.Hidden)
+                    {
+                        if (!HasAdminPrivilege(privilege))
+                        {
+                            return new SubmitReturnDataModel
+                            {
+                                IsSucceeded = false,
+                                ErrorMessage = "没有权限"
+                            };
+                        }
+                    }
+                    problem.SubmissionCount++;
+                }
+
                 if (submit.Gid != 0)
                 {
                     submission.GroupId = submit.Gid;
@@ -230,7 +249,7 @@ namespace hjudgeWeb.Controllers
 
                 db.Judge.Add(submission);
                 await db.SaveChangesAsync();
-                Program.JudgeQueue.Enqueue(submission.Id);
+                JudgeQueue.JudgeIdQueue.Enqueue(submission.Id);
 
                 return new SubmitReturnDataModel
                 {
@@ -280,7 +299,7 @@ namespace hjudgeWeb.Controllers
                         };
                     }
                 }
-
+                var languages = Languages.LanguagesList;
                 if (cid != 0)
                 {
                     var contest = await db.Contest.FindAsync(cid);
@@ -312,6 +331,12 @@ namespace hjudgeWeb.Controllers
                             IsSucceeded = false,
                             ErrorMessage = "题目不存在"
                         };
+                    }
+
+                    var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
+                    if (!string.IsNullOrEmpty(config?.Languages))
+                    {
+                        languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
                     }
                 }
 
@@ -351,7 +376,7 @@ namespace hjudgeWeb.Controllers
                     RawCreationTime = problem.CreationTime,
                     AcceptCount = problem.AcceptCount ?? 0,
                     SubmissionCount = problem.SubmissionCount ?? 0,
-                    Languages = Languages.LanguagesList
+                    Languages = languages
                 };
                 int? groupId = null, contestId = null;
                 if (gid != 0)
@@ -361,6 +386,9 @@ namespace hjudgeWeb.Controllers
                 if (cid != 0)
                 {
                     contestId = cid;
+                    var problemConfig = db.ContestProblemConfig.FirstOrDefault(j => j.ProblemId == problem.Id && j.ContestId == cid);
+                    problemDetails.AcceptCount = problemConfig?.AcceptCount ?? 0;
+                    problemDetails.SubmissionCount = problemConfig?.SubmissionCount ?? 0;
                 }
 
                 problemDetails.RawStatus = 0;

@@ -10,16 +10,15 @@ Vue.use(Vuetify);
 
 const routes = [
     { path: '/', component: require('./components/home/home.vue').default },
-    { path: '/Problem/:gid/:cid/:page', component: require('./components/problem/problem.vue').default },
-    { path: '/Problem/:cid/:page', component: require('./components/problem/problem.vue').default },
     { path: '/Problem/:page', component: require('./components/problem/problem.vue').default },
     { path: '/Problem', component: require('./components/problem/problem.vue').default },
     { path: '/ProblemDetails/:gid/:cid/:pid', component: require('./components/problem/problemDetails.vue').default },
     { path: '/ProblemDetails/:cid/:pid', component: require('./components/problem/problemDetails.vue').default },
     { path: '/ProblemDetails/:pid', component: require('./components/problem/problemDetails.vue').default },
-    { path: '/Contest/:gid/:page', component: require('./components/contest/contest.vue').default },
     { path: '/Contest/:page', component: require('./components/contest/contest.vue').default },
     { path: '/Contest', component: require('./components/contest/contest.vue').default },
+    { path: '/ContestDetails/:gid/:cid', component: require('./components/contest/contestDetails.vue').default },
+    { path: '/ContestDetails/:cid', component: require('./components/contest/contestDetails.vue').default },
     { path: '/Status/:gid/:cid/:pid/:page', component: require('./components/status/status.vue').default },
     { path: '/Status/:cid/:pid/:page', component: require('./components/status/status.vue').default },
     { path: '/Status/:pid/:page', component: require('./components/status/status.vue').default },

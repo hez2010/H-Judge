@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace hjudgeWeb.Data.Migrations
@@ -57,7 +58,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true),
                     StartTime = table.Column<DateTime>(nullable: false),
                     EndTime = table.Column<DateTime>(nullable: false),
@@ -79,7 +80,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
@@ -97,7 +98,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Title = table.Column<string>(nullable: true),
                     Content = table.Column<string>(nullable: true),
                     Type = table.Column<int>(nullable: false),
@@ -115,7 +116,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true),
                     CreationTime = table.Column<DateTime>(nullable: false),
                     Level = table.Column<int>(nullable: false),
@@ -124,10 +125,8 @@ namespace hjudgeWeb.Data.Migrations
                     Description = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
                     Hidden = table.Column<bool>(nullable: false),
-                    AcceptCount = table.Column<int>(nullable: true, defaultValueSql: "0")
-                        .Annotation("Sqlite:Autoincrement", true),
-                    SubmissionCount = table.Column<int>(nullable: true, defaultValueSql: "0")
-                        .Annotation("Sqlite:Autoincrement", true),
+                    AcceptCount = table.Column<int>(nullable: true, defaultValueSql: "0"),
+                    SubmissionCount = table.Column<int>(nullable: true, defaultValueSql: "0"),
                     AdditionalInfo = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -140,7 +139,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -161,7 +160,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -246,7 +245,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ContestId = table.Column<int>(nullable: true),
                     UserId = table.Column<string>(nullable: true)
                 },
@@ -266,7 +265,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     GroupId = table.Column<int>(nullable: true),
                     ContestId = table.Column<int>(nullable: true)
                 },
@@ -292,7 +291,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: true),
                     GroupId = table.Column<int>(nullable: true),
                     JoinTime = table.Column<DateTime>(nullable: false)
@@ -313,7 +312,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     OperationTime = table.Column<DateTime>(nullable: false),
                     MessageId = table.Column<int>(nullable: true),
                     UserId = table.Column<string>(nullable: true),
@@ -335,13 +334,11 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ContestId = table.Column<int>(nullable: true),
                     ProblemId = table.Column<int>(nullable: true),
-                    AcceptCount = table.Column<int>(nullable: true, defaultValueSql: "0")
-                        .Annotation("Sqlite:Autoincrement", true),
+                    AcceptCount = table.Column<int>(nullable: true, defaultValueSql: "0"),
                     SubmissionCount = table.Column<int>(nullable: true, defaultValueSql: "0")
-                        .Annotation("Sqlite:Autoincrement", true)
                 },
                 constraints: table =>
                 {
@@ -365,7 +362,7 @@ namespace hjudgeWeb.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<string>(nullable: true),
                     JudgeTime = table.Column<DateTime>(nullable: false),
                     ProblemId = table.Column<int>(nullable: true),
@@ -376,6 +373,7 @@ namespace hjudgeWeb.Data.Migrations
                     Type = table.Column<int>(nullable: false),
                     Description = table.Column<string>(nullable: true),
                     ResultType = table.Column<int>(nullable: false),
+                    FullScore = table.Column<float>(nullable: false),
                     Language = table.Column<string>(nullable: true),
                     Logs = table.Column<string>(nullable: true),
                     AdditionalInfo = table.Column<string>(nullable: true)
@@ -412,7 +410,8 @@ namespace hjudgeWeb.Data.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -438,7 +437,8 @@ namespace hjudgeWeb.Data.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true);
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ContestProblemConfig_ContestId",

@@ -40,14 +40,14 @@ namespace hjudgeWeb
             });
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDefaultIdentity<UserInfo>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders()
                 .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
-            services.AddEntityFrameworkSqlite();
+            services.AddEntityFrameworkSqlServer();
 
             services.AddTransient<IEmailSender, EmailSender>();
 

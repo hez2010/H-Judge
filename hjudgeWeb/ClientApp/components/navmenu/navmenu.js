@@ -35,16 +35,12 @@ export default {
                         ]
                     }]);
                 }
-                else {
-                    if (this.items.length === 7) {
-                        this.items = this.items.splice(6, 1);
-                    }
-                }
             }
         }
     },
     methods: {
         logout: function () {
+            localStorage.clear();
             Post('/Account/Logout')
                 .then(() => window.location = '/');
         },

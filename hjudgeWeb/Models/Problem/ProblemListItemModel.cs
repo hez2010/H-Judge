@@ -16,6 +16,7 @@ namespace hjudgeWeb.Models.Problem
         public int RawLevel { get; set; }
         public string Level => Enumerable.Repeat("⭐", RawLevel).Aggregate(string.Empty, (accu, next) => accu + next);
         public int RawStatus { get; set; }
+        public bool Hidden { get; set; }
         public string Status => RawStatus == 0 ? "未尝试" : RawStatus == 1 ? "已尝试" : "已通过";
     }
 }

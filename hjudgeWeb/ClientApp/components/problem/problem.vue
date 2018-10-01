@@ -10,7 +10,7 @@
                               hide-actions>
                     <template slot="items" slot-scope="props">
                         <tr @click="toDetails(props.item.id)" style="cursor: pointer">
-                            <td>{{ props.item.id }}</td>
+                            <td>{{ props.item.id }} <span v-if="props.item.hidden">(隐藏)</span></td>
                             <td>{{ props.item.name }}</td>
                             <td>{{ props.item.creationTime }}</td>
                             <td>{{ props.item.type }}</td>

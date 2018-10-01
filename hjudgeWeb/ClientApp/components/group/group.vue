@@ -1,7 +1,7 @@
-<template>
+﻿<template>
     <v-container fluid fill-height>
         <v-layout justify-center align-center>
-            <p>group</p>
+            <p>此功能正在开发中, 敬请期待...</p>
         </v-layout>
     </v-container>
 </template>
