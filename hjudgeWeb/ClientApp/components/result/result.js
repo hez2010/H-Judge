@@ -51,9 +51,6 @@ export default {
                             this.timer = null;
                         }
                     }
-                    else {
-                        alert(data.errorMessage);
-                    }
                 });
         }
     }
