@@ -21,11 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Migrations\" />
-    <Folder Include="wwwroot\dist\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\hjudgeCore\hjudgeCore.csproj" />
   </ItemGroup>
 

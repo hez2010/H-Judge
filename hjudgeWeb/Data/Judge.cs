@@ -15,6 +15,7 @@ namespace hjudgeWeb.Data
         public int Type { get; set; }
         public string Description { get; set; }
         public int ResultType { get; set; }
+        public float FullScore { get; set; }
         public string Language { get; set; }
         public string Logs { get; set; }
         public string AdditionalInfo { get; set; }

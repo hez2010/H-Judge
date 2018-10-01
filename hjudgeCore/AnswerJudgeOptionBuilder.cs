@@ -7,13 +7,11 @@ namespace hjudgeCore
     {
         private JudgeOption judgeOption = new JudgeOption();
 
-        public override void AttachContest(int contestId)
-        {
-            judgeOption.ContestId = contestId;
-        }
+        public override string GuidStr { get; } = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
         public override JudgeOption Build()
         {
+            judgeOption.GuidStr = GuidStr;
             return judgeOption;
         }
 

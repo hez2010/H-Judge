@@ -15,9 +15,6 @@
                                 {{ item.heading }}
                             </v-subheader>
                         </v-flex>
-                        <v-flex xs6 class="text-xs-center">
-                            <a href="#!" class="body-2 black--text">EDIT</a>
-                        </v-flex>
                     </v-layout>
                     <v-list-group v-else-if="item.children"
                                   v-model="item.model"
@@ -69,22 +66,21 @@
                    fixed>
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
                 <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+                <v-tooltip bottom>
+                    <v-btn @click="goback" slot="activator" icon>
+                        <v-icon>keyboard_arrow_left</v-icon>
+                    </v-btn>
+                    <span>后退一步</span>
+                </v-tooltip>
                 <span class="hidden-sm-and-down">H::Judge</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-tooltip bottom>
-                <v-btn @click="goback" slot="activator" icon>
-                    <v-icon>keyboard_arrow_left</v-icon>
+                <v-btn slot="activator" icon @click="switchTheme">
+                    <v-icon>{{themeIcon}}</v-icon>
                 </v-btn>
-                <span>后退一步</span>
+                <span>切换主题</span>
             </v-tooltip>
-            <v-tooltip bottom>
-                <v-btn @click="goforward" slot="activator" icon>
-                    <v-icon>keyboard_arrow_right</v-icon>
-                </v-btn>
-                <span>前进一步</span>
-            </v-tooltip>
-
             <v-menu offset-y>
                 <v-tooltip slot="activator" bottom>
                     <v-btn slot="activator" icon>

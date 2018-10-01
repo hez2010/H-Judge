@@ -4,14 +4,9 @@ namespace hjudgeCore
 {
     public sealed class JudgeOption
     {
-        public JudgeOption()
-        {
-            ContestId = 0;
-        }
-
+        public string GuidStr { get; set; }
         public ComparingOption ComparingOption { get; set; }
         public RunOption RunOption { get; set; }
-        public int ContestId { get; set; }
         public List<DataPoint> DataPoints { get; set; }
         public AnswerPoint AnswerPoint { get; set; }
         public List<string> ExtraFiles { get; set; }

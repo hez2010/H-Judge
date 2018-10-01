@@ -230,6 +230,7 @@ namespace hjudgeWeb.Controllers
 
                 db.Judge.Add(submission);
                 await db.SaveChangesAsync();
+                Program.JudgeQueue.Enqueue(submission.Id);
 
                 return new SubmitReturnDataModel
                 {

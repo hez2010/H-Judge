@@ -1,4 +1,5 @@
 ﻿import { Get, Post } from '../../utilities/requestHelper';
+import { setTitle } from '../../utilities/titleHelper';
 
 export default {
     props: ['user'],
@@ -31,6 +32,7 @@ export default {
         if (this.$route.params.gid) {
             this.param.gid = parseInt(this.$route.params.gid);
         }
+        setTitle('题目详情');
         Get('/Problem/GetProblemDetails', this.param)
             .then(res => res.json())
             .then(data => {

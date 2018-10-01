@@ -3,11 +3,12 @@ import register from '../account/register/register.vue';
 import { Post } from '../../utilities/requestHelper';
 
 export default {
-    props: ['user'],
+    props: ['user', 'themeIcon', 'switchTheme'],
     data: () => ({
         drawer: null,
         loginDialog: false,
         items: [
+            { heading: 'H::Judge' },
             { icon: 'home', text: '主页', link: '/' },
             { icon: 'code', text: '题目', link: '/Problem' },
             { icon: 'access_time', text: '比赛', link: '/Contest' },
