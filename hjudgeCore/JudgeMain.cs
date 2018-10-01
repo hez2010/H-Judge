@@ -32,14 +32,17 @@ namespace hjudgeCore
             _workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeOption.GuidStr);
 
             Directory.CreateDirectory(_workingdir);
-            if (judgeOption.AnswerPoint != null)
-            {
-                return await AnswerJudgeAsync(buildOption, judgeOption);
-            }
             var result = new JudgeResult
             {
                 JudgePoints = new List<JudgePoint>()
             };
+
+            if (judgeOption.AnswerPoint != null)
+            {
+                return await AnswerJudgeAsync(buildOption, judgeOption);
+            }
+
+            File.WriteAllText(Path.Combine(_workingdir, $"{judgeOption.GuidStr}{buildOption.ExtensionName}"), buildOption.Source, Encoding.UTF8);
 
             if (buildOption.StaticCheckOption != null)
             {

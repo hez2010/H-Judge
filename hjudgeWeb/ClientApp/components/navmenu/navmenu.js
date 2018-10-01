@@ -17,24 +17,15 @@ export default {
             { icon: 'help', text: '关于', link: '/About' }
         ]
     }),
+    mounted: function () {
+        if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+            this.items = this.items.concat([{ icon: 'settings', text: '设置', link: '/Admin/Config' }]);
+        }
+    },
     watch: {
         user: function () {
-            if (this.user !== null) {
-                if (this.user.privilege >= 1 && this.user.privilege <= 3) {
-                    this.items = this.items.concat([{
-                        icon: 'keyboard_arrow_up',
-                        'icon-alt': 'keyboard_arrow_down',
-                        text: '管理',
-                        model: false,
-                        children: [
-                            { icon: 'code', text: '题目管理', link: '/Admin/Problem' },
-                            { icon: 'access_time', text: '比赛管理', link: '/Admin/Contest' },
-                            { icon: 'group', text: '小组管理', link: '/Admin/Group' },
-                            { icon: 'person', text: '用户管理', link: '/Admin/User' },
-                            { icon: 'settings', text: '系统设置', link: '/Admin/Config' }
-                        ]
-                    }]);
-                }
+            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+                this.items = this.items.concat([{ icon: 'settings', text: '设置', link: '/Admin/Config' }]);
             }
         }
     },

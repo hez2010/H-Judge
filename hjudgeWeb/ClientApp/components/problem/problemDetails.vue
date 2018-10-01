@@ -56,7 +56,7 @@
                                     <strong>出题用户</strong>
                                 </v-flex>
                                 <v-flex xs8>
-                                    <p>{{problem.userName}}</p>
+                                    <p><a @click="showUser(problem.userId)">{{problem.userName}}</a></p>
                                 </v-flex>
                                 <v-flex xs4>
                                     <strong>当前状态</strong>

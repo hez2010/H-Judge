@@ -33,9 +33,11 @@ namespace hjudgeWeb
             if (problem.Type == 1)
             {
                 var judgeOptionBuilder = new CodeJudgeOptionBuilder();
+                var ext = Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language)?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim();
+                buildOptionBuilder.AddExtensionName(ext);
                 var datadir = Path.Combine(Environment.CurrentDirectory, "Data", problem.Id.ToString());
                 var workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeOptionBuilder.GuidStr);
-                var file = Path.Combine(workingdir, $"{judgeOptionBuilder.GuidStr}{Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language)?.Extensions[0]}");
+                var file = Path.Combine(workingdir, $"{judgeOptionBuilder.GuidStr}{ext}");
                 var outputfile = Path.Combine(workingdir, judgeOptionBuilder.GuidStr + ".exe");
                 var name = AlphaNumberFilter(problem.Name);
 
@@ -286,6 +288,8 @@ namespace hjudgeWeb
                     }
 
                     var (judgeOptionBuilder, buildOptionBuilder) = GetOptionBuilders(problem, judge, config);
+                    buildOptionBuilder.AddSource(judge.Content);
+
                     try
                     {
                         var judgeMain = new JudgeMain(SystemConfiguration.Environments);
@@ -316,7 +320,7 @@ namespace hjudgeWeb
                         judge.FullScore = result.JudgePoints?.Sum(i => i.Score) ?? 0;
                         if (judge.ResultType == (int)ResultCode.Accepted)
                         {
-                            if (judge.ContestId == null || judge.ContestId == 0)
+                            if (judge.ContestId == null)
                             {
                                 problem.AcceptCount++;
                             }

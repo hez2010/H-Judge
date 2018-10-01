@@ -4,9 +4,18 @@ import Vuetify from 'vuetify';
 import VueRouter from 'vue-router';
 import 'vuetify/dist/vuetify.min.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
 
 Vue.use(VueRouter);
 Vue.use(Vuetify);
+Vue.directive('highlight', function (el) {
+    if (el.nodeName === 'PRE' || el.nodeName === 'CODE') hljs.highlightBlock(el);
+    let blocks = el.querySelectorAll('pre code');
+    blocks.forEach((block) => {
+        hljs.highlightBlock(block);
+    });
+});
 
 const routes = [
     { path: '/', component: require('./components/home/home.vue').default },
@@ -22,12 +31,19 @@ const routes = [
     { path: '/Status/:gid/:cid/:pid/:page', component: require('./components/status/status.vue').default },
     { path: '/Status/:cid/:pid/:page', component: require('./components/status/status.vue').default },
     { path: '/Status/:pid/:page', component: require('./components/status/status.vue').default },
+    { path: '/Status/:page', component: require('./components/status/status.vue').default },
     { path: '/Status', component: require('./components/status/status.vue').default },
+    { path: '/Result/:jid', component: require('./components/result/result.vue').default },
     { path: '/Rank/:gid/:cid', component: require('./components/rank/rank.vue').default },
     { path: '/Rank/:cid', component: require('./components/rank/rank.vue').default },
     { path: '/Group/:page', component: require('./components/group/group.vue').default },
     { path: '/Group', component: require('./components/group/group.vue').default },
-    { path: '/Account', component: require('./components/account/portal/portal.vue').default }
+    { path: '/Account', component: require('./components/account/portal/portal.vue').default },
+    { path: '/Account/:uid', component: require('./components/account/user/user.vue').default },
+    { path: '/Admin/Problem/:pid', component: require('./components/admin/problem/problem.vue').default },
+    { path: '/Admin/Contest/:cid', component: require('./components/admin/contest/contest.vue').default },
+    { path: '/Admin/Group/:gid', component: require('./components/admin/group/group.vue').default },
+    { path: '/Admin/Config', component: require('./components/admin/config/config.vue').default }
 ];
 
 new Vue({

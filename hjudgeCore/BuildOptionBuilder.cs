@@ -20,6 +20,16 @@ namespace hjudgeCore
             buildOption.StaticCheckOption = staticCheckOption;
         }
 
+        public void AddSource(string source)
+        {
+            buildOption.Source = source;
+        }
+
+        public void AddExtensionName(string extensionName)
+        {
+            buildOption.ExtensionName = extensionName;
+        }
+
         public BuildOption Build()
         {
             return buildOption;

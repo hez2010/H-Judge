@@ -83,16 +83,14 @@
                                           :items="problems"
                                           hide-actions>
                                 <template slot="items" slot-scope="props">
-                                    <tr @click="toDetails(props.item.id)" style="cursor: pointer">
-                                        <td>{{ props.item.id }}</td>
-                                        <td>{{ props.item.name }}</td>
-                                        <td>{{ props.item.creationTime }}</td>
-                                        <td>{{ props.item.type }}</td>
-                                        <td>{{ props.item.level }}</td>
-                                        <td>{{ props.item.status }}</td>
-                                        <td>{{ props.item.acceptCount }}</td>
-                                        <td>{{ props.item.submissionCount }}</td>
-                                    </tr>
+                                    <td>{{ props.item.id }}</td>
+                                    <td><a @click="toDetails(props.item.id)">{{ props.item.name }}</a></td>
+                                    <td>{{ props.item.creationTime }}</td>
+                                    <td>{{ props.item.type }}</td>
+                                    <td>{{ props.item.level }}</td>
+                                    <td>{{ props.item.status }}</td>
+                                    <td>{{ props.item.acceptCount }}</td>
+                                    <td>{{ props.item.submissionCount }}</td>
                                 </template>
                                 <template slot="no-data">
                                     <p v-if="loadingProblem">正在加载...</p>

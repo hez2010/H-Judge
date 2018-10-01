@@ -7,6 +7,7 @@ export default {
         contest: {},
         param: {
             cid: 0,
+            gid: 0
         },
         loading: true,
         loadingProblem: true,
@@ -18,12 +19,7 @@ export default {
         password: '',
         passwordRules: [],
         headers: [
-            {
-                text: '编号',
-                align: 'left',
-                sortable: true,
-                value: 'id'
-            },
+            { text: '编号', value: 'id' },
             { text: '名称', value: 'name' },
             { text: '添加时间', value: 'creationTime' },
             { text: '类型', value: 'type' },
@@ -34,9 +30,8 @@ export default {
         ]
     }),
     mounted: function () {
-        if (this.$route.params.cid) {
-            this.param.cid = parseInt(this.$route.params.cid);
-        }
+        if (this.$route.params.cid) this.param.cid = parseInt(this.$route.params.cid);
+        if (this.$route.params.gid) this.param.cid = parseInt(this.$route.params.gid);
         setTitle('比赛详情');
         Get('/Contest/GetContestDetails', this.param)
             .then(res => res.json())
@@ -66,8 +61,9 @@ export default {
             .then(res => res.json())
             .then(data => {
                 this.pageCount = Math.ceil(data / 10);
-                if (this.page > this.pageCount)
-                    this.page = this.pageCount;
+                if (this.pageCount === 0) this.pageCount = 1;
+                if (this.page > this.pageCount) this.page = this.pageCount;
+                if (this.page <= 0) this.page = 1;
             })
             .catch(() => this.pageCount = 0);
         Get('/Contest/GetProblemList', this.param)
@@ -78,6 +74,7 @@ export default {
             })
             .catch(() => {
                 alert('题目列表加载失败');
+                this.problems = [];
                 this.loadingProblem = false;
             });
     },
@@ -93,6 +90,7 @@ export default {
                     this.loadingProblem = false;
                 })
                 .catch(() => {
+                    alert('题目列表加载失败');
                     this.problems = [];
                     this.loadingProblem = false;
                 });

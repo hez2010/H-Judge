@@ -35,7 +35,7 @@
                                     </div>
                                 </v-flex>
                                 <v-flex xs9>
-                                    <v-card :height="height" flat>
+                                    <v-card flat>
                                         <div v-if="bottomNav === '1'">
                                             <v-layout wrap v-bind="isColumn">
                                                 <v-flex xs7>

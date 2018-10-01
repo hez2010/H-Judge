@@ -119,6 +119,21 @@ namespace hjudgeWeb.Controllers
             }
         }
 
+        public async Task<int> GetProblemCount(int cid)
+        {
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var contest = await db.Contest.FindAsync(cid);
+                if (contest == null || (contest.Hidden && !HasAdminPrivilege(privilege)))
+                {
+                    return 0;
+                }
+
+                return db.ContestProblemConfig.Count(i => i.ContestId == cid && db.Problem.Any(j => j.Id == i.ProblemId));
+            }
+        }
+
         public async Task<List<ProblemListItemModel>> GetProblemList(int cid, int start = 0, int count = 10)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();

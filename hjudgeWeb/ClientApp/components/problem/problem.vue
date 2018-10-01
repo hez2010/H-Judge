@@ -3,22 +3,43 @@
         <v-card>
             <v-card-title primary-title>
                 <h2>题目列表</h2>
+                <v-spacer></v-spacer>
+                <v-tooltip v-if="user && user.privilege >= 1 && user.privilege <= 3" bottom>
+                    <v-btn icon slot="activator">
+                        <v-icon color="primary">add</v-icon>
+                    </v-btn>
+                    <span>添加</span>
+                </v-tooltip>
             </v-card-title>
             <v-card-text>
                 <v-data-table :headers="headers"
                               :items="problems"
                               hide-actions>
                     <template slot="items" slot-scope="props">
-                        <tr @click="toDetails(props.item.id)" style="cursor: pointer">
-                            <td>{{ props.item.id }} <span v-if="props.item.hidden">(隐藏)</span></td>
-                            <td>{{ props.item.name }}</td>
-                            <td>{{ props.item.creationTime }}</td>
-                            <td>{{ props.item.type }}</td>
-                            <td>{{ props.item.level }}</td>
-                            <td>{{ props.item.status }}</td>
-                            <td>{{ props.item.acceptCount }}</td>
-                            <td>{{ props.item.submissionCount }}</td>
-                        </tr>
+                        <td>{{ props.item.id }} <span v-if="props.item.hidden">(隐藏)</span></td>
+                        <td><a @click="toDetails(props.item.id)">{{ props.item.name }}</a></td>
+                        <td>{{ props.item.creationTime }}</td>
+                        <td>{{ props.item.type }}</td>
+                        <td>{{ props.item.level }}</td>
+                        <td>{{ props.item.status }}</td>
+                        <td>{{ props.item.acceptCount }}</td>
+                        <td>{{ props.item.submissionCount }}</td>
+                        <td v-if="user && user.privilege >= 1 && user.privilege <= 3">
+                            <v-layout row>
+                                <v-tooltip bottom>
+                                    <v-btn icon slot="activator">
+                                        <v-icon color="primary">edit</v-icon>
+                                    </v-btn>
+                                    <span>编辑</span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <v-btn icon slot="activator">
+                                        <v-icon color="red">delete</v-icon>
+                                    </v-btn>
+                                    <span>删除</span>
+                                </v-tooltip>
+                            </v-layout>
+                        </td>
                     </template>
                     <template slot="no-data">
                         <p v-if="loading">正在加载...</p>

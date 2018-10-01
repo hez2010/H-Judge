@@ -74,6 +74,9 @@ export default {
                         this.submitting = false;
                     });
             }
+        },
+        showUser: function (userId) {
+            this.$router.push('/Account/' + userId);
         }
     }
 };

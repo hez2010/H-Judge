@@ -139,7 +139,7 @@ namespace hjudgeWeb.Controllers
                         }
                     }
 
-                    if (!db.GroupContestConfig.Where(i => i.GroupId == submit.Gid).Any(i => i.ContestId == submit.Cid))
+                    if (!db.GroupContestConfig.Any(i => i.GroupId == submit.Gid && i.ContestId == submit.Cid))
                     {
                         return new SubmitReturnDataModel
                         {
@@ -188,6 +188,31 @@ namespace hjudgeWeb.Controllers
                     {
                         languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
                     }
+                    if (config.SubmissionLimit != 0)
+                    {
+                        if (submit.Gid == 0)
+                        {
+                            if (db.Judge.Count(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid && i.GroupId == null && i.UserId == user.Id) >= config.SubmissionLimit)
+                            {
+                                return new SubmitReturnDataModel
+                                {
+                                    IsSucceeded = false,
+                                    ErrorMessage = "提交次数超出限制"
+                                };
+                            }
+                        }
+                        else
+                        {
+                            if (db.Judge.Count(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid && i.GroupId == submit.Gid && i.UserId == user.Id) >= config.SubmissionLimit)
+                            {
+                                return new SubmitReturnDataModel
+                                {
+                                    IsSucceeded = false,
+                                    ErrorMessage = "提交次数超出限制"
+                                };
+                            }
+                        }
+                    }
                 }
 
                 if (!languages.Contains(submit.Language))
@@ -215,7 +240,10 @@ namespace hjudgeWeb.Controllers
                     UserId = user.Id,
                     JudgeTime = DateTime.Now,
                     Description = "Online Judge",
-                    Language = submit.Language
+                    Language = submit.Language,
+                    FullScore = 0,
+                    ResultType = (int)ResultCode.Pending,
+                    Type = problem.Type
                 };
                 if (submit.Cid != 0)
                 {
