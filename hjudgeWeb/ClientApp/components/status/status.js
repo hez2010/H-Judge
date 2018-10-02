@@ -10,14 +10,29 @@ export default {
         problems: [],
         pageCount: 0,
         headers: [
-            { text: '编号', value: 'id' },
+            { text: '编号', value: 'id', order: false },
             { text: '时间', value: 'judgeTime' },
             { text: '题目', value: 'problemName' },
             { text: '用户', value: 'userName' },
             { text: '语言', value: 'language' },
             { text: '结果', value: 'result' },
             { text: '总分', value: 'fullScore' }
-        ]
+        ],
+        sortRules: function (items, index, isDescending) {
+            if (index === 'id') {
+                return items.sort((x, y) => {
+                    if (x.id < y.id) return isDescending ? -1 : 1;
+                    else if (x.id > y.id) return isDescending ? 1 : -1;
+                    else return 0;
+                });
+            } else {
+                return items.sort((x, y) => {
+                    if (x.id < y.id) return isDescending ? 1 : -1;
+                    else if (x.id > y.id) return isDescending ? -1 : 1;
+                    else return 0;
+                });
+            }
+        }
     }),
     mounted: function () {
         setTitle('状态');

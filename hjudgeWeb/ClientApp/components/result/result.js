@@ -1,4 +1,4 @@
-﻿import { Get } from '../../utilities/requestHelper';
+﻿import { Get, Post } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
 
 export default {
@@ -6,6 +6,7 @@ export default {
         result: {},
         loading: true,
         headers: [
+            { text: '编号', value: 'id' },
             { text: '时间', value: 'timeCost' },
             { text: '内存', value: 'memoryCost' },
             { text: '退出代码', value: 'exitCode' },
@@ -23,7 +24,7 @@ export default {
             .then(data => {
                 if (data.isSucceeded) {
                     this.result = data;
-                    if (data.resultCode <= 0) {
+                    if (data.resultType <= 0) {
                         this.$nextTick(function () {
                             this.timer = setInterval(() => this.queryResult(jid), 5000);
                         });
@@ -46,12 +47,43 @@ export default {
                 .then(data => {
                     if (data.isSucceeded) {
                         this.result = data;
-                        if (data.resultCode > 0) {
+                        if (data.resultType > 0) {
                             clearInterval(this.timer);
                             this.timer = null;
                         }
                     }
                 });
+        },
+        rejudge: function (jid) {
+            Post('/Status/Rejudge', { jid: jid })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.isSucceeded) {
+                        this.loading = true;
+                        Get('/Status/GetJudgeResult', { jid: jid })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.isSucceeded) {
+                                    this.result = data;
+                                    if (data.resultType <= 0) {
+                                        this.$nextTick(function () {
+                                            this.timer = setInterval(() => this.queryResult(jid), 5000);
+                                        });
+                                    }
+                                }
+                                else {
+                                    alert(data.errorMessage);
+                                }
+                                this.loading = false;
+                            })
+                            .catch(() => {
+                                alert('加载失败');
+                                this.loading = false;
+                            });
+                    }
+                    else alert(data.errorMessage);
+                })
+                .catch(() => alert('请求失败'));
         }
     }
 };

@@ -37,7 +37,9 @@
                                         <div class="headline text-xs-center">Material Design</div>
                                     </v-card-title>
                                     <v-card-text>
-                                        重新设计的 H::Judge，采用 Material Design 风格设计，界面美观却不失操作的便捷性。
+                                        <v-layout align-center justify-center>
+                                            重新设计的 H::Judge，采用 Material Design 风格设计，界面美观却不失操作的便捷性。
+                                        </v-layout>
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -50,7 +52,9 @@
                                         <div class="headline">Fast Judge</div>
                                     </v-card-title>
                                     <v-card-text>
-                                        H::Judge 使用了高速的评测机和评测算法，可以让每一个提交都能在短时间内得到评测结果。
+                                        <v-layout align-center justify-center>
+                                            H::Judge 使用了高速的评测机和评测算法，可以让每一个提交都能在短时间内得到评测结果。
+                                        </v-layout>
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -63,7 +67,9 @@
                                         <div class="headline text-xs-center">Study Assistant</div>
                                     </v-card-title>
                                     <v-card-text>
-                                        H::Judge 中丰富的题目和比赛将助力你的程序设计学习/比赛生涯，快速提升你的编程水平。
+                                        <v-layout align-center justify-center>
+                                            H::Judge 中丰富的题目和比赛将助力你的程序设计学习/比赛生涯，快速提升你的编程水平。
+                                        </v-layout>
                                     </v-card-text>
                                 </v-card>
                             </v-flex>
@@ -112,7 +118,7 @@
                                         <v-icon class="blue--text text--lighten-2">email</v-icon>
                                     </v-list-tile-action>
                                     <v-list-tile-content>
-                                        <v-list-tile-title>hez2010@126.com</v-list-tile-title>
+                                        <v-list-tile-title><a href="mailto:hez2010@126.com">hez2010@126.com</a></v-list-tile-title>
                                     </v-list-tile-content>
                                 </v-list-tile>
                             </v-list>

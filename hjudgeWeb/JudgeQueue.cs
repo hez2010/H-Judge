@@ -35,7 +35,7 @@ namespace hjudgeWeb
                 var judgeOptionBuilder = new CodeJudgeOptionBuilder();
                 var ext = Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language)?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim();
                 buildOptionBuilder.AddExtensionName(ext);
-                var datadir = Path.Combine(Environment.CurrentDirectory, "Data", problem.Id.ToString());
+                var datadir = Path.Combine(Environment.CurrentDirectory, "AppData", "Data", problem.Id.ToString());
                 var workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeOptionBuilder.GuidStr);
                 var file = Path.Combine(workingdir, $"{judgeOptionBuilder.GuidStr}{ext}");
                 var outputfile = Path.Combine(workingdir, judgeOptionBuilder.GuidStr + ".exe");
@@ -255,7 +255,7 @@ namespace hjudgeWeb
         public static async Task JudgeThread()
         {
             ApplicationDbContext db = null;
-            while (Environment.HasShutdownStarted)
+            while (!Environment.HasShutdownStarted)
             {
                 while (JudgeIdQueue.TryDequeue(out int id))
                 {
@@ -287,11 +287,11 @@ namespace hjudgeWeb
                         continue;
                     }
 
-                    var (judgeOptionBuilder, buildOptionBuilder) = GetOptionBuilders(problem, judge, config);
-                    buildOptionBuilder.AddSource(judge.Content);
 
                     try
                     {
+                        var (judgeOptionBuilder, buildOptionBuilder) = GetOptionBuilders(problem, judge, config);
+                        buildOptionBuilder.AddSource(judge.Content);
                         var judgeMain = new JudgeMain(SystemConfiguration.Environments);
                         var result = await judgeMain.JudgeAsync(buildOptionBuilder.Build(), judgeOptionBuilder.Build());
                         judge.Result = JsonConvert.SerializeObject(result);
@@ -302,17 +302,17 @@ namespace hjudgeWeb
                                 return ResultCode.Judging;
                             }
 
-                            if (result.JudgePoints.Count == 0 || result.JudgePoints.All(i => i.Result == ResultCode.Accepted))
+                            if (result.JudgePoints.Count == 0 || result.JudgePoints.All(i => i.ResultType == ResultCode.Accepted))
                             {
                                 return ResultCode.Accepted;
                             }
 
                             var mostPresentTimes =
-                                result.JudgePoints.Select(i => i.Result).Distinct().Max(i =>
-                                    result.JudgePoints.Count(j => j.Result == i && j.Result != ResultCode.Accepted));
+                                result.JudgePoints.Select(i => i.ResultType).Distinct().Max(i =>
+                                    result.JudgePoints.Count(j => j.ResultType == i && j.ResultType != ResultCode.Accepted));
                             var mostPresent =
-                                result.JudgePoints.Select(i => i.Result).Distinct().FirstOrDefault(
-                                    i => result.JudgePoints.Count(j => j.Result == i && j.Result != ResultCode.Accepted) ==
+                                result.JudgePoints.Select(i => i.ResultType).Distinct().FirstOrDefault(
+                                    i => result.JudgePoints.Count(j => j.ResultType == i && j.ResultType != ResultCode.Accepted) ==
                                          mostPresentTimes
                                 );
                             return mostPresent;

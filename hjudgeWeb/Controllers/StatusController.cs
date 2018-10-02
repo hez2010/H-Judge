@@ -2,6 +2,7 @@
 using hjudgeWeb.Configurations;
 using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
+using hjudgeWeb.Models;
 using hjudgeWeb.Models.Status;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,7 @@ namespace hjudgeWeb.Controllers
             return privilege >= 1 && privilege <= 3;
         }
 
+        [HttpGet]
         public async Task<int> GetStatusCount(int pid = 0, int cid = 0, int gid = 0)
         {
             using (var db = new ApplicationDbContext(_dbContextOptions))
@@ -87,6 +89,7 @@ namespace hjudgeWeb.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<List<StatusListItemModel>> GetStatusList(int start = 0, int count = 10, int pid = 0, int cid = 0, int gid = 0)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
@@ -167,6 +170,59 @@ namespace hjudgeWeb.Controllers
             }
         }
 
+        public class SubmitModel
+        {
+            public int Jid { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> Rejudge([FromBody]SubmitModel submit)
+        {
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            var ret = new ResultModel { IsSucceeded = true };
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有权限";
+            }
+            else
+            {
+                using (var db = new ApplicationDbContext(_dbContextOptions))
+                {
+                    var judge = await db.Judge.FindAsync(submit.Jid);
+                    if (judge == null)
+                    {
+                        ret.IsSucceeded = false;
+                        ret.ErrorMessage = "找不到该提交";
+                    }
+                    else
+                    {
+                        if (judge.ResultType <= 0)
+                        {
+                            ret.IsSucceeded = false;
+                            ret.ErrorMessage = "请等待上一次评测完成";
+                        }
+                        else
+                        {
+                            if (!HasAdminPrivilege(privilege) && judge.UserId != user?.Id)
+                            {
+                                ret.IsSucceeded = false;
+                                ret.ErrorMessage = "没有权限";
+                            }
+                        }
+                    }
+                    if (ret.IsSucceeded)
+                    {
+                        judge.ResultType = -1;
+                        await db.SaveChangesAsync();
+                        JudgeQueue.JudgeIdQueue.Enqueue(judge.Id);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        [HttpGet]
         public async Task<JudgeResultModel> GetJudgeResult(int jid)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
@@ -180,6 +236,12 @@ namespace hjudgeWeb.Controllers
                     ret.ErrorMessage = "找不到该结果";
                     return ret;
                 }
+                if (!HasAdminPrivilege(privilege) && judge.UserId != user?.Id)
+                {
+                    ret.IsSucceeded = false;
+                    ret.ErrorMessage = "没有权限";
+                    return ret;
+                }
 
                 ret.Id = judge.Id;
                 ret.ContestId = judge.ContestId ?? 0;
@@ -187,8 +249,8 @@ namespace hjudgeWeb.Controllers
                 ret.ProblemId = judge.ProblemId ?? 0;
                 ret.UserId = judge.UserId;
                 ret.RawJudgeTime = judge.JudgeTime;
-                ret.ResultCode = judge.ResultType;
-                ret.JudgeResult = JsonConvert.DeserializeObject<JudgeResult>(judge.Result);
+                ret.ResultType = judge.ResultType;
+                ret.JudgeResult = JsonConvert.DeserializeObject<JudgeResult>(judge.Result ?? "{}");
                 ret.Language = judge.Language;
                 ret.FullScore = judge.FullScore;
                 ret.Content = judge.Content;

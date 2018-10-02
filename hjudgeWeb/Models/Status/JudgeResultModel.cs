@@ -17,8 +17,8 @@ namespace hjudgeWeb.Models.Status
         public int GroupId { get; set; }
         public string GroupName { get; set; }
         public string Language { get; set; }
-        public int ResultCode { get; set; }
-        public string Result => Enum.GetName(typeof(ResultCode), ResultCode).Replace("_", " ");
+        public int ResultType { get; set; }
+        public string Result => Enum.GetName(typeof(ResultCode), ResultType).Replace("_", " ");
         public int RawType { get; set; }
         public string Type => RawType == 1 ? "提交代码" : "提交答案";
         public float FullScore { get; set; }

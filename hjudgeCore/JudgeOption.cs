@@ -4,6 +4,11 @@ namespace hjudgeCore
 {
     public sealed class JudgeOption
     {
+        public JudgeOption()
+        {
+            DataPoints = new List<DataPoint>();
+        }
+
         public string GuidStr { get; set; }
         public ComparingOption ComparingOption { get; set; }
         public RunOption RunOption { get; set; }

@@ -18,13 +18,13 @@ export default {
         ]
     }),
     mounted: function () {
-        if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+        if (this.user && this.user.privilege === 1) {
             this.items = this.items.concat([{ icon: 'settings', text: '设置', link: '/Admin/Config' }]);
         }
     },
     watch: {
         user: function () {
-            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+            if (this.user && this.user.privilege === 1) {
                 this.items = this.items.concat([{ icon: 'settings', text: '设置', link: '/Admin/Config' }]);
             }
         }

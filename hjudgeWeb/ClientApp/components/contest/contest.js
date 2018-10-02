@@ -15,7 +15,22 @@ export default {
             { text: '结束时间', value: 'endTime' },
             { text: '题目数量', value: 'problemCount' },
             { text: '状态', value: 'status' }
-        ]
+        ],
+        sortRules: function (items, index, isDescending) {
+            if (index === 'id') {
+                return items.sort((x, y) => {
+                    if (x.id < y.id) return isDescending ? -1 : 1;
+                    else if (x.id > y.id) return isDescending ? 1 : -1;
+                    else return 0;
+                });
+            } else {
+                return items.sort((x, y) => {
+                    if (x.id < y.id) return isDescending ? 1 : -1;
+                    else if (x.id > y.id) return isDescending ? -1 : 1;
+                    else return 0;
+                });
+            }
+        }
     }),
     mounted: function () {
         setTitle('比赛');

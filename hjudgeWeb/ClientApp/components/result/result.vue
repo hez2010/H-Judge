@@ -12,7 +12,7 @@
                 <v-tab :key="2">
                     提交
                 </v-tab>
-                <v-tab :key="3" v-if="result.resultCode > 0">
+                <v-tab :key="3" v-if="result.resultType > 0">
                     详情
                 </v-tab>
                 <v-tab :key="4" v-if="result.rawType === 1 && (result.judgeResult.compileLog || result.judgeResult.staticCheckLog)">
@@ -62,9 +62,15 @@
                                     <p>
                                         <v-progress-circular indeterminate
                                                              color="primary"
-                                                             v-if="result.resultCode <= 0">
+                                                             v-if="result.resultType <= 0">
                                         </v-progress-circular>
                                         {{result.result}}
+                                        <v-tooltip bottom v-if="!loading && result.resultType > 0">
+                                            <v-btn @click="rejudge(result.id)" icon slot="activator">
+                                                <v-icon color="primary">refresh</v-icon>
+                                            </v-btn>
+                                            <span>重新评测</span>
+                                        </v-tooltip>
                                     </p>
                                 </v-flex>
                                 <v-flex xs4>
@@ -97,7 +103,7 @@
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
-                <v-tab-item :key="3" v-if="result.resultCode > 0">
+                <v-tab-item :key="3" v-if="result.resultType > 0">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
                         <v-container v-else>
@@ -106,6 +112,7 @@
                                           hide-actions
                                           v-if="result.judgeResult.judgePoints">
                                 <template slot="items" slot-scope="props">
+                                    <td>{{ props.index + 1 }}</td>
                                     <td>{{ props.item.timeCost }}</td>
                                     <td>{{ props.item.memoryCost }}</td>
                                     <td>{{ props.item.exitCode }}</td>

@@ -20,12 +20,12 @@ namespace hjudgeWeb
     {
         public static readonly DbContextOptionsBuilder<ApplicationDbContext> DbContextOptionsBuilder =
             new DbContextOptionsBuilder<ApplicationDbContext>();
-        
+
         public static async Task Main(string[] args)
         {
-            var systemConfig = JObject.Parse(File.ReadAllText("AppData/SystemConfig.json", Encoding.UTF8));
-            SystemConfiguration.Environments = systemConfig["Environments"].ToString();
-            Languages.LanguageConfigurations = JsonConvert.DeserializeObject<List<LanguageConfiguration>>(File.ReadAllText("AppData/LanguageConfig.json", Encoding.UTF8));
+            var systemConfig = JObject.Parse(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), Encoding.UTF8));
+            SystemConfiguration.Environments = systemConfig.ContainsKey("Environments") ? systemConfig["Environments"].ToString() : string.Empty;
+            Languages.LanguageConfigurations = JsonConvert.DeserializeObject<List<LanguageConfiguration>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "LanguageConfig.json"), Encoding.UTF8));
 
             var connectionString = JsonConvert
                 .DeserializeAnonymousType(File.ReadAllText("appsettings.json"),
@@ -46,9 +46,16 @@ namespace hjudgeWeb
                 }
             }
 
-            for (var i = 0; i < Environment.ProcessorCount; i++)
+            for (var i = 0; i < 1; i++)
             {
-                new Thread(async () => await JudgeQueue.JudgeThread()).Start();
+                new Thread(() =>
+                {
+                    var action = new Action(async () =>
+                    {
+                        await JudgeQueue.JudgeThread();
+                    });
+                    action.Invoke();
+                }).Start();
             }
 
             await CreateWebHostBuilder(args).Build().RunAsync();

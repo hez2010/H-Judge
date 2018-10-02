@@ -1,4 +1,6 @@
-﻿namespace hjudgeCore
+﻿using System;
+
+namespace hjudgeCore
 {
     public class JudgePoint
     {
@@ -7,6 +9,7 @@
         public long MemoryCost { get; set; }
         public int ExitCode { get; set; }
         public string ExtraInfo { get; set; }
-        public ResultCode Result { get; set; }
+        public ResultCode ResultType { get; set; }
+        public string Result => Enum.GetName(typeof(ResultCode), ResultType).Replace("_", " ");
     }
 }

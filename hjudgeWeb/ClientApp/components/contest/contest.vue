@@ -14,6 +14,7 @@
             <v-card-text>
                 <v-data-table :headers="headers"
                               :items="contests"
+                              :custom-sort="sortRules"
                               hide-actions>
                     <template slot="items" slot-scope="props">
                         <td>{{ props.item.id }} <span v-if="props.item.hidden">(隐藏)</span></td>

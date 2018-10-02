@@ -38,6 +38,7 @@ const routes = [
     { path: '/Rank/:cid', component: require('./components/rank/rank.vue').default },
     { path: '/Group/:page', component: require('./components/group/group.vue').default },
     { path: '/Group', component: require('./components/group/group.vue').default },
+    { path: '/About', component: require('./components/about/about.vue').default },
     { path: '/Account', component: require('./components/account/portal/portal.vue').default },
     { path: '/Account/:uid', component: require('./components/account/user/user.vue').default },
     { path: '/Admin/Problem/:pid', component: require('./components/admin/problem/problem.vue').default },

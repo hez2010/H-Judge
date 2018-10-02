@@ -7,6 +7,7 @@
             <v-card-text>
                 <v-data-table :headers="headers"
                               :items="statuses"
+                              :custom-sort="sortRules"
                               hide-actions>
                     <template slot="items" slot-scope="props">
                         <td><a @click="toResult(props.item.id)">{{ props.item.id }}</a></td>

@@ -42,6 +42,7 @@ namespace hjudgeWeb.Controllers
             return privilege >= 1 && privilege <= 3;
         }
 
+        [HttpGet]
         public async Task<int> GetContestCount()
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
@@ -52,6 +53,7 @@ namespace hjudgeWeb.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<List<ContestListItemModel>> GetContestList(int start = 0, int count = 10)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
@@ -83,6 +85,7 @@ namespace hjudgeWeb.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<ContestDetailsModel> GetContestDetails(int cid)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
@@ -119,6 +122,7 @@ namespace hjudgeWeb.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<int> GetProblemCount(int cid)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
@@ -134,6 +138,7 @@ namespace hjudgeWeb.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<List<ProblemListItemModel>> GetProblemList(int cid, int start = 0, int count = 10)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
