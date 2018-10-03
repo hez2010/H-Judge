@@ -38,7 +38,7 @@
                                     </v-card-title>
                                     <v-card-text>
                                         <v-layout align-center justify-center>
-                                            重新设计的 H::Judge，采用 Material Design 风格设计，界面美观却不失操作的便捷性。
+                                            重新设计的 H::Judge，采用 Material Design 风格设计，UI 美观、反应迅速、操作便捷。
                                         </v-layout>
                                     </v-card-text>
                                 </v-card>
@@ -68,7 +68,7 @@
                                     </v-card-title>
                                     <v-card-text>
                                         <v-layout align-center justify-center>
-                                            H::Judge 中丰富的题目和比赛将助力你的程序设计学习/比赛生涯，快速提升你的编程水平。
+                                            H::Judge 比赛、小组等功能有助于跟踪学习状态，详细的评测结果有助于快速提升编程能力。
                                         </v-layout>
                                     </v-card-text>
                                 </v-card>
