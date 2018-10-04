@@ -1,5 +1,5 @@
 ﻿import { setTitle } from '../../utilities/titleHelper';
-import { Get } from '../../utilities/requestHelper';
+import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
     props: ['user'],
@@ -55,6 +55,16 @@ export default {
     watch: {
         page: function () {
             this.$router.push('/Contest/' + this.page);
+            this.load();
+        },
+        user: function () {
+            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+                this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
+            }
+        }
+    },
+    methods: {
+        load: function () {
             this.loading = true;
             let param = { start: (this.page - 1) * 10, count: 10 };
             if (this.$route.params.gid) param['gid'] = this.$route.params.gid;
@@ -70,15 +80,27 @@ export default {
                     this.loading = false;
                 });
         },
-        user: function () {
-            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
-                this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
-            }
-        }
-    },
-    methods: {
         toDetails: function (id) {
             this.$router.push('/ContestDetails/' + id.toString());
+        },
+        addContest: function () {
+            this.$router.push('/Admin/Contest/0');
+        },
+        editContest: function (id) {
+            this.$router.push('/Admin/Contest/' + id.toString());
+        },
+        deleteContest: function (id) {
+            if (confirm('确定要删除此比赛吗？')) {
+                Post('/Admin/DeleteContest', { id: id })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.isSucceeded) {
+                            this.load();
+                        }
+                        else alert(data.errorMessage);
+                    })
+                    .catch(() => alert('删除失败'));
+            }
         }
     }
 };

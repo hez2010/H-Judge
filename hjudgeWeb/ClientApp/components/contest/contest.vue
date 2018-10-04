@@ -5,7 +5,7 @@
                 <h2>比赛列表</h2>
                 <v-spacer></v-spacer>
                 <v-tooltip v-if="user && user.privilege >= 1 && user.privilege <= 3" bottom>
-                    <v-btn icon slot="activator">
+                    <v-btn icon slot="activator" @click="addContest">
                         <v-icon color="primary">add</v-icon>
                     </v-btn>
                     <span>添加</span>
@@ -26,13 +26,13 @@
                         <td v-if="user && user.privilege >= 1 && user.privilege <= 3">
                             <v-layout row>
                                 <v-tooltip bottom>
-                                    <v-btn icon slot="activator">
+                                    <v-btn icon slot="activator" @click="editContest(props.item.id)">
                                         <v-icon color="primary">edit</v-icon>
                                     </v-btn>
                                     <span>编辑</span>
                                 </v-tooltip>
                                 <v-tooltip bottom>
-                                    <v-btn icon slot="activator">
+                                    <v-btn icon slot="activator" @click="deleteContest(props.item.id)">
                                         <v-icon color="red">delete</v-icon>
                                     </v-btn>
                                     <span>删除</span>

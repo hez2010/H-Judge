@@ -53,7 +53,7 @@
                                     </v-text-field>
                                     <v-checkbox label="使用标准输入输出" v-model="problem.config.useStdIO"></v-checkbox>
                                 </v-layout>
-                                <v-radio-group v-model="problem.type" label="题目类型" @change="changeType">
+                                <v-radio-group v-model="problem.type" label="题目类型">
                                     <v-layout>
                                         <v-radio key="1"
                                                  label="提交代码"

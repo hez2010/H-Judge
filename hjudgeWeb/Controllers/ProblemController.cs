@@ -162,7 +162,7 @@ namespace hjudgeWeb.Controllers
                         };
                     }
 
-                    if (contest.Hidden || !db.ContestRegister.Any(i => i.ContestId == submit.Cid && i.UserId == user.Id))
+                    if (submit.Gid == 0 && (contest.Hidden || !db.ContestRegister.Any(i => i.ContestId == submit.Cid && i.UserId == user.Id)))
                     {
                         if (!HasAdminPrivilege(privilege))
                         {
@@ -172,6 +172,15 @@ namespace hjudgeWeb.Controllers
                                 ErrorMessage = "没有权限"
                             };
                         }
+                    }
+
+                    if (DateTime.Now > contest.EndTime)
+                    {
+                        return new SubmitReturnDataModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "比赛已结束"
+                        };
                     }
 
                     if (!db.ContestProblemConfig.Any(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid))

@@ -61,7 +61,7 @@ namespace hjudgeWeb.Controllers
         public async Task<ResultModel> DeleteProblem([FromBody]ProblemIdModel model)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
-            var ret = new ProblemEditModel { IsSucceeded = true };
+            var ret = new ResultModel { IsSucceeded = true };
             if (!HasAdminPrivilege(privilege))
             {
                 ret.IsSucceeded = false;
@@ -169,7 +169,6 @@ namespace hjudgeWeb.Controllers
         [HttpPost]
         public async Task<IActionResult> DownloadProblemData([FromBody]ProblemIdModel model)
         {
-            var ret = new ResultModel { IsSucceeded = true };
             var (user, privilege) = await GetUserPrivilegeAsync();
             if (!HasAdminPrivilege(privilege))
             {
