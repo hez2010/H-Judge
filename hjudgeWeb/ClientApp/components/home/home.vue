@@ -130,4 +130,4 @@
     </div>
 </template>
 
-<script src="./home.js"></script>
+<script type="text/javascript" src="./home.js"></script>

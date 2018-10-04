@@ -55,4 +55,4 @@
     </v-container>
 </template>
 
-<script src="./contest.js"></script>
+<script type="text/javascript" src="./contest.js"></script>

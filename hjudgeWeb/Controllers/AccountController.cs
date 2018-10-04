@@ -67,7 +67,7 @@ namespace hjudgeWeb.Controllers
             if (file == null)
             {
                 result.IsSucceeded = false;
-                result.ErrorMessage = "找不到文件";
+                result.ErrorMessage = "文件无效";
                 return result;
             }
 

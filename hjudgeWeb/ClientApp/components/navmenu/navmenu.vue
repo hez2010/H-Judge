@@ -119,4 +119,4 @@
     </div>
 </template>
 
-<script src="./navmenu.js"></script>
+<script type="text/javascript" src="./navmenu.js"></script>

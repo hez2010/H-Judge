@@ -35,4 +35,4 @@
     </v-container>
 </template>
 
-<script src="./status.js"></script>
+<script type="text/javascript" src="./status.js"></script>

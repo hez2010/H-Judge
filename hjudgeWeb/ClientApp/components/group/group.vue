@@ -6,4 +6,4 @@
     </v-container>
 </template>
 
-<script src="./group.js"></script>
+<script type="text/javascript" src="./group.js"></script>

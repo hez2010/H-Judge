@@ -97,19 +97,19 @@ export default {
             document.getElementById('avatar_file').click();
         },
         validateFile: function () {
-            var ele = document.getElementById('avatar_file');
-            const file = ele.files[0];
+            let ele = document.getElementById('avatar_file');
+            let file = ele.files[0];
             if (!file.type.startsWith('image/')) {
                 alert('所选文件不是图片文件');
                 ele.value = '';
                 return;
             }
             if (file.size > 1048576) {
-                alert('图片大小不能大于 1 Mb');
+                alert('图片大小不能超过 1 Mb');
                 ele.value = '';
                 return;
             }
-            var form = new FormData();
+            let form = new FormData();
             form.append('file', file);
             fetch('/Account/UpdateAvatar', {
                 method: 'POST',
@@ -122,8 +122,12 @@ export default {
                 .then(data => {
                     if (data.isSucceeded) window.location.reload();
                     else alert(data.errorMessage);
+                    ele.value = '';
                 })
-                .catch(() => alert('修改失败'));
+                .catch(() => {
+                    alert('修改失败');
+                    ele.value = '';
+                });
         }
     }
 };

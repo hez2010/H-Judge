@@ -7,8 +7,8 @@ export default {
         loading: true,
         headers: [
             { text: '编号', value: 'id' },
-            { text: '时间', value: 'timeCost' },
-            { text: '内存', value: 'memoryCost' },
+            { text: '时间 (ms)', value: 'timeCost' },
+            { text: '内存 (kb)', value: 'memoryCost' },
             { text: '退出代码', value: 'exitCode' },
             { text: '结果', value: 'result' },
             { text: '分数', value: 'score' },
@@ -25,9 +25,7 @@ export default {
                 if (data.isSucceeded) {
                     this.result = data;
                     if (data.resultType <= 0) {
-                        this.$nextTick(function () {
-                            this.timer = setInterval(() => this.queryResult(jid), 5000);
-                        });
+                        this.$nextTick(() => this.timer = setInterval(() => this.queryResult(jid), 5000));
                     }
                 }
                 else {

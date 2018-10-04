@@ -39,4 +39,4 @@
     </v-card>
 </template>
 
-<script src="./register.js"></script>
+<script type="text/javascript" src="./register.js"></script>

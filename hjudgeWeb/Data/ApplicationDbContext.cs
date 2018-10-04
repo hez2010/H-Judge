@@ -45,11 +45,13 @@ namespace hjudgeWeb.Data
 
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.ContestProblemConfig)
-                    .HasForeignKey(d => d.ContestId);
+                    .HasForeignKey(d => d.ContestId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Problem)
                     .WithMany(p => p.ContestProblemConfig)
-                    .HasForeignKey(d => d.ProblemId);
+                    .HasForeignKey(d => d.ProblemId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<ContestRegister>(entity =>
@@ -60,7 +62,8 @@ namespace hjudgeWeb.Data
 
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.ContestRegister)
-                    .HasForeignKey(d => d.ContestId);
+                    .HasForeignKey(d => d.ContestId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Group>(entity =>
@@ -76,11 +79,13 @@ namespace hjudgeWeb.Data
 
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.GroupContestConfig)
-                    .HasForeignKey(d => d.ContestId);
+                    .HasForeignKey(d => d.ContestId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Group)
                     .WithMany(p => p.GroupContestConfig)
-                    .HasForeignKey(d => d.GroupId);
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<GroupJoin>(entity =>
@@ -93,7 +98,8 @@ namespace hjudgeWeb.Data
 
                 entity.HasOne(d => d.Group)
                     .WithMany(p => p.GroupJoin)
-                    .HasForeignKey(d => d.GroupId);
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Judge>(entity =>
@@ -104,15 +110,18 @@ namespace hjudgeWeb.Data
 
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.Judge)
-                    .HasForeignKey(d => d.ContestId);
+                    .HasForeignKey(d => d.ContestId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Group)
                     .WithMany(p => p.Judge)
-                    .HasForeignKey(d => d.GroupId);
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Problem)
                     .WithMany(p => p.Judge)
-                    .HasForeignKey(d => d.ProblemId);
+                    .HasForeignKey(d => d.ProblemId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Message>(entity =>
@@ -132,7 +141,8 @@ namespace hjudgeWeb.Data
 
                 entity.HasOne(d => d.Message)
                     .WithMany(p => p.MessageStatus)
-                    .HasForeignKey(d => d.MessageId);
+                    .HasForeignKey(d => d.MessageId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Problem>(entity =>

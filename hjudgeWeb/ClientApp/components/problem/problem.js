@@ -1,5 +1,5 @@
 ﻿import { setTitle } from '../../utilities/titleHelper';
-import { Get } from '../../utilities/requestHelper';
+import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
     props: ['user'],
@@ -42,6 +42,16 @@ export default {
     watch: {
         page: function () {
             this.$router.push('/Problem/' + this.page);
+            this.load();
+        },
+        user: function () {
+            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+                this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
+            }
+        }
+    },
+    methods: {
+        load: function () {
             this.loading = true;
             let param = { start: (this.page - 1) * 10, count: 10 };
             this.problems = [];
@@ -56,15 +66,27 @@ export default {
                     this.loading = false;
                 });
         },
-        user: function () {
-            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
-                this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
-            }
-        }
-    },
-    methods: {
         toDetails: function (id) {
             this.$router.push('/ProblemDetails/' + id.toString());
+        },
+        addProblem: function () {
+            this.$router.push('/Admin/Problem/0');
+        },
+        editProblem: function (id) {
+            this.$router.push('/Admin/Problem/' + id.toString());
+        },
+        deleteProblem: function (id) {
+            if (confirm('确定要删除此题目吗？')) {
+                Post('/Admin/DeleteProblem', { id: id })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.isSucceeded) {
+                            this.load();
+                        }
+                        else alert(data.errorMessage);
+                    })
+                    .catch(() => alert('删除失败'));
+            }
         }
     }
 };
