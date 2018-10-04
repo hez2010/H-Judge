@@ -260,6 +260,7 @@ namespace hjudgeWeb.Controllers
                     var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid);
                     if (problemConfig != null)
                     {
+                        if (problemConfig.SubmissionCount == null) problemConfig.SubmissionCount = 0;
                         problemConfig.SubmissionCount++;
                     }
                 }
@@ -276,6 +277,7 @@ namespace hjudgeWeb.Controllers
                             };
                         }
                     }
+                    if (problem.SubmissionCount == null) problem.SubmissionCount = 0;
                     problem.SubmissionCount++;
                 }
 

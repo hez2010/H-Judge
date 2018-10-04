@@ -1,10 +1,13 @@
-﻿using hjudgeWeb.Data;
+﻿using hjudgeCore;
+using hjudgeWeb.Configurations;
+using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Models.Contest;
 using hjudgeWeb.Models.Problem;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -171,6 +174,156 @@ namespace hjudgeWeb.Controllers
                     });
                 }
                 return list;
+            }
+        }
+
+        [HttpGet]
+        public async Task<ContestRankModel> GetRank(int cid, int gid = 0)
+        {
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            var ret = new ContestRankModel { IsSucceeded = true };
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var contest = await db.Contest.FindAsync(cid);
+                if (contest == null)
+                {
+                    ret.IsSucceeded = false;
+                    ret.ErrorMessage = "比赛不存在";
+                    return ret;
+                }
+                if (gid != 0)
+                {
+                    if (!db.GroupContestConfig.Any(i => i.ContestId == cid && i.GroupId == gid))
+                    {
+                        ret.IsSucceeded = false;
+                        ret.ErrorMessage = "比赛不存在";
+                        return ret;
+                    }
+
+                    if (!db.GroupJoin.Any(i => i.GroupId == gid && i.UserId == user.Id))
+                    {
+                        if (!HasAdminPrivilege(privilege))
+                        {
+                            ret.IsSucceeded = false;
+                            ret.ErrorMessage = "没有权限";
+                            return ret;
+                        }
+                    }
+                }
+                var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
+                if (!config.ShowRank)
+                {
+                    if (!HasAdminPrivilege(privilege))
+                    {
+                        ret.IsSucceeded = false;
+                        ret.ErrorMessage = "没有权限";
+                        return ret;
+                    }
+                }
+
+                var problems = db.ContestProblemConfig.Where(i => i.ContestId == cid);
+                foreach (var item in problems)
+                {
+                    var problemName = db.Problem.Where(i => i.Id == item.Id).Select(i => i.Name).FirstOrDefault();
+                    ret.ProblemInfo[item.Id] = new RankProblemInfo
+                    {
+                        Id = item.Id,
+                        Name = problemName,
+                        AcceptedCount = item.AcceptCount ?? 0,
+                        SubmissionCount = item.SubmissionCount ?? 0
+                    };
+                }
+
+                var judges = gid == 0 ? db.Judge.Where(i => i.ContestId == cid && i.GroupId == null) : db.Judge.Where(i => i.ContestId == cid && i.GroupId == gid);
+                if (config.AutoStopRank)
+                {
+                    judges = judges.Where(i => i.JudgeTime.AddHours(1) < contest.EndTime);
+                }
+
+                foreach (var i in judges.GroupBy(i => i.UserId))
+                {
+                    if (!ret.RankInfo.ContainsKey(i.Key))
+                    {
+                        var competitor = await _userManager.FindByIdAsync(i.Key);
+                        if (competitor == null)
+                        {
+                            continue;
+                        }
+
+                        ret.RankInfo[i.Key] = new SingleUserRankInfo
+                        {
+                            UserInfo = new RankUserInfo
+                            {
+                                Id = i.Key,
+                                Name = competitor.Name,
+                                UserName = competitor.UserName
+                            }
+                        };
+                    }
+
+                    foreach (var j in i)
+                    {
+                        int pid = j.ProblemId ?? 0;
+                        if (pid == 0)
+                        {
+                            continue;
+                        }
+
+                        if (!ret.RankInfo[i.Key].SubmitInfo.ContainsKey(pid))
+                        {
+                            ret.RankInfo[i.Key].SubmitInfo[pid] = new RankSubmitInfo();
+                        }
+                        if (j.ResultType != (int)ResultCode.Pending && j.ResultType != (int)ResultCode.Judging)
+                        {
+                            ret.RankInfo[i.Key].SubmitInfo[pid].SubmissionCount++;
+                            ret.RankInfo[i.Key].SubmitInfo[pid].TimeCost += j.JudgeTime - contest.StartTime;
+
+                            if (config.Type == ContestType.LastSubmit)
+                            {
+                                ret.RankInfo[i.Key].SubmitInfo[pid].IsAccepted = false;
+                            }
+                            if (j.ResultType == (int)ResultCode.Accepted)
+                            {
+                                ret.RankInfo[i.Key].SubmitInfo[pid].IsAccepted = true;
+                                ret.RankInfo[i.Key].SubmitInfo[pid].Score = j.FullScore;
+                                if (config.Type != ContestType.LastSubmit)
+                                {
+                                    break;
+                                }
+                            }
+                            else if (j.ResultType != (int)ResultCode.Compile_Error
+                                && j.ResultType != (int)ResultCode.Special_Judge_Error
+                                && j.ResultType != (int)ResultCode.Problem_Config_Error
+                                && j.ResultType != (int)ResultCode.Unknown_Error)
+                            {
+                                if (config.Type == ContestType.Penalty)
+                                {
+                                    ret.RankInfo[i.Key].SubmitInfo[pid].PenaltyCount++;
+                                }
+                            }
+
+                            if (config.ScoreMode == ScoreCountingMode.All)
+                            {
+                                if (config.Type == ContestType.LastSubmit)
+                                {
+                                    ret.RankInfo[i.Key].SubmitInfo[pid].Score = j.FullScore;
+                                }
+                                else
+                                {
+                                    ret.RankInfo[i.Key].SubmitInfo[pid].Score = Math.Max(ret.RankInfo[i.Key].SubmitInfo[pid].Score, j.FullScore);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var ranked = ret.RankInfo.OrderByDescending(i => i.Value.FullScore).ThenBy(i => i.Value.TimeCost).ToList();
+                for (var i = 1; i <= ranked.Count; i++)
+                {
+                    ranked[i].Value.Rank = i;
+                }
+                ret.RankInfo = ranked.ToDictionary(i => i.Key, i => i.Value);
+                return ret;
             }
         }
     }

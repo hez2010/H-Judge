@@ -15,6 +15,9 @@
                 <v-tab :key="3">
                     题目
                 </v-tab>
+                <v-tab :key="4">
+                    排名
+                </v-tab>
                 <v-tab-item :key="1">
                     <v-card-text>
                         <v-container v-if="loading">

@@ -322,6 +322,7 @@ namespace hjudgeWeb
                         {
                             if (judge.ContestId == null)
                             {
+                                if (problem.AcceptCount == null) problem.AcceptCount = 0;
                                 problem.AcceptCount++;
                             }
                             else
@@ -329,6 +330,7 @@ namespace hjudgeWeb
                                 var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == judge.ContestId && i.ProblemId == problem.Id);
                                 if (problemConfig != null)
                                 {
+                                    if (problemConfig.AcceptCount == null) problemConfig.AcceptCount = 0;
                                     problemConfig.AcceptCount++;
                                 }
                             }
