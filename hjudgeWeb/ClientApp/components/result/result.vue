@@ -131,11 +131,11 @@
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
                         <v-container v-else>
-                            <div v-if="!!result.judgeResult.compileLog">
+                            <div v-if="!!result.judgeResult.compileLog" v-highlight>
                                 <h4>编译日志</h4>
                                 <pre class="detail-field"><code>{{result.judgeResult.compileLog}}</code></pre>
                             </div>
-                            <div v-if="!!result.judgeResult.staticCheckLog">
+                            <div v-if="!!result.judgeResult.staticCheckLog" v-highlight>
                                 <h4>静态检查</h4>
                                 <pre class="detail-field"><code>{{result.judgeResult.staticCheckLog}}</code></pre>
                             </div>
