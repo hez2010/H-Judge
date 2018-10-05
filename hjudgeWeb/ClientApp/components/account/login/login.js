@@ -12,13 +12,14 @@ export default {
         password: '',
         passwordRules: [
             v => !!v || '请输入密码'
-        ]
+        ],
+        rememberMe: true
     }),
     methods: {
         login: function () {
             if (this.$refs.form.validate()) {
                 this.submitting = true;
-                Post('/Account/Login', { username: this.username, password: this.password })
+                Post('/Account/Login', { username: this.username, password: this.password, rememberMe: this.rememberMe })
                     .then(res => res.json())
                     .then(data => {
                         if (data && data.isSucceeded) {

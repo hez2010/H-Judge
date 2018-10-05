@@ -17,6 +17,8 @@
                               type="password"
                               required>
                 </v-text-field>
+                <v-checkbox v-model="rememberMe" label="自动登录">
+                </v-checkbox>
                 <v-btn :disabled="!valid || submitting"
                        @click="login"
                        color="primary">

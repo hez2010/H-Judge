@@ -43,7 +43,7 @@ export default {
                         v => !!v || '请输入密码',
                         v => v === this.contest.password || '密码不正确'
                     ];
-                    let pwdstr = localStorage.getItem('contest_' + this.contest.id);
+                    let pwdstr = sessionStorage.getItem('contest_' + this.contest.id);
                     if (this.contest.password && this.contest.password !== '') {
                         if (this.contest.password === pwdstr) {
                             this.password = pwdstr;
@@ -112,7 +112,7 @@ export default {
         verify: function () {
             if (this.password === this.contest.password) {
                 this.verified = true;
-                localStorage.setItem('contest_' + this.contest.id.toString(), this.password);
+                sessionStorage.setItem('contest_' + this.contest.id.toString(), this.password);
             }
         }
     }

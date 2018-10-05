@@ -256,7 +256,8 @@ namespace hjudgeWeb.Controllers
                             UserInfo = new RankUserInfo
                             {
                                 Id = i.Key,
-                                UserName = competitor.UserName
+                                UserName = competitor.UserName,
+                                Name = HasAdminPrivilege(privilege) ? competitor.Name : null
                             }
                         };
                     }

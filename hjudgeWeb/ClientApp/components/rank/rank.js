@@ -31,7 +31,7 @@ export default {
                         let item = data.rankInfo[j];
                         let r = {
                             rank: item.rank,
-                            user: { name: item.userInfo.userName, id: item.userInfo.id },
+                            user: { name: item.userInfo.userName + (item.userInfo.name ? ` (${item.userInfo.name})` : ''), id: item.userInfo.id },
                             fullScore: item.fullScore,
                             timeCost: item.timeCost,
                             penalty: item.penalty,

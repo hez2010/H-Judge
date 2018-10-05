@@ -12,7 +12,7 @@ export default {
         submitting: false
     }),
     mounted: function () {
-        setTitle('系统设置');
+        setTitle('设置');
         Get('/Admin/GetSystemConfig')
             .then(res => res.json())
             .then(data => {

@@ -18,12 +18,18 @@ export default {
         ]
     }),
     mounted: function () {
+        if (this.user && this.user.isSignedIn) {
+            this.items = this.items.concat([{ icon: 'message', text: '消息', link: '/Message' }]);
+        }
         if (this.user && this.user.privilege === 1) {
             this.items = this.items.concat([{ icon: 'settings', text: '设置', link: '/Admin/Config' }]);
         }
     },
     watch: {
         user: function () {
+            if (this.user && this.user.isSignedIn) {
+                this.items = this.items.concat([{ icon: 'message', text: '消息', link: '/Message' }]);
+            }
             if (this.user && this.user.privilege === 1) {
                 this.items = this.items.concat([{ icon: 'settings', text: '设置', link: '/Admin/Config' }]);
             }
@@ -31,7 +37,7 @@ export default {
     },
     methods: {
         logout: function () {
-            localStorage.clear();
+            sessionStorage.clear();
             Post('/Account/Logout')
                 .then(() => window.location = '/');
         },

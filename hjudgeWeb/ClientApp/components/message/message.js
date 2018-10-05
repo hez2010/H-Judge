@@ -2,6 +2,6 @@
 
 export default {
     mounted: function () {
-        setTitle('小组');
+        setTitle('消息');
     }
 };
