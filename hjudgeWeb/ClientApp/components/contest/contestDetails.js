@@ -13,6 +13,7 @@ export default {
         loadingProblem: true,
         page: 0,
         pageCount: 0,
+        active: 0,
         problems: [],
         verified: false,
         valid: false,
@@ -31,7 +32,7 @@ export default {
     }),
     mounted: function () {
         if (this.$route.params.cid) this.param.cid = parseInt(this.$route.params.cid);
-        if (this.$route.params.gid) this.param.cid = parseInt(this.$route.params.gid);
+        if (this.$route.params.gid) this.param.gid = parseInt(this.$route.params.gid);
         setTitle('比赛详情');
         Get('/Contest/GetContestDetails', this.param)
             .then(res => res.json())
@@ -94,6 +95,14 @@ export default {
                     this.problems = [];
                     this.loadingProblem = false;
                 });
+        },
+        active: function () {
+            if (this.active === 3) {
+                this.$router.push('/Status/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + this.param.cid.toString() + '/0/1');
+            }
+            else if (this.active === 4) {
+                this.$router.push('/Rank/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + this.param.cid.toString());
+            }
         }
     },
     methods: {

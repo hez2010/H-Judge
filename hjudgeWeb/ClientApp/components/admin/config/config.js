@@ -1,4 +1,5 @@
 ﻿import { Get, Post } from '../../../utilities/requestHelper';
+import { setTitle } from '../../../utilities/titleHelper';
 
 export default {
     data: () => ({
@@ -11,6 +12,7 @@ export default {
         submitting: false
     }),
     mounted: function () {
+        setTitle('系统设置');
         Get('/Admin/GetSystemConfig')
             .then(res => res.json())
             .then(data => {

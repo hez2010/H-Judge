@@ -10,6 +10,7 @@ export default {
             cid: 0,
             gid: 0
         },
+        active: 0,
         loading: true,
         language: '',
         languageRules: [
@@ -77,6 +78,13 @@ export default {
         },
         showUser: function (userId) {
             this.$router.push('/Account/' + userId);
+        }
+    },
+    watch: {
+        active: function () {
+            if (this.active === 3) {
+                this.$router.push('/Status/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + (this.param.cid ? this.param.cid.toString() + '/' : '') + this.param.pid.toString() + '/1');
+            }
         }
     }
 };

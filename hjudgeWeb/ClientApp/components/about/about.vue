@@ -24,3 +24,5 @@
         </v-card>
     </v-container>
 </template>
+
+<script type="text/javascript" src="./about.js"></script>

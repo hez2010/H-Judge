@@ -224,10 +224,11 @@ namespace hjudgeWeb.Controllers
                 var problems = db.ContestProblemConfig.Where(i => i.ContestId == cid);
                 foreach (var item in problems)
                 {
-                    var problemName = db.Problem.Where(i => i.Id == item.Id).Select(i => i.Name).FirstOrDefault();
-                    ret.ProblemInfo[item.Id] = new RankProblemInfo
+                    var pid = item.ProblemId ?? 0;
+                    var problemName = db.Problem.Select(i => new { i.Id, i.Name }).FirstOrDefault(i => i.Id == pid)?.Name;
+                    ret.ProblemInfo[pid] = new RankProblemInfo
                     {
-                        Id = item.Id,
+                        Id = pid,
                         Name = problemName,
                         AcceptedCount = item.AcceptCount ?? 0,
                         SubmissionCount = item.SubmissionCount ?? 0
@@ -255,7 +256,6 @@ namespace hjudgeWeb.Controllers
                             UserInfo = new RankUserInfo
                             {
                                 Id = i.Key,
-                                Name = competitor.Name,
                                 UserName = competitor.UserName
                             }
                         };
@@ -318,9 +318,9 @@ namespace hjudgeWeb.Controllers
                 }
 
                 var ranked = ret.RankInfo.OrderByDescending(i => i.Value.FullScore).ThenBy(i => i.Value.TimeCost).ToList();
-                for (var i = 1; i <= ranked.Count; i++)
+                for (var i = 0; i < ranked.Count; i++)
                 {
-                    ranked[i].Value.Rank = i;
+                    ranked[i].Value.Rank = i + 1;
                 }
                 ret.RankInfo = ranked.ToDictionary(i => i.Key, i => i.Value);
                 return ret;

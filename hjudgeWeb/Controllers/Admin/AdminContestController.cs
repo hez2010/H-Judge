@@ -150,19 +150,35 @@ namespace hjudgeWeb.Controllers
                         db.ContestRegister.Add(new ContestRegister { ContestId = contest.Id, UserId = competitor.Id });
                     }
                 }
-                db.ContestProblemConfig.RemoveRange(db.ContestProblemConfig.Where(i => i.ContestId == contest.Id));
                 if (!string.IsNullOrEmpty(model.ProblemSet))
                 {
-                    foreach (var problem in model.ProblemSet.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                    var problemSet = model.ProblemSet.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == contest.Id))
+                    {
+                        if (!problemSet.Contains(i.ProblemId?.ToString() ?? string.Empty))
+                        {
+                            db.ContestProblemConfig.Remove(i);
+                        }
+                    }
+                    foreach (var problem in problemSet)
                     {
                         if (int.TryParse(problem, out var pid))
                         {
+                            if (db.ContestProblemConfig.Any(i => i.ProblemId == pid && i.ContestId == contest.Id))
+                            {
+                                continue;
+                            }
+
                             if (db.Problem.Any(i => i.Id == pid))
                             {
                                 db.ContestProblemConfig.Add(new ContestProblemConfig { ProblemId = pid, ContestId = contest.Id, AcceptCount = 0, SubmissionCount = 0 });
                             }
                         }
                     }
+                }
+                else
+                {
+                    db.ContestProblemConfig.RemoveRange(db.ContestProblemConfig.Where(i => i.ContestId == contest.Id));
                 }
                 await db.SaveChangesAsync();
                 ret.Id = contest.Id;

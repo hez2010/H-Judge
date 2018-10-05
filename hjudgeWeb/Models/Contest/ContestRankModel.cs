@@ -8,7 +8,6 @@ namespace hjudgeWeb.Models.Contest
     {
         public string Id { get; set; }
         public string UserName { get; set; }
-        public string Name { get; set; }
     }
 
     public class RankProblemInfo
@@ -56,6 +55,7 @@ namespace hjudgeWeb.Models.Contest
                 return result;
             }
         }
+        public int Penalty => 20 * SubmitInfo.Values.Sum(i => i.PenaltyCount);
         public Dictionary<int, RankSubmitInfo> SubmitInfo { get; set; }
     }
 

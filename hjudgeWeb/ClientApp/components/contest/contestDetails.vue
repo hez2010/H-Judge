@@ -1,7 +1,7 @@
 ﻿<template>
     <v-container>
         <v-card>
-            <v-tabs right>
+            <v-tabs v-model="active" right>
                 <v-card-title primary-title>
                     <h2>比赛详情</h2>
                 </v-card-title>
@@ -16,6 +16,9 @@
                     题目
                 </v-tab>
                 <v-tab :key="4">
+                    状态
+                </v-tab>
+                <v-tab :key="5">
                     排名
                 </v-tab>
                 <v-tab-item :key="1">
@@ -120,6 +123,22 @@
                                     确定
                                 </v-btn>
                             </v-form>
+                        </v-container>
+                    </v-card-text>
+                </v-tab-item>
+
+                <v-tab-item :key="4">
+                    <v-card-text>
+                        <v-container>
+                            <p>正在跳转...</p>
+                        </v-container>
+                    </v-card-text>
+                </v-tab-item>
+
+                <v-tab-item :key="5">
+                    <v-card-text>
+                        <v-container>
+                            <p>正在跳转...</p>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>

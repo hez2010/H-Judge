@@ -1,7 +1,7 @@
 ﻿<template>
     <v-container>
         <v-card>
-            <v-tabs right>
+            <v-tabs v-model="active" right>
                 <v-card-title primary-title>
                     <h2>题目详情</h2>
                 </v-card-title>
@@ -14,6 +14,9 @@
                 </v-tab>
                 <v-tab :key="3">
                     提交
+                </v-tab>
+                <v-tab :key="4">
+                    状态
                 </v-tab>
                 <v-tab-item :key="1">
                     <v-card-text>
@@ -112,6 +115,11 @@
                             </v-form>
                             <p v-else>请登录后再操作</p>
                         </v-container>
+                    </v-card-text>
+                </v-tab-item>
+                <v-tab-item :key="4">
+                    <v-card-text>
+                        <p>正在跳转...</p>
                     </v-card-text>
                 </v-tab-item>
             </v-tabs>

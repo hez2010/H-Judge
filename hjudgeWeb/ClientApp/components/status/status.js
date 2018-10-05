@@ -10,7 +10,7 @@ export default {
         problems: [],
         pageCount: 0,
         headers: [
-            { text: '编号', value: 'id', order: false },
+            { text: '编号', value: 'id' },
             { text: '时间', value: 'judgeTime' },
             { text: '题目', value: 'problemName' },
             { text: '用户', value: 'userName' },
@@ -43,12 +43,12 @@ export default {
         else this.page = parseInt(this.$route.params.page);
         if (this.$route.params.pid) this.param['pid'] = parseInt(this.$route.params.pid);
         if (this.$route.params.cid) {
+            this.headers = this.headers.concat([{ text: '比赛', value: 'contestId' }]);
             this.param['cid'] = parseInt(this.$route.params.cid);
-            this.headers.append([{ text: '比赛', value: 'contestId' }]);
         }
         if (this.$route.params.gid) {
+            this.headers = this.headers.concat([{ text: '小组', value: 'groupId' }]);
             this.param['gid'] = parseInt(this.$route.params.gid);
-            this.headers.append([{ text: '小组', value: 'contestId' }]);
         }
         Get('/Status/GetStatusCount', this.param)
             .then(res => res.text())

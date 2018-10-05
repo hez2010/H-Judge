@@ -5,7 +5,7 @@
                 <v-layout column align-center justify-center class="white--text">
                     <img src="assets/hjudge.png" alt="H::Judge" height="200">
 
-                    <v-btn class="blue lighten-2 mt-5" dark large to="/Problem">
+                    <v-btn class="blue lighten-2 mt-5" dark large to="/Problem/1">
                         进入题库
                     </v-btn>
                 </v-layout>
