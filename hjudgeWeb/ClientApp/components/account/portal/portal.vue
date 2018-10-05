@@ -84,12 +84,12 @@
                                                     <v-layout wrap v-bind="isColumnR">
                                                         <v-flex xs6>
                                                             <p>
-                                                                <v-btn color="primary" :disabled="user.emailConfirmed">验证邮箱地址</v-btn>
+                                                                <v-btn color="primary" :disabled="user.emailConfirmed" @click="confirmEmail">验证邮箱地址</v-btn>
                                                             </p>
                                                         </v-flex>
                                                         <v-flex xs6>
                                                             <p>
-                                                                <v-btn color="primary" :disabled="user.phoneNumberConfirmed">验证手机号码</v-btn>
+                                                                <v-btn color="primary" :disabled="user.phoneNumberConfirmed" @click="confirmPhoneNumber">验证手机号码</v-btn>
                                                             </p>
                                                         </v-flex>
                                                     </v-layout>

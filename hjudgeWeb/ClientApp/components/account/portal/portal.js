@@ -128,6 +128,12 @@ export default {
                     alert('修改失败');
                     ele.value = '';
                 });
+        },
+        confirmPhoneNumber: function () {
+            alert('此功能正在开发中, 敬请期待');
+        },
+        confirmEmail: function () {
+            alert('此功能正在开发中, 敬请期待');
         }
     }
 };
