@@ -12,13 +12,27 @@
                 <p>开发者：hez2010，Email：<a href="mailto:hez2010@126.com">hez2010@126.com</a></p>
                 <v-container>
                     <h3>更新日志</h3>
-                    <strong>2018/10/2 0.2</strong>
-                    <small>1. 比赛功能上线</small>
-                    <small>2. 引入新的评测机</small>
-                    <small>3. Bug 修复</small>
+                    <strong>2018/10/5 1.0 Stable</strong>
+                    <small><strong>1.</strong> 排名功能上线</small>
+                    <small><strong>2.</strong> 添加小组和消息功能占位</small>
+                    <small><strong>3.</strong> H::Judge 正式版来啦</small>
                     <br />
-                    <strong>2018/10/1 0.1</strong>
-                    <small>1. 船新的 H::Judge 建造出来啦~</small>
+                    <strong>2018/10/3 0.4 Beta</strong>
+                    <small><strong>1.</strong> 核心功能基本完成</small>
+                    <small><strong>2.</strong> 添加夜间模式</small>
+                    <small><strong>3.</strong> Bug 修复</small>
+                    <br />
+                    <strong>2018/10/4 0.3 Alpha</strong>
+                    <small><strong>1.</strong> 管理功能全部完成</small>
+                    <small><strong>2.</strong> Bug 修复</small>
+                    <br />
+                    <strong>2018/10/2 0.2 Alpha</strong>
+                    <small><strong>1.</strong> 比赛功能上线</small>
+                    <small><strong>2.</strong> 引入新的评测机</small>
+                    <small><strong>3.</strong> Bug 修复</small>
+                    <br />
+                    <strong>2018/10/1 0.1 Alpha</strong>
+                    <small><strong>1.</strong> 船新的 H::Judge 建造出来啦~</small>
                 </v-container>
             </v-card-text>
         </v-card>
