@@ -9,6 +9,7 @@ export default {
         param: { start: 0, count: 10 },
         problems: [],
         pageCount: 0,
+        statuses: [],
         headers: [
             { text: '编号', value: 'id' },
             { text: '时间', value: 'judgeTime' },

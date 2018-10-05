@@ -39,6 +39,12 @@ export default {
             });
     },
     methods: {
+        toProblem: function (id) {
+            this.$router.push('/ProblemDetails/' + (this.result.groupId ? this.result.groupId.toString() + '/' : '') + (this.result.contestId ? this.result.contestId.toString() + '/' : '') + id.toString());
+        },
+        toUser: function (id) {
+            this.$router.push('/Account/' + id.toString());
+        },
         queryResult: function (jid) {
             Get('/Status/GetJudgeResult', { jid: jid })
                 .then(res => res.json())

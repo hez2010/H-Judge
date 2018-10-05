@@ -47,7 +47,7 @@
                                     <strong>题目名称</strong>
                                 </v-flex>
                                 <v-flex xs8>
-                                    <p @click="toProblem(result.problemName)">{{result.problemName}}</p>
+                                    <p><a @click="toProblem(result.problemId)">{{result.problemName}}</a></p>
                                 </v-flex>
                                 <v-flex xs4 v-if="result.rawType === 1">
                                     <strong>选用语言</strong>
@@ -98,8 +98,10 @@
                 <v-tab-item :key="2">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
-                        <v-container v-else v-highlight>
-                            <pre class="detail-field"><code>{{result.content}}</code></pre>
+                        <v-container v-else>
+                            <div v-highlight>
+                                <pre class="detail-field"><code>{{result.content}}</code></pre>
+                            </div>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
