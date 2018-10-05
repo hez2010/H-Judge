@@ -40,18 +40,20 @@
                                           :label="`题目难度：${problem.level}`"
                                           required>
                                 </v-slider>
-                                <v-layout>
+                                <v-layout v-if="problem.type === 1">
+                                    <v-checkbox label="使用标准输入输出" v-model="problem.config.useStdIO"></v-checkbox>
                                     <v-text-field v-model="problem.config.inputFileName"
                                                   :rules="requireRules"
                                                   label="输入文件名"
-                                                  required>
+                                                  required
+                                                  v-if="!problem.config.useStdIO">
                                     </v-text-field>
                                     <v-text-field v-model="problem.config.outputFileName"
                                                   :rules="requireRules"
                                                   label="输出文件名"
-                                                  required>
+                                                  required
+                                                  v-if="!problem.config.useStdIO">
                                     </v-text-field>
-                                    <v-checkbox label="使用标准输入输出" v-model="problem.config.useStdIO"></v-checkbox>
                                 </v-layout>
                                 <v-radio-group v-model="problem.type" label="题目类型">
                                     <v-layout>

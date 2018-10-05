@@ -96,8 +96,8 @@ namespace hjudgeWeb
                                 ?.Replace("${name}", name) ?? string.Empty
                     });
                 }
-                judgeOptionBuilder.SetInputFileName(config.InputFileName.Replace("${name}", name));
-                judgeOptionBuilder.SetOutputFileName(config.OutputFileName.Replace("${name}", name));
+                judgeOptionBuilder.SetInputFileName(config.InputFileName?.Replace("${name}", name) ?? $"test_{judgeOptionBuilder.GuidStr}.in");
+                judgeOptionBuilder.SetOutputFileName(config.OutputFileName?.Replace("${name}", name) ?? $"test_{judgeOptionBuilder.GuidStr}.out");
                 if (config.UseStdIO)
                 {
                     judgeOptionBuilder.UseStdIO();

@@ -113,6 +113,14 @@ namespace hjudgeWeb.Controllers
         public async Task<SubmitReturnDataModel> Submit([FromBody]SubmitModel submit)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
+            if (user == null)
+            {
+                return new SubmitReturnDataModel
+                {
+                    IsSucceeded = false,
+                    ErrorMessage = "请登录后再操作"
+                };
+            }
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 if (submit.Gid != 0)
