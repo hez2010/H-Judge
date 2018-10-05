@@ -161,8 +161,9 @@ namespace hjudgeWeb.Controllers
                             ErrorMessage = "题目不存在"
                         };
                     }
+                    var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
 
-                    if (submit.Gid == 0 && (contest.Hidden || !db.ContestRegister.Any(i => i.ContestId == submit.Cid && i.UserId == user.Id)))
+                    if (submit.Gid == 0 && (contest.Hidden || (contest.SpecifyCompetitors && !db.ContestRegister.Any(i => i.ContestId == submit.Cid && i.UserId == user.Id))))
                     {
                         if (!HasAdminPrivilege(privilege))
                         {
@@ -192,7 +193,6 @@ namespace hjudgeWeb.Controllers
                         };
                     }
 
-                    var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
                     if (!string.IsNullOrEmpty(config?.Languages))
                     {
                         languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -260,7 +260,11 @@ namespace hjudgeWeb.Controllers
                     var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid);
                     if (problemConfig != null)
                     {
-                        if (problemConfig.SubmissionCount == null) problemConfig.SubmissionCount = 0;
+                        if (problemConfig.SubmissionCount == null)
+                        {
+                            problemConfig.SubmissionCount = 0;
+                        }
+
                         problemConfig.SubmissionCount++;
                     }
                 }
@@ -277,7 +281,11 @@ namespace hjudgeWeb.Controllers
                             };
                         }
                     }
-                    if (problem.SubmissionCount == null) problem.SubmissionCount = 0;
+                    if (problem.SubmissionCount == null)
+                    {
+                        problem.SubmissionCount = 0;
+                    }
+
                     problem.SubmissionCount++;
                 }
 
@@ -388,7 +396,7 @@ namespace hjudgeWeb.Controllers
                         ErrorMessage = "题目不存在"
                     };
                 }
-                if (problem.Hidden)
+                if (problem.Hidden && cid == 0)
                 {
                     if (!HasAdminPrivilege(privilege))
                     {

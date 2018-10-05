@@ -8,6 +8,7 @@ module.exports = (env) => {
     const isDevBuild = !(env && env.prod);
 
     return [{
+        mode: isDevBuild ? 'development' : 'production',
         stats: { modules: false },
         resolve: { extensions: ['.js', '.jsx', '.vue'] },
         entry: {
@@ -41,10 +42,7 @@ module.exports = (env) => {
                 filename: '[name].css',
                 chunkFilename: '[id].css'
             }),
-            new VueLoaderPlugin(),
-            new webpack.DefinePlugin({
-                'process.env.NODE_ENV': isDevBuild ? 'development' : 'production'
-            })
+            new VueLoaderPlugin()
         ],
         optimization: {
             minimizer: []

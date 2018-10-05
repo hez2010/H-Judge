@@ -9,6 +9,7 @@ module.exports = (env) => {
     const isDevBuild = !(env && env.prod);
 
     return [{
+        mode: isDevBuild ? 'development' : 'production',
         stats: { modules: false },
         context: __dirname,
         resolve: { extensions: ['.js', '.jsx', '.vue'] },
@@ -33,12 +34,7 @@ module.exports = (env) => {
                 filename: '[name].css',
                 chunkFilename: '[id].css'
             }),
-            new VueLoaderPlugin(),
-            new webpack.DefinePlugin({
-                'process.env': {
-                    NODE_ENV: JSON.stringify(isDevBuild ? 'development' : 'production')
-                }
-            })
+            new VueLoaderPlugin()
         ].concat(isDevBuild ? [
             // Plugins that apply in development builds only
             new webpack.SourceMapDevToolPlugin({
