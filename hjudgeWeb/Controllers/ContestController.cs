@@ -262,56 +262,59 @@ namespace hjudgeWeb.Controllers
                         };
                     }
 
-                    foreach (var j in i)
+                    foreach (var judgeProblem in i.GroupBy(j => j.ProblemId))
                     {
-                        int pid = j.ProblemId ?? 0;
-                        if (pid == 0)
+                        foreach (var j in judgeProblem)
                         {
-                            continue;
-                        }
-
-                        if (!ret.RankInfo[i.Key].SubmitInfo.ContainsKey(pid))
-                        {
-                            ret.RankInfo[i.Key].SubmitInfo[pid] = new RankSubmitInfo();
-                        }
-                        if (j.ResultType != (int)ResultCode.Pending && j.ResultType != (int)ResultCode.Judging)
-                        {
-                            ret.RankInfo[i.Key].SubmitInfo[pid].SubmissionCount++;
-                            ret.RankInfo[i.Key].SubmitInfo[pid].TimeCost += j.JudgeTime - contest.StartTime;
-
-                            if (config.Type == ContestType.LastSubmit)
+                            int pid = j.ProblemId ?? 0;
+                            if (pid == 0)
                             {
-                                ret.RankInfo[i.Key].SubmitInfo[pid].IsAccepted = false;
-                            }
-                            if (j.ResultType == (int)ResultCode.Accepted)
-                            {
-                                ret.RankInfo[i.Key].SubmitInfo[pid].IsAccepted = true;
-                                ret.RankInfo[i.Key].SubmitInfo[pid].Score = j.FullScore;
-                                if (config.Type != ContestType.LastSubmit)
-                                {
-                                    break;
-                                }
-                            }
-                            else if (j.ResultType != (int)ResultCode.Compile_Error
-                                && j.ResultType != (int)ResultCode.Special_Judge_Error
-                                && j.ResultType != (int)ResultCode.Problem_Config_Error
-                                && j.ResultType != (int)ResultCode.Unknown_Error)
-                            {
-                                if (config.Type == ContestType.Penalty)
-                                {
-                                    ret.RankInfo[i.Key].SubmitInfo[pid].PenaltyCount++;
-                                }
+                                continue;
                             }
 
-                            if (config.ScoreMode == ScoreCountingMode.All)
+                            if (!ret.RankInfo[i.Key].SubmitInfo.ContainsKey(pid))
                             {
+                                ret.RankInfo[i.Key].SubmitInfo[pid] = new RankSubmitInfo();
+                            }
+                            if (j.ResultType != (int)ResultCode.Pending && j.ResultType != (int)ResultCode.Judging)
+                            {
+                                ret.RankInfo[i.Key].SubmitInfo[pid].SubmissionCount++;
+                                ret.RankInfo[i.Key].SubmitInfo[pid].TimeCost += j.JudgeTime - contest.StartTime;
+
                                 if (config.Type == ContestType.LastSubmit)
                                 {
-                                    ret.RankInfo[i.Key].SubmitInfo[pid].Score = j.FullScore;
+                                    ret.RankInfo[i.Key].SubmitInfo[pid].IsAccepted = false;
                                 }
-                                else
+                                if (j.ResultType == (int)ResultCode.Accepted)
                                 {
-                                    ret.RankInfo[i.Key].SubmitInfo[pid].Score = Math.Max(ret.RankInfo[i.Key].SubmitInfo[pid].Score, j.FullScore);
+                                    ret.RankInfo[i.Key].SubmitInfo[pid].IsAccepted = true;
+                                    ret.RankInfo[i.Key].SubmitInfo[pid].Score = j.FullScore;
+                                    if (config.Type != ContestType.LastSubmit)
+                                    {
+                                        break;
+                                    }
+                                }
+                                else if (j.ResultType != (int)ResultCode.Compile_Error
+                                    && j.ResultType != (int)ResultCode.Special_Judge_Error
+                                    && j.ResultType != (int)ResultCode.Problem_Config_Error
+                                    && j.ResultType != (int)ResultCode.Unknown_Error)
+                                {
+                                    if (config.Type == ContestType.Penalty)
+                                    {
+                                        ret.RankInfo[i.Key].SubmitInfo[pid].PenaltyCount++;
+                                    }
+                                }
+
+                                if (config.ScoreMode == ScoreCountingMode.All)
+                                {
+                                    if (config.Type == ContestType.LastSubmit)
+                                    {
+                                        ret.RankInfo[i.Key].SubmitInfo[pid].Score = j.FullScore;
+                                    }
+                                    else
+                                    {
+                                        ret.RankInfo[i.Key].SubmitInfo[pid].Score = Math.Max(ret.RankInfo[i.Key].SubmitInfo[pid].Score, j.FullScore);
+                                    }
                                 }
                             }
                         }
