@@ -154,6 +154,12 @@ namespace hjudgeWeb.Controllers
                     return list;
                 }
 
+                int? contestId = null;
+                if (cid != 0)
+                {
+                    contestId = cid;
+                }
+
                 foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == cid).Select(i => new { i.ProblemId, i.AcceptCount, i.SubmissionCount }))
                 {
                     var problem = await db.Problem.FindAsync(i.ProblemId);
@@ -161,8 +167,7 @@ namespace hjudgeWeb.Controllers
                     {
                         continue;
                     }
-
-                    list.Add(new ProblemListItemModel
+                    var item = new ProblemListItemModel
                     {
                         Id = problem.Id,
                         Name = problem.Name,
@@ -171,7 +176,21 @@ namespace hjudgeWeb.Controllers
                         RawType = problem.Type,
                         AcceptCount = i.AcceptCount ?? 0,
                         SubmissionCount = i.SubmissionCount ?? 0
-                    });
+                    };
+
+                    if (user != null)
+                    {
+                        var submissions = db.Judge.Where(j => j.ContestId == contestId && j.ProblemId == problem.Id && j.UserId == user.Id);
+                        if (submissions.Any())
+                        {
+                            item.RawStatus = 1;
+                        }
+                        if (submissions.Any(j => j.ResultType == (int)ResultCode.Accepted))
+                        {
+                            item.RawStatus = 2;
+                        }
+                    }
+                    list.Add(item);
                 }
                 return list;
             }

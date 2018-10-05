@@ -26,11 +26,11 @@
                     </template>
                 </v-data-table>
             </v-card-text>
-            <v-card-action>
-                <div class="text-xs-center">
+            <v-card-actions>
+                <v-layout justify-center align-center>
                     <v-pagination circle v-model="page" :length="pageCount" :total-visible="7"></v-pagination>
-                </div>
-            </v-card-action>
+                </v-layout>
+            </v-card-actions>
         </v-card>
     </v-container>
 </template>

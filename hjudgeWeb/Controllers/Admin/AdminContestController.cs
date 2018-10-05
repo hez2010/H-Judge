@@ -152,27 +152,24 @@ namespace hjudgeWeb.Controllers
                 }
                 if (!string.IsNullOrEmpty(model.ProblemSet))
                 {
-                    var problemSet = model.ProblemSet.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    var problemSet = model.ProblemSet.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList().ConvertAll(i => int.Parse(i.Trim()));
                     foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == contest.Id))
                     {
-                        if (!problemSet.Contains(i.ProblemId?.ToString() ?? string.Empty))
+                        if (!problemSet.Contains(i.ProblemId ?? 0))
                         {
                             db.ContestProblemConfig.Remove(i);
                         }
                     }
-                    foreach (var problem in problemSet)
+                    foreach (var pid in problemSet)
                     {
-                        if (int.TryParse(problem, out var pid))
+                        if (db.ContestProblemConfig.Any(i => i.ProblemId == pid && i.ContestId == contest.Id))
                         {
-                            if (db.ContestProblemConfig.Any(i => i.ProblemId == pid && i.ContestId == contest.Id))
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            if (db.Problem.Any(i => i.Id == pid))
-                            {
-                                db.ContestProblemConfig.Add(new ContestProblemConfig { ProblemId = pid, ContestId = contest.Id, AcceptCount = 0, SubmissionCount = 0 });
-                            }
+                        if (db.Problem.Any(i => i.Id == pid))
+                        {
+                            db.ContestProblemConfig.Add(new ContestProblemConfig { ProblemId = pid, ContestId = contest.Id, AcceptCount = 0, SubmissionCount = 0 });
                         }
                     }
                 }

@@ -15,7 +15,7 @@
                 <v-tab :key="3" v-if="result.resultType > 0">
                     详情
                 </v-tab>
-                <v-tab :key="4" v-if="result.rawType === 1 && (result.judgeResult.compileLog || result.judgeResult.staticCheckLog)">
+                <v-tab :key="4" v-if="result.rawType === 1 && (!!result.judgeResult.compileLog || !!result.judgeResult.staticCheckLog)">
                     日志
                 </v-tab>
                 <v-tab-item :key="1">
@@ -121,22 +121,21 @@
                                     <td>{{ props.item.extraInfo }}</td>
                                 </template>
                                 <template slot="no-data">
-                                    <p v-if="loadingProblem">正在加载...</p>
-                                    <p v-else>没有数据 :(</p>
+                                    <p>没有数据 :(</p>
                                 </template>
                             </v-data-table>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
-                <v-tab-item :key="4" v-if="result.rawType === 1 && (result.judgeResult.compileLog || result.judgeResult.staticCheckLog)">
+                <v-tab-item :key="4" v-if="result.rawType === 1 && (!!result.judgeResult.compileLog || !!result.judgeResult.staticCheckLog)">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
                         <v-container v-else>
-                            <div v-if="result.judgeResult.compileLog">
+                            <div v-if="!!result.judgeResult.compileLog">
                                 <h4>编译日志</h4>
                                 <pre class="detail-field"><code>{{result.judgeResult.compileLog}}</code></pre>
                             </div>
-                            <div v-if="result.judgeResult.staticCheckLog">
+                            <div v-if="!!result.judgeResult.staticCheckLog">
                                 <h4>静态检查</h4>
                                 <pre class="detail-field"><code>{{result.judgeResult.staticCheckLog}}</code></pre>
                             </div>
