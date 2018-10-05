@@ -202,7 +202,7 @@ namespace hjudgeWeb.Controllers
         }
 
         [HttpPost]
-        [DisableRequestSizeLimit]
+        [RequestSizeLimit(135000000)]
         public async Task<ResultModel> UploadProblemData([FromForm]int pid, IFormFile file)
         {
             var ret = new ResultModel { IsSucceeded = true };
