@@ -98,8 +98,8 @@
                 <v-tab-item :key="2">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
-                        <v-container v-else>
-                            <pre class="detail-field"><code v-highlight>{{result.content}}</code></pre>
+                        <v-container v-else v-highlight>
+                            <pre class="detail-field"><code>{{result.content}}</code></pre>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
@@ -148,12 +148,3 @@
 </template>
 
 <script type="text/javascript" src="./result.js"></script>
-
-<style type="text/css">
-    .detail-field {
-        max-height: 500px;
-        width: 100%;
-        overflow-y: auto;
-        overflow-x: auto;
-    }
-</style>

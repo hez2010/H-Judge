@@ -77,7 +77,7 @@
                 <v-tab-item :key="2">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
-                        <v-container v-else v-html="contest.description"></v-container>
+                        <v-container v-else v-highlight v-html="contest.description"></v-container>
                     </v-card-text>
                 </v-tab-item>
                 <v-tab-item :key="3">

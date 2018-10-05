@@ -17,6 +17,8 @@ module.exports = (env) => {
                 'vuetify/dist/vuetify.min.css',
                 'material-design-icons-iconfont/dist/material-design-icons.css',
                 'event-source-polyfill',
+                'highlight.js',
+                'highlight.js/styles/github.css',
                 'vue',
                 'vue-router'
             ],

@@ -35,3 +35,10 @@
     border-color: #039BE5 #039BE5 transparent transparent;
     animation: load1 2s infinite;
 }
+
+.detail-field {
+    max-height: 500px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+}

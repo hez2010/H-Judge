@@ -10,7 +10,6 @@ import 'highlight.js/styles/github.css';
 Vue.use(VueRouter);
 Vue.use(Vuetify);
 Vue.directive('highlight', function (el) {
-    if (el.nodeName === 'PRE' || el.nodeName === 'CODE') hljs.highlightBlock(el);
     let blocks = el.querySelectorAll('pre code');
     blocks.forEach((block) => {
         hljs.highlightBlock(block);
