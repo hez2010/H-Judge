@@ -70,7 +70,7 @@ namespace hjudgeWeb.Controllers
                         UserName = competitor.UserName
                     });
                 }
-                model.ProblemSet = db.ContestProblemConfig.Where(i => i.ContestId == cid).Select(i => i.ProblemId).ToList().Aggregate(string.Empty, (accu, next) => accu + "; " + next.ToString());
+                model.ProblemSet = db.ContestProblemConfig.Where(i => i.ContestId == cid).Select(i => i.ProblemId).ToList().Aggregate(string.Empty, (accu, next) => accu + next.ToString() + "; ");
                 return model;
             }
         }
