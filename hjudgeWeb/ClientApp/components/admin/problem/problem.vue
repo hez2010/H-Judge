@@ -196,7 +196,7 @@
                 <v-btn color="primary" :disabled="!valid() || submitting" @click="save">保存</v-btn>
             </v-card-actions>
         </v-card>
-        <remote-script src="/lib/ckeditor/ckeditor.js"></remote-script>
+        <remote-script src="https://cdn.hjudge.com/hjudge/lib/ckeditor/ckeditor.js"></remote-script>
     </v-container>
 </template>
 
