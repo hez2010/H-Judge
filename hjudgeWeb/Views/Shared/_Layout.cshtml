@@ -4,14 +4,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - H::Judge</title>
-    <link rel="shortcut icon" href="https://cdn.hjudge.com/hjudge/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="https://cdn.hjudge.com/hjudge/dist/vendor.css" asp-append-version="true" />
+    <environment include="Development">
+        <link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="~/dist/vendor.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="shortcut icon" href="https://cdn.hjudge.com/hjudge/favicon.ico" type="image/x-icon" asp-fallback-href="~/favicon.ico" />
+        <link rel="stylesheet" href="https://cdn.hjudge.com/hjudge/dist/vendor.css" asp-append-version="true" asp-fallback-href="~/dist/vendor.css" />
+    </environment>
     <base href="~/" />
 </head>
 <body>
     @RenderBody()
 
-    <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/dist/vendor.js" asp-append-version="true"></script>
+    <environment exclude="Development">
+        <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/dist/vendor.js" asp-append-version="true" asp-fallback-src="~/dist/vendor.js"></script>
+    </environment>
     @RenderSection("scripts", required: false)
 </body>
 </html>

@@ -71,8 +71,6 @@ namespace hjudgeWeb
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-
             app.UseResponseCompression();
 
             app.UseStaticFiles();

@@ -44,10 +44,6 @@ module.exports = (env) => {
             new VueLoaderPlugin(),
             new webpack.DefinePlugin({
                 'process.env.NODE_ENV': isDevBuild ? 'development' : 'production'
-            }),
-            new webpack.DllPlugin({
-                path: path.join(__dirname, 'wwwroot', 'dist', '[name]-manifest.json'),
-                name: '[name]_[hash]'
             })
         ],
         optimization: {

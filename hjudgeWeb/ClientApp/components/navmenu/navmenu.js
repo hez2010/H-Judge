@@ -7,6 +7,7 @@ export default {
     data: () => ({
         drawer: null,
         loginDialog: false,
+        registerDialog: false,
         items: [
             { heading: 'H::Judge' },
             { icon: 'home', text: '主页', link: '/' },

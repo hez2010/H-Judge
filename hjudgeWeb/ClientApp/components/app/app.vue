@@ -1,6 +1,6 @@
 ﻿<template>
     <v-app :dark="darkTheme">
-        <navmenu v-on:register="test" :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo"></navmenu>
+        <navmenu :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo"></navmenu>
         <v-content>
             <router-view :user="userInfo"></router-view>
         </v-content>
