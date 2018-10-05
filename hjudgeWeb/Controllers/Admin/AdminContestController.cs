@@ -152,7 +152,7 @@ namespace hjudgeWeb.Controllers
                 }
                 if (!string.IsNullOrEmpty(model.ProblemSet))
                 {
-                    var problemSet = model.ProblemSet.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList().ConvertAll(i => int.Parse(i.Trim()));
+                    var problemSet = model.ProblemSet.Trim().Split(';', StringSplitOptions.RemoveEmptyEntries).ToList().ConvertAll(i => int.Parse(i.Trim()));
                     foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == contest.Id))
                     {
                         if (!problemSet.Contains(i.ProblemId ?? 0))
