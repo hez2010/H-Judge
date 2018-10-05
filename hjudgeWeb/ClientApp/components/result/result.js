@@ -12,7 +12,7 @@ export default {
             { text: '退出代码', value: 'exitCode' },
             { text: '结果', value: 'result' },
             { text: '分数', value: 'score' },
-            { test: '附加信息', value: 'extraInfo' }
+            { text: '附加信息', value: 'extraInfo' }
         ],
         timer: null
     }),
