@@ -7,7 +7,7 @@
             <v-form ref="form" v-model="valid" lazy-validation>
                 <v-text-field v-model="username"
                               :rules="usernameRules"
-                              :counter="15"
+                              :counter="30"
                               label="用户名"
                               required>
                 </v-text-field>

@@ -7,7 +7,7 @@
             <v-form ref="form" v-model="valid" lazy-validation>
                 <v-text-field v-model="username"
                               :rules="usernameRules"
-                              :counter="10"
+                              :counter="30"
                               label="用户名"
                               required>
                 </v-text-field>
@@ -24,7 +24,7 @@
                        color="primary">
                     登录
                 </v-btn>
-                <a>忘记密码</a>
+                <a @click="forgetPassword">忘记密码</a>
             </v-form>
         </v-card-text>
     </v-card>

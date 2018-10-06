@@ -7,7 +7,7 @@ export default {
         username: '',
         usernameRules: [
             v => !!v || '请输入用户名',
-            v => (v && v.length <= 15) || '用户名长度不能大于 15'
+            v => (v && v.length <= 30) || '用户名长度不能大于 30'
         ],
         email: '',
         emailRules: [

@@ -7,7 +7,7 @@ export default {
         username: '',
         usernameRules: [
             v => !!v || '请输入用户名',
-            v => (v && v.length <= 10) || '用户名长度不能大于 10'
+            v => (v && v.length <= 30) || '用户名长度不能大于 30'
         ],
         password: '',
         passwordRules: [
@@ -35,6 +35,9 @@ export default {
                         this.submitting = false;
                     });
             }
+        },
+        forgetPassword: function () {
+            alert('此功能正在开发中, 敬请期待...');
         }
     }
 };
