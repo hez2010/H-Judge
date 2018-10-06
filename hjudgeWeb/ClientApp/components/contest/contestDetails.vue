@@ -144,6 +144,7 @@
                 </v-tab-item>
             </v-tabs>
         </v-card>
+        <remote-script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML"></remote-script>
     </v-container>
 </template>
 

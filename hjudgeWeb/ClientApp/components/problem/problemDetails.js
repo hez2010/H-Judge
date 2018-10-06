@@ -21,7 +21,8 @@ export default {
             v => !!v || '请输入提交内容'
         ],
         submitting: false,
-        valid: false
+        valid: false,
+        timer: null
     }),
     mounted: function () {
         if (this.$route.params.pid) {
@@ -37,7 +38,10 @@ export default {
         Get('/Problem/GetProblemDetails', this.param)
             .then(res => res.json())
             .then(data => {
-                if (data.isSucceeded) this.problem = data;
+                if (data.isSucceeded) {
+                    this.problem = data;
+                    this.$nextTick(() => this.timer = setInterval(() => this.loadMath(), 200));
+                }
                 else alert(data.errorMessage);
                 this.loading = false;
             })
@@ -47,6 +51,12 @@ export default {
             });
     },
     methods: {
+        loadMath: function () {
+            if (window.MathJax) {
+                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
+                clearInterval(this.timer);
+            }
+        },
         submit: function () {
             if (this.$refs.form.validate()) {
                 this.submitting = true;

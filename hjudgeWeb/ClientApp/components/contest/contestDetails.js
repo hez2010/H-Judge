@@ -28,7 +28,8 @@ export default {
             { text: '状态', value: 'status' },
             { text: '通过量', value: 'acceptCount' },
             { text: '提交量', value: 'submissionCount' }
-        ]
+        ],
+        timer: null
     }),
     mounted: function () {
         if (this.$route.params.cid) this.param.cid = parseInt(this.$route.params.cid);
@@ -50,6 +51,7 @@ export default {
                             this.verified = this.valid = true;
                         }
                     }
+                    this.$nextTick(() => this.timer = setInterval(() => this.loadMath(), 200));
                 }
                 else alert(data.errorMessage);
                 this.loading = false;
@@ -106,6 +108,12 @@ export default {
         }
     },
     methods: {
+        loadMath: function () {
+            if (window.MathJax) {
+                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
+                clearInterval(this.timer);
+            }
+        },
         toDetails: function (id) {
             this.$router.push('/ProblemDetails/' + this.param.cid + '/' + id);
         },
