@@ -1,10 +1,12 @@
 ﻿using hjudgeCore;
 using hjudgeWeb.Configurations;
 using hjudgeWeb.Data;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -255,6 +257,7 @@ namespace hjudgeWeb
         public static async Task JudgeThread()
         {
             ApplicationDbContext db = null;
+            var random = new Random();
             while (!Environment.HasShutdownStarted)
             {
                 while (JudgeIdQueue.TryDequeue(out int id))
@@ -322,7 +325,11 @@ namespace hjudgeWeb
                         {
                             if (judge.ContestId == null)
                             {
-                                if (problem.AcceptCount == null) problem.AcceptCount = 0;
+                                if (problem.AcceptCount == null)
+                                {
+                                    problem.AcceptCount = 0;
+                                }
+
                                 problem.AcceptCount++;
                             }
                             else
@@ -330,10 +337,44 @@ namespace hjudgeWeb
                                 var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == judge.ContestId && i.ProblemId == problem.Id);
                                 if (problemConfig != null)
                                 {
-                                    if (problemConfig.AcceptCount == null) problemConfig.AcceptCount = 0;
+                                    if (problemConfig.AcceptCount == null)
+                                    {
+                                        problemConfig.AcceptCount = 0;
+                                    }
+
                                     problemConfig.AcceptCount++;
                                 }
                             }
+                        }
+                        try
+                        {
+                            var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id='@1'", new SqlParameter("@1", judge.UserId)).FirstOrDefault();
+                            if (fortune != null)
+                            {
+                                long dExp = 0, dCoins = 0;
+                                switch (judge.ResultType)
+                                {
+                                    case (int)ResultCode.Accepted:
+                                        dExp = random.Next(50, 100);
+                                        dCoins = random.Next(30, 80);
+                                        break;
+                                    case (int)ResultCode.Presentation_Error:
+                                        dExp = random.Next(30, 50);
+                                        dCoins = random.Next(10, 30);
+                                        break;
+                                    default:
+                                        dExp = random.Next(10, 30);
+                                        break;
+                                }
+                                db.Database.ExecuteSqlCommand("Update AspNetUsers set Experience=@1, Coins=@2 where Id='@3'",
+                                    new SqlParameter("@1", fortune.Experience + dExp),
+                                    new SqlParameter("@2", fortune.Coins + dCoins),
+                                    new SqlParameter("@3", judge.UserId));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Failed to update fortune for user [{judge.UserId}]: {ex.Message}");
                         }
                     }
                     catch (Exception ex)
