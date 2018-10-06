@@ -84,7 +84,7 @@ namespace hjudgeWeb.Controllers
                     i.RawStatus = 0;
                     if (user != null)
                     {
-                        var submissions = db.Judge.Where(j => j.ProblemId == i.Id && j.UserId == user.Id);
+                        var submissions = db.Judge.Where(j => j.ProblemId == i.Id && j.UserId == user.Id && j.ContestId == null && j.GroupId == null);
 
                         if (submissions.Any())
                         {
