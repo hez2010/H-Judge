@@ -112,10 +112,28 @@ namespace hjudgeCore
                     {
                         throw new Exception("Unable to execute target program");
                     }
-                    var (resultType, percentage, extraInfo) = await CompareAsync(Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption);
+                    var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
+                        await CompareAsync(Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption)
+                        : (point.ResultType, 0, point.ExtraInfo);
+                    point.ExtraInfo = extraInfo;
+                    if (point.ResultType == ResultCode.Runtime_Error && point.ExitCode != 0)
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                            Enum.IsDefined(typeof(WindowsExceptionCode), (uint)point.ExitCode))
+                        {
+                            point.ExtraInfo = Enum.GetName(typeof(WindowsExceptionCode), (uint)point.ExitCode);
+                        }
+                        else if (Enum.IsDefined(typeof(LinuxExceptionCode), point.ExitCode - 128))
+                        {
+                            point.ExtraInfo = Enum.GetName(typeof(LinuxExceptionCode), point.ExitCode - 128);
+                        }
+                        else
+                        {
+                            point.ExtraInfo = "UNKNOWN_EXCEPTION";
+                        }
+                    }
                     point.ResultType = resultType;
                     point.Score = percentage * judgeOption.DataPoints[i].Score;
-                    point.ExtraInfo = extraInfo;
                 }
                 catch (Exception ex)
                 {
