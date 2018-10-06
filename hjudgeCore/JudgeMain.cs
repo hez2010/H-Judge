@@ -197,6 +197,7 @@ namespace hjudgeCore
                         CreateNoWindow = true,
                         ErrorDialog = false,
                         RedirectStandardOutput = true,
+                        RedirectStandardError = true,
                         UseShellExecute = false,
                         StandardOutputEncoding = Encoding.UTF8
                     }
@@ -211,9 +212,10 @@ namespace hjudgeCore
                     {
                         return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
-                    var (error, output) = (await judge.StandardError.ReadToEndAsync(), await judge.StandardOutput.ReadToEndAsync());
 
                     judge.WaitForExit();
+
+                    var (error, output) = (await judge.StandardError.ReadToEndAsync(), await judge.StandardOutput.ReadToEndAsync());
 
                     if (judge.ExitCode != 0)
                     {
@@ -367,15 +369,6 @@ namespace hjudgeCore
                     sta.Start();
 
                     StringBuilder output = new StringBuilder();
-                    if (checker.ReadStdOutput)
-                    {
-                        output.AppendLine(await sta.StandardOutput.ReadToEndAsync());
-                    }
-
-                    if (checker.ReadStdError)
-                    {
-                        output.AppendLine(await sta.StandardError.ReadToEndAsync());
-                    }
 
                     if (!sta.WaitForExit(30 * 1000))
                     {
@@ -387,8 +380,16 @@ namespace hjudgeCore
                         {
                             /* ignored */
                         }
+                    }
 
-                        return null;
+                    if (checker.ReadStdOutput)
+                    {
+                        output.AppendLine(await sta.StandardOutput.ReadToEndAsync());
+                    }
+
+                    if (checker.ReadStdError)
+                    {
+                        output.AppendLine(await sta.StandardError.ReadToEndAsync());
                     }
 
                     var log = MatchProblem(output.ToString(), checker.ProblemMatcher)
@@ -436,16 +437,6 @@ namespace hjudgeCore
                     comp.Start();
 
                     StringBuilder output = new StringBuilder();
-                    if (compiler.ReadStdOutput)
-                    {
-                        output.AppendLine(await comp.StandardOutput.ReadToEndAsync());
-                    }
-
-                    if (compiler.ReadStdError)
-                    {
-                        output.AppendLine(await comp.StandardError.ReadToEndAsync());
-                    }
-
                     if (!comp.WaitForExit(30 * 1000))
                     {
                         try
@@ -456,8 +447,16 @@ namespace hjudgeCore
                         {
                             /* ignored */
                         }
+                    }
 
-                        return (false, null);
+                    if (compiler.ReadStdOutput)
+                    {
+                        output.AppendLine(await comp.StandardOutput.ReadToEndAsync());
+                    }
+
+                    if (compiler.ReadStdError)
+                    {
+                        output.AppendLine(await comp.StandardError.ReadToEndAsync());
                     }
 
                     var log = MatchProblem(output.ToString(), compiler.ProblemMatcher)
