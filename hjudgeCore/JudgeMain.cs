@@ -86,11 +86,10 @@ namespace hjudgeCore
                     try
                     {
                         File.Copy(judgeOption.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, judgeOption.InputFileName), true);
-                        File.Copy(judgeOption.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
                     }
                     catch
                     {
-                        throw new InvalidOperationException("Unable to find stdin/stdout file");
+                        throw new InvalidOperationException("Unable to find standard input file");
                     }
                     var param = new
                     {
@@ -111,6 +110,14 @@ namespace hjudgeCore
                     else
                     {
                         throw new Exception("Unable to execute target program");
+                    }
+                    try
+                    {
+                        File.Copy(judgeOption.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
+                    }
+                    catch
+                    {
+                        throw new InvalidOperationException("Unable to find standard output file");
                     }
                     var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
                         await CompareAsync(Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption)
