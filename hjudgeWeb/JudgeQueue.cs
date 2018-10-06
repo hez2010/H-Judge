@@ -348,7 +348,7 @@ namespace hjudgeWeb
                         }
                         try
                         {
-                            var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id='@1'", new SqlParameter("@1", judge.UserId)).FirstOrDefault();
+                            var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id=@1", new SqlParameter("@1", judge.UserId)).FirstOrDefault();
                             if (fortune != null)
                             {
                                 long dExp = 0, dCoins = 0;
@@ -366,7 +366,7 @@ namespace hjudgeWeb
                                         dExp = random.Next(10, 30);
                                         break;
                                 }
-                                db.Database.ExecuteSqlCommand("Update AspNetUsers set Experience=@1, Coins=@2 where Id='@3'",
+                                db.Database.ExecuteSqlCommand("Update AspNetUsers set Experience=@1, Coins=@2 where Id=@3",
                                     new SqlParameter("@1", fortune.Experience + dExp),
                                     new SqlParameter("@2", fortune.Coins + dCoins),
                                     new SqlParameter("@3", judge.UserId));
