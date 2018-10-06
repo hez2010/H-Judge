@@ -2,6 +2,7 @@
 import { setTitle } from '../../utilities/titleHelper';
 
 export default {
+    props: ['user'],
     data: () => ({
         result: {},
         loading: true,

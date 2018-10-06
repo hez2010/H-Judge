@@ -180,7 +180,7 @@ namespace hjudgeWeb.Controllers
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             var ret = new ResultModel { IsSucceeded = true };
-            if (user == null)
+            if (!HasAdminPrivilege(privilege))
             {
                 ret.IsSucceeded = false;
                 ret.ErrorMessage = "没有权限";
@@ -201,14 +201,6 @@ namespace hjudgeWeb.Controllers
                         {
                             ret.IsSucceeded = false;
                             ret.ErrorMessage = "请等待上一次评测完成";
-                        }
-                        else
-                        {
-                            if (!HasAdminPrivilege(privilege) && judge.UserId != user?.Id)
-                            {
-                                ret.IsSucceeded = false;
-                                ret.ErrorMessage = "没有权限";
-                            }
                         }
                     }
                     if (ret.IsSucceeded)

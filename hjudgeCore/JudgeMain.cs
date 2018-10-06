@@ -213,7 +213,17 @@ namespace hjudgeCore
                         return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
 
-                    judge.WaitForExit();
+                    if (judge.WaitForExit(60 * 1000))
+                    {
+                        try
+                        {
+                            judge.Kill();
+                        }
+                        catch
+                        {
+                            /* ignored */
+                        }
+                    }
 
                     var (error, output) = (await judge.StandardError.ReadToEndAsync(), await judge.StandardOutput.ReadToEndAsync());
 
