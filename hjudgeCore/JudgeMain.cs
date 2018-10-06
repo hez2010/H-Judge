@@ -344,7 +344,7 @@ namespace hjudgeCore
 
             std.Dispose();
             act.Dispose();
-            return (result.ResultType, result.ResultType == ResultCode.Accepted ? 1 : 0, null);
+            return (result.ResultType, result.ResultType == ResultCode.Accepted ? 1 : 0, result.ExtraInfo);
         }
 
         private async Task<string> StaticCheck(StaticCheckOption checker)
