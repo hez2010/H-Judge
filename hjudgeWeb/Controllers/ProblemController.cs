@@ -54,12 +54,7 @@ namespace hjudgeWeb.Controllers
                 return await problems.CountAsync();
             }
         }
-
-        /// <summary>
-        /// 获取题目列表
-        /// </summary>
-        /// <param name="quantity">数量信息</param>
-        /// <returns>题目列表</returns>
+        
         [HttpGet]
         public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 10)
         {

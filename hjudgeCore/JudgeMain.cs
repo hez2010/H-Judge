@@ -219,7 +219,6 @@ namespace hjudgeCore
                     {
                         FileName = judgeOption.SpecialJudgeOption.Exec,
                         Arguments = argsBuilder.ToString(),
-                        CreateNoWindow = true,
                         ErrorDialog = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
@@ -389,7 +388,6 @@ namespace hjudgeCore
                 StartInfo = new ProcessStartInfo
                 {
                     Arguments = checker.Args,
-                    CreateNoWindow = true,
                     ErrorDialog = false,
                     FileName = checker.Exec,
                     RedirectStandardError = checker.ReadStdError,
@@ -457,7 +455,6 @@ namespace hjudgeCore
                 StartInfo = new ProcessStartInfo
                 {
                     Arguments = compiler.Args,
-                    CreateNoWindow = true,
                     ErrorDialog = false,
                     FileName = compiler.Exec,
                     RedirectStandardError = compiler.ReadStdError,
@@ -522,7 +519,7 @@ namespace hjudgeCore
 
         public static string MatchProblem(string input, ProblemMatcher matcher)
         {
-            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(matcher.MatchPatterns))
+            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(matcher?.MatchPatterns))
             {
                 return input;
             }
