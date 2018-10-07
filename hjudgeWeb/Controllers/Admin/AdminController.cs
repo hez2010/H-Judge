@@ -31,6 +31,11 @@ namespace hjudgeWeb.Controllers
             return (user, user?.Privilege ?? 0);
         }
 
+        private bool HasTeacherPrivilege(int privilege)
+        {
+            return privilege >= 1 && privilege <= 2;
+        }
+
         private bool HasAdminPrivilege(int privilege)
         {
             return privilege == 1;

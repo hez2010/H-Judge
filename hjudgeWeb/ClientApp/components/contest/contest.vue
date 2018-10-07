@@ -4,7 +4,7 @@
             <v-card-title primary-title>
                 <h2>比赛列表</h2>
                 <v-spacer></v-spacer>
-                <v-tooltip v-if="user && user.privilege >= 1 && user.privilege <= 3" bottom>
+                <v-tooltip v-if="user && user.privilege >= 1 && user.privilege <= 2" bottom>
                     <v-btn icon slot="activator" @click="addContest">
                         <v-icon color="primary">add</v-icon>
                     </v-btn>
@@ -23,7 +23,7 @@
                         <td>{{ props.item.endTime }}</td>
                         <td>{{ props.item.problemCount }}</td>
                         <td>{{ props.item.status }}</td>
-                        <td v-if="user && user.privilege >= 1 && user.privilege <= 3">
+                        <td v-if="user && user.privilege >= 1 && user.privilege <= 2">
                             <v-layout row>
                                 <v-tooltip bottom>
                                     <v-btn icon slot="activator" @click="editContest(props.item.id)">

@@ -35,7 +35,7 @@ export default {
                 if (this.page <= 0) this.page = 1;
             })
             .catch(() => this.pageCount = 0);
-        if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+        if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
             this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
         }
     },
@@ -45,7 +45,7 @@ export default {
             this.load();
         },
         user: function () {
-            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 3) {
+            if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
                 this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
             }
         }

@@ -4,7 +4,7 @@
             <v-card-title primary-title>
                 <h2>题目列表</h2>
                 <v-spacer></v-spacer>
-                <v-tooltip v-if="user && user.privilege >= 1 && user.privilege <= 3" bottom>
+                <v-tooltip v-if="user && user.privilege >= 1 && user.privilege <= 2" bottom>
                     <v-btn icon slot="activator" @click="addProblem">
                         <v-icon color="primary">add</v-icon>
                     </v-btn>
@@ -24,7 +24,7 @@
                         <td>{{ props.item.status }}</td>
                         <td>{{ props.item.acceptCount }}</td>
                         <td>{{ props.item.submissionCount }}</td>
-                        <td v-if="user && user.privilege >= 1 && user.privilege <= 3">
+                        <td v-if="user && user.privilege >= 1 && user.privilege <= 2">
                             <v-layout row>
                                 <v-tooltip bottom>
                                     <v-btn icon slot="activator" @click="editProblem(props.item.id)">

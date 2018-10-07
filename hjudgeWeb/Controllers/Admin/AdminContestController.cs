@@ -22,7 +22,7 @@ namespace hjudgeWeb.Controllers
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             var model = new ContestEditModel { IsSucceeded = true };
-            if (!HasAdminPrivilege(privilege))
+            if (!HasTeacherPrivilege(privilege))
             {
                 model.IsSucceeded = false;
                 model.ErrorMessage = "没有权限";
@@ -80,7 +80,7 @@ namespace hjudgeWeb.Controllers
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             var ret = new ResultModel { IsSucceeded = true };
-            if (!HasAdminPrivilege(privilege))
+            if (!HasTeacherPrivilege(privilege))
             {
                 ret.IsSucceeded = false;
                 ret.ErrorMessage = "没有权限";
@@ -109,7 +109,7 @@ namespace hjudgeWeb.Controllers
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             var ret = new ContestIdModel { IsSucceeded = true };
-            if (!HasAdminPrivilege(privilege))
+            if (!HasTeacherPrivilege(privilege))
             {
                 ret.IsSucceeded = false;
                 ret.ErrorMessage = "没有权限";
