@@ -157,8 +157,11 @@ namespace hjudgeCore
 
                 result.JudgePoints.Add(point);
             }
-
-            Directory.Delete(_workingdir, true);
+            try
+            {
+                Directory.Delete(_workingdir, true);
+            }
+            catch { /* ignored */ }
             return result;
         }
 
