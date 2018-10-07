@@ -310,6 +310,7 @@ namespace hjudgeCore
                     retryTimes++;
                     if (retryTimes > 10)
                     {
+                        std?.Dispose();
                         return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
                     await Task.Delay(50);
