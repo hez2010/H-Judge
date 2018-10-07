@@ -88,7 +88,7 @@ export default {
             this.$router.push('/Result/' + id.toString());
         },
         toProblem: function (id) {
-            this.$router.push('/ProblemDetails/' + id.toString());
+            this.$router.push('/ProblemDetails/' + this.$route.params.gid ? `${this.$route.params.gid}/` : '' + this.$route.params.cid ? `${this.$route.params.cid}/` : '' + id.toString());
         },
         toUser: function (id) {
             this.$router.push('/Account/' + id.toString());
