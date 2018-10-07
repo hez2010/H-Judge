@@ -140,6 +140,7 @@ namespace hjudgeWeb.Controllers
                 userInfo.Experience = user.Experience;
                 userInfo.Coins = user.Coins;
                 userInfo.UserName = user.UserName;
+                userInfo.Name = user.Name;
                 userInfo.OtherInfo = IdentityHelper.GetOtherUserInfo(user.OtherInfo);
                 userInfo.Privilege = user.Privilege;
             }

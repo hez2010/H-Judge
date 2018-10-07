@@ -5,6 +5,9 @@ namespace hjudgeWeb.Data.Identity
 {
     public class OtherUserInfo
     {
+        [ItemName("学号")]
+        public string SchoolNumber { get; set; }
+
         [ItemName("学院")]
         public string Institute { get; set; }
 

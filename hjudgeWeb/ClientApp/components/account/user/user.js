@@ -2,10 +2,11 @@
 import { Get } from '../../../utilities/requestHelper';
 
 export default {
+    props: ['user'],
     data: () => ({
         avatar: '',
         loading: true,
-        user: {}
+        userInfo: {}
     }),
     mounted: function () {
         setTitle('用户');
@@ -13,13 +14,13 @@ export default {
             .then(res => res.json())
             .then(data => {
                 if (data.isSignedIn) {
-                    this.user = data;
-                    if (this.user !== null) {
-                        this.privilege = this.user.privilege === 1 ? '管理员' :
-                            this.user.privilege === 2 ? '教师' :
-                                this.user.privilege === 3 ? '助教' :
-                                    this.user.privilege === 4 ? '学生/选手' :
-                                        this.user.privilege === 5 ? '黑名单' : '未知';
+                    this.userInfo = data;
+                    if (this.userInfo !== null) {
+                        this.privilege = this.userInfo.privilege === 1 ? '管理员' :
+                            this.userInfo.privilege === 2 ? '教师' :
+                                this.userInfo.privilege === 3 ? '助教' :
+                                    this.userInfo.privilege === 4 ? '学生/选手' :
+                                        this.userInfo.privilege === 5 ? '黑名单' : '未知';
                     }
                 }
                 else {
