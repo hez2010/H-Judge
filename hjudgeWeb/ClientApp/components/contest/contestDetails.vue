@@ -114,7 +114,7 @@
                                 <v-text-field v-model="password"
                                               :rules="passwordRules"
                                               label="密码"
-                                              typeof="password"
+                                              type="password"
                                               required>
                                 </v-text-field>
                                 <v-btn :disabled="!valid"
