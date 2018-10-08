@@ -39,7 +39,6 @@ export default {
         setTitle('状态');
         if (!this.$route.params.page) this.$router.push(this.$router.currentRoute.fullPath + '/1');
         else this.page = parseInt(this.$route.params.page);
-        this.load();
 
         if (this.$route.params.pid) this.param['pid'] = parseInt(this.$route.params.pid);
         if (this.$route.params.cid) {
@@ -50,6 +49,8 @@ export default {
             this.headers = this.headers.concat([{ text: '小组', value: 'groupId' }]);
             this.param['gid'] = parseInt(this.$route.params.gid);
         }
+        this.load();
+
         Get('/Status/GetStatusCount', this.param)
             .then(res => res.text())
             .then(data => {
