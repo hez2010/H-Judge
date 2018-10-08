@@ -16,7 +16,10 @@ module.exports = (env) => {
                 'highlight.js',
                 'vue',
                 'vue-router',
-                'isomorphic-fetch'
+                'isomorphic-fetch',
+                'vuetify/dist/vuetify.min.css',
+                'material-design-icons-iconfont/dist/material-design-icons.css',
+                'highlight.js/styles/github.css'
             ]
         },
         module: {
