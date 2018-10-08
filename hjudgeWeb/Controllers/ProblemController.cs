@@ -178,12 +178,12 @@ namespace hjudgeWeb.Controllers
                         }
                     }
 
-                    if (DateTime.Now > contest.EndTime)
+                    if (DateTime.Now > contest.EndTime || DateTime.Now < contest.StartTime)
                     {
                         return new SubmitReturnDataModel
                         {
                             IsSucceeded = false,
-                            ErrorMessage = "比赛已结束"
+                            ErrorMessage = "当前不在比赛时间内"
                         };
                     }
 

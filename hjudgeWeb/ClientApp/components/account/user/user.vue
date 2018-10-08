@@ -15,7 +15,7 @@
                                     </v-avatar>
                                     <div>
                                         <v-chip>
-                                            <span v-if="user && user.privilege >= 1 && user.privilege <= 3">
+                                            <span v-if="user && user.name && user.privilege >= 1 && user.privilege <= 3">
                                                 <span>{{userInfo.userName}} ({{userInfo.name}}) ({{privilege}})</span>
                                             </span>
                                             <span v-else>{{userInfo.userName}} ({{privilege}})</span>
