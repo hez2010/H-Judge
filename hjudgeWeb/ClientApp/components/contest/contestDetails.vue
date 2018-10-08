@@ -83,14 +83,14 @@
                 <v-tab-item :key="3">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
-                        <v-container v-else-if="verified || (!contest.password || contest.password === '')">
+                        <v-container v-else-if="(verified || (!contest.password || contest.password === '')) && contest.started">
                             <h3>题目列表</h3>
                             <v-data-table :headers="headers"
                                           :items="problems"
                                           hide-actions>
                                 <template slot="items" slot-scope="props">
                                     <td>{{ props.item.id }}</td>
-                                    <td><a @click="toDetails(props.item.id)">{{ props.item.name }}</a></td>
+                                    <td><router-link :to="{ path: '/ProblemDetails/' + param.cid + '/' + props.item.id }">{{ props.item.name }}</router-link></td>
                                     <td>{{ props.item.creationTime }}</td>
                                     <td>{{ props.item.type }}</td>
                                     <td>{{ props.item.level }}</td>
@@ -105,10 +105,10 @@
                             </v-data-table>
                             <br />
                             <div class="text-xs-center">
-                                <v-pagination circle v-model="page" :length="pageCount" :total-visible="7"></v-pagination>
+                                <v-pagination circle v-model="page" :length="pageCount" :total-visible="5"></v-pagination>
                             </div>
                         </v-container>
-                        <v-container v-else>
+                        <v-container v-else-if="contest.started">
                             <h4>请输入密码</h4>
                             <v-form ref="form" v-model="valid" lazy-validation>
                                 <v-text-field v-model="password"
@@ -123,6 +123,9 @@
                                     确定
                                 </v-btn>
                             </v-form>
+                        </v-container>
+                        <v-container v-else>
+                            <p>比赛未开始</p>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>

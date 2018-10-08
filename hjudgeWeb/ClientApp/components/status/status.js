@@ -37,11 +37,10 @@ export default {
     }),
     mounted: function () {
         setTitle('状态');
-        if (!this.$route.params.page) {
-            this.$router.push(this.$router.currentRoute.fullPath + '/1');
-            this.page = 1;
-        }
+        if (!this.$route.params.page) this.$router.push(this.$router.currentRoute.fullPath + '/1');
         else this.page = parseInt(this.$route.params.page);
+        this.load();
+
         if (this.$route.params.pid) this.param['pid'] = parseInt(this.$route.params.pid);
         if (this.$route.params.cid) {
             this.headers = this.headers.concat([{ text: '比赛', value: 'contestId' }]);
@@ -62,12 +61,28 @@ export default {
             .catch(() => this.pageCount = 0);
     },
     watch: {
+        $route: function () {
+            let page = this.$route.params.page ? parseInt(this.$route.params.page) : 1;
+            this.page = page;
+            this.load();
+        },
         page: function () {
             let baseRoute = '/Status';
             if (this.$route.params.gid) baseRoute = baseRoute + '/' + this.$route.params.gid;
             if (this.$route.params.cid) baseRoute = baseRoute + '/' + this.$route.params.cid;
             if (this.$route.params.pid) baseRoute = baseRoute + '/' + this.$route.params.pid;
             this.$router.push(baseRoute + '/' + this.page);
+        }
+    },
+    methods: {
+        getProblemRouteParams: function (id) {
+            return (this.$route.params.gid ? `${this.$route.params.gid}/` : '') + (this.$route.params.cid ? `${this.$route.params.cid}/` : '') + id.toString();
+        },
+        getContestRouteParams: function (id) {
+            return (this.$route.params.gid ? `${this.$route.params.gid}/` : '') + id.toString();
+        },
+        load: function () {
+            if (this.page === 0) return;
             this.loading = true;
             this.param.start = (this.page - 1) * 10;
             this.statuses = [];
@@ -81,23 +96,6 @@ export default {
                     this.statuses = [];
                     this.loading = false;
                 });
-        }
-    },
-    methods: {
-        toResult: function (id) {
-            this.$router.push('/Result/' + id.toString());
-        },
-        toProblem: function (id) {
-            this.$router.push('/ProblemDetails/' + (this.$route.params.gid ? `${this.$route.params.gid}/` : '') + (this.$route.params.cid ? `${this.$route.params.cid}/` : '') + id.toString());
-        },
-        toUser: function (id) {
-            this.$router.push('/Account/' + id.toString());
-        },
-        toContest: function (id) {
-            this.$router.push('/ContestDetails/' + id.toString());
-        },
-        toGroup: function (id) {
-            this.$router.push('/GroupDetails/' + id.toString());
         }
     }
 };

@@ -34,11 +34,9 @@ export default {
     }),
     mounted: function () {
         setTitle('比赛');
-        if (!this.$route.params.page) {
-            this.$router.push('/Contest/1');
-            this.page = 1;
-        }
+        if (!this.$route.params.page) this.$router.push('/Contest/1');
         else this.page = parseInt(this.$route.params.page);
+        this.load();
         Get('/Contest/GetContestCount')
             .then(res => res.text())
             .then(data => {
@@ -53,9 +51,13 @@ export default {
         }
     },
     watch: {
+        $route: function () {
+            let page = this.$route.params.page ? parseInt(this.$route.params.page) : 1;
+            this.page = page;
+            this.load();
+        },
         page: function () {
             this.$router.push('/Contest/' + this.page);
-            this.load();
         },
         user: function () {
             if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
@@ -65,6 +67,7 @@ export default {
     },
     methods: {
         load: function () {
+            if (this.page === 0) return;
             this.loading = true;
             let param = { start: (this.page - 1) * 10, count: 10 };
             if (this.$route.params.gid) param['gid'] = this.$route.params.gid;
@@ -79,15 +82,6 @@ export default {
                     this.contests = [];
                     this.loading = false;
                 });
-        },
-        toDetails: function (id) {
-            this.$router.push('/ContestDetails/' + id.toString());
-        },
-        addContest: function () {
-            this.$router.push('/Admin/Contest/0');
-        },
-        editContest: function (id) {
-            this.$router.push('/Admin/Contest/' + id.toString());
         },
         deleteContest: function (id) {
             if (confirm('确定要删除此比赛吗？')) {

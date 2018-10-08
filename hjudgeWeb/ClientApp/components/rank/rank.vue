@@ -14,7 +14,7 @@
                                   hide-actions>
                         <template slot="items" slot-scope="props">
                             <td>{{props.item.rank}}</td>
-                            <td><a @click="toUser(props.item.user.id)">{{props.item.user.name}}</a></td>
+                            <td><router-link :to="{ path: '/Account/' + props.item.user.id }">{{props.item.user.name}}</router-link></td>
                             <td>{{props.item.fullScore}}</td>
                             <td>{{props.item.timeCost}}</td>
                             <td>{{props.item.penalty}}</td>

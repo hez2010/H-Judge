@@ -59,7 +59,7 @@
                                     <strong>出题用户</strong>
                                 </v-flex>
                                 <v-flex xs8>
-                                    <p><a @click="showUser(problem.userId)">{{problem.userName}}</a></p>
+                                    <p><router-link :to="{ path: '/Account/' + problem.userId }">{{problem.userName}}</router-link></p>
                                 </v-flex>
                                 <v-flex xs4>
                                     <strong>当前状态</strong>

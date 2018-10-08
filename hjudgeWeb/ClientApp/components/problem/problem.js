@@ -21,11 +21,10 @@ export default {
     }),
     mounted: function () {
         setTitle('题目');
-        if (!this.$route.params.page) {
-            this.$router.push('/Problem/1');
-            this.page = 1;
-        }
+        if (!this.$route.params.page) this.$router.push('/Problem/1');
         else this.page = parseInt(this.$route.params.page);
+        this.load();
+
         Get('/Problem/GetProblemCount')
             .then(res => res.text())
             .then(data => {
@@ -40,9 +39,13 @@ export default {
         }
     },
     watch: {
+        $route: function () {
+            let page = this.$route.params.page ? parseInt(this.$route.params.page) : 1;
+            this.page = page;
+            this.load();
+        },
         page: function () {
             this.$router.push('/Problem/' + this.page);
-            this.load();
         },
         user: function () {
             if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
@@ -52,6 +55,7 @@ export default {
     },
     methods: {
         load: function () {
+            if (this.page === 0) return;
             this.loading = true;
             let param = { start: (this.page - 1) * 10, count: 10 };
             this.problems = [];
@@ -65,15 +69,6 @@ export default {
                     this.problems = [];
                     this.loading = false;
                 });
-        },
-        toDetails: function (id) {
-            this.$router.push('/ProblemDetails/' + id.toString());
-        },
-        addProblem: function () {
-            this.$router.push('/Admin/Problem/0');
-        },
-        editProblem: function (id) {
-            this.$router.push('/Admin/Problem/' + id.toString());
         },
         deleteProblem: function (id) {
             if (confirm('确定要删除此题目吗？')) {

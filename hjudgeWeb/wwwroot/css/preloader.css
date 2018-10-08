@@ -42,3 +42,11 @@
     overflow-y: auto;
     overflow-x: auto;
 }
+
+a {
+    text-decoration: none;
+}
+
+.router-link-active {
+    text-decoration: none;
+}

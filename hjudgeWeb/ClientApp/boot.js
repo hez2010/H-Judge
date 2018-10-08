@@ -1,4 +1,4 @@
-import 'babel-polyfill';
+import '@babel/polyfill';
 import Vue from 'vue';
 import Vuetify from 'vuetify';
 import VueRouter from 'vue-router';
@@ -6,6 +6,7 @@ import 'vuetify/dist/vuetify.min.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
+import 'isomorphic-fetch';
 
 Vue.use(VueRouter);
 Vue.use(Vuetify);
@@ -47,35 +48,66 @@ Vue.component('remote-script', {
     }
 });
 
+import home from './components/home/home.vue';
+import problem from './components/problem/problem.vue';
+import problemDetails from './components/problem/problemDetails.vue';
+import contest from './components/contest/contest.vue';
+import contestDetails from './components/contest/contestDetails.vue';
+import status from './components/status/status.vue';
+import result from './components/result/result.vue';
+import rank from './components/rank/rank.vue';
+import group from './components/group/group.vue';
+import message from './components/message/message.vue';
+import about from './components/about/about.vue';
+import portal from './components/account/portal/portal.vue';
+import user from './components/account/user/user.vue';
+import problemAdmin from './components/admin/problem/problem.vue';
+import contestAdmin from './components/admin/contest/contest.vue';
+import groupAdmin from './components/admin/group/group.vue';
+import configAdmin from './components/admin/config/config.vue';
+
 const routes = [
-    { path: '/', component: require('./components/home/home.vue').default },
-    { path: '/Problem/:page', component: require('./components/problem/problem.vue').default },
-    { path: '/Problem', component: require('./components/problem/problem.vue').default },
-    { path: '/ProblemDetails/:gid/:cid/:pid', component: require('./components/problem/problemDetails.vue').default },
-    { path: '/ProblemDetails/:cid/:pid', component: require('./components/problem/problemDetails.vue').default },
-    { path: '/ProblemDetails/:pid', component: require('./components/problem/problemDetails.vue').default },
-    { path: '/Contest/:page', component: require('./components/contest/contest.vue').default },
-    { path: '/Contest', component: require('./components/contest/contest.vue').default },
-    { path: '/ContestDetails/:gid/:cid', component: require('./components/contest/contestDetails.vue').default },
-    { path: '/ContestDetails/:cid', component: require('./components/contest/contestDetails.vue').default },
-    { path: '/Status/:gid/:cid/:pid/:page', component: require('./components/status/status.vue').default },
-    { path: '/Status/:cid/:pid/:page', component: require('./components/status/status.vue').default },
-    { path: '/Status/:pid/:page', component: require('./components/status/status.vue').default },
-    { path: '/Status/:page', component: require('./components/status/status.vue').default },
-    { path: '/Status', component: require('./components/status/status.vue').default },
-    { path: '/Result/:jid', component: require('./components/result/result.vue').default },
-    { path: '/Rank/:gid/:cid', component: require('./components/rank/rank.vue').default },
-    { path: '/Rank/:cid', component: require('./components/rank/rank.vue').default },
-    { path: '/Group/:page', component: require('./components/group/group.vue').default },
-    { path: '/Group', component: require('./components/group/group.vue').default },
-    { path: '/Message', component: require('./components/message/message.vue').default },
-    { path: '/About', component: require('./components/about/about.vue').default },
-    { path: '/Account', component: require('./components/account/portal/portal.vue').default },
-    { path: '/Account/:uid', component: require('./components/account/user/user.vue').default },
-    { path: '/Admin/Problem/:pid', component: require('./components/admin/problem/problem.vue').default },
-    { path: '/Admin/Contest/:cid', component: require('./components/admin/contest/contest.vue').default },
-    { path: '/Admin/Group/:gid', component: require('./components/admin/group/group.vue').default },
-    { path: '/Admin/Config', component: require('./components/admin/config/config.vue').default }
+    { path: '/', component: home },
+
+    { path: '/Problem/:page', component: problem },
+    { path: '/Problem', component: problem },
+
+    { path: '/ProblemDetails/:gid/:cid/:pid', component: problemDetails },
+    { path: '/ProblemDetails/:cid/:pid', component: problemDetails },
+    { path: '/ProblemDetails/:pid', component: problemDetails },
+
+    { path: '/Contest/:page', component: contest },
+    { path: '/Contest', component: contest },
+
+    { path: '/ContestDetails/:gid/:cid', component: contestDetails },
+    { path: '/ContestDetails/:cid', component: contestDetails },
+
+    { path: '/Status/:gid/:cid/:pid/:page', component: status },
+    { path: '/Status/:cid/:pid/:page', component: status },
+    { path: '/Status/:pid/:page', component: status },
+    { path: '/Status/:page', component: status },
+    { path: '/Status', component: status },
+
+    { path: '/Result/:jid', component: result },
+
+    { path: '/Rank/:gid/:cid', component: rank },
+    { path: '/Rank/:cid', component: rank },
+
+    { path: '/Group/:page', component: group },
+    { path: '/Group', component: group },
+
+    { path: '/Message', component: message },
+
+    { path: '/About', component: about },
+
+    { path: '/Account', component: portal },
+
+    { path: '/Account/:uid', component: user },
+
+    { path: '/Admin/Problem/:pid', component: problemAdmin },
+    { path: '/Admin/Contest/:cid', component: contestAdmin },
+    { path: '/Admin/Group/:gid', component: groupAdmin },
+    { path: '/Admin/Config', component: configAdmin }
 ];
 
 new Vue({

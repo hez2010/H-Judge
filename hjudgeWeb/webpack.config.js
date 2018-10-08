@@ -13,19 +13,19 @@ module.exports = (env) => {
         stats: { modules: false },
         context: __dirname,
         resolve: { extensions: ['.js', '.jsx', '.vue'] },
-        entry: { 'main': './ClientApp/boot.js' },
+        entry: { 'main': ['@babel/polyfill', './ClientApp/boot.js'] },
         module: {
             rules: [
-                { test: /\.vue$/, include: /ClientApp/, loader: 'vue-loader', options: { loaders: { js: 'babel-loader' } } },
-                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: ['@babel/preset-env'] } },
-                { test: /\.css$/, use: isDevBuild ? ['style-loader', 'css-loader'] : [{ loader: MiniCssExtractPlugin.loader }, 'css-loader'] },
+                { test: /\.vue$/, include: /ClientApp/, loader: 'vue-loader', options: { loaders: { js: { loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]] } } } } },
+                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]] } },
+                { test: /\.css$/, use: isDevBuild ? ['style-loader', 'css-loader'] : [{ loader: MiniCssExtractPlugin.loader }, 'css-loader?minimize'] },
                 { test: /\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot)$/, use: 'url-loader?limit=25000' }
             ]
         },
         output: {
             path: path.join(__dirname, bundleOutputDir),
             filename: '[name].js',
-            publicPath: 'dist/'
+            publicPath: '/dist/'
         },
         plugins: [
             new MiniCssExtractPlugin({

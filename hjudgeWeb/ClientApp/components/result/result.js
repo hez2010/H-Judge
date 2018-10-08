@@ -40,11 +40,11 @@ export default {
             });
     },
     methods: {
-        toProblem: function (id) {
-            this.$router.push('/ProblemDetails/' + (this.result.groupId ? this.result.groupId.toString() + '/' : '') + (this.result.contestId ? this.result.contestId.toString() + '/' : '') + id.toString());
+        getProblemRouteParams: function (id) {
+            return (this.result.groupId ? this.result.groupId.toString() + '/' : '') + (this.result.contestId ? this.result.contestId.toString() + '/' : '') + id.toString();
         },
-        toUser: function (id) {
-            this.$router.push('/Account/' + id.toString());
+        getContestRouteParams: function (id) {
+            return (this.result.groupId ? this.result.groupId.toString() + '/' : '') + id.toString();
         },
         queryResult: function (jid) {
             Get('/Status/GetJudgeResult', { jid: jid })

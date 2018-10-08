@@ -69,10 +69,5 @@ export default {
                 alert('加载失败');
                 this.loading = false;
             });
-    },
-    methods: {
-        toUser: function (id) {
-            this.$router.push('/Account/' + id);
-        }
     }
 };

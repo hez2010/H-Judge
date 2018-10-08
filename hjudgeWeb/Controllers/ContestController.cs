@@ -154,6 +154,11 @@ namespace hjudgeWeb.Controllers
                     return list;
                 }
 
+                if (contest.StartTime > DateTime.Now)
+                {
+                    return list;
+                }
+
                 int? contestId = null;
                 if (cid != 0)
                 {

@@ -1,7 +1,5 @@
 const path = require('path');
-const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = (env) => {
@@ -10,30 +8,27 @@ module.exports = (env) => {
     return [{
         mode: isDevBuild ? 'development' : 'production',
         stats: { modules: false },
-        resolve: { extensions: ['.js', '.jsx', '.vue'] },
+        resolve: { extensions: ['.js', '.jsx'] },
         entry: {
             vendor: [
                 'vuetify',
-                'vuetify/dist/vuetify.min.css',
-                'material-design-icons-iconfont/dist/material-design-icons.css',
                 'event-source-polyfill',
                 'highlight.js',
-                'highlight.js/styles/github.css',
                 'vue',
-                'vue-router'
-            ],
+                'vue-router',
+                'isomorphic-fetch'
+            ]
         },
         module: {
             rules: [
-                { test: /\.css(\?|$)/, use: [{ loader: MiniCssExtractPlugin.loader }, isDevBuild ? 'css-loader' : 'css-loader?minimize'] },
-                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: ['@babel/preset-env'] } },
-                { test: /\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot)(\?|$)/, use: 'url-loader?limit=100000' },
-                { test: /\.vue(\?|$)/, use: 'vue-loader' }
+                { test: /\.css$/, use: [{ loader: MiniCssExtractPlugin.loader }, isDevBuild ? 'css-loader' : 'css-loader?minimize'] },
+                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]] } },
+                { test: /\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot)(\?|$)/, use: 'url-loader?limit=100000' }
             ]
         },
         output: {
             path: path.join(__dirname, 'wwwroot', 'dist'),
-            publicPath: 'dist/',
+            publicPath: '/dist/',
             filename: '[name].js',
             library: '[name]_[hash]'
         },
@@ -43,8 +38,7 @@ module.exports = (env) => {
                 // both options are optional
                 filename: '[name].css',
                 chunkFilename: '[id].css'
-            }),
-            new VueLoaderPlugin()
+            })
         ],
         optimization: {
             minimizer: []

@@ -114,9 +114,6 @@ export default {
                 clearInterval(this.timer);
             }
         },
-        toDetails: function (id) {
-            this.$router.push('/ProblemDetails/' + this.param.cid + '/' + id);
-        },
         verify: function () {
             if (this.password === this.contest.password) {
                 this.verified = true;

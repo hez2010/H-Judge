@@ -10,15 +10,15 @@
                               :custom-sort="sortRules"
                               hide-actions>
                     <template slot="items" slot-scope="props">
-                        <td><a @click="toResult(props.item.id)">{{ props.item.id }}</a></td>
+                        <td><router-link :to="{ path: '/Result/' + props.item.id }">{{ props.item.id }}</router-link></td>
                         <td>{{ props.item.judgeTime }}</td>
-                        <td><a @click="toProblem(props.item.problemId)">{{ props.item.problemName }}</a></td>
-                        <td><a @click="toUser(props.item.userId)">{{ props.item.userName }}</a></td>
+                        <td><router-link :to="{ path: '/ProblemDetails/' + getProblemRouteParams(props.item.problemId) }">{{ props.item.problemName }}</router-link></td>
+                        <td><router-link :to="{ path: '/Account/' + props.item.userId }">{{ props.item.userName }}</router-link></td>
                         <td>{{ props.item.language }}</td>
                         <td>{{ props.item.result }}</td>
                         <td>{{ props.item.fullScore }}</td>
-                        <td v-if="$route.params.cid"><a @click="toContest(props.item.contestId)">{{ props.item.contestName }}</a></td>
-                        <td v-if="$route.params.gid"><a @click="toGroup(props.item.groupId)">{{ props.item.groupName }}</a></td>
+                        <td v-if="$route.params.cid"><router-link :to="{ path: '/ContestDetails/' + getContestRouteParams(props.item.contestId) }">{{ props.item.contestName }}</router-link></td>
+                        <td v-if="$route.params.gid"><router-link :to="{ path: '/GroupDetails/' + props.item.groupId }">{{ props.item.groupName }}</router-link></td>
                     </template>
                     <template slot="no-data">
                         <p v-if="loading">正在加载...</p>
@@ -28,7 +28,7 @@
             </v-card-text>
             <v-card-actions>
                 <v-layout justify-center align-center>
-                    <v-pagination circle v-model="page" :length="pageCount" :total-visible="7"></v-pagination>
+                    <v-pagination circle v-model="page" :length="pageCount" :total-visible="5"></v-pagination>
                 </v-layout>
             </v-card-actions>
         </v-card>

@@ -41,13 +41,13 @@
                                     <strong>提交用户</strong>
                                 </v-flex>
                                 <v-flex xs8>
-                                    <p><a @click="toUser(result.userId)">{{result.userName}}</a></p>
+                                    <p><router-link :to="{ path: '/Account/' + result.userId }">{{result.userName}}</router-link></p>
                                 </v-flex>
                                 <v-flex xs4>
                                     <strong>题目名称</strong>
                                 </v-flex>
                                 <v-flex xs8>
-                                    <p><a @click="toProblem(result.problemId)">{{result.problemName}}</a></p>
+                                    <p><router-link :to="{ path: '/ProblemDetails/' + getProblemRouteParams(result.problemId) }">{{result.problemName}}</router-link></p>
                                 </v-flex>
                                 <v-flex xs4 v-if="result.rawType === 1">
                                     <strong>选用语言</strong>
@@ -83,13 +83,13 @@
                                     <strong>比赛名称</strong>
                                 </v-flex>
                                 <v-flex xs8 v-if="result.contestId !== 0">
-                                    <p><a @click="toContest(result.contestId)">{{result.contestName}}</a></p>
+                                    <p><router-link :to="{ path: '/ContestDetails/' + getContestRouteParams(result.contestId) }">{{result.contestName}}</router-link></p>
                                 </v-flex>
                                 <v-flex xs4 v-if="result.groupId !== 0">
                                     <strong>小组名称</strong>
                                 </v-flex>
                                 <v-flex xs8 v-if="result.groupId !== 0">
-                                    <p><a @click="toGroup(result.groupId)">{{result.groupName}}</a></p>
+                                    <p><router-link :to="{ path: '/GroupDetails/' + result.groupId }">{{result.groupName}}</router-link></p>
                                 </v-flex>
                             </v-layout>
                         </v-container>
