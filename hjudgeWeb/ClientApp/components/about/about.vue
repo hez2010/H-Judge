@@ -12,6 +12,9 @@
                 <p>开发者：hez2010，Email：<a href="mailto:hez2010@126.com">hez2010@126.com</a></p>
                 <v-container>
                     <h3>更新日志</h3>
+                    <strong>2018/10/9 1.2 Stable</strong>
+                    <small><strong>1.</strong> 添加密码重置功能</small>
+                    <br />
                     <strong>2018/10/8 1.1 Stable</strong>
                     <small><strong>1.</strong> 修复后退页面列表不会更新的 Bug</small>
                     <small><strong>2.</strong> 更换页面跳转实现方式</small>

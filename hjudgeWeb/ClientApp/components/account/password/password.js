@@ -39,6 +39,7 @@ export default {
                         if (data.isSucceeded) {
                             alert('密码重置成功');
                             this.closeDlg();
+                            this.sent = false;
                         }
                         else {
                             alert(data.errorMessage);
