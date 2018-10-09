@@ -33,7 +33,7 @@ export default {
         reset: function () {
             if (this.$refs.form.validate()) {
                 this.submitting = true;
-                Post('/Account/ResetPassword', { email: this.email, token: this.token, password: this.password, confirmPassword: this.confirmPassword })
+                Post('/Account/ResetPassword', { userName: this.username, token: this.token, password: this.password, confirmPassword: this.confirmPassword })
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) {

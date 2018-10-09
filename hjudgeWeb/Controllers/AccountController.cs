@@ -57,7 +57,7 @@ namespace hjudgeWeb.Controllers
 
         public class PasswordResetModel
         {
-            public string Email { get; set; }
+            public string UserName { get; set; }
             public string Token { get; set; }
             public string Password { get; set; }
             public string ConfirmPassword { get; set; }
@@ -73,7 +73,7 @@ namespace hjudgeWeb.Controllers
                 ret.ErrorMessage = "两次输入的密码不一致";
                 return ret;
             }
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByNameAsync(model.UserName);
             if (user == null)
             {
                 ret.IsSucceeded = false;
