@@ -17,6 +17,11 @@ export default {
         rememberMe: true,
         resetDialog: false
     }),
+    watch: {
+        resetDialog: function () {
+            this.$refs.resetpwd.clearForm();
+        }
+    },
     methods: {
         login: function () {
             if (this.$refs.form.validate()) {

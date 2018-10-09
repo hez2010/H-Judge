@@ -39,9 +39,6 @@ export default {
                         if (data.isSucceeded) {
                             alert('密码重置成功');
                             this.closeDlg();
-                            this.username = '';
-                            this.email = '';
-                            this.sent = false;
                         }
                         else alert(data.errorMessage);
                         this.submitting = false;
@@ -62,6 +59,15 @@ export default {
             }
         },
         backward: function () {
+            this.sent = false;
+        },
+        clearForm: function () {
+            this.password = '';
+            this.token = '';
+            this.confirmPassword = '';
+            this.username = '';
+            this.email = '';
+            this.valid = false;
             this.sent = false;
         }
     }
