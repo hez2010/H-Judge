@@ -4,6 +4,7 @@ using hjudgeWeb.Models;
 using hjudgeWeb.Models.Account;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -20,14 +21,17 @@ namespace hjudgeWeb.Controllers
         private readonly SignInManager<UserInfo> _signInManager;
         private readonly UserManager<UserInfo> _userManager;
         private readonly DbContextOptions<ApplicationDbContext> _dbContextOptions;
+        public readonly IEmailSender _emailSender;
 
         public AccountController(SignInManager<UserInfo> signInManager,
             UserManager<UserInfo> userManager,
-            DbContextOptions<ApplicationDbContext> dbContextOptions)
+            DbContextOptions<ApplicationDbContext> dbContextOptions,
+            IEmailSender emailSender)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _dbContextOptions = dbContextOptions;
+            _emailSender = emailSender;
         }
 
         [HttpGet]
@@ -43,6 +47,63 @@ namespace hjudgeWeb.Controllers
                 return Properties.Resource.DefaultAvatar;
             }
             return Convert.ToBase64String(user.Avatar, Base64FormattingOptions.None);
+        }
+
+        public class EmailModel
+        {
+            public string UserName { get; set; }
+            public string Email { get; set; }
+        }
+
+        public class PasswordResetModel
+        {
+            public string Email { get; set; }
+            public string Token { get; set; }
+            public string Password { get; set; }
+            public string ConfirmPassword { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> ResetPassword([FromBody]PasswordResetModel model)
+        {
+            var ret = new ResultModel { IsSucceeded = true };
+            if (model.Password != model.ConfirmPassword)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "两次输入的密码不一致";
+                return ret;
+            }
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "密码重置失败";
+                return ret;
+            }
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+            if (!result.Succeeded)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = result.Errors.Any() ? result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next) : "注册失败";
+            }
+            return ret;
+        }
+
+        [HttpPost]
+        public async Task SendPasswordResetToken([FromBody]EmailModel model)
+        {
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user != null && user.Email == model.Email)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var html = $@"<h2>H::Judge</h2>
+<p>您好 {user.UserName}，感谢使用 H::Judge！</p>
+<p>您请求的重置密码验证码为：</p><small>{token}</small><p>请使用此验证码重置您的密码</p>
+<hr />
+<small>{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}</small>";
+                await _emailSender.SendEmailAsync(user.Email, "H::Judge - 重置密码", html);
+            }
         }
 
         [HttpPost]

@@ -24,7 +24,10 @@
                        color="primary">
                     登录
                 </v-btn>
-                <a @click="forgetPassword">忘记密码</a>
+                <v-dialog v-model="resetDialog" width="500">
+                    <a slot="activator">忘记密码</a>
+                    <resetpassword :closeDlg="closeResetDialog"></resetpassword>
+                </v-dialog>
             </v-form>
         </v-card-text>
     </v-card>

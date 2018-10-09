@@ -1,4 +1,5 @@
 ﻿import { Post } from '../../../utilities/requestHelper';
+import resetpassword from '../password/password.vue';
 
 export default {
     data: () => ({
@@ -13,7 +14,8 @@ export default {
         passwordRules: [
             v => !!v || '请输入密码'
         ],
-        rememberMe: true
+        rememberMe: true,
+        resetDialog: false
     }),
     methods: {
         login: function () {
@@ -36,8 +38,11 @@ export default {
                     });
             }
         },
-        forgetPassword: function () {
-            alert('此功能正在开发中, 敬请期待...');
+        closeResetDialog: function () {
+            this.resetDialog = false;
         }
+    },
+    components: {
+        resetpassword: resetpassword
     }
 };
