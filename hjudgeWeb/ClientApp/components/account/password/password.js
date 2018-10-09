@@ -39,12 +39,12 @@ export default {
                         if (data.isSucceeded) {
                             alert('密码重置成功');
                             this.closeDlg();
+                            this.username = '';
+                            this.email = '';
                             this.sent = false;
                         }
-                        else {
-                            alert(data.errorMessage);
-                            this.submitting = false;
-                        }
+                        else alert(data.errorMessage);
+                        this.submitting = false;
                     })
                     .catch(() => {
                         alert('密码重置失败');
@@ -54,6 +54,9 @@ export default {
         },
         sendEmail: function () {
             if (this.$refs.form.validate()) {
+                this.password = '';
+                this.token = '';
+                this.confirmPassword = '';
                 this.sent = true;
                 Post('/Account/SendPasswordResetToken', { userName: this.username, email: this.email });
             }

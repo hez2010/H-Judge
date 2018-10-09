@@ -27,7 +27,7 @@ namespace hjudgeWeb.Data.Identity
             return new IdentityError
             {
                 Code = nameof(DuplicateEmail),
-                Description = $"Email {email} 已存在"
+                Description = $"邮箱地址 {email} 已存在"
             };
         }
 
@@ -54,7 +54,7 @@ namespace hjudgeWeb.Data.Identity
             return new IdentityError
             {
                 Code = nameof(InvalidEmail),
-                Description = $"Email {email} 无效"
+                Description = $"邮箱地址 {email} 无效"
             };
         }
 
@@ -72,7 +72,7 @@ namespace hjudgeWeb.Data.Identity
             return new IdentityError
             {
                 Code = nameof(InvalidToken),
-                Description = "Token 无效"
+                Description = "验证码无效"
             };
         }
 
