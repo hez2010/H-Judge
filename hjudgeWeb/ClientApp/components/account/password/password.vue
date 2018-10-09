@@ -27,7 +27,7 @@
                 </v-text-field>
                 <v-text-field :rules="passwordRules"
                               v-model="password"
-                              label="密码"
+                              label="新密码"
                               type="password"
                               v-if="sent"
                               required>
@@ -48,9 +48,10 @@
                 <v-btn :disabled="!valid || submitting"
                        @click="reset"
                        color="primary"
-                       v-else>
+                       v-if="sent">
                     确定
                 </v-btn>
+                <a v-if="sent" @click="backward">返回</a>
             </v-form>
         </v-card-text>
     </v-card>

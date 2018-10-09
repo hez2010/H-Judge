@@ -22,7 +22,7 @@ export default {
         ],
         password: '',
         passwordRules: [
-            v => !!v || '请输入密码'
+            v => !!v || '请输入新密码'
         ],
         confirmPassword: '',
         confirmPasswordRules: [
@@ -56,6 +56,9 @@ export default {
                 this.sent = true;
                 Post('/Account/SendPasswordResetToken', { userName: this.username, email: this.email });
             }
+        },
+        backward: function () {
+            this.sent = false;
         }
     }
 };
