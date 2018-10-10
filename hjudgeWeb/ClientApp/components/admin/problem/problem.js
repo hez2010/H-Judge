@@ -10,8 +10,6 @@ export default {
         loading: true,
         uploading: false,
         uploadingText: '上传题目数据',
-        downloading: false,
-        downloadingText: '下载题目数据',
         requireRules: [
             v => !!v || '此项不能为空'
         ],
@@ -139,20 +137,11 @@ export default {
                 });
         },
         downloadData: function () {
-            this.downloadingText = '下载中...';
-            this.downloading = true;
-            Post('/Admin/DownloadProblemData', { id: this.problem.id })
-                .then(res => res.blob())
-                .then(data => {
-                    this.downloadingText = '下载题目数据';
-                    this.downloading = false;
-                    navigator.msSaveOrOpenBlob(data, 'ProblemData_' + this.problem.id.toString() + '.zip');
-                })
-                .catch(() => {
-                    alert('下载失败');
-                    this.downloadingText = '下载题目数据';
-                    this.downloading = false;
-                });
+            let link = document.createElement('a');
+            link.href = '/Admin/DownloadProblemData/' + this.problem.id;
+            link.target = '_blank';
+            link.click();
+            link.remove();
         },
         deleteData: function () {
             if (confirm('确定要删除题目数据吗？')) {

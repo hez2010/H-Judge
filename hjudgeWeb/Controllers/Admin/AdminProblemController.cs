@@ -166,8 +166,8 @@ namespace hjudgeWeb.Controllers
             return ret;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DownloadProblemData([FromBody]ProblemIdModel model)
+        [HttpGet]
+        public async Task<IActionResult> DownloadProblemData(int id)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             if (!HasTeacherPrivilege(privilege))
@@ -177,13 +177,13 @@ namespace hjudgeWeb.Controllers
 
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
-                var problem = await db.Problem.FindAsync(model.Id);
+                var problem = await db.Problem.FindAsync(id);
                 if (problem == null)
                 {
                     throw new InvalidOperationException("找不到此题目");
                 }
             }
-            var datadir = System.IO.Path.Combine(Environment.CurrentDirectory, "AppData", "Data", model.Id.ToString());
+            var datadir = System.IO.Path.Combine(Environment.CurrentDirectory, "AppData", "Data", id.ToString());
             var downloaddir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Download");
             if (!System.IO.Directory.Exists(downloaddir))
             {
@@ -196,9 +196,9 @@ namespace hjudgeWeb.Controllers
             }
             var fileName = System.IO.Path.Combine(downloaddir, Guid.NewGuid() + ".zip");
             ZipFile.CreateFromDirectory(datadir, fileName);
-
+            
             return File(new System.IO.FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite),
-                "application/x-zip-compressed", $"ProblemData_{model.Id}.zip");
+                "application/x-zip-compressed", $"ProblemData_{id}.zip");
         }
 
         [HttpPost]

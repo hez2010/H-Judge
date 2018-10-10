@@ -186,7 +186,7 @@
                                 <span>仅限 .zip 文件，大小不超过 128 Mb</span>
                             </v-tooltip>
                             <input type="file" id="data_file" @change="uploadData" accept="application/x-zip-compressed,application/zip" style="filter: alpha(opacity=0); opacity: 0; width: 0; height: 0;" />
-                            <v-btn color="primary" @click="downloadData" :disabled="downloading">{{downloadingText}}</v-btn>
+                            <v-btn color="primary" @click="downloadData">下载题目数据</v-btn>
                             <v-btn color="red" @click="deleteData">删除题目数据</v-btn>
                         </v-container>
                     </v-card-text>

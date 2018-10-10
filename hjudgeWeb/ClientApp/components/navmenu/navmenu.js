@@ -43,10 +43,7 @@ export default {
                 .then(() => window.location = '/');
         },
         goback: function () {
-            history.go(-1);
-        },
-        goforward: function () {
-            history.go(1);
+            this.$router.go(-1);
         }
     },
     components: {
