@@ -61,8 +61,8 @@ export default {
         },
         loadEditor: function () {
             if (window.CKEDITOR) {
-                window.CKEDITOR.replace('editor');
                 clearInterval(this.timer);
+                window.CKEDITOR.replace('editor');
             }
         },
         valid: function () {

@@ -32,8 +32,8 @@ export default {
     methods: {
         loadEditor: function () {
             if (window.CKEDITOR) {
-                window.CKEDITOR.replace('editor');
                 clearInterval(this.timer);
+                window.CKEDITOR.replace('editor');
             }
         },
         isValid: function () {
