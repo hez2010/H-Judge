@@ -1,6 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 module.exports = (env) => {
     const isDevBuild = !(env && env.prod);
@@ -41,18 +41,8 @@ module.exports = (env) => {
                 // both options are optional
                 filename: '[name].css',
                 chunkFilename: '[id].css'
-            })
-        ],
-        optimization: {
-            minimizer: []
-                .concat(isDevBuild ? [] : [
-                    new UglifyJsPlugin({
-                        cache: true,
-                        include: /ClientApp/,
-                        parallel: true,
-                        sourceMap: false
-                    })]
-                )
-        }
+            }),
+            new MinifyPlugin({}, { include: /ClientApp/, sourceMap: false, babel: require('@babel/core') })
+        ]
     }];
 };

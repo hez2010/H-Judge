@@ -2,8 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const MinifyPlugin = require('babel-minify-webpack-plugin');
 const bundleOutputDir = './wwwroot/dist';
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = (env) => {
     const isDevBuild = !(env && env.prod);
@@ -41,17 +41,6 @@ module.exports = (env) => {
                 filename: '[file].map', // Remove this line if you prefer inline source maps
                 moduleFilenameTemplate: path.relative(bundleOutputDir, '[resourcePath]') // Point sourcemap entries to the original file locations on disk
             })
-        ] : []),
-        optimization: {
-            minimizer: []
-                .concat(isDevBuild ? [] : [
-                    new UglifyJsPlugin({
-                        cache: true,
-                        include: /ClientApp/,
-                        parallel: true,
-                        sourceMap: false
-                    })]
-                )
-        }
+        ] : [new MinifyPlugin({}, { include: /ClientApp/, sourceMap: false, babel: require('@babel/core') })])
     }];
 };
