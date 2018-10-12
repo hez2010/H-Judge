@@ -42,126 +42,132 @@ namespace hjudgeCore
                 JudgePoints = new List<JudgePoint>()
             };
 
-            if (judgeOption.AnswerPoint != null)
+            try
             {
-                return await AnswerJudgeAsync(buildOption, judgeOption);
-            }
-
-            File.WriteAllText(Path.Combine(_workingdir, $"{judgeOption.GuidStr}{buildOption.ExtensionName}"), buildOption.Source, Encoding.UTF8);
-
-            if (buildOption.StaticCheckOption != null)
-            {
-                var logs = await StaticCheck(buildOption.StaticCheckOption);
-                result.StaticCheckLog = logs;
-            }
-
-            if (buildOption.CompilerOption != null)
-            {
-                var (isSucceeded, logs) = await Compile(buildOption.CompilerOption, judgeOption.ExtraFiles);
-                result.CompileLog = logs;
-                if (!isSucceeded)
+                if (judgeOption.AnswerPoint != null)
                 {
-                    result.JudgePoints = Enumerable.Repeat(
-                        new JudgePoint
-                        {
-                            ResultType = ResultCode.Compile_Error
-                        }, judgeOption.DataPoints.Count)
-                    .ToList();
-                    return result;
+                    return await AnswerJudgeAsync(buildOption, judgeOption);
                 }
-            }
 
-            for (var i = 0; i < judgeOption.DataPoints.Count; i++)
-            {
-                var point = new JudgePoint();
-                if (!File.Exists(judgeOption.RunOption.Exec))
+                File.WriteAllText(Path.Combine(_workingdir, $"{judgeOption.GuidStr}{buildOption.ExtensionName}"), buildOption.Source, Encoding.UTF8);
+
+                if (buildOption.StaticCheckOption != null)
                 {
-                    point.ResultType = ResultCode.Compile_Error;
-                    point.ExtraInfo = "Cannot find compiled executable";
-                    result.JudgePoints.Add(point);
-                    continue;
+                    var logs = await StaticCheck(buildOption.StaticCheckOption);
+                    result.StaticCheckLog = logs;
                 }
-                try
+
+                if (buildOption.CompilerOption != null)
                 {
-                    try
+                    var (isSucceeded, logs) = await Compile(buildOption.CompilerOption, judgeOption.ExtraFiles);
+                    result.CompileLog = logs;
+                    if (!isSucceeded)
                     {
-                        File.Copy(judgeOption.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, judgeOption.InputFileName), true);
+                        result.JudgePoints = Enumerable.Repeat(
+                            new JudgePoint
+                            {
+                                ResultType = ResultCode.Compile_Error
+                            }, judgeOption.DataPoints.Count)
+                        .ToList();
+                        return result;
                     }
-                    catch
+                }
+
+                for (var i = 0; i < judgeOption.DataPoints.Count; i++)
+                {
+                    var point = new JudgePoint();
+                    if (!File.Exists(judgeOption.RunOption.Exec))
                     {
-                        throw new InvalidOperationException("Unable to find standard input file");
-                    }
-                    var param = new
-                    {
-                        judgeOption.RunOption.Exec,
-                        judgeOption.RunOption.Args,
-                        WorkingDir = _workingdir,
-                        InputFile = Path.Combine(_workingdir, judgeOption.InputFileName),
-                        OutputFile = Path.Combine(_workingdir, judgeOption.OutputFileName),
-                        judgeOption.DataPoints[i].TimeLimit,
-                        judgeOption.DataPoints[i].MemoryLimit,
-                        IsStdIO = judgeOption.UseStdIO
-                    };
-                    var ret = new StringBuilder(256);
-                    if (Execute(JsonConvert.SerializeObject(param), ret))
-                    {
-                        point = JsonConvert.DeserializeObject<JudgePoint>(ret.ToString()?.Trim() ?? "{}");
-                    }
-                    else
-                    {
-                        throw new Exception("Unable to execute target program");
+                        point.ResultType = ResultCode.Compile_Error;
+                        point.ExtraInfo = "Cannot find compiled executable";
+                        result.JudgePoints.Add(point);
+                        continue;
                     }
                     try
                     {
-                        File.Copy(judgeOption.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
-                    }
-                    catch
-                    {
-                        throw new InvalidOperationException("Unable to find standard output file");
-                    }
-                    var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
-                        await CompareAsync(Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption)
-                        : (point.ResultType, 0, point.ExtraInfo);
-                    point.ExtraInfo = extraInfo;
-                    if (point.ResultType == ResultCode.Runtime_Error && point.ExitCode != 0)
-                    {
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-                            Enum.IsDefined(typeof(WindowsExceptionCode), (uint)point.ExitCode))
+                        try
                         {
-                            point.ExtraInfo = Enum.GetName(typeof(WindowsExceptionCode), (uint)point.ExitCode);
+                            File.Copy(judgeOption.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, judgeOption.InputFileName), true);
                         }
-                        else if (Enum.IsDefined(typeof(LinuxExceptionCode), point.ExitCode - 128))
+                        catch
                         {
-                            point.ExtraInfo = Enum.GetName(typeof(LinuxExceptionCode), point.ExitCode - 128);
+                            throw new InvalidOperationException("Unable to find standard input file");
+                        }
+                        var param = new
+                        {
+                            judgeOption.RunOption.Exec,
+                            judgeOption.RunOption.Args,
+                            WorkingDir = _workingdir,
+                            InputFile = Path.Combine(_workingdir, judgeOption.InputFileName),
+                            OutputFile = Path.Combine(_workingdir, judgeOption.OutputFileName),
+                            judgeOption.DataPoints[i].TimeLimit,
+                            judgeOption.DataPoints[i].MemoryLimit,
+                            IsStdIO = judgeOption.UseStdIO
+                        };
+                        var ret = new StringBuilder(256);
+                        if (Execute(JsonConvert.SerializeObject(param), ret))
+                        {
+                            point = JsonConvert.DeserializeObject<JudgePoint>(ret.ToString()?.Trim() ?? "{}");
                         }
                         else
                         {
-                            point.ExtraInfo = "UNKNOWN_EXCEPTION";
+                            throw new Exception("Unable to execute target program");
+                        }
+                        try
+                        {
+                            File.Copy(judgeOption.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
+                        }
+                        catch
+                        {
+                            throw new InvalidOperationException("Unable to find standard output file");
+                        }
+                        var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
+                            await CompareAsync(Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption)
+                            : (point.ResultType, 0, point.ExtraInfo);
+                        point.ExtraInfo = extraInfo;
+                        if (point.ResultType == ResultCode.Runtime_Error && point.ExitCode != 0)
+                        {
+                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                                Enum.IsDefined(typeof(WindowsExceptionCode), (uint)point.ExitCode))
+                            {
+                                point.ExtraInfo = Enum.GetName(typeof(WindowsExceptionCode), (uint)point.ExitCode);
+                            }
+                            else if (Enum.IsDefined(typeof(LinuxExceptionCode), point.ExitCode - 128))
+                            {
+                                point.ExtraInfo = Enum.GetName(typeof(LinuxExceptionCode), point.ExitCode - 128);
+                            }
+                            else
+                            {
+                                point.ExtraInfo = "UNKNOWN_EXCEPTION";
+                            }
+                        }
+                        point.ResultType = resultType;
+                        point.Score = percentage * judgeOption.DataPoints[i].Score;
+                    }
+                    catch (Exception ex)
+                    {
+                        point.ExtraInfo = ex.Message;
+                        if (ex is InvalidOperationException)
+                        {
+                            point.ResultType = ResultCode.Problem_Config_Error;
+                        }
+                        else
+                        {
+                            point.ResultType = ResultCode.Unknown_Error;
                         }
                     }
-                    point.ResultType = resultType;
-                    point.Score = percentage * judgeOption.DataPoints[i].Score;
-                }
-                catch (Exception ex)
-                {
-                    point.ExtraInfo = ex.Message;
-                    if (ex is InvalidOperationException)
-                    {
-                        point.ResultType = ResultCode.Problem_Config_Error;
-                    }
-                    else
-                    {
-                        point.ResultType = ResultCode.Unknown_Error;
-                    }
-                }
 
-                result.JudgePoints.Add(point);
+                    result.JudgePoints.Add(point);
+                }
             }
-            try
+            finally
             {
-                Directory.Delete(_workingdir, true);
+                try
+                {
+                    Directory.Delete(_workingdir, true);
+                }
+                catch { /* ignored */ }
             }
-            catch { /* ignored */ }
             return result;
         }
 

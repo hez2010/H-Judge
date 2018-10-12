@@ -109,6 +109,10 @@ namespace hjudgeWeb
                 {
                     var lang = Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language);
                     var args = config.CompileArgs?.Split('\n')?.FirstOrDefault(i => i.StartsWith($"[{judge.Language}]"));
+                    if (args != null)
+                    {
+                        args = args.Substring(judge.Language.Length + 2);
+                    }
                     if (!string.IsNullOrEmpty(lang.RunExec))
                     {
                         judgeOptionBuilder.SetRunOption(option =>

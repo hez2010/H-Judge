@@ -24,6 +24,6 @@ namespace hjudgeWeb.Configurations
         public ComparingOption ComparingOptions { get; set; }
         public bool UseStdIO { get; set; }
         public string CompileArgs { get; set; }
-        public string ExtraFilesText => ExtraFiles.Aggregate(string.Empty, (accu, next) => accu + "\n" + next);
+        public string ExtraFilesText => ExtraFiles.Aggregate(string.Empty, (accu, next) => accu + next + "\n");
     }
 }

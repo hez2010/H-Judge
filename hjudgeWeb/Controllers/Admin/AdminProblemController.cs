@@ -117,6 +117,13 @@ namespace hjudgeWeb.Controllers
 
                 problem.Name = model.Name;
                 problem.Level = model.Level;
+                for (var i = (model.Config?.ExtraFiles?.Count ?? 0) - 1; i >= 0; i--)
+                {
+                    if (string.IsNullOrEmpty(model.Config.ExtraFiles[i]))
+                    {
+                        model.Config.ExtraFiles.RemoveAt(i);
+                    }
+                }
                 problem.Config = JsonConvert.SerializeObject(model.Config);
                 problem.Type = model.Type;
                 problem.Description = model.Description;
@@ -196,7 +203,7 @@ namespace hjudgeWeb.Controllers
             }
             var fileName = System.IO.Path.Combine(downloaddir, Guid.NewGuid() + ".zip");
             ZipFile.CreateFromDirectory(datadir, fileName);
-            
+
             return File(new System.IO.FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite),
                 "application/x-zip-compressed", $"ProblemData_{id}.zip");
         }
@@ -261,7 +268,7 @@ namespace hjudgeWeb.Controllers
                 System.IO.Directory.CreateDirectory(datadir);
             }
 
-            ZipFile.ExtractToDirectory(fileName, datadir, true);
+            ZipFile.ExtractToDirectory(fileName, datadir + "/", true);
 
             try
             {
