@@ -226,16 +226,7 @@ namespace hjudgeWeb.Controllers
                         }
                     }
                 }
-
-                if (!languages.Contains(submit.Language))
-                {
-                    return new SubmitReturnDataModel
-                    {
-                        IsSucceeded = false,
-                        ErrorMessage = "不支持该语言"
-                    };
-                }
-
+                
                 var problem = await db.Problem.FindAsync(submit.Pid);
                 if (problem == null)
                 {
@@ -245,6 +236,16 @@ namespace hjudgeWeb.Controllers
                         ErrorMessage = "题目不存在"
                     };
                 }
+                
+                if (problem.Type == 1 && !languages.Contains(submit.Language))
+                {
+                    return new SubmitReturnDataModel
+                    {
+                        IsSucceeded = false,
+                        ErrorMessage = "不支持该语言"
+                    };
+                }
+
                 var submission = new Judge
                 {
                     ProblemId = submit.Pid,
