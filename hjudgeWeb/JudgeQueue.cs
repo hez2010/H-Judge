@@ -50,7 +50,7 @@ namespace hjudgeWeb
                 else
                 {
                     buildOptionBuilder.UseCustomSubmitFileName(config.SubmitFileName);
-                    file = Path.Combine(workingdir, $"{config.SubmitFileName}{Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language)?.Extensions[0]}");
+                    file = Path.Combine(workingdir, $"{config.SubmitFileName}{ext}");
                 }
 
                 judgeOptionBuilder.UseComparingOption(option =>
@@ -216,7 +216,7 @@ namespace hjudgeWeb
                 var judgeOptionBuilder = new AnswerJudgeOptionBuilder();
                 var datadir = Path.Combine(Environment.CurrentDirectory, "Data", problem.Id.ToString());
                 var workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeOptionBuilder.GuidStr);
-                var file = Path.Combine(workingdir, $"{judgeOptionBuilder.GuidStr}{Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language)?.Extensions[0]}");
+                var file = Path.Combine(workingdir, judgeOptionBuilder.GuidStr);
                 var name = AlphaNumberFilter(problem.Name);
 
                 if (string.IsNullOrEmpty(config.SubmitFileName))
