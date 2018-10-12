@@ -190,7 +190,7 @@ namespace hjudgeCore
             {
                 File.Copy(judgeOption.AnswerPoint.AnswerFile, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
                 File.WriteAllText(Path.Combine(_workingdir, buildOption.SubmitFileName), buildOption.Source, Encoding.UTF8);
-                var (resultType, percentage, extraInfo) = await CompareAsync(null, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption);
+                var (resultType, percentage, extraInfo) = await CompareAsync(null, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption, true);
                 result.JudgePoints[0].ResultType = resultType;
                 result.JudgePoints[0].Score = percentage * judgeOption.AnswerPoint.Score;
                 result.JudgePoints[0].ExtraInfo = extraInfo;
@@ -204,7 +204,7 @@ namespace hjudgeCore
             return result;
         }
 
-        private async Task<(ResultCode Result, float Percentage, string ExtraInfo)> CompareAsync(string stdInputFile, string stdOutputFile, string outputFile, JudgeOption judgeOption)
+        private async Task<(ResultCode Result, float Percentage, string ExtraInfo)> CompareAsync(string stdInputFile, string stdOutputFile, string outputFile, JudgeOption judgeOption, bool isAnswerJudge = false)
         {
             if (judgeOption.SpecialJudgeOption != null)
             {
@@ -371,8 +371,12 @@ namespace hjudgeCore
 
                 if (stdline != actline)
                 {
-                    result.ExtraInfo =
+                    if (!isAnswerJudge)
+                    {
+                        result.ExtraInfo =
                         $"Line {line}, expect: {stdline?.Substring(0, 64 < (stdline?.Length ?? 0) ? 64 : stdline?.Length ?? 0) ?? "<nothing>"}{((stdline?.Length ?? 0) > 64 ? "..." : string.Empty)}, output: {actline?.Substring(0, 64 < (actline?.Length ?? 0) ? 64 : actline?.Length ?? 0) ?? "<nothing>"}{((actline?.Length ?? 0) > 64 ? "..." : string.Empty)}";
+                    }
+
                     if ((stdline?.Replace(" ", string.Empty) ?? string.Empty) ==
                         (actline?.Replace(" ", string.Empty) ?? string.Empty))
                     {
