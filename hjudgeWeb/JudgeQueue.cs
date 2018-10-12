@@ -214,7 +214,7 @@ namespace hjudgeWeb
             else
             {
                 var judgeOptionBuilder = new AnswerJudgeOptionBuilder();
-                var datadir = Path.Combine(Environment.CurrentDirectory, "Data", problem.Id.ToString());
+                var datadir = Path.Combine(Environment.CurrentDirectory, "AppData", "Data", problem.Id.ToString());
                 var workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeOptionBuilder.GuidStr);
                 var file = Path.Combine(workingdir, judgeOptionBuilder.GuidStr);
                 var name = AlphaNumberFilter(problem.Name);
