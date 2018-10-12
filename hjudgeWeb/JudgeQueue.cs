@@ -43,6 +43,16 @@ namespace hjudgeWeb
                 var outputfile = Path.Combine(workingdir, judgeOptionBuilder.GuidStr + ".exe");
                 var name = AlphaNumberFilter(problem.Name);
 
+                if (string.IsNullOrEmpty(config.SubmitFileName))
+                {
+                    buildOptionBuilder.UseCustomSubmitFileName(judgeOptionBuilder.GuidStr);
+                }
+                else
+                {
+                    buildOptionBuilder.UseCustomSubmitFileName(config.SubmitFileName);
+                    file = Path.Combine(workingdir, $"{config.SubmitFileName}{Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language)?.Extensions[0]}");
+                }
+
                 judgeOptionBuilder.UseComparingOption(option =>
                 {
                     option.IgnoreLineTailWhiteSpaces = config.ComparingOptions.IgnoreLineTailWhiteSpaces;
@@ -207,8 +217,19 @@ namespace hjudgeWeb
                 var datadir = Path.Combine(Environment.CurrentDirectory, "Data", problem.Id.ToString());
                 var workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeOptionBuilder.GuidStr);
                 var file = Path.Combine(workingdir, $"{judgeOptionBuilder.GuidStr}{Languages.LanguageConfigurations.FirstOrDefault(i => i.Name == judge.Language)?.Extensions[0]}");
-                var outputfile = Path.Combine(workingdir, judgeOptionBuilder.GuidStr + ".exe");
                 var name = AlphaNumberFilter(problem.Name);
+
+                if (string.IsNullOrEmpty(config.SubmitFileName))
+                {
+                    buildOptionBuilder.UseCustomSubmitFileName(judgeOptionBuilder.GuidStr);
+                }
+                else
+                {
+                    buildOptionBuilder.UseCustomSubmitFileName(config.SubmitFileName);
+                    file = Path.Combine(workingdir, config.SubmitFileName);
+                }
+
+                var outputfile = file;
 
                 judgeOptionBuilder.UseComparingOption(option =>
                 {

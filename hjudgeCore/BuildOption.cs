@@ -12,5 +12,6 @@
         public StaticCheckOption StaticCheckOption { get; set; }
         public string Source { get; set; }
         public string ExtensionName { get; set; }
+        public string SubmitFileName { get; set; }
     }
 }

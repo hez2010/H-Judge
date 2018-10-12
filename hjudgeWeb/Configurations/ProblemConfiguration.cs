@@ -18,6 +18,7 @@ namespace hjudgeWeb.Configurations
         public string SpecialJudge { get; set; }
         public string InputFileName { get; set; }
         public string OutputFileName { get; set; }
+        public string SubmitFileName { get; set; }
         public List<string> ExtraFiles { get; set; }
         public List<DataPoint> Points { get; set; }
         public AnswerPoint Answer { get; set; }

@@ -49,7 +49,7 @@ namespace hjudgeCore
                     return await AnswerJudgeAsync(buildOption, judgeOption);
                 }
 
-                File.WriteAllText(Path.Combine(_workingdir, $"{judgeOption.GuidStr}{buildOption.ExtensionName}"), buildOption.Source, Encoding.UTF8);
+                File.WriteAllText(Path.Combine(_workingdir, $"{buildOption.SubmitFileName}{buildOption.ExtensionName}"), buildOption.Source, Encoding.UTF8);
 
                 if (buildOption.StaticCheckOption != null)
                 {
@@ -189,8 +189,8 @@ namespace hjudgeCore
             try
             {
                 File.Copy(judgeOption.AnswerPoint.AnswerFile, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
-                File.WriteAllText(Path.Combine(_workingdir, $"output_{judgeOption.GuidStr}.txt"), buildOption.Source, Encoding.UTF8);
-                var (resultType, percentage, extraInfo) = await CompareAsync(null, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, $"output_{judgeOption.GuidStr}.txt"), judgeOption);
+                File.WriteAllText(Path.Combine(_workingdir, buildOption.SubmitFileName), buildOption.Source, Encoding.UTF8);
+                var (resultType, percentage, extraInfo) = await CompareAsync(null, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption);
                 result.JudgePoints[0].ResultType = resultType;
                 result.JudgePoints[0].Score = percentage * judgeOption.AnswerPoint.Score;
                 result.JudgePoints[0].ExtraInfo = extraInfo;

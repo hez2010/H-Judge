@@ -20,6 +20,11 @@ namespace hjudgeCore
             buildOption.StaticCheckOption = staticCheckOption;
         }
 
+        public void UseCustomSubmitFileName(string fileName)
+        {
+            buildOption.SubmitFileName = fileName;
+        }
+
         public void AddSource(string source)
         {
             buildOption.Source = source;
