@@ -304,7 +304,7 @@ namespace hjudgeWeb.Controllers
                             if (j.ResultType != (int)ResultCode.Pending && j.ResultType != (int)ResultCode.Judging)
                             {
                                 ret.RankInfo[i.Key].SubmitInfo[pid].SubmissionCount++;
-                                ret.RankInfo[i.Key].SubmitInfo[pid].TimeCost += j.JudgeTime - contest.StartTime;
+                                ret.RankInfo[i.Key].SubmitInfo[pid].TimeCost = j.JudgeTime - contest.StartTime;
 
                                 if (config.Type == ContestType.LastSubmit)
                                 {
