@@ -260,6 +260,7 @@ namespace hjudgeWeb.Controllers
                 }
 
                 var judges = gid == 0 ? db.Judge.Where(i => i.ContestId == cid && i.GroupId == null) : db.Judge.Where(i => i.ContestId == cid && i.GroupId == gid);
+                judges = judges.OrderBy(i => i.Id);
                 if (config.AutoStopRank)
                 {
                     judges = judges.Where(i => i.JudgeTime.AddHours(1) < contest.EndTime);
