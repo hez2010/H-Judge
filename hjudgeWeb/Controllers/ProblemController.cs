@@ -384,6 +384,15 @@ namespace hjudgeWeb.Controllers
                         };
                     }
 
+                    if (contest.StartTime > DateTime.Now)
+                    {
+                        return new ProblemDetailsModel
+                        {
+                            IsSucceeded = false,
+                            ErrorMessage = "比赛未开始"
+                        };
+                    }
+
                     var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
                     if (!string.IsNullOrEmpty(config?.Languages))
                     {

@@ -132,7 +132,7 @@ namespace hjudgeWeb.Controllers
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var contest = await db.Contest.FindAsync(cid);
-                if (contest == null || (contest.Hidden && !HasAdminPrivilege(privilege)))
+                if (contest == null || contest.StartTime > DateTime.Now || (contest.Hidden && !HasAdminPrivilege(privilege)))
                 {
                     return 0;
                 }
