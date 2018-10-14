@@ -1,7 +1,7 @@
 ﻿<template>
     <div>
         <section>
-            <v-parallax src="https://cdn.hjudge.com/hjudge/assets/hero.jpeg" height="600">
+            <v-parallax src="https://cdn.hjudge.com/hjudge/assets/banner.jpg" height="600">
                 <v-layout column align-center justify-center class="white--text">
                     <img src="https://cdn.hjudge.com/hjudge/assets/hjudge.png" alt="H::Judge" height="200">
 
@@ -80,7 +80,7 @@
         </section>
 
         <section>
-            <v-parallax src="https://cdn.hjudge.com/hjudge/assets/section.jpg" height="380">
+            <v-parallax src="https://cdn.hjudge.com/hjudge/assets/plane.jpg" height="380">
                 <v-layout column align-center justify-center>
                     <div class="headline white--text mb-3 text-xs-center">H::Judge 每天都在进步</div>
                     <p>更新日志中记录了 H::Judge 的每一次更新内容，每一次的更新都是为了带来更好的体验</p>
