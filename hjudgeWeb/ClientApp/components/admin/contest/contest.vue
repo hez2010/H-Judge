@@ -72,63 +72,87 @@
                         <v-container v-else>
                             <v-radio-group label="比赛类型" v-model="contest.config.type">
                                 <v-layout>
-                                    <v-radio key="0"
-                                             label="一般计时赛"
-                                             :value="0">
-                                    </v-radio>
-                                    <v-radio key="1"
-                                             label="最后提交赛"
-                                             :value="1">
-                                    </v-radio>
-                                    <v-radio key="2"
-                                             label="罚时计时赛"
-                                             :value="2">
-                                    </v-radio>
+                                    <div>
+                                        <v-radio key="0"
+                                                 label="一般计时赛"
+                                                 :value="0">
+                                        </v-radio>
+                                    </div>
+                                    <div>
+                                        <v-radio key="1"
+                                                 label="最后提交赛"
+                                                 :value="1">
+                                        </v-radio>
+                                    </div>
+                                    <div>
+                                        <v-radio key="2"
+                                                 label="罚时计时赛"
+                                                 :value="2">
+                                        </v-radio>
+                                    </div>
                                 </v-layout>
                             </v-radio-group>
                             <v-radio-group label="结果反馈" v-model="contest.config.resultMode">
                                 <v-layout>
-                                    <v-radio key="0"
-                                             label="即时反馈"
-                                             :value="0">
-                                    </v-radio>
-                                    <v-radio key="1"
-                                             label="赛后反馈"
-                                             :value="1">
-                                    </v-radio>
-                                    <v-radio key="2"
-                                             label="不反馈"
-                                             :value="2">
-                                    </v-radio>
+                                    <div>
+                                        <v-radio key="0"
+                                                 label="即时反馈"
+                                                 :value="0">
+                                        </v-radio>
+                                    </div>
+                                    <div>
+                                        <v-radio key="1"
+                                                 label="赛后反馈"
+                                                 :value="1">
+                                        </v-radio>
+                                    </div>
+                                    <div>
+                                        <v-radio key="2"
+                                                 label="不反馈"
+                                                 :value="2">
+                                        </v-radio>
+                                    </div>
                                 </v-layout>
                             </v-radio-group>
                             <v-radio-group label="结果显示" v-model="contest.config.resultType">
                                 <v-layout>
-                                    <v-radio key="0"
-                                             label="详细结果"
-                                             :value="0">
-                                    </v-radio>
-                                    <v-radio key="1"
-                                             label="简略结果"
-                                             :value="1">
-                                    </v-radio>
+                                    <div>
+                                        <v-radio key="0"
+                                                 label="详细结果"
+                                                 :value="0">
+                                        </v-radio>
+                                    </div>
+                                    <div>
+                                        <v-radio key="1"
+                                                 label="简略结果"
+                                                 :value="1">
+                                        </v-radio>
+                                    </div>
                                 </v-layout>
                             </v-radio-group>
                             <v-radio-group label="计分模式" v-model="contest.config.scoreMode">
                                 <v-layout>
-                                    <v-radio key="0"
-                                             label="全部计分"
-                                             :value="0">
-                                    </v-radio>
-                                    <v-radio key="1"
-                                             label="仅计 Accepted"
-                                             :value="1">
-                                    </v-radio>
+                                    <div>
+                                        <v-radio key="0"
+                                                 label="全部计分"
+                                                 :value="0">
+                                        </v-radio>
+                                    </div>
+                                    <div>
+                                        <v-radio key="1"
+                                                 label="仅计 Accepted"
+                                                 :value="1">
+                                        </v-radio>
+                                    </div>
                                 </v-layout>
                             </v-radio-group>
                             <v-layout>
-                                <v-checkbox label="显示排名" v-model="contest.config.showRank"></v-checkbox>
-                                <v-checkbox label="启用封榜" v-model="contest.config.autoStopRank"></v-checkbox>
+                                <div>
+                                    <v-checkbox label="显示排名" v-model="contest.config.showRank"></v-checkbox>
+                                </div>
+                                <div>
+                                    <v-checkbox label="启用封榜" v-model="contest.config.autoStopRank"></v-checkbox>
+                                </div>
                             </v-layout>
                             <v-layout>
                                 <v-text-field label="提交次数限制（0 为不限）" v-model="contest.config.submissionLimit" type="number"></v-text-field>

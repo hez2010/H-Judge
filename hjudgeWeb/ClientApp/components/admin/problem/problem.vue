@@ -57,12 +57,16 @@
                                 </v-layout>
                                 <v-radio-group v-model="problem.type" label="题目类型">
                                     <v-layout>
-                                        <v-radio key="1"
-                                                 label="提交代码"
-                                                 :value="1"></v-radio>
-                                        <v-radio key="2"
-                                                 label="提交答案"
-                                                 :value="2"></v-radio>
+                                        <div>
+                                            <v-radio key="1"
+                                                     label="提交代码"
+                                                     :value="1"></v-radio>
+                                        </div>
+                                        <div>
+                                            <v-radio key="2"
+                                                     label="提交答案"
+                                                     :value="2"></v-radio>
+                                        </div>
                                     </v-layout>
                                 </v-radio-group>
                                 <v-checkbox label="隐藏题目"
@@ -157,8 +161,12 @@
                         <v-container v-else>
                             <v-radio-group label="默认比较选项" v-if="!problem.config.specialJudge">
                                 <v-layout>
-                                    <v-checkbox v-model="problem.config.comparingOptions.ignoreLineTailWhiteSpaces" label="忽略行末空格"></v-checkbox>
-                                    <v-checkbox v-model="problem.config.comparingOptions.ignoreTextTailLineFeeds" label="忽略文末空行"></v-checkbox>
+                                    <div>
+                                        <v-checkbox v-model="problem.config.comparingOptions.ignoreLineTailWhiteSpaces" label="忽略行末空格"></v-checkbox>
+                                    </div>
+                                    <div>
+                                        <v-checkbox v-model="problem.config.comparingOptions.ignoreTextTailLineFeeds" label="忽略文末空行"></v-checkbox>
+                                    </div>
                                 </v-layout>
                             </v-radio-group>
                             <v-text-field label="自定义比较程序" v-model="problem.config.specialJudge"></v-text-field>

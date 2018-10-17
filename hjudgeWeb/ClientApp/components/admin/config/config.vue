@@ -73,14 +73,14 @@
                                     </v-text-field>
                                     <v-layout>
                                         <v-flex xs6>
-                                            <v-switch label="编译时读取标准输出"
+                                            <v-checkbox label="编译时读取标准输出"
                                                       v-model="item.compilerReadStdOutput">
-                                            </v-switch>
+                                            </v-checkbox>
                                         </v-flex>
                                         <v-flex xs6>
-                                            <v-switch label="编译时读取标准错误"
+                                            <v-checkbox label="编译时读取标准错误"
                                                       v-model="item.compilerReadStdError">
-                                            </v-switch>
+                                            </v-checkbox>
                                         </v-flex>
                                     </v-layout>
                                 </v-tab-item>
@@ -99,14 +99,14 @@
                                     </v-text-field>
                                     <v-layout>
                                         <v-flex xs6>
-                                            <v-switch label="检查时读取标准输出"
+                                            <v-checkbox label="检查时读取标准输出"
                                                       v-model="item.staticCheckReadStdOutput">
-                                            </v-switch>
+                                            </v-checkbox>
                                         </v-flex>
                                         <v-flex xs6>
-                                            <v-switch label="检查时读取标准错误"
+                                            <v-checkbox label="检查时读取标准错误"
                                                       v-model="item.staticCheckReadStdError">
-                                            </v-switch>
+                                            </v-checkbox>
                                         </v-flex>
                                     </v-layout>
                                 </v-tab-item>
