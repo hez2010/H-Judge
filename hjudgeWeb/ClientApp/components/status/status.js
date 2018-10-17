@@ -19,6 +19,7 @@ export default {
             { text: '结果', value: 'result' },
             { text: '总分', value: 'fullScore' }
         ],
+        onlyMe: false,
         sortRules: function (items, index, isDescending) {
             if (index === 'id') {
                 return items.sort((x, y) => {
@@ -51,6 +52,7 @@ export default {
         }
         this.load();
 
+        this.param['onlyMe'] = this.onlyMe;
         Get('/Status/GetStatusCount', this.param)
             .then(res => res.text())
             .then(data => {
@@ -73,6 +75,19 @@ export default {
             if (this.$route.params.cid) baseRoute = baseRoute + '/' + this.$route.params.cid;
             if (this.$route.params.pid) baseRoute = baseRoute + '/' + this.$route.params.pid;
             this.$router.push(baseRoute + '/' + this.page);
+        },
+        onlyMe: function () {
+            this.param['onlyMe'] = this.onlyMe;
+            Get('/Status/GetStatusCount', this.param)
+                .then(res => res.text())
+                .then(data => {
+                    this.pageCount = Math.ceil(data / 10);
+                    if (this.pageCount === 0) this.pageCount = 1;
+                    if (this.page > this.pageCount) this.page = this.pageCount;
+                    if (this.page <= 0) this.page = 1;
+                })
+                .catch(() => this.pageCount = 0);
+            this.load();
         }
     },
     methods: {
@@ -87,6 +102,7 @@ export default {
             this.loading = true;
             this.param.start = (this.page - 1) * 10;
             this.statuses = [];
+            this.param['onlyMe'] = this.onlyMe;
             Get('/Status/GetStatusList', this.param)
                 .then(res => res.json())
                 .then(data => {

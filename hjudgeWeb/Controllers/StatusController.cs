@@ -46,8 +46,9 @@ namespace hjudgeWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<int> GetStatusCount(int pid = 0, int cid = 0, int gid = 0)
+        public async Task<int> GetStatusCount(int pid = 0, int cid = 0, int gid = 0, bool onlyMe = false)
         {
+            var (user, privilege) = await GetUserPrivilegeAsync();
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 IQueryable<Judge> list;
@@ -85,12 +86,17 @@ namespace hjudgeWeb.Controllers
                     list = list.Where(i => i.ProblemId == pid);
                 }
 
+                if (user != null && onlyMe)
+                {
+                    list = list.Where(i => i.UserId == user.Id);
+                }
+
                 return await list.CountAsync();
             }
         }
 
         [HttpGet]
-        public async Task<List<StatusListItemModel>> GetStatusList(int start = 0, int count = 10, int pid = 0, int cid = 0, int gid = 0)
+        public async Task<List<StatusListItemModel>> GetStatusList(int start = 0, int count = 10, int pid = 0, int cid = 0, int gid = 0, bool onlyMe = false)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             using (var db = new ApplicationDbContext(_dbContextOptions))
@@ -144,6 +150,11 @@ namespace hjudgeWeb.Controllers
                 if (pid != 0)
                 {
                     list = list.Where(i => i.ProblemId == pid);
+                }
+
+                if (user != null && onlyMe)
+                {
+                    list = list.Where(i => i.UserId == user.Id);
                 }
 
                 var result = await list.Skip(start).Take(count).Select(i => new StatusListItemModel

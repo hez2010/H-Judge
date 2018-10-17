@@ -3,6 +3,10 @@
         <v-card>
             <v-card-title primary-title>
                 <h2>提交状态</h2>
+                <v-spacer></v-spacer>
+                <div>
+                    <v-switch v-if="user.isSignedIn" label="只看我的提交" v-model="onlyMe"></v-switch>
+                </div>
             </v-card-title>
             <v-card-text>
                 <v-data-table :headers="headers"
