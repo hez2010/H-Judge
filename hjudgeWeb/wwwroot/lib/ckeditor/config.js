@@ -10,5 +10,5 @@ CKEDITOR.editorConfig = function( config ) {
 
 	config.codeSnippet_theme = 'github';
 
-	config.mathJaxLib = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML';
+	config.mathJaxLib = 'https://cdn.hjudge.com/hjudge/lib/MathJax-2.7.5/MathJax.js?config=TeX-MML-AM_CHTML';
 };
