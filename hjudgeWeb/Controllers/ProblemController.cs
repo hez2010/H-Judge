@@ -54,7 +54,7 @@ namespace hjudgeWeb.Controllers
                 return await problems.CountAsync();
             }
         }
-        
+
         [HttpGet]
         public async Task<List<ProblemListItemModel>> GetProblemList(int start = 0, int count = 10)
         {
@@ -62,7 +62,7 @@ namespace hjudgeWeb.Controllers
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var problems = HasAdminPrivilege(privilege) ? db.Problem : db.Problem.Where(i => !i.Hidden);
-                var list = problems.Skip(start).Take(count).Select(i => new ProblemListItemModel
+                var list = problems.OrderBy(i => i.Id).Skip(start).Take(count).Select(i => new ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
@@ -226,7 +226,7 @@ namespace hjudgeWeb.Controllers
                         }
                     }
                 }
-                
+
                 var problem = await db.Problem.FindAsync(submit.Pid);
                 if (problem == null)
                 {
@@ -236,7 +236,7 @@ namespace hjudgeWeb.Controllers
                         ErrorMessage = "题目不存在"
                     };
                 }
-                
+
                 if (problem.Type == 1 && !languages.Contains(submit.Language))
                 {
                     return new SubmitReturnDataModel
