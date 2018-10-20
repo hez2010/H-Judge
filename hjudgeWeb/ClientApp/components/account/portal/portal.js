@@ -1,8 +1,10 @@
 ﻿import { setTitle } from '../../../utilities/titleHelper';
-import { Get, Post } from '../../../utilities/requestHelper';
+import { Get, Post, ReadCookie } from '../../../utilities/requestHelper';
+import emailConfirm from '../verification/email/emailConfirm.vue';
+import phoneConfirm from '../verification/phone/phoneConfirm.vue';
 
 export default {
-    props: ['user'],
+    props: ['user', 'getUserInfo'],
     data: () => ({
         avatar: '',
         bottomNav: '1',
@@ -10,19 +12,21 @@ export default {
         emailRules: [
             v => !!v || '请输入邮箱地址',
             v => /.+@.+\..+/.test(v) || '邮箱地址格式不正确'
-        ]
+        ],
+        confirmEmailDialog: false,
+        submitting: false
     }),
     mounted: function () {
         setTitle('门户');
-        Get('/Account/GetUserAvatar')
-            .then(res => res.text())
-            .then(data => this.avatar = 'data:image/png;base64, ' + data);
         if (this.user !== null) {
             this.privilege = this.user.privilege === 1 ? '管理员' :
                 this.user.privilege === 2 ? '教师' :
                     this.user.privilege === 3 ? '助教' :
                         this.user.privilege === 4 ? '学生/选手' :
                             this.user.privilege === 5 ? '黑名单' : '未知';
+            Get('/Account/GetUserAvatar')
+                .then(res => res.text())
+                .then(data => this.avatar = 'data:image/png;base64, ' + data);
         }
     },
     watch: {
@@ -33,7 +37,13 @@ export default {
                         this.user.privilege === 3 ? '助教' :
                             this.user.privilege === 4 ? '学生/选手' :
                                 this.user.privilege === 5 ? '黑名单' : '未知';
+                Get('/Account/GetUserAvatar')
+                    .then(res => res.text())
+                    .then(data => this.avatar = 'data:image/png;base64, ' + data);
             }
+        },
+        confirmEmailDialog: function () {
+            this.$refs.confirmEmailDlg.clearForm();
         }
     },
     computed: {
@@ -80,6 +90,7 @@ export default {
                     .then(data => {
                         if (!data.isSucceeded)
                             alert(data.errorMessage);
+                        else this.getUserInfo();
                     })
                     .catch(() => alert('修改失败'));
             }
@@ -90,6 +101,7 @@ export default {
                 .then(data => {
                     if (!data.isSucceeded)
                         alert(data.errorMessage);
+                    else this.getUserInfo();
                 })
                 .catch(() => alert('修改失败'));
         },
@@ -111,16 +123,18 @@ export default {
             }
             let form = new FormData();
             form.append('file', file);
+            let token = ReadCookie('XSRF-TOKEN');
             fetch('/Account/UpdateAvatar', {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: form,
                 mode: 'cors',
-                cache: 'default'
+                cache: 'default',
+                headers: { 'X-XSRF-TOKEN': token }
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.isSucceeded) window.location.reload();
+                    if (data.isSucceeded) this.getUserInfo();
                     else alert(data.errorMessage);
                     ele.value = '';
                 })
@@ -133,7 +147,25 @@ export default {
             alert('此功能正在开发中, 敬请期待');
         },
         confirmEmail: function () {
-            alert('此功能正在开发中, 敬请期待');
+            this.submitting = true;
+            Post('/Account/SendEmailConfirmToken', {})
+                .then(res => res.json())
+                .then(data => {
+                    if (data.isSucceeded) this.confirmEmailDialog = true;
+                    else alert(data.errorMessage);
+                    this.submitting = false;
+                })
+                .catch(() => {
+                    alert('请求失败');
+                    this.submitting = false;
+                });
+        },
+        closeDlg: function () {
+            this.confirmEmailDialog = false;
         }
+    },
+    components: {
+        emailConfirm: emailConfirm,
+        phoneConfirm: phoneConfirm
     }
 };

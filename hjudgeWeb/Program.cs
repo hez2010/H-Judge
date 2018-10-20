@@ -48,14 +48,7 @@ namespace hjudgeWeb
 
             for (var i = 0; i < Environment.ProcessorCount; i++)
             {
-                new Thread(() =>
-                {
-                    var action = new Action(async () =>
-                    {
-                        await JudgeQueue.JudgeThread();
-                    });
-                    action.Invoke();
-                }).Start();
+                new Thread(async () => await JudgeQueue.JudgeThread()).Start();
             }
 
             await CreateWebHostBuilder(args).Build().RunAsync();

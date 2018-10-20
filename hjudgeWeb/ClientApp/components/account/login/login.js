@@ -2,6 +2,7 @@
 import resetpassword from '../password/password.vue';
 
 export default {
+    props: ['getUserInfo', 'closeDlg'],
     data: () => ({
         valid: false,
         submitting: false,
@@ -29,13 +30,12 @@ export default {
                 Post('/Account/Login', { username: this.username, password: this.password, rememberMe: this.rememberMe })
                     .then(res => res.json())
                     .then(data => {
-                        if (data && data.isSucceeded) {
-                            window.location.reload();
+                        if (data.isSucceeded) {
+                            this.getUserInfo();
+                            this.closeDlg();
                         }
-                        else {
-                            alert(data.errorMessage);
-                            this.submitting = false;
-                        }
+                        else alert(data.errorMessage);
+                        this.submitting = false;
                     })
                     .catch(() => {
                         alert('登录失败');
@@ -44,6 +44,12 @@ export default {
             }
         },
         closeResetDialog: function () {
+            this.resetDialog = false;
+        },
+        clearForm: function () {
+            this.username = '';
+            this.password = '';
+            this.rememberMe = true;
             this.resetDialog = false;
         }
     },

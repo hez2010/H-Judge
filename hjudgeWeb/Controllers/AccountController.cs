@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 namespace hjudgeWeb.Controllers
 {
     [Consumes("application/json", "multipart/form-data")]
+    [AutoValidateAntiforgeryToken]
     public class AccountController : Controller
     {
         private readonly SignInManager<UserInfo> _signInManager;
@@ -55,6 +56,55 @@ namespace hjudgeWeb.Controllers
             public string Email { get; set; }
         }
 
+        [HttpPost]
+        public async Task<ResultModel> SendEmailConfirmToken()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var html = $@"<h2>H::Judge</h2>
+<p>您好 {user.UserName}，感谢使用 H::Judge！</p>
+<p>您请求的验证邮箱地址验证码为：</p><small>{token}</small><p>请使用此验证码验证您的邮箱地址</p>
+<hr />
+<small>{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}</small>";
+                await _emailSender.SendEmailAsync(user.Email, "H::Judge - 验证邮箱地址", html);
+            }
+            return new ResultModel
+            {
+                IsSucceeded = true
+            };
+        }
+
+        public class EmailConfirmModel
+        {
+            public string Token { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> ConfirmEmail([FromBody]EmailConfirmModel model)
+        {
+            var ret = new ResultModel { IsSucceeded = true };
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var result = await _userManager.ConfirmEmailAsync(user, model.Token);
+
+                if (!result.Succeeded)
+                {
+                    ret.IsSucceeded = false;
+                    ret.ErrorMessage = result.Errors.Any() ? result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next) : "注册失败";
+                }
+                return ret;
+            }
+            else
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "找不到该用户";
+            }
+            return ret;
+        }
+
         public class PasswordResetModel
         {
             public string UserName { get; set; }
@@ -91,7 +141,7 @@ namespace hjudgeWeb.Controllers
         }
 
         [HttpPost]
-        public async Task SendPasswordResetToken([FromBody]EmailModel model)
+        public async Task<ResultModel> SendPasswordResetToken([FromBody]EmailModel model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
             if (user != null && user.Email == model.Email)
@@ -104,6 +154,10 @@ namespace hjudgeWeb.Controllers
 <small>{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}</small>";
                 await _emailSender.SendEmailAsync(user.Email, "H::Judge - 重置密码", html);
             }
+            return new ResultModel
+            {
+                IsSucceeded = true
+            };
         }
 
         [HttpPost]

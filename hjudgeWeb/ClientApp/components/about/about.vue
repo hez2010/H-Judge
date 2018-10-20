@@ -12,6 +12,11 @@
                 <p>开发者：hez2010，Email：<a href="mailto:hez2010@126.com">hez2010@126.com</a></p>
                 <v-container>
                     <h3>更新日志</h3>
+                    <strong>2018/10/20 1.3 Stable</strong>
+                    <small><strong>1.</strong> 添加邮箱验证功能</small>
+                    <small><strong>2.</strong> 优化用户体验，全部操作无需重新载入页面</small>
+                    <small><strong>3.</strong> 添加 CSRF 攻击防御</small>
+                    <br />
                     <strong>2018/10/9 1.2 Stable</strong>
                     <small><strong>1.</strong> 添加密码重置功能</small>
                     <br />

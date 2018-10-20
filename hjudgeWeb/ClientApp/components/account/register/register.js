@@ -1,6 +1,7 @@
 ﻿import { Post } from '../../../utilities/requestHelper';
 
 export default {
+    props: ['getUserInfo', 'closeDlg'],
     data: () => ({
         valid: false,
         submitting: false,
@@ -30,13 +31,12 @@ export default {
                 Post('/Account/Register', { username: this.username, email: this.email, password: this.password, confirmPassword: this.confirmPassword })
                     .then(res => res.json())
                     .then(data => {
-                        if (data && data.isSucceeded) {
-                            window.location.reload();
+                        if (data.isSucceeded) {
+                            this.getUserInfo();
+                            this.closeDlg();
                         }
-                        else {
-                            alert(data.errorMessage);
-                            this.submitting = false;
-                        }
+                        else alert(data.errorMessage);
+                        this.submitting = false;
                     })
                     .catch(() => {
                         alert('注册失败');
@@ -49,6 +49,12 @@ export default {
                 v => !!v || '请输入确认密码',
                 v => v === this.password || '两次输入的密码不一致'
             ];
+        },
+        clearForm: function () {
+            this.username = '';
+            this.password = '';
+            this.confirmPassword = '';
+            this.email = '';
         }
     }
 };

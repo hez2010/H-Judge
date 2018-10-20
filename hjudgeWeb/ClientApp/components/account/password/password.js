@@ -54,8 +54,18 @@ export default {
                 this.password = '';
                 this.token = '';
                 this.confirmPassword = '';
-                this.sent = true;
-                Post('/Account/SendPasswordResetToken', { userName: this.username, email: this.email });
+                this.submitting = true;
+                Post('/Account/SendPasswordResetToken', { userName: this.username, email: this.email })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.isSucceeded) this.sent = true;
+                        else alert(data.errorMessage);
+                        this.submitting = false;
+                    })
+                    .catch(() => {
+                        alert('请求失败');
+                        this.submitting = false;
+                    });
             }
         },
         backward: function () {

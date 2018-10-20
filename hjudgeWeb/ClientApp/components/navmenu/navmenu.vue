@@ -105,11 +105,11 @@
                         <div>
                             <v-dialog v-model="loginDialog" width="500">
                                 <v-btn slot="activator" color="primary">登录</v-btn>
-                                <login></login>
+                                <login ref="loginDlg" :getUserInfo="getUserInfo" :closeDlg="closeDlg"></login>
                             </v-dialog>
                             <v-dialog v-model="registerDialog" width="500">
                                 <v-btn slot="activator" color="primary">注册</v-btn>
-                                <register></register>
+                                <register ref="registerDlg" :getUserInfo="getUserInfo" :closeDlg="closeDlg"></register>
                             </v-dialog>
                         </div>
                     </v-card-actions>

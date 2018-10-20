@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace hjudgeWeb.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class HomeController : Controller
     {
         public IActionResult Index()

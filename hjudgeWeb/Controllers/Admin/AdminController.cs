@@ -1,11 +1,13 @@
 ﻿using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace hjudgeWeb.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public partial class AdminController
     {
         private readonly SignInManager<UserInfo> _signInManager;

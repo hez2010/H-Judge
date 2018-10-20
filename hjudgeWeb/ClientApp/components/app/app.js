@@ -16,10 +16,7 @@ export default {
             this.themeIcon = 'brightness_5';
             this.darkTheme = true;
         }
-        Get('/Account/GetUserInfo')
-            .then(res => res.json())
-            .then(data => this.userInfo = data)
-            .catch(() => alert('网络错误'));
+        this.getUserInfo();
     },
     methods: {
         switchTheme: function () {
@@ -33,6 +30,12 @@ export default {
                 this.darkTheme = false;
                 localStorage.setItem('theme', '1');
             }
+        },
+        getUserInfo: function () {
+            Get('/Account/GetUserInfo')
+                .then(res => res.json())
+                .then(data => this.userInfo = data)
+                .catch(() => alert('网络错误'));
         }
     }
 };

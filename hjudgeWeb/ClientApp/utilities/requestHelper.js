@@ -1,36 +1,47 @@
-﻿export function Post(url, data = {}) {
-    var myInit = {
+﻿export function ReadCookie(name) {
+    name += '=';
+    for (let ca = document.cookie.split(/;\s*/), i = ca.length - 1; i >= 0; i--)
+        if (!ca[i].indexOf(name))
+            return ca[i].replace(name, '');
+    return '';
+}
+
+export function Post(url, data = {}) {
+    let token = ReadCookie('XSRF-TOKEN');
+
+    let myInit = {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': token
         },
         body: JSON.stringify(data),
         mode: 'cors',
         cache: 'default'
     };
 
-    var myRequest = new Request(url);
+    let myRequest = new Request(url);
 
     return fetch(myRequest, myInit);
 }
 
 export function Get(url, data = {}) {
-    var paramStr = '?';
+    let paramStr = '?';
     for (var x in data) {
         paramStr += `${x}=${escape(data[x])}&`;
     }
 
     paramStr = paramStr.substring(0, paramStr.length - 1);
 
-    var myInit = {
+    let myInit = {
         method: 'GET',
         credentials: 'same-origin',
         mode: 'cors',
         cache: 'default'
     };
 
-    var myRequest = new Request(url + paramStr);
+    let myRequest = new Request(url + paramStr);
 
     return fetch(myRequest, myInit);
 }

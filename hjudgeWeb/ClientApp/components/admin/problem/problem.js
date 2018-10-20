@@ -1,4 +1,4 @@
-﻿import { Get, Post } from '../../../utilities/requestHelper';
+﻿import { Get, Post, ReadCookie } from '../../../utilities/requestHelper';
 import { setTitle } from '../../../utilities/titleHelper';
 
 export default {
@@ -117,12 +117,14 @@ export default {
             form.append('file', file);
             this.uploadingText = '上传中...';
             this.uploading = true;
+            let token = ReadCookie('XSRF-TOKEN');
             fetch('/Admin/UploadProblemData', {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: form,
                 mode: 'cors',
-                cache: 'default'
+                cache: 'default',
+                headers: { 'X-XSRF-TOKEN': token }
             })
                 .then(res => res.json())
                 .then(data => {

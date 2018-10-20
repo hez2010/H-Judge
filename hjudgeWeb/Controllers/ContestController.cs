@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace hjudgeWeb.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class ContestController : Controller
     {
         private readonly SignInManager<UserInfo> _signInManager;

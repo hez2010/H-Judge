@@ -1,6 +1,7 @@
 using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Middleware;
+using hjudgeWeb.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -51,7 +52,15 @@ namespace hjudgeWeb
 
             services.AddTransient<IEmailSender, EmailSender>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-Token");
+
+            services.AddTransient<AntiForgeryFilter>();
+
+            services.AddMvc(options =>
+            {
+                options.Filters.AddService(typeof(AntiForgeryFilter));
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

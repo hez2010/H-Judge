@@ -39,7 +39,7 @@
                               v-if="sent"
                               required>
                 </v-text-field>
-                <v-btn :disabled="!valid"
+                <v-btn :disabled="!valid || submitting"
                        @click="sendEmail"
                        color="primary"
                        v-if="!sent">

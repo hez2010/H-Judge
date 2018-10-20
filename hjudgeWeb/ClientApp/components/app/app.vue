@@ -1,8 +1,8 @@
 ﻿<template>
     <v-app :dark="darkTheme">
-        <navmenu :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo"></navmenu>
+        <navmenu :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo" :getUserInfo="getUserInfo"></navmenu>
         <v-content>
-            <router-view :user="userInfo"></router-view>
+            <router-view :user="userInfo" :getUserInfo="getUserInfo"></router-view>
         </v-content>
         <v-footer class="pa-3 blue darken-2">
             <v-spacer></v-spacer>
