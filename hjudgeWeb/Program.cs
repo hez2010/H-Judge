@@ -42,7 +42,7 @@ namespace hjudgeWeb
                 await db.SaveChangesAsync();
                 foreach (var i in db.Judge.Where(i => i.ResultType == (int)ResultCode.Pending).Select(i => i.Id))
                 {
-                    JudgeQueue.JudgeIdQueue.Enqueue(i);
+                    JudgeQueue.JudgeIdQueue.Enqueue((i, false));
                 }
             }
 

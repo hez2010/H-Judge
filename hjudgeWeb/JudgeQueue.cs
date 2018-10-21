@@ -16,7 +16,7 @@ namespace hjudgeWeb
 {
     public class JudgeQueue
     {
-        public static readonly ConcurrentQueue<int> JudgeIdQueue = new ConcurrentQueue<int>();
+        public static readonly ConcurrentQueue<(int ProblemId, bool HasJudged)> JudgeIdQueue = new ConcurrentQueue<(int, bool)>();
 
         private static string AlphaNumberFilter(string input)
         {
@@ -285,14 +285,14 @@ namespace hjudgeWeb
             var random = new Random();
             while (!Environment.HasShutdownStarted)
             {
-                while (JudgeIdQueue.TryDequeue(out int id))
+                while (JudgeIdQueue.TryDequeue(out var judgeInfo))
                 {
                     if (db == null)
                     {
                         db = new ApplicationDbContext(Program.DbContextOptionsBuilder.Options);
                     }
 
-                    var judge = await db.Judge.FindAsync(id);
+                    var judge = await db.Judge.FindAsync(judgeInfo.ProblemId);
                     if (judge == null)
                     {
                         continue;
@@ -346,60 +346,63 @@ namespace hjudgeWeb
                             return mostPresent;
                         }).Invoke();
                         judge.FullScore = result.JudgePoints?.Sum(i => i.Score) ?? 0;
-                        if (judge.ResultType == (int)ResultCode.Accepted)
+                        if (!judgeInfo.HasJudged)
                         {
-                            if (judge.ContestId == null)
+                            if (judge.ResultType == (int)ResultCode.Accepted)
                             {
-                                if (problem.AcceptCount == null)
+                                if (judge.ContestId == null)
                                 {
-                                    problem.AcceptCount = 0;
-                                }
-
-                                problem.AcceptCount++;
-                            }
-                            else
-                            {
-                                var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == judge.ContestId && i.ProblemId == problem.Id);
-                                if (problemConfig != null)
-                                {
-                                    if (problemConfig.AcceptCount == null)
+                                    if (problem.AcceptCount == null)
                                     {
-                                        problemConfig.AcceptCount = 0;
+                                        problem.AcceptCount = 0;
                                     }
 
-                                    problemConfig.AcceptCount++;
+                                    problem.AcceptCount++;
                                 }
-                            }
-                        }
-                        try
-                        {
-                            var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id=@1", new SqlParameter("@1", judge.UserId)).FirstOrDefault();
-                            if (fortune != null)
-                            {
-                                long dExp = 0, dCoins = 0;
-                                switch (judge.ResultType)
+                                else
                                 {
-                                    case (int)ResultCode.Accepted:
-                                        dExp = random.Next(50, 100);
-                                        dCoins = random.Next(30, 80);
-                                        break;
-                                    case (int)ResultCode.Presentation_Error:
-                                        dExp = random.Next(30, 50);
-                                        dCoins = random.Next(10, 30);
-                                        break;
-                                    default:
-                                        dExp = random.Next(10, 30);
-                                        break;
+                                    var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == judge.ContestId && i.ProblemId == problem.Id);
+                                    if (problemConfig != null)
+                                    {
+                                        if (problemConfig.AcceptCount == null)
+                                        {
+                                            problemConfig.AcceptCount = 0;
+                                        }
+
+                                        problemConfig.AcceptCount++;
+                                    }
                                 }
-                                db.Database.ExecuteSqlCommand("Update AspNetUsers set Experience=@1, Coins=@2 where Id=@3",
-                                    new SqlParameter("@1", fortune.Experience + dExp),
-                                    new SqlParameter("@2", fortune.Coins + dCoins),
-                                    new SqlParameter("@3", judge.UserId));
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Failed to update fortune for user [{judge.UserId}]: {ex.Message}");
+                            try
+                            {
+                                var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id=@1", new SqlParameter("@1", judge.UserId)).FirstOrDefault();
+                                if (fortune != null)
+                                {
+                                    long dExp = 0, dCoins = 0;
+                                    switch (judge.ResultType)
+                                    {
+                                        case (int)ResultCode.Accepted:
+                                            dExp = random.Next(50, 100);
+                                            dCoins = random.Next(30, 80);
+                                            break;
+                                        case (int)ResultCode.Presentation_Error:
+                                            dExp = random.Next(30, 50);
+                                            dCoins = random.Next(10, 30);
+                                            break;
+                                        default:
+                                            dExp = random.Next(10, 30);
+                                            break;
+                                    }
+                                    db.Database.ExecuteSqlCommand("Update AspNetUsers set Experience=@1, Coins=@2 where Id=@3",
+                                        new SqlParameter("@1", fortune.Experience + dExp),
+                                        new SqlParameter("@2", fortune.Coins + dCoins),
+                                        new SqlParameter("@3", judge.UserId));
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Failed to update fortune for user [{judge.UserId}]: {ex.Message}");
+                            }
                         }
                     }
                     catch (Exception ex)

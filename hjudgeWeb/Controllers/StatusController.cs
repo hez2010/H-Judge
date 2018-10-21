@@ -239,7 +239,7 @@ namespace hjudgeWeb.Controllers
                     {
                         judge.ResultType = -1;
                         await db.SaveChangesAsync();
-                        JudgeQueue.JudgeIdQueue.Enqueue(judge.Id);
+                        JudgeQueue.JudgeIdQueue.Enqueue((judge.Id, true));
                     }
                 }
             }

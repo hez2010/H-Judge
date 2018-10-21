@@ -309,7 +309,7 @@ namespace hjudgeWeb.Controllers
 
                 db.Judge.Add(submission);
                 await db.SaveChangesAsync();
-                JudgeQueue.JudgeIdQueue.Enqueue(submission.Id);
+                JudgeQueue.JudgeIdQueue.Enqueue((submission.Id, false));
 
                 return new SubmitReturnDataModel
                 {
