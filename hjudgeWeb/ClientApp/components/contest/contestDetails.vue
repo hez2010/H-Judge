@@ -97,6 +97,7 @@
                                     <td>{{ props.item.status }}</td>
                                     <td>{{ props.item.acceptCount }}</td>
                                     <td>{{ props.item.submissionCount }}</td>
+                                    <td>{{ props.item.ratio }} %</td>
                                 </template>
                                 <template slot="no-data">
                                     <p v-if="loadingProblem">正在加载...</p>

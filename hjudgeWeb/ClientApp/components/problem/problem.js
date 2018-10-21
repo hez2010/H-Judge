@@ -16,7 +16,8 @@ export default {
             { text: '难度', value: 'level' },
             { text: '状态', value: 'status' },
             { text: '通过量', value: 'acceptCount' },
-            { text: '提交量', value: 'submissionCount' }
+            { text: '提交量', value: 'submissionCount' },
+            { text: '比率', value: 'ratio' }
         ]
     }),
     mounted: function () {
@@ -34,6 +35,7 @@ export default {
                 if (this.page <= 0) this.page = 1;
             })
             .catch(() => this.pageCount = 0);
+        this.headers.splice(9);
         if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
             this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
         }
@@ -48,6 +50,7 @@ export default {
             this.$router.push('/Problem/' + this.page);
         },
         user: function () {
+            this.headers.splice(9);
             if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
                 this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
             }
@@ -62,7 +65,10 @@ export default {
             Get('/Problem/GetProblemList', param)
                 .then(res => res.json())
                 .then(data => {
-                    this.problems = data;
+                    this.problems = data.map(v => {
+                        v['ratio'] = v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100;
+                        return v;
+                    });
                     this.loading = false;
                 })
                 .catch(() => {

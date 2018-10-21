@@ -27,7 +27,8 @@ export default {
             { text: '难度', value: 'level' },
             { text: '状态', value: 'status' },
             { text: '通过量', value: 'acceptCount' },
-            { text: '提交量', value: 'submissionCount' }
+            { text: '提交量', value: 'submissionCount' },
+            { text: '比率', value: 'ratio' }
         ],
         timer: null
     }),
@@ -89,7 +90,10 @@ export default {
             Get('/Contest/GetProblemList', param)
                 .then(res => res.json())
                 .then(data => {
-                    this.problems = data;
+                    this.problems = data.map(v => {
+                        v['ratio'] = v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100;
+                        return v;
+                    });
                     this.loadingProblem = false;
                 })
                 .catch(() => {

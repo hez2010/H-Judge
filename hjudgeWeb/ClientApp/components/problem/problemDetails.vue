@@ -79,6 +79,12 @@
                                 <v-flex xs8>
                                     <p>{{problem.submissionCount}}</p>
                                 </v-flex>
+                                <v-flex xs4>
+                                    <strong>通过比率</strong>
+                                </v-flex>
+                                <v-flex xs8>
+                                    <p>{{problem.submissionCount === 0 ? 0 : Math.round(problem.acceptCount * 10000 / problem.submissionCount) / 100}} %</p>
+                                </v-flex>
                             </v-layout>
                         </v-container>
                     </v-card-text>

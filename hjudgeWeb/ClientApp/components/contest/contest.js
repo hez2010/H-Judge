@@ -46,6 +46,7 @@ export default {
                 if (this.page <= 0) this.page = 1;
             })
             .catch(() => this.pageCount = 0);
+        this.headers.splice(6);
         if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
             this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
         }
@@ -60,6 +61,7 @@ export default {
             this.$router.push('/Contest/' + this.page);
         },
         user: function () {
+            this.headers.splice(6);
             if (this.user && this.user.privilege >= 1 && this.user.privilege <= 2) {
                 this.headers = this.headers.concat([{ text: '操作', value: 'actions', sortable: false }]);
             }

@@ -65,7 +65,10 @@
                    app
                    fixed>
             <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
-                <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+                <v-tooltip bottom>
+                    <v-toolbar-side-icon slot="activator" @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+                    <span>{{ drawer ? '收起' : '展开'}}菜单</span>
+                </v-tooltip>
                 <v-tooltip bottom>
                     <v-btn @click="goback" slot="activator" icon>
                         <v-icon>keyboard_arrow_left</v-icon>

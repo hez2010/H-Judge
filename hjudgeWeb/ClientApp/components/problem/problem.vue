@@ -24,6 +24,7 @@
                         <td>{{ props.item.status }}</td>
                         <td>{{ props.item.acceptCount }}</td>
                         <td>{{ props.item.submissionCount }}</td>
+                        <td>{{ props.item.ratio }} %</td>
                         <td v-if="user && user.privilege >= 1 && user.privilege <= 2">
                             <v-layout row>
                                 <v-tooltip bottom>
