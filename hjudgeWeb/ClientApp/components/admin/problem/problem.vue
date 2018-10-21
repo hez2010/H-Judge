@@ -177,6 +177,7 @@
                                         v-model="problem.config.compileArgs">
                             </v-textarea>
                             <v-text-field label="自定义提交文件名 (不含扩展名)" v-model="problem.config.submitFileName"></v-text-field>
+                            <v-text-field label="提交语言限制（以 ; 分隔）" v-model="problem.config.languages"></v-text-field>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>

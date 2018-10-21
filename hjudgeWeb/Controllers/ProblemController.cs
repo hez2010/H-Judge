@@ -197,9 +197,10 @@ namespace hjudgeWeb.Controllers
                         };
                     }
 
-                    if (!string.IsNullOrEmpty(config?.Languages))
+                    if (!string.IsNullOrWhiteSpace(config?.Languages))
                     {
-                        languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+                        var templang = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToList();
+                        languages = languages.Intersect(templang).ToList();
                     }
                     if (config.SubmissionLimit != 0)
                     {
@@ -236,6 +237,13 @@ namespace hjudgeWeb.Controllers
                         IsSucceeded = false,
                         ErrorMessage = "题目不存在"
                     };
+                }
+
+                var pconfig = JsonConvert.DeserializeObject<ProblemConfiguration>(problem.Config ?? "{}");
+                if (!string.IsNullOrWhiteSpace(pconfig.Languages))
+                {
+                    var templang = pconfig.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToList();
+                    languages = languages.Intersect(templang).ToList();
                 }
 
                 if (problem.Type == 1 && !languages.Contains(submit.Language))
@@ -395,9 +403,10 @@ namespace hjudgeWeb.Controllers
                     }
 
                     var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
-                    if (!string.IsNullOrEmpty(config?.Languages))
+                    if (!string.IsNullOrWhiteSpace(config?.Languages))
                     {
-                        languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
+                        var templang = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToList();
+                        languages = languages.Intersect(templang).ToList();
                     }
                 }
 
@@ -410,6 +419,14 @@ namespace hjudgeWeb.Controllers
                         ErrorMessage = "题目不存在"
                     };
                 }
+
+                var pconfig = JsonConvert.DeserializeObject<ProblemConfiguration>(problem.Config ?? "{}");
+                if (!string.IsNullOrWhiteSpace(pconfig.Languages))
+                {
+                    var templang = pconfig.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToList();
+                    languages = languages.Intersect(templang).ToList();
+                }
+
                 if (problem.Hidden && cid == 0)
                 {
                     if (!HasAdminPrivilege(privilege))
