@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.ResponseCompression;
 
 namespace hjudgeWeb.Middleware
 {
+    /// <summary>
+    /// Brotli response compresion provider
+    /// </summary>
     public class BrotliCompressionProvider : ICompressionProvider
     {
         public string EncodingName => "br";

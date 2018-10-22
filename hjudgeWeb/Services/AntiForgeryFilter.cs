@@ -14,6 +14,7 @@ namespace hjudgeWeb.Services
 
         public override void OnResultExecuting(ResultExecutingContext context)
         {
+            //Send xsrf token on get requests
             if (context.HttpContext.Request.Method.ToLower() == "get")
             {
                 var tokens = antiforgery.GetAndStoreTokens(context.HttpContext);

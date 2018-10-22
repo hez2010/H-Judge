@@ -31,6 +31,10 @@ namespace hjudgeWeb.Controllers
             _dbContextOptions = dbContextOptions;
         }
 
+        /// <summary>
+        /// Get current signed in user and its privilege
+        /// </summary>
+        /// <returns></returns>
         private async Task<(UserInfo, int)> GetUserPrivilegeAsync()
         {
             if (!_signInManager.IsSignedIn(User))

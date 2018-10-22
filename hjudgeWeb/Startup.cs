@@ -28,6 +28,7 @@ namespace hjudgeWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Add brotli compression
             services.AddResponseCompression(options =>
             {
                 options.Providers.Add<BrotliCompressionProvider>();
@@ -40,22 +41,27 @@ namespace hjudgeWeb
                     "font/eof" });
             });
 
+            //EF Core db context
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            //Identity
             services.AddDefaultIdentity<UserInfo>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders()
                 .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
+            //EF Core -- SqlServer
             services.AddEntityFrameworkSqlServer();
 
+            //Email sender transient
             services.AddTransient<IEmailSender, EmailSender>();
 
+            //Register service for anti CSRF attack
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-Token");
-
             services.AddTransient<AntiForgeryFilter>();
 
+            //MVC
             services.AddMvc(options =>
             {
                 options.Filters.AddService(typeof(AntiForgeryFilter));
@@ -80,12 +86,15 @@ namespace hjudgeWeb
                 app.UseHsts();
             }
 
+            //Brotli compression
             app.UseResponseCompression();
 
+            //Accessibility for ./wwwroot
             app.UseStaticFiles();
-
+            
             app.UseAuthentication();
 
+            //Route and spa fallback
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

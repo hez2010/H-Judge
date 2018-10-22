@@ -16,8 +16,9 @@ namespace hjudgeWeb
 {
     public class JudgeQueue
     {
-        public static readonly ConcurrentQueue<(int ProblemId, bool HasJudged)> JudgeIdQueue = new ConcurrentQueue<(int, bool)>();
-
+        //Judge queue. A tuple (Judge Id, Whether being judged before)
+        public static readonly ConcurrentQueue<(int JudgeId, bool HasJudged)> JudgeIdQueue = new ConcurrentQueue<(int, bool)>();
+        
         private static string AlphaNumberFilter(string input)
         {
             if (input == null)
@@ -292,7 +293,8 @@ namespace hjudgeWeb
                         db = new ApplicationDbContext(Program.DbContextOptionsBuilder.Options);
                     }
 
-                    var judge = await db.Judge.FindAsync(judgeInfo.ProblemId);
+                    //Get judge record
+                    var judge = await db.Judge.FindAsync(judgeInfo.JudgeId);
                     if (judge == null)
                     {
                         continue;
@@ -301,6 +303,7 @@ namespace hjudgeWeb
                     judge.ResultType = (int)ResultCode.Judging;
                     await db.SaveChangesAsync();
 
+                    //Get problem information
                     var problem = await db.Problem.FindAsync(judge.ProblemId);
                     if (problem == null)
                     {
@@ -318,10 +321,15 @@ namespace hjudgeWeb
 
                     try
                     {
+                        //Build all options
                         var (judgeOptionBuilder, buildOptionBuilder) = GetOptionBuilders(problem, judge, config);
                         buildOptionBuilder.AddSource(judge.Content);
+                        //Init judge task
                         var judgeMain = new JudgeMain(SystemConfiguration.Environments);
+                        //Judge
                         var result = await judgeMain.JudgeAsync(buildOptionBuilder.Build(), judgeOptionBuilder.Build());
+
+                        //Save result and increase coins and experience for user
                         judge.Result = JsonConvert.SerializeObject(result);
                         judge.ResultType = (int)new Func<ResultCode>(() =>
                         {
