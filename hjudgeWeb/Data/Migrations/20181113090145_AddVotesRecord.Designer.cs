@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hjudgeWeb.Data;
 
 namespace hjudgeWeb.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181113090145_AddVotesRecord")]
+    partial class AddVotesRecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,41 +108,6 @@ namespace hjudgeWeb.Data.Migrations
                     b.ToTable("ContestRegister");
                 });
 
-            modelBuilder.Entity("hjudgeWeb.Data.Discussion", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Content");
-
-                    b.Property<int>("ContestId");
-
-                    b.Property<int>("GroupId");
-
-                    b.Property<int>("ProblemId");
-
-                    b.Property<string>("ReplyUserId");
-
-                    b.Property<DateTime>("SubmitTime");
-
-                    b.Property<string>("Title");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContestId");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("ProblemId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Discussion");
-                });
-
             modelBuilder.Entity("hjudgeWeb.Data.Group", b =>
                 {
                     b.Property<int>("Id")
@@ -211,7 +178,7 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("AcceptedCount");
+                    b.Property<int?>("AcceptedCount");
 
                     b.Property<int>("AccessFailedCount");
 
@@ -237,8 +204,6 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
 
-                    b.Property<int>("MessageReplyCount");
-
                     b.Property<string>("Name");
 
                     b.Property<string>("NormalizedEmail")
@@ -259,7 +224,7 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("SecurityStamp");
 
-                    b.Property<int>("SubmissionCount");
+                    b.Property<int?>("SubmissionCount");
 
                     b.Property<bool>("TwoFactorEnabled");
 
@@ -289,19 +254,15 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("Content");
 
-                    b.Property<int>("ContestId");
+                    b.Property<int?>("ContestId");
 
                     b.Property<string>("Description");
 
                     b.Property<float>("FullScore");
 
-                    b.Property<int>("GroupId");
+                    b.Property<int?>("GroupId");
 
                     b.Property<bool>("IsPublic");
-
-                    b.Property<int>("JudgeCount")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("0");
 
                     b.Property<DateTime>("JudgeTime");
 
@@ -433,13 +394,13 @@ namespace hjudgeWeb.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Content");
+                    b.Property<int?>("ContestId");
 
-                    b.Property<int>("ContestId");
+                    b.Property<int?>("GroupId");
 
-                    b.Property<int>("GroupId");
+                    b.Property<string>("Message");
 
-                    b.Property<int>("ProblemId");
+                    b.Property<int?>("ProblemId");
 
                     b.Property<string>("Title");
 
@@ -607,29 +568,6 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.HasOne("hjudgeWeb.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("ContestRegister")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("hjudgeWeb.Data.Discussion", b =>
-                {
-                    b.HasOne("hjudgeWeb.Data.Contest", "Contest")
-                        .WithMany("Discussion")
-                        .HasForeignKey("ContestId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("hjudgeWeb.Data.Group", "Group")
-                        .WithMany("Discussion")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("hjudgeWeb.Data.Problem", "Problem")
-                        .WithMany("Discussion")
-                        .HasForeignKey("ProblemId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("hjudgeWeb.Data.Identity.UserInfo", "UserInfo")
-                        .WithMany("Discussion")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

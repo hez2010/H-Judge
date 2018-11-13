@@ -47,7 +47,7 @@ namespace hjudgeWeb
                 //Enqueue all in-pending submission to judge queue
                 foreach (var i in db.Judge.Where(i => i.ResultType == (int)ResultCode.Pending).Select(i => i.Id))
                 {
-                    JudgeQueue.JudgeIdQueue.Enqueue((i, false));
+                    JudgeQueue.JudgeIdQueue.Enqueue(i);
                 }
             }
 

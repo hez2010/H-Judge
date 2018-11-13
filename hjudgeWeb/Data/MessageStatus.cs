@@ -1,4 +1,5 @@
-﻿using System;
+﻿using hjudgeWeb.Data.Identity;
+using System;
 
 namespace hjudgeWeb.Data
 {
@@ -6,10 +7,11 @@ namespace hjudgeWeb.Data
     {
         public int Id { get; set; }
         public DateTime OperationTime { get; set; }
-        public int? MessageId { get; set; }
+        public int MessageId { get; set; }
         public string UserId { get; set; }
         public int Status { get; set; }
 
+        public UserInfo UserInfo { get; set; }
         public Message Message { get; set; }
     }
 }
