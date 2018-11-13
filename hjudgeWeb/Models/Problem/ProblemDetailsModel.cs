@@ -4,11 +4,17 @@ using System.Linq;
 
 namespace hjudgeWeb.Models.Problem
 {
+    public class LanguageConfig
+    {
+        public string Name { get; set; }
+        public string Information { get; set; }
+    }
+
     public class ProblemDetailsModel : ResultModel
     {
         public ProblemDetailsModel()
         {
-            Languages = new List<string>();
+            Languages = new List<LanguageConfig>();
         }
 
         public int Id { get; set; }
@@ -27,6 +33,6 @@ namespace hjudgeWeb.Models.Problem
         public int RawStatus { get; set; }
         public string Status => RawStatus == 0 ? "未尝试" : RawStatus == 1 ? "已尝试" : "已通过";
         public bool Hidden { get; set; }
-        public List<string> Languages { get; set; }
+        public List<LanguageConfig> Languages { get; set; }
     }
 }

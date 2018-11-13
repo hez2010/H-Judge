@@ -431,6 +431,8 @@ namespace hjudgeWeb.Controllers
                     languages = languages.Intersect(templang).ToList();
                 }
 
+                var langList = Languages.LanguageConfigurations.Where(i => languages.Contains(i.Name)).Select(i => new LanguageConfig { Name = i.Name, Information = i.Information }).ToList();
+
                 if (problem.Hidden && cid == 0)
                 {
                     if (!HasAdminPrivilege(privilege))
@@ -458,7 +460,7 @@ namespace hjudgeWeb.Controllers
                     RawCreationTime = problem.CreationTime,
                     AcceptCount = problem.AcceptCount ?? 0,
                     SubmissionCount = problem.SubmissionCount ?? 0,
-                    Languages = languages
+                    Languages = langList
                 };
                 int? groupId = null, contestId = null;
                 if (gid != 0)

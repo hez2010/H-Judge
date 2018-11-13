@@ -57,6 +57,9 @@
                                                   required
                                                   :rules="requireRules">
                                     </v-text-field>
+                                    <v-text-field v-model="item.information"
+                                                  label="详情信息">
+                                    </v-text-field>
                                 </v-tab-item>
                                 <v-tab-item :key="2">
                                     <v-text-field v-model="item.compilerExec"
@@ -74,12 +77,12 @@
                                     <v-layout>
                                         <v-flex xs6>
                                             <v-checkbox label="编译时读取标准输出"
-                                                      v-model="item.compilerReadStdOutput">
+                                                        v-model="item.compilerReadStdOutput">
                                             </v-checkbox>
                                         </v-flex>
                                         <v-flex xs6>
                                             <v-checkbox label="编译时读取标准错误"
-                                                      v-model="item.compilerReadStdError">
+                                                        v-model="item.compilerReadStdError">
                                             </v-checkbox>
                                         </v-flex>
                                     </v-layout>

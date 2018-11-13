@@ -48,6 +48,7 @@ export default {
             this.config.languages = this.config.languages.concat([{
                 name: '',
                 extensions: '',
+                information: '',
                 compilerExec: '',
                 compilerArgs: '',
                 compilerProblemMatcher: '',

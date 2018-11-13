@@ -12,9 +12,9 @@ export default {
         },
         active: 0,
         loading: true,
-        language: '',
+        language: { name: '', information: '' },
         languageRules: [
-            v => !!v || '请选择语言'
+            v => !!v.name || '请选择语言'
         ],
         content: '',
         contentRules: [
@@ -53,8 +53,8 @@ export default {
     methods: {
         loadMath: function () {
             if (window.MathJax) {
-                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
                 clearInterval(this.timer);
+                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
             }
         },
         submit: function () {
@@ -63,7 +63,7 @@ export default {
                 let param = this.param;
                 param['content'] = this.content;
                 if (this.problem.rawType === 1)
-                    param['language'] = this.language;
+                    param['language'] = this.language.name;
                 Post('/Problem/Submit', param)
                     .then(res => res.json())
                     .then(data => {

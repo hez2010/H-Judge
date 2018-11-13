@@ -108,6 +108,12 @@
                                           label="语言"
                                           v-if="problem.rawType === 1"
                                           v-model="language"
+                                          item-text="name"
+                                          item-value="name"
+                                          :hint="language.information"
+                                          persistent-hint
+                                          return-object
+                                          single-line
                                           required
                                           :rules="languageRules">
                                 </v-select>

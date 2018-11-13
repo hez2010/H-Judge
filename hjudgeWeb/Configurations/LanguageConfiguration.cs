@@ -7,6 +7,7 @@ namespace hjudgeWeb.Configurations
     {
         public string Name { get; set; }
         public string Extensions { get; set; }
+        public string Information { get; set; }
         //Compiler
         public string CompilerExec { get; set; }
         public string CompilerArgs { get; set; }
