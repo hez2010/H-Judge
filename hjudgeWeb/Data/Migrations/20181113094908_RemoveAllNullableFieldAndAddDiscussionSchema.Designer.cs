@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hjudgeWeb.Data;
 
 namespace hjudgeWeb.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181113094908_RemoveAllNullableFieldAndAddDiscussionSchema")]
+    partial class RemoveAllNullableFieldAndAddDiscussionSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -298,10 +300,6 @@ namespace hjudgeWeb.Data.Migrations
                     b.Property<int>("GroupId");
 
                     b.Property<bool>("IsPublic");
-
-                    b.Property<int>("JudgeCount")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("0");
 
                     b.Property<DateTime>("JudgeTime");
 

@@ -27,6 +27,8 @@ namespace hjudgeWeb.Data
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<MessageStatus> MessageStatus { get; set; }
         public virtual DbSet<Problem> Problem { get; set; }
+        public virtual DbSet<VotesRecord> VotesRecord { get; set; }
+        public virtual DbSet<Discussion> Discussion { get; set; }
         public DbQuery<ExperienceCoins> ExperienceCoinsQuery { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,6 +42,14 @@ namespace hjudgeWeb.Data
                 entity.Property(e => e.EndTime).IsRequired();
 
                 entity.Property(e => e.StartTime).IsRequired();
+
+                entity.Property(e => e.Upvote).HasDefaultValueSql("0");
+
+                entity.Property(e => e.Downvote).HasDefaultValueSql("0");
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Contest)
+                    .HasForeignKey(d => d.UserId);
             });
 
             modelBuilder.Entity<ContestProblemConfig>(entity =>
@@ -71,6 +81,11 @@ namespace hjudgeWeb.Data
                     .WithMany(p => p.ContestRegister)
                     .HasForeignKey(d => d.ContestId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.ContestRegister)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Group>(entity =>
@@ -78,6 +93,10 @@ namespace hjudgeWeb.Data
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.CreationTime).IsRequired();
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Group)
+                    .HasForeignKey(d => d.UserId);
             });
 
             modelBuilder.Entity<GroupContestConfig>(entity =>
@@ -107,6 +126,11 @@ namespace hjudgeWeb.Data
                     .WithMany(p => p.GroupJoin)
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.GroupJoin)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Judge>(entity =>
@@ -114,6 +138,8 @@ namespace hjudgeWeb.Data
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.JudgeTime).IsRequired();
+
+                entity.Property(e => e.JudgeCount).HasDefaultValueSql("0");
 
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.Judge)
@@ -129,6 +155,11 @@ namespace hjudgeWeb.Data
                     .WithMany(p => p.Judge)
                     .HasForeignKey(d => d.ProblemId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Judge)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Message>(entity =>
@@ -136,6 +167,11 @@ namespace hjudgeWeb.Data
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.SendTime).IsRequired();
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Message)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<MessageStatus>(entity =>
@@ -150,6 +186,10 @@ namespace hjudgeWeb.Data
                     .WithMany(p => p.MessageStatus)
                     .HasForeignKey(d => d.MessageId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.MessageStatus)
+                    .HasForeignKey(d => d.UserId);
             });
 
             modelBuilder.Entity<Problem>(entity =>
@@ -161,6 +201,74 @@ namespace hjudgeWeb.Data
                 entity.Property(e => e.CreationTime).IsRequired();
 
                 entity.Property(e => e.SubmissionCount).HasDefaultValueSql("0");
+
+                entity.Property(e => e.Upvote).HasDefaultValueSql("0");
+
+                entity.Property(e => e.Downvote).HasDefaultValueSql("0");
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Problem)
+                    .HasForeignKey(d => d.UserId);
+            });
+
+            modelBuilder.Entity<VotesRecord>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.VoteType).HasDefaultValueSql("1");
+
+                entity.Property(e => e.VoteTime).IsRequired();
+
+                entity.HasOne(d => d.Problem)
+                    .WithMany(p => p.VotesRecord)
+                    .HasForeignKey(d => d.ProblemId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Contest)
+                    .WithMany(p => p.VotesRecord)
+                    .HasForeignKey(d => d.ContestId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.VotesRecord)
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.VotesRecord)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Discussion>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.SubmitTime).IsRequired();
+
+                entity.HasOne(d => d.Contest)
+                    .WithMany(p => p.Discussion)
+                    .HasForeignKey(d => d.ContestId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Problem)
+                    .WithMany(p => p.Discussion)
+                    .HasForeignKey(d => d.ProblemId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.Discussion)
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Discussion)
+                    .HasForeignKey(d => d.ReplyUserId);
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Discussion)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

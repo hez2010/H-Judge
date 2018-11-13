@@ -17,7 +17,7 @@ namespace hjudgeWeb
     public class JudgeQueue
     {
         //Judge queue. A tuple (Judge Id, Whether being judged before)
-        public static readonly ConcurrentQueue<(int JudgeId, bool HasJudged)> JudgeIdQueue = new ConcurrentQueue<(int, bool)>();
+        public static readonly ConcurrentQueue<int> JudgeIdQueue = new ConcurrentQueue<int>();
         
         private static string AlphaNumberFilter(string input)
         {
@@ -286,7 +286,7 @@ namespace hjudgeWeb
             var random = new Random();
             while (!Environment.HasShutdownStarted)
             {
-                while (JudgeIdQueue.TryDequeue(out var judgeInfo))
+                while (JudgeIdQueue.TryDequeue(out var judgeId))
                 {
                     if (db == null)
                     {
@@ -294,7 +294,7 @@ namespace hjudgeWeb
                     }
 
                     //Get judge record
-                    var judge = await db.Judge.FindAsync(judgeInfo.JudgeId);
+                    var judge = await db.Judge.FindAsync(judgeId);
                     if (judge == null)
                     {
                         continue;
@@ -354,17 +354,13 @@ namespace hjudgeWeb
                             return mostPresent;
                         }).Invoke();
                         judge.FullScore = result.JudgePoints?.Sum(i => i.Score) ?? 0;
-                        if (!judgeInfo.HasJudged)
+                        judge.JudgeCount++;
+                        if (judge.JudgeCount == 1)
                         {
                             if (judge.ResultType == (int)ResultCode.Accepted)
                             {
-                                if (judge.ContestId == null)
+                                if (judge.ContestId == 0)
                                 {
-                                    if (problem.AcceptCount == null)
-                                    {
-                                        problem.AcceptCount = 0;
-                                    }
-
                                     problem.AcceptCount++;
                                 }
                                 else
@@ -372,11 +368,6 @@ namespace hjudgeWeb
                                     var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == judge.ContestId && i.ProblemId == problem.Id);
                                     if (problemConfig != null)
                                     {
-                                        if (problemConfig.AcceptCount == null)
-                                        {
-                                            problemConfig.AcceptCount = 0;
-                                        }
-
                                         problemConfig.AcceptCount++;
                                     }
                                 }

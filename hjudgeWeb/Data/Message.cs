@@ -1,4 +1,5 @@
-﻿using System;
+﻿using hjudgeWeb.Data.Identity;
+using System;
 using System.Collections.Generic;
 
 namespace hjudgeWeb.Data
@@ -17,6 +18,8 @@ namespace hjudgeWeb.Data
         public string UserId { get; set; }
         public string Targets { get; set; }
         public DateTime SendTime { get; set; }
+
+        public UserInfo UserInfo { get; set; }
 
         public ICollection<MessageStatus> MessageStatus { get; set; }
     }

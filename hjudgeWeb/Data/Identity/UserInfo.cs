@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 
 namespace hjudgeWeb.Data.Identity
 {
@@ -33,6 +34,20 @@ namespace hjudgeWeb.Data.Identity
 
     public class UserInfo : IdentityUser
     {
+        public UserInfo()
+        {
+            Judge = new HashSet<Judge>();
+            Problem = new HashSet<Problem>();
+            Contest = new HashSet<Contest>();
+            Group = new HashSet<Group>();
+            ContestRegister = new HashSet<ContestRegister>();
+            GroupJoin = new HashSet<GroupJoin>();
+            Message = new HashSet<Message>();
+            MessageStatus = new HashSet<MessageStatus>();
+            VotesRecord = new HashSet<VotesRecord>();
+            Discussion = new HashSet<Discussion>();
+        }
+
         [PersonalData]
         public string Name { get; set; }
         public long Coins { get; set; }
@@ -44,5 +59,29 @@ namespace hjudgeWeb.Data.Identity
         public int Privilege { get; set; }
         public byte[] Avatar { get; set; }
         public string OtherInfo { get; set; }
+        /// <summary>
+        /// 上次登录时间
+        /// </summary>
+        public DateTime LastSignedIn { get; set; }
+        /// <summary>
+        /// 连续登录天数
+        /// </summary>
+        public int ContinuousSignedIn { get; set; }
+
+        public int AcceptedCount { get; set; }
+        public int SubmissionCount { get; set; }
+        public int MessageReplyCount { get; set; }
+
+
+        public ICollection<Judge> Judge { get; set; }
+        public ICollection<Problem> Problem { get; set; }
+        public ICollection<Contest> Contest { get; set; }
+        public ICollection<Group> Group { get; set; }
+        public ICollection<ContestRegister> ContestRegister { get; set; }
+        public ICollection<GroupJoin> GroupJoin { get; set; }
+        public ICollection<Message> Message { get; set; }
+        public ICollection<MessageStatus> MessageStatus { get; set; }
+        public ICollection<VotesRecord> VotesRecord { get; set; }
+        public ICollection<Discussion> Discussion { get; set; }
     }
 }

@@ -59,7 +59,7 @@ namespace hjudgeWeb.Controllers
                 IQueryable<Judge> list;
                 if (cid == 0 && gid == 0)
                 {
-                    list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == null && i.GroupId == null);
+                    list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == 0 && i.GroupId == 0);
                 }
                 else
                 {
@@ -82,7 +82,7 @@ namespace hjudgeWeb.Controllers
                     }
                     else
                     {
-                        list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == cid && i.GroupId == null);
+                        list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == cid && i.GroupId == 0);
                     }
                 }
 
@@ -112,7 +112,7 @@ namespace hjudgeWeb.Controllers
 
                 if (cid == 0 && gid == 0)
                 {
-                    list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == null && i.GroupId == null);
+                    list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == 0 && i.GroupId == 0);
                 }
                 else
                 {
@@ -148,7 +148,7 @@ namespace hjudgeWeb.Controllers
                     }
                     else
                     {
-                        list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == cid && i.GroupId == null);
+                        list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == cid && i.GroupId == 0);
                     }
                 }
 
@@ -165,11 +165,11 @@ namespace hjudgeWeb.Controllers
                 var result = await list.Skip(start).Take(count).Select(i => new StatusListItemModel
                 {
                     Id = i.Id,
-                    GroupId = i.GroupId ?? 0,
-                    ContestId = i.ContestId ?? 0,
+                    GroupId = i.GroupId,
+                    ContestId = i.ContestId,
                     FullScore = i.FullScore,
                     Language = i.Language,
-                    ProblemId = i.ProblemId ?? 0,
+                    ProblemId = i.ProblemId,
                     RawJudgeTime = i.JudgeTime,
                     ResultType = i.ResultType,
                     UserId = i.UserId,
@@ -243,7 +243,7 @@ namespace hjudgeWeb.Controllers
                     {
                         judge.ResultType = -1;
                         await db.SaveChangesAsync();
-                        JudgeQueue.JudgeIdQueue.Enqueue((judge.Id, true));
+                        JudgeQueue.JudgeIdQueue.Enqueue(judge.Id);
                     }
                 }
             }
@@ -272,9 +272,9 @@ namespace hjudgeWeb.Controllers
                 }
 
                 ret.Id = judge.Id;
-                ret.ContestId = judge.ContestId ?? 0;
-                ret.GroupId = judge.GroupId ?? 0;
-                ret.ProblemId = judge.ProblemId ?? 0;
+                ret.ContestId = judge.ContestId;
+                ret.GroupId = judge.GroupId;
+                ret.ProblemId = judge.ProblemId;
                 ret.UserId = judge.UserId;
                 ret.RawJudgeTime = judge.JudgeTime;
                 ret.ResultType = judge.ResultType;
@@ -284,7 +284,7 @@ namespace hjudgeWeb.Controllers
                 ret.Content = judge.Content;
                 ret.RawType = judge.Type;
 
-                var contest = await db.Contest.Select(i => new { i.Id, i.Config, i.EndTime, i.Name }).FirstOrDefaultAsync(i => i.Id == (judge.ContestId ?? 0));
+                var contest = await db.Contest.Select(i => new { i.Id, i.Config, i.EndTime, i.Name }).FirstOrDefaultAsync(i => i.Id == judge.ContestId);
 
                 if (contest != null)
                 {
