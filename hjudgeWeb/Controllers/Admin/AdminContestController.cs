@@ -155,7 +155,7 @@ namespace hjudgeWeb.Controllers
                     var problemSet = model.ProblemSet.Trim().Split(';', StringSplitOptions.RemoveEmptyEntries).ToList().ConvertAll(i => int.Parse(i.Trim()));
                     foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == contest.Id))
                     {
-                        if (!problemSet.Contains(i.ProblemId ?? 0))
+                        if (!problemSet.Contains(i.ProblemId))
                         {
                             db.ContestProblemConfig.Remove(i);
                         }

@@ -71,9 +71,9 @@ namespace hjudgeWeb.Controllers
                 {
                     Id = i.Id,
                     Name = i.Name,
-                    AcceptCount = i.AcceptCount ?? 0,
+                    AcceptCount = i.AcceptCount,
                     RawType = i.Type,
-                    SubmissionCount = i.SubmissionCount ?? 0,
+                    SubmissionCount = i.SubmissionCount,
                     RawCreationTime = i.CreationTime,
                     RawLevel = i.Level,
                     Hidden = i.Hidden
@@ -84,7 +84,7 @@ namespace hjudgeWeb.Controllers
                     i.RawStatus = 0;
                     if (user != null)
                     {
-                        var submissions = db.Judge.Where(j => j.ProblemId == i.Id && j.UserId == user.Id && j.ContestId == null && j.GroupId == null);
+                        var submissions = db.Judge.Where(j => j.ProblemId == i.Id && j.UserId == user.Id && j.ContestId == 0 && j.GroupId == 0);
 
                         if (submissions.Any())
                         {
@@ -210,7 +210,7 @@ namespace hjudgeWeb.Controllers
                     {
                         if (submit.Gid == 0)
                         {
-                            if (db.Judge.Count(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid && i.GroupId == null && i.UserId == user.Id) >= config.SubmissionLimit)
+                            if (db.Judge.Count(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid && i.GroupId == 0 && i.UserId == user.Id) >= config.SubmissionLimit)
                             {
                                 return new SubmitReturnDataModel
                                 {
@@ -277,11 +277,6 @@ namespace hjudgeWeb.Controllers
                     var problemConfig = db.ContestProblemConfig.FirstOrDefault(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid);
                     if (problemConfig != null)
                     {
-                        if (problemConfig.SubmissionCount == null)
-                        {
-                            problemConfig.SubmissionCount = 0;
-                        }
-
                         problemConfig.SubmissionCount++;
                     }
                 }
@@ -298,10 +293,6 @@ namespace hjudgeWeb.Controllers
                             };
                         }
                     }
-                    if (problem.SubmissionCount == null)
-                    {
-                        problem.SubmissionCount = 0;
-                    }
 
                     problem.SubmissionCount++;
                 }
@@ -313,7 +304,7 @@ namespace hjudgeWeb.Controllers
 
                 db.Judge.Add(submission);
                 await db.SaveChangesAsync();
-                JudgeQueue.JudgeIdQueue.Enqueue((submission.Id, false));
+                JudgeQueue.JudgeIdQueue.Enqueue(submission.Id);
 
                 return new SubmitReturnDataModel
                 {
@@ -456,18 +447,13 @@ namespace hjudgeWeb.Controllers
                     UserName = $"{author?.UserName}",
                     Description = problem.Description,
                     RawCreationTime = problem.CreationTime,
-                    AcceptCount = problem.AcceptCount ?? 0,
-                    SubmissionCount = problem.SubmissionCount ?? 0,
+                    AcceptCount = problem.AcceptCount,
+                    SubmissionCount = problem.SubmissionCount,
                     Languages = languages
                 };
-                int? groupId = null, contestId = null;
-                if (gid != 0)
-                {
-                    groupId = gid;
-                }
+                
                 if (cid != 0)
                 {
-                    contestId = cid;
                     var problemConfig = db.ContestProblemConfig.FirstOrDefault(j => j.ProblemId == problem.Id && j.ContestId == cid);
                     problemDetails.AcceptCount = problemConfig?.AcceptCount ?? 0;
                     problemDetails.SubmissionCount = problemConfig?.SubmissionCount ?? 0;
@@ -477,7 +463,7 @@ namespace hjudgeWeb.Controllers
 
                 if (user != null)
                 {
-                    var submissions = db.Judge.Where(j => j.GroupId == groupId && j.ContestId == contestId && j.ProblemId == pid && j.UserId == user.Id);
+                    var submissions = db.Judge.Where(j => j.GroupId == gid && j.ContestId == cid && j.ProblemId == pid && j.UserId == user.Id);
                     if (submissions.Any())
                     {
                         problemDetails.RawStatus = 1;
