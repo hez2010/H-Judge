@@ -11,48 +11,25 @@
             <v-card-text>
                 <p>开发者：hez2010，Email：<a href="mailto:hez2010@126.com">hez2010@126.com</a></p>
                 <v-container>
-                    <h3>更新日志</h3>
-                    <strong>2018/10/21 1.4 Stable</strong>
-                    <small><strong>1.</strong> 添加题目通过比率</small>
-                    <small><strong>2.</strong> 添加菜单按钮提示</small>
-                    <small><strong>3.</strong> 支持为单独题目设置语言限制</small>
-                    <br />
-                    <strong>2018/10/20 1.3 Stable</strong>
-                    <small><strong>1.</strong> 添加邮箱验证功能</small>
-                    <small><strong>2.</strong> 优化用户体验，全部操作无需重新载入页面</small>
-                    <small><strong>3.</strong> 添加 CSRF 攻击防御</small>
-                    <br />
-                    <strong>2018/10/9 1.2 Stable</strong>
-                    <small><strong>1.</strong> 添加密码重置功能</small>
-                    <br />
-                    <strong>2018/10/8 1.1 Stable</strong>
-                    <small><strong>1.</strong> 修复后退页面列表不会更新的 Bug</small>
-                    <small><strong>2.</strong> 更换页面跳转实现方式</small>
-                    <small><strong>3.</strong> 兼容 IE 11</small>
-                    <small><strong>4.</strong> 评测逻辑 Bug 修复</small>
-                    <small><strong>5.</strong> 其他优化</small>
-                    <br />
-                    <strong>2018/10/5 1.0 Stable</strong>
-                    <small><strong>1.</strong> 排名功能上线</small>
-                    <small><strong>2.</strong> 添加小组和消息功能占位</small>
-                    <small><strong>3.</strong> H::Judge 正式版来啦</small>
-                    <br />
-                    <strong>2018/10/3 0.4 Beta</strong>
-                    <small><strong>1.</strong> 核心功能基本完成</small>
-                    <small><strong>2.</strong> 添加夜间模式</small>
-                    <small><strong>3.</strong> Bug 修复</small>
-                    <br />
-                    <strong>2018/10/4 0.3 Alpha</strong>
-                    <small><strong>1.</strong> 管理功能全部完成</small>
-                    <small><strong>2.</strong> Bug 修复</small>
-                    <br />
-                    <strong>2018/10/2 0.2 Alpha</strong>
-                    <small><strong>1.</strong> 比赛功能上线</small>
-                    <small><strong>2.</strong> 引入新的评测机</small>
-                    <small><strong>3.</strong> Bug 修复</small>
-                    <br />
-                    <strong>2018/10/1 0.1 Alpha</strong>
-                    <small><strong>1.</strong> 船新的 H::Judge 建造出来啦~</small>
+                    <h3>进化历史</h3>
+                    <v-timeline align-top dense>
+                        <v-timeline-item v-for="(log, i) in logs"
+                                         :color="log.color"
+                                         :key="i"
+                                         small>
+                            <v-layout pt-3>
+                                <v-flex xs3>
+                                    <div :class="`headline font-weight-light mb-3 ${log.color}--text`">{{log.version}}</div>
+                                    <strong :class="`${log.color}--text`">{{log.reldate}}</strong>
+                                </v-flex>
+                                <v-flex>
+                                    <div class="py-3">
+                                        <div v-for="content in log.content">{{content}}</div>
+                                    </div>
+                                </v-flex>
+                            </v-layout>
+                        </v-timeline-item>
+                    </v-timeline>
                 </v-container>
             </v-card-text>
         </v-card>

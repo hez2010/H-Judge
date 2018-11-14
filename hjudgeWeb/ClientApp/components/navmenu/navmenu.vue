@@ -102,7 +102,7 @@
                 </v-card>
                 <v-card light v-else>
                     <v-card-title primary-title>
-                        <h4>欢迎来到 H::Judge！</h4>
+                        <h4>H::Judge 账户</h4>
                     </v-card-title>
                     <v-card-actions>
                         <div>
