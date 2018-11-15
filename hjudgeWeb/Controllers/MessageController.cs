@@ -96,15 +96,23 @@ namespace hjudgeWeb.Controllers
                     ret.IsSucceeded = false;
                     return ret;
                 }
+                if (string.IsNullOrWhiteSpace(model.Content))
+                {
+                    ret.ErrorMessage = "请输入发送内容";
+                    ret.IsSucceeded = false;
+                    return ret;
+                }
                 var sendTime = DateTime.Now;
                 var content = HttpUtility.HtmlEncode(model.Content);
-                if (!HasAdminPrivilege(privilege))
-                {
-                    user.Coins -= 10;
-                    await _userManager.UpdateAsync(user);
-                }
                 using (var db = new ApplicationDbContext(_dbContextOptions))
                 {
+                    var lastSubmit = await db.Discussion.OrderByDescending(i => i.SubmitTime).FirstOrDefaultAsync(i => i.UserId == user.Id);
+                    if (lastSubmit != null && (DateTime.Now - lastSubmit.SubmitTime) < TimeSpan.FromSeconds(10))
+                    {
+                        ret.ErrorMessage = "消息发送过于频繁，请等待 10 秒后再试";
+                        ret.IsSucceeded = false;
+                        return ret;
+                    }
                     var diss = new Discussion
                     {
                         UserId = user.Id,
@@ -115,6 +123,11 @@ namespace hjudgeWeb.Controllers
                     db.Discussion.Add(diss);
                     await db.SaveChangesAsync();
                     await _chatHub.Clients.All.SendAsync("ChatMessage", diss.Id, user.Id, user.UserName, $"{sendTime.ToShortDateString()} {sendTime.ToLongTimeString()}", content, model.ReplyId);
+                }
+                if (!HasAdminPrivilege(privilege))
+                {
+                    user.Coins -= 10;
+                    await _userManager.UpdateAsync(user);
                 }
             }
             else
