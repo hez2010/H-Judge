@@ -116,6 +116,8 @@ export default {
                     .then(data => {
                         if (!data.isSucceeded) {
                             alert(data.errorMessage);
+                        } else {
+                            this.currentReply = 0;
                         }
                     })
                     .catch(() => {
