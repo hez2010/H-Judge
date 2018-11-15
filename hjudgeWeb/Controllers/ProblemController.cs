@@ -67,7 +67,7 @@ namespace hjudgeWeb.Controllers
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var problems = HasAdminPrivilege(privilege) ? db.Problem : db.Problem.Where(i => !i.Hidden);
-                var list = problems.OrderBy(i => i.Id).Skip(start).Take(count).Select(i => new ProblemListItemModel
+                var list = await problems.Include(i => i.UserInfo).OrderBy(i => i.Id).Skip(start).Take(count).Select(i => new ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
@@ -76,15 +76,17 @@ namespace hjudgeWeb.Controllers
                     SubmissionCount = i.SubmissionCount,
                     RawCreationTime = i.CreationTime,
                     RawLevel = i.Level,
-                    Hidden = i.Hidden
-                }).ToList();
+                    Hidden = i.Hidden,
+                    UserId = i.UserId,
+                    UserName = i.UserInfo == null ? null : i.UserInfo.UserName
+                }).ToListAsync();
 
                 foreach (var i in list)
                 {
                     i.RawStatus = 0;
                     if (user != null)
                     {
-                        var submissions = db.Judge.Where(j => j.ProblemId == i.Id && j.UserId == user.Id && j.ContestId == 0 && j.GroupId == 0);
+                        var submissions = db.Judge.Where(j => j.ProblemId == i.Id && j.UserId == user.Id && j.ContestId == null && j.GroupId == null);
 
                         if (submissions.Any())
                         {
@@ -210,7 +212,7 @@ namespace hjudgeWeb.Controllers
                     {
                         if (submit.Gid == 0)
                         {
-                            if (db.Judge.Count(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid && i.GroupId == 0 && i.UserId == user.Id) >= config.SubmissionLimit)
+                            if (db.Judge.Count(i => i.ContestId == submit.Cid && i.ProblemId == submit.Pid && i.GroupId == null && i.UserId == user.Id) >= config.SubmissionLimit)
                             {
                                 return new SubmitReturnDataModel
                                 {
@@ -405,7 +407,7 @@ namespace hjudgeWeb.Controllers
                     }
                 }
 
-                var problem = await db.Problem.FindAsync(pid);
+                var problem = await db.Problem.Include(i => i.UserInfo).FirstOrDefaultAsync(i => i.Id == pid);
                 if (problem == null)
                 {
                     return new ProblemDetailsModel
@@ -435,7 +437,6 @@ namespace hjudgeWeb.Controllers
                         };
                     }
                 }
-                var author = await _userManager.FindByIdAsync(problem.UserId);
 
                 var problemDetails = new ProblemDetailsModel
                 {
@@ -446,14 +447,14 @@ namespace hjudgeWeb.Controllers
                     Name = problem.Name,
                     RawType = problem.Type,
                     UserId = problem.UserId,
-                    UserName = $"{author?.UserName}",
+                    UserName = problem.UserInfo?.UserName,
                     Description = problem.Description,
                     RawCreationTime = problem.CreationTime,
                     AcceptCount = problem.AcceptCount,
                     SubmissionCount = problem.SubmissionCount,
                     Languages = langList
                 };
-                
+
                 if (cid != 0)
                 {
                     var problemConfig = db.ContestProblemConfig.FirstOrDefault(j => j.ProblemId == problem.Id && j.ContestId == cid);
@@ -465,7 +466,7 @@ namespace hjudgeWeb.Controllers
 
                 if (user != null)
                 {
-                    var submissions = db.Judge.Where(j => j.GroupId == gid && j.ContestId == cid && j.ProblemId == pid && j.UserId == user.Id);
+                    var submissions = db.Judge.Where(j => j.GroupId == (gid == 0 ? null : (int?)gid) && j.ContestId == (cid == 0 ? null : (int?)cid) && j.ProblemId == pid && j.UserId == user.Id);
                     if (submissions.Any())
                     {
                         problemDetails.RawStatus = 1;

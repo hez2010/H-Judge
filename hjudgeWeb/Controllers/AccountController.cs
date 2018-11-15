@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,6 +34,21 @@ namespace hjudgeWeb.Controllers
             _userManager = userManager;
             _dbContextOptions = dbContextOptions;
             _emailSender = emailSender;
+        }
+
+        [HttpGet]
+        public async Task<ApplicationDbContext.ExperienceCoins> GetFortune()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                using (var db = new ApplicationDbContext(_dbContextOptions))
+                {
+                    var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id=@1", new SqlParameter("@1", user.Id)).FirstOrDefault();
+                    return fortune;
+                }
+            }
+            return null;
         }
 
         [HttpGet]

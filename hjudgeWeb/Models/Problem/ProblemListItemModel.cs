@@ -18,5 +18,7 @@ namespace hjudgeWeb.Models.Problem
         public int RawStatus { get; set; }
         public bool Hidden { get; set; }
         public string Status => RawStatus == 0 ? "未尝试" : RawStatus == 1 ? "已尝试" : "已通过";
+        public string UserId { get; set; }
+        public string UserName { get; set; }
     }
 }

@@ -3,45 +3,65 @@ import * as signalR from '@aspnet/signalr';
 import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
+    props: ['user', 'minusCoins'],
     data: () => ({
         announcements: [],
         annpage: 0,
         chats: [],
         chatLastload: 2147483647,
         inputText: '',
-        connection: null
+        connection: null,
+        msgLoading: true,
+        annLoading: true,
+        inputRules: [
+            v => !!v || '请输入发送内容'
+        ],
+        currentReply: 0
     }),
     mounted: function () {
         setTitle('主页');
         this.loadMessages().then(() => {
             let msgList = document.getElementById('msgList');
-            if (msgList !== null)
-                msgList.scrollTop = msgList.scrollHeight;
-            msgList.onscroll = () => {
-                if (msgList.scrollTop <= 0) {
-                    if (this.chatLastload !== -1) {
-                        this.loadMessages(this.chatLastload);
+
+            if (msgList !== null) {
+                msgList.scrollTop = msgList.scrollHeight - msgList.clientHeight;
+
+                msgList.onscroll = () => {
+                    if (msgList.scrollTop <= 0) {
+                        if (this.chatLastload !== -1) {
+                            let msgList = document.getElementById('msgList');
+                            if (msgList !== null) {
+                                this.loadMessages(this.chatLastload).then(cnt => {
+                                    msgList.scrollTop += 157.7 * cnt;
+                                });
+                            }
+                        }
                     }
-                }
-            };
+                };
+            }
+
             this.connection = new signalR.HubConnectionBuilder().withUrl('/ChatHub').build();
-            this.connection.on('ChatMessage', (userId, userName, sendTime, content) => {
+            this.connection.on('ChatMessage', (id, userId, userName, sendTime, content, replyId) => {
                 let data = {
+                    id: id,
                     userId: userId,
                     userName: userName,
                     sendTime: sendTime,
                     content: content,
+                    replyId: replyId,
                     avatar: '/Account/GetUserAvatar?userId=' + userId
                 };
-                this.chats = this.chats.concat([data]);
-                if (this.inputText) {
-                    this.$nextTick(() => {
-                        let msgList = document.getElementById('msgList');
-                        if (msgList !== null)
-                            msgList.scrollTop = msgList.scrollHeight;
-                    });
-                    this.inputText = '';
+                let msgList = document.getElementById('msgList');
+                if (msgList !== null) {
+                    let dTop = msgList.scrollHeight - msgList.clientHeight - msgList.scrollTop;
+                    this.chats = this.chats.concat([data]);
+                    if (dTop <= 100 || !!this.inputText) {
+                        this.$nextTick(() => {
+                            msgList.scrollTop = msgList.scrollHeight - msgList.clientHeight;
+                        });
+                    }
                 }
+                this.inputText = '';
             });
             this.connection.start();
         });
@@ -79,25 +99,35 @@ export default {
                     else {
                         this.chatLastload = -1;
                     }
+                    this.msgLoading = false;
+                    return data.length;
                 })
                 .catch(() => {
-                    //ignore
+                    alert('消息加载失败');
                 });
         },
         sendMessage: function () {
-            Post('/Message/SendChat', { content: this.inputText })
-                .then(res => res.json())
-                .then(data => {
-                    if (data) {
-                        //ignore
-                    }
-                    else {
-                        //ignore
-                    }
-                })
-                .catch(() => {
-                    //ignore
-                });
+            if (this.inputText)
+                Post('/Message/SendChat', { content: this.inputText, replyId: this.currentReply })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.isSucceeded) {
+                            alert(data.errorMessage);
+                        } else {
+                            if (!(this.user.privilege >= 1 && this.user.privilege <= 3)) {
+                                this.updateFortune();
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        alert('发送失败');
+                    });
+        },
+        cancelReply: function () {
+            this.currentReply = 0;
+        },
+        processReply: function (id) {
+            this.currentReply = id;
         }
     }
 };

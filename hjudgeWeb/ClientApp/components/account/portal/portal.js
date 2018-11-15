@@ -1,10 +1,10 @@
 ﻿import { setTitle } from '../../../utilities/titleHelper';
-import { Get, Post, ReadCookie } from '../../../utilities/requestHelper';
+import { Post, ReadCookie } from '../../../utilities/requestHelper';
 import emailConfirm from '../verification/email/emailConfirm.vue';
 import phoneConfirm from '../verification/phone/phoneConfirm.vue';
 
 export default {
-    props: ['user', 'getUserInfo'],
+    props: ['user', 'getUserInfo', 'updateFortune'],
     data: () => ({
         avatar: '',
         bottomNav: '1',
@@ -19,6 +19,7 @@ export default {
     mounted: function () {
         setTitle('门户');
         if (this.user !== null) {
+            this.updateFortune();
             this.privilege = this.user.privilege === 1 ? '管理员' :
                 this.user.privilege === 2 ? '教师' :
                     this.user.privilege === 3 ? '助教' :
@@ -29,14 +30,12 @@ export default {
     watch: {
         user: function () {
             if (this.user !== null) {
+                this.updateFortune();
                 this.privilege = this.user.privilege === 1 ? '管理员' :
                     this.user.privilege === 2 ? '教师' :
                         this.user.privilege === 3 ? '助教' :
                             this.user.privilege === 4 ? '学生/选手' :
                                 this.user.privilege === 5 ? '黑名单' : '未知';
-                Get('/Account/GetUserAvatar')
-                    .then(res => res.text())
-                    .then(data => this.avatar = 'data:image/png;base64, ' + data);
             }
         },
         confirmEmailDialog: function () {
@@ -134,6 +133,7 @@ export default {
                     if (data.isSucceeded) this.getUserInfo();
                     else alert(data.errorMessage);
                     ele.value = '';
+                    alert('修改成功');
                 })
                 .catch(() => {
                     alert('修改失败');

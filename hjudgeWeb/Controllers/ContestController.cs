@@ -68,14 +68,16 @@ namespace hjudgeWeb.Controllers
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var contests = HasAdminPrivilege(privilege) ? db.Contest.OrderByDescending(i => i.Id) : db.Contest.Where(i => !i.Hidden).OrderByDescending(i => i.Id);
-                var list = contests.Skip(start).Take(count).Select(i => new ContestListItemModel
+                var list = contests.Include(i => i.UserInfo).Include(i => i.ContestProblemConfig).Skip(start).Take(count).Select(i => new ContestListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
                     Hidden = i.Hidden,
                     RawStartTime = i.StartTime,
                     RawEndTime = i.EndTime,
-                    ProblemCount = db.ContestProblemConfig.Count(j => j.ContestId == i.Id)
+                    ProblemCount = i.ContestProblemConfig.Count(j => j.ContestId == i.Id),
+                    UserId = i.UserId,
+                    UserName = i.UserInfo == null ? null : i.UserInfo.Name
                 }).ToList();
                 foreach (var item in list)
                 {
@@ -166,7 +168,7 @@ namespace hjudgeWeb.Controllers
 
                 foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == cid).Select(i => new { i.ProblemId, i.AcceptCount, i.SubmissionCount }))
                 {
-                    var problem = await db.Problem.FindAsync(i.ProblemId);
+                    var problem = await db.Problem.Include(j => j.UserInfo).FirstOrDefaultAsync(j => j.Id == i.ProblemId);
                     if (problem == null)
                     {
                         continue;
@@ -179,7 +181,9 @@ namespace hjudgeWeb.Controllers
                         RawLevel = problem.Level,
                         RawType = problem.Type,
                         AcceptCount = i.AcceptCount,
-                        SubmissionCount = i.SubmissionCount
+                        SubmissionCount = i.SubmissionCount,
+                        UserId = problem.UserId,
+                        UserName = problem.UserInfo?.UserName
                     };
 
                     if (user != null)
@@ -258,7 +262,7 @@ namespace hjudgeWeb.Controllers
                     };
                 }
 
-                var judges = gid == 0 ? db.Judge.Where(i => i.ContestId == cid && i.GroupId == 0) : db.Judge.Where(i => i.ContestId == cid && i.GroupId == gid);
+                var judges = gid == 0 ? db.Judge.Where(i => i.ContestId == cid && i.GroupId == null) : db.Judge.Where(i => i.ContestId == cid && i.GroupId == gid);
                 judges = judges.OrderBy(i => i.Id);
                 if (config.AutoStopRank)
                 {

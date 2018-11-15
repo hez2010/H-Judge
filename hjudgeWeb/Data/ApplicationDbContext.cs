@@ -246,6 +246,8 @@ namespace hjudgeWeb.Data
 
                 entity.Property(e => e.SubmitTime).IsRequired();
 
+                entity.Property(e => e.ReplyId).HasDefaultValueSql("0");
+
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.Discussion)
                     .HasForeignKey(d => d.ContestId)

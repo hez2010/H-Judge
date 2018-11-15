@@ -13,6 +13,7 @@ namespace hjudgeWeb.Data
         public DateTime SubmitTime { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+        public int ReplyId { get; set; }
 
         public UserInfo UserInfo { get; set; }
         public Contest Contest { get; set; }

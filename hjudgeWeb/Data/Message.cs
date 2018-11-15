@@ -18,6 +18,7 @@ namespace hjudgeWeb.Data
         public string UserId { get; set; }
         public string Targets { get; set; }
         public DateTime SendTime { get; set; }
+        public int ReplyId { get; set; }
 
         public UserInfo UserInfo { get; set; }
 

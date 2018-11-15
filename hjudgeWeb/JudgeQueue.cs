@@ -359,7 +359,7 @@ namespace hjudgeWeb
                         {
                             if (judge.ResultType == (int)ResultCode.Accepted)
                             {
-                                if (judge.ContestId == 0)
+                                if (judge.ContestId == null)
                                 {
                                     problem.AcceptCount++;
                                 }

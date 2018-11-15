@@ -162,7 +162,7 @@ namespace hjudgeWeb.Controllers
                     list = list.Where(i => i.UserId == user.Id);
                 }
 
-                var result = await list.Skip(start).Take(count).Select(i => new StatusListItemModel
+                var result = await list.Include(i => i.Problem).Include(i => i.UserInfo).Include(i => i.Contest).Include(i => i.Group).Skip(start).Take(count).Select(i => new StatusListItemModel
                 {
                     Id = i.Id,
                     GroupId = i.GroupId ?? 0,
@@ -173,27 +173,15 @@ namespace hjudgeWeb.Controllers
                     RawJudgeTime = i.JudgeTime,
                     ResultType = i.ResultType,
                     UserId = i.UserId,
-                    RawType = i.Type
+                    RawType = i.Type,
+                    GroupName = i.Group == null ? null : i.Group.Name,
+                    ContestName = i.Contest == null ? null : i.Contest.Name,
+                    ProblemName = i.Problem == null ? null : i.Problem.Name,
+                    UserName = i.UserInfo == null ? null : i.UserInfo.UserName
                 }).ToListAsync();
 
                 foreach (var i in result)
                 {
-                    if (i.ContestId != 0)
-                    {
-                        i.ContestName = contestName;
-                    }
-                    if (i.GroupId != 0)
-                    {
-                        i.GroupName = groupName;
-                    }
-                    if (i.ProblemId != 0)
-                    {
-                        i.ProblemName = db.Problem.Select(j => new { j.Id, j.Name }).FirstOrDefault(j => j.Id == i.ProblemId)?.Name;
-                    }
-                    if (i.UserId != null)
-                    {
-                        i.UserName = (await _userManager.FindByIdAsync(i.UserId))?.UserName;
-                    }
                     if (config != null && config.ScoreMode == ScoreCountingMode.OnlyAccepted)
                     {
                         if (i.ResultType != (int)ResultCode.Accepted)
@@ -216,10 +204,10 @@ namespace hjudgeWeb.Controllers
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             var ret = new ResultModel { IsSucceeded = true };
-            if (!HasAdminPrivilege(privilege))
+            if (user == null)
             {
                 ret.IsSucceeded = false;
-                ret.ErrorMessage = "没有权限";
+                ret.ErrorMessage = "没有登录";
             }
             else
             {
@@ -257,7 +245,13 @@ namespace hjudgeWeb.Controllers
             var ret = new JudgeResultModel { IsSucceeded = true };
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
-                var judge = await db.Judge.FindAsync(jid);
+                var judge =
+                    await db.Judge
+                        .Include(i => i.Problem)
+                        .Include(i => i.UserInfo)
+                        .Include(i => i.Contest)
+                        .Include(i => i.Group)
+                        .FirstOrDefaultAsync(i => i.Id == jid);
                 if (judge == null)
                 {
                     ret.IsSucceeded = false;
@@ -283,6 +277,10 @@ namespace hjudgeWeb.Controllers
                 ret.FullScore = judge.FullScore;
                 ret.Content = judge.Content;
                 ret.RawType = judge.Type;
+                ret.UserName = judge.UserInfo?.UserName;
+                ret.ProblemName = judge.Problem?.Name;
+                ret.ContestName = judge.Contest?.Name;
+                ret.GroupName = judge.Group?.Name;
 
                 var contest = await db.Contest.Select(i => new { i.Id, i.Config, i.EndTime, i.Name }).FirstOrDefaultAsync(i => i.Id == judge.ContestId);
 
@@ -311,23 +309,6 @@ namespace hjudgeWeb.Controllers
                             ret.FullScore = 0;
                         }
                     }
-                }
-
-                if (ret.ContestId != 0)
-                {
-                    ret.ContestName = contest?.Name;
-                }
-                if (ret.GroupId != 0)
-                {
-                    ret.GroupName = db.Group.Select(j => new { j.Id, j.Name }).FirstOrDefault(j => j.Id == ret.GroupId)?.Name;
-                }
-                if (ret.ProblemId != 0)
-                {
-                    ret.ProblemName = db.Problem.Select(j => new { j.Id, j.Name }).FirstOrDefault(j => j.Id == ret.ProblemId)?.Name;
-                }
-                if (ret.UserId != null)
-                {
-                    ret.UserName = (await _userManager.FindByIdAsync(ret.UserId))?.UserName;
                 }
 
                 return ret;

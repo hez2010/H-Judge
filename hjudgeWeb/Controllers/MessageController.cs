@@ -1,6 +1,7 @@
 ﻿using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Hubs;
+using hjudgeWeb.Models;
 using hjudgeWeb.Models.Message;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,25 @@ namespace hjudgeWeb.Controllers
             _chatHub = chatHub;
         }
 
+        /// <summary>
+        /// Get current signed in user and its privilege
+        /// </summary>
+        /// <returns></returns>
+        private async Task<(UserInfo, int)> GetUserPrivilegeAsync()
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return (null, 0);
+            }
+            var user = await _userManager.GetUserAsync(User);
+            return (user, user?.Privilege ?? 0);
+        }
+
+        private bool HasAdminPrivilege(int privilege)
+        {
+            return privilege >= 1 && privilege <= 3;
+        }
+
         [HttpGet]
         public async Task<List<ChatMessageModel>> GetChats(int startId = int.MaxValue, int count = 10)
         {
@@ -45,7 +65,8 @@ namespace hjudgeWeb.Controllers
                         UserId = i.UserId,
                         Content = i.Content,
                         RawSendTime = i.SubmitTime,
-                        UserName = i.UserInfo.UserName
+                        UserName = i.UserInfo.UserName,
+                        ReplyId = i.ReplyId
                     }).Take(count).OrderBy(i => i.RawSendTime).ToListAsync();
             }
         }
@@ -53,36 +74,55 @@ namespace hjudgeWeb.Controllers
         public class SendChatModel
         {
             public string Content { get; set; }
+            public int ReplyId { get; set; }
         }
 
         [HttpPost]
-        public async Task<bool> SendChat([FromBody]SendChatModel model)
+        public async Task<ResultModel> SendChat([FromBody]SendChatModel model)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var ret = new ResultModel { IsSucceeded = true };
+            var (user, privilege) = await GetUserPrivilegeAsync();
             if (_signInManager.IsSignedIn(User) && user != null)
             {
-                try
+                if (!user.EmailConfirmed)
                 {
-                    var sendTime = DateTime.Now;
-                    var content = HttpUtility.HtmlEncode(model.Content);
-                    using (var db = new ApplicationDbContext(_dbContextOptions))
-                    {
-                        db.Discussion.Add(new Discussion
-                        {
-                            UserId = user.Id,
-                            Content = content,
-                            SubmitTime = sendTime,
-                        });
-                        await db.SaveChangesAsync();
-                    }
-                    await _chatHub.Clients.All.SendAsync("ChatMessage", user.Id, user.UserName, $"{sendTime.ToShortDateString()} {sendTime.ToLongTimeString()}", content);
+                    ret.ErrorMessage = "没有验证邮箱";
+                    ret.IsSucceeded = false;
+                    return ret;
                 }
-                catch
+                if (user.Coins < 10 && !HasAdminPrivilege(privilege))
                 {
-                    return false;
+                    ret.ErrorMessage = "金币不足，资费：10 金币/条";
+                    ret.IsSucceeded = false;
+                    return ret;
+                }
+                var sendTime = DateTime.Now;
+                var content = HttpUtility.HtmlEncode(model.Content);
+                if (!HasAdminPrivilege(privilege))
+                {
+                    user.Coins -= 10;
+                    await _userManager.UpdateAsync(user);
+                }
+                using (var db = new ApplicationDbContext(_dbContextOptions))
+                {
+                    var diss = new Discussion
+                    {
+                        UserId = user.Id,
+                        Content = content,
+                        SubmitTime = sendTime,
+                        ReplyId = model.ReplyId
+                    };
+                    db.Discussion.Add(diss);
+                    await db.SaveChangesAsync();
+                    await _chatHub.Clients.All.SendAsync("ChatMessage", diss.Id, user.Id, user.UserName, $"{sendTime.ToShortDateString()} {sendTime.ToLongTimeString()}", content, model.ReplyId);
                 }
             }
-            return true;
+            else
+            {
+                ret.ErrorMessage = "没有登录";
+                ret.IsSucceeded = false;
+            }
+            return ret;
         }
     }
 }
