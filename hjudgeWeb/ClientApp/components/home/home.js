@@ -3,7 +3,7 @@ import * as signalR from '@aspnet/signalr';
 import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
-    props: ['user', 'minusCoins'],
+    props: ['user', 'updateFortune'],
     data: () => ({
         announcements: [],
         annpage: 0,
@@ -113,10 +113,6 @@ export default {
                     .then(data => {
                         if (!data.isSucceeded) {
                             alert(data.errorMessage);
-                        } else {
-                            if (!(this.user.privilege >= 1 && this.user.privilege <= 3)) {
-                                this.updateFortune();
-                            }
                         }
                     })
                     .catch(() => {

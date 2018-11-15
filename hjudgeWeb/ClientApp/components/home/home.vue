@@ -36,7 +36,7 @@
                     <v-toolbar-title>版聊区</v-toolbar-title>
                 </v-toolbar>
                 <div style="height: 550px">
-                    <v-list style="height: 425px; overflow: auto" id="msgList">
+                    <v-list style="height: 420px; overflow: auto" id="msgList">
                         <v-layout full-height justify-center align-center style="height: 410px" v-if="msgLoading">
                             正在加载...
                         </v-layout>

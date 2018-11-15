@@ -65,7 +65,7 @@
                                                              v-if="result.resultType <= 0">
                                         </v-progress-circular>
                                         {{result.result}}
-                                        <v-tooltip bottom v-if="!loading && result.resultType > 0 && user.privilege >= 1 && user.privilege <= 3">
+                                        <v-tooltip bottom v-if="!loading && result.resultType > 0 && user.privilege >= 1 && user.privilege <= 4">
                                             <v-btn @click="rejudge(result.id)" icon slot="activator">
                                                 <v-icon color="primary">refresh</v-icon>
                                             </v-btn>
