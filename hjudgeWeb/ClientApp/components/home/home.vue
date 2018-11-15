@@ -63,11 +63,11 @@
                     </v-list>
                     <v-layout>
                         <v-flex xs11>
-                            <v-textarea :label="`${'输入你要发送的内容' + (currentReply === 0 ? '（点击头像进行回复）' : '（回复 #' + currentReply + '）')}`" v-model="inputText" hint="资费：10 金币/条"></v-textarea>
+                            <v-textarea :label="`${'输入你要发送的内容' + (currentReply === 0 ? '（点击头像进行回复）' : '（回复 #' + currentReply + '）')}`" v-model="inputText" :counter="65536" hint="资费：10 金币/条"></v-textarea>
                         </v-flex>
                         <v-flex>
                             <v-tooltip bottom>
-                                <v-btn icon slot="activator" @click="sendMessage" :disabled="!inputText">
+                                <v-btn icon slot="activator" @click="sendMessage" :disabled="!inputText || inputText.length > 65536">
                                     <v-icon>send</v-icon>
                                 </v-btn>
                                 <span>发送</span>

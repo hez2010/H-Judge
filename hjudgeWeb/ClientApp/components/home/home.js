@@ -20,6 +20,9 @@ export default {
     }),
     mounted: function () {
         setTitle('主页');
+
+        this.annLoading = false;
+
         this.loadMessages().then(() => {
             let msgList = document.getElementById('msgList');
 
@@ -107,7 +110,7 @@ export default {
                 });
         },
         sendMessage: function () {
-            if (this.inputText)
+            if (this.inputText && this.inputText.length <= 65536)
                 Post('/Message/SendChat', { content: this.inputText, replyId: this.currentReply })
                     .then(res => res.json())
                     .then(data => {

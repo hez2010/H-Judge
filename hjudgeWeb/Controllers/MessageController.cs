@@ -98,7 +98,13 @@ namespace hjudgeWeb.Controllers
                 }
                 if (string.IsNullOrWhiteSpace(model.Content))
                 {
-                    ret.ErrorMessage = "请输入发送内容";
+                    ret.ErrorMessage = "请输入消息内容";
+                    ret.IsSucceeded = false;
+                    return ret;
+                }
+                if (model.Content.Length > 65536)
+                {
+                    ret.ErrorMessage = "消息内容过长";
                     ret.IsSucceeded = false;
                     return ret;
                 }
