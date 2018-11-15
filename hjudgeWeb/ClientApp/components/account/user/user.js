@@ -32,10 +32,6 @@ export default {
                 alert('加载失败');
                 this.loading = false;
             });
-
-        Get('/Account/GetUserAvatar', { userId: this.$route.params.uid })
-            .then(res => res.text())
-            .then(data => this.avatar = 'data:image/png;base64, ' + data);
     },
     computed: {
         isColumn: function () {

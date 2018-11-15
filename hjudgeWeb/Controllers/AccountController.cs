@@ -36,7 +36,7 @@ namespace hjudgeWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<string> GetUserAvatar(string userId = null)
+        public async Task<IActionResult> GetUserAvatar(string userId = null)
         {
             var user = await (string.IsNullOrEmpty(userId) ? _userManager.GetUserAsync(User) : _userManager.FindByIdAsync(userId));
             if (user == null)
@@ -45,9 +45,9 @@ namespace hjudgeWeb.Controllers
             }
             if (user.Avatar == null || user.Avatar.Length == 0)
             {
-                return Properties.Resource.DefaultAvatar;
+                return File(Convert.FromBase64String(Properties.Resource.DefaultAvatar), "image/png");
             }
-            return Convert.ToBase64String(user.Avatar, Base64FormattingOptions.None);
+            return File(user.Avatar, "image/png");
         }
 
         public class EmailModel

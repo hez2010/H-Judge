@@ -24,9 +24,6 @@ export default {
                     this.user.privilege === 3 ? '助教' :
                         this.user.privilege === 4 ? '学生/选手' :
                             this.user.privilege === 5 ? '黑名单' : '未知';
-            Get('/Account/GetUserAvatar')
-                .then(res => res.text())
-                .then(data => this.avatar = 'data:image/png;base64, ' + data);
         }
     },
     watch: {

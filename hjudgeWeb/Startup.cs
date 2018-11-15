@@ -35,6 +35,7 @@ namespace hjudgeWeb
                 options.EnableForHttps = true;
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] {
                     "image/svg+xml",
+                    "image/png",
                     "font/woff",
                     "font/woff2",
                     "font/ttf",
