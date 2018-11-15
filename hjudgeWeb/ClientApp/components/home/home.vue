@@ -32,25 +32,27 @@
                 </v-toolbar>
                 <div style="height: 550px">
                     <v-list style="height: 430px; overflow: auto" id="msgList">
-                        <div v-for="(item, index) in items"
+                        <div v-for="(item, index) in chats"
                              :key="item.title">
                             <v-list-tile avatar>
                                 <v-list-tile-avatar>
                                     <img :src="item.avatar">
                                 </v-list-tile-avatar>
                                 <v-list-tile-content>
-                                    <v-list-tile-title>{{item.title}}</v-list-tile-title>
-                                    <v-list-tile-sub-title>2018/1/1</v-list-tile-sub-title>
+                                    <router-link :to="{ path: '/Account/' + item.userId }">
+                                        <v-list-tile-title>{{item.userName}}</v-list-tile-title>
+                                    </router-link>
+                                    <v-list-tile-sub-title>{{item.sendTime}}</v-list-tile-sub-title>
                                 </v-list-tile-content>
                             </v-list-tile>
                             <v-container style="width: 90%; overflow: auto; max-height: 100px;" v-html="item.content"></v-container>
-                            <v-divider v-if="index + 1 < items.length" :key="`divider-${index}`"></v-divider>
+                            <v-divider v-if="index + 1 < chats.length" :key="`divider-${index}`"></v-divider>
                         </div>
                     </v-list>
                     <v-layout>
                         <v-textarea label="输入你要发送的内容" v-model="inputText"></v-textarea>
                         <v-tooltip bottom>
-                            <v-btn icon slot="activator">
+                            <v-btn icon slot="activator" @click="sendMessage">
                                 <v-icon>send</v-icon>
                             </v-btn>
                             <span>发送</span>

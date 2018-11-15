@@ -1,40 +1,54 @@
 ﻿import { setTitle } from '../../utilities/titleHelper';
+import * as signalR from '@aspnet/signalr';
+import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
     data: () => ({
-        announcements: [
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-            { title: 'test', content: '<h3>hhh</h3>' },
-        ],
-        items: [
-            { title: 'Jason Oner', content: 'asduadnuq82uceadnuq82uceadnuq82uceadnuq82uceadnuq82uceadnuq82uceadnuq82uceadnuq82uceadnuq82uce92', avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg', isMe: false },
-            { title: 'Travis Howard', content: '#include&lt;iostream&gt;<br />djusdhuds', avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg', isMe: true },
-            { title: 'Ali Connors', content: 'asduadnuq82uce92', avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg', isMe: true },
-            { title: 'Cindy Baker', content: 'asduadnuq82uce92', avatar: 'https://cdn.vuetifyjs.com/images/lists/4.jpg', isMe: false }
-        ],
-        inputText: ''
+        announcements: [],
+        annpage: 0,
+        chats: [],
+        chatLastload: 2147483647,
+        inputText: '',
+        connection: null
     }),
     mounted: function () {
         setTitle('主页');
-        let msgList = document.getElementById('msgList');
-        if (msgList !== null)
-            msgList.scrollTop = msgList.scrollHeight;
-        msgList.onscroll = () => {
-            if (msgList.scrollTop <= 0) {
-                //TODO: load msg list
-            }
-        };
+        this.loadMessages().then(() => {
+            let msgList = document.getElementById('msgList');
+            if (msgList !== null)
+                msgList.scrollTop = msgList.scrollHeight;
+            msgList.onscroll = () => {
+                if (msgList.scrollTop <= 0) {
+                    if (this.chatLastload !== -1) {
+                        this.loadMessages(this.chatLastload);
+                    }
+                }
+            };
+            this.connection = new signalR.HubConnectionBuilder().withUrl('/ChatHub').build();
+            this.connection.on('ChatMessage', (userId, userName, sendTime, content) => {
+                let data = {
+                    userId: userId,
+                    userName: userName,
+                    sendTime: sendTime,
+                    content: content,
+                    avatar: '/Account/GetUserAvatar?userId=' + userId
+                };
+                this.chats = this.chats.concat([data]);
+                if (this.inputText) {
+                    this.$nextTick(() => {
+                        let msgList = document.getElementById('msgList');
+                        if (msgList !== null)
+                            msgList.scrollTop = msgList.scrollHeight;
+                    });
+                    this.inputText = '';
+                }
+            });
+            this.connection.start();
+        });
+    },
+    destroyed: function () {
+        if (this.connection !== null)
+            this.connection.stop();
     },
     computed: {
         isColumn: function () {
@@ -51,6 +65,39 @@ export default {
         }
     },
     methods: {
-
+        loadMessages: function (id = 2147483647) {
+            return Get('/Message/GetChats', { startId: id, count: 10 })
+                .then(res => res.json())
+                .then(data => {
+                    for (var i in data) {
+                        data[i]['avatar'] = '/Account/GetUserAvatar?userId=' + data[i]['userId'];
+                    }
+                    this.chats = data.concat(this.chats);
+                    if (data.length > 0) {
+                        this.chatLastload = data[0].id;
+                    }
+                    else {
+                        this.chatLastload = -1;
+                    }
+                })
+                .catch(() => {
+                    //ignore
+                });
+        },
+        sendMessage: function () {
+            Post('/Message/SendChat', { content: this.inputText })
+                .then(res => res.json())
+                .then(data => {
+                    if (data) {
+                        //ignore
+                    }
+                    else {
+                        //ignore
+                    }
+                })
+                .catch(() => {
+                    //ignore
+                });
+        }
     }
 };

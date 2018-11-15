@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "devDependencies": {
+    "@aspnet/signalr": "^1.0.4",
     "@babel/cli": "^7.1.5",
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",

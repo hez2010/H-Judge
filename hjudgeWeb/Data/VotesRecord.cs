@@ -6,9 +6,9 @@ namespace hjudgeWeb.Data
     public class VotesRecord
     {
         public int Id { get; set; }
-        public int ProblemId { get; set; }
-        public int ContestId { get; set; }
-        public int GroupId { get; set; }
+        public int? ProblemId { get; set; }
+        public int? ContestId { get; set; }
+        public int? GroupId { get; set; }
         public string UserId { get; set; }
         public DateTime VoteTime { get; set; }
         public int VoteType { get; set; }

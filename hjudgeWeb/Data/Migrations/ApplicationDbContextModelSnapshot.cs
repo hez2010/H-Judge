@@ -114,13 +114,11 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("Content");
 
-                    b.Property<int>("ContestId");
+                    b.Property<int?>("ContestId");
 
-                    b.Property<int>("GroupId");
+                    b.Property<int?>("GroupId");
 
-                    b.Property<int>("ProblemId");
-
-                    b.Property<string>("ReplyUserId");
+                    b.Property<int?>("ProblemId");
 
                     b.Property<DateTime>("SubmitTime");
 
@@ -289,13 +287,13 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("Content");
 
-                    b.Property<int>("ContestId");
+                    b.Property<int?>("ContestId");
 
                     b.Property<string>("Description");
 
                     b.Property<float>("FullScore");
 
-                    b.Property<int>("GroupId");
+                    b.Property<int?>("GroupId");
 
                     b.Property<bool>("IsPublic");
 
@@ -435,11 +433,11 @@ namespace hjudgeWeb.Data.Migrations
 
                     b.Property<string>("Content");
 
-                    b.Property<int>("ContestId");
+                    b.Property<int?>("ContestId");
 
-                    b.Property<int>("GroupId");
+                    b.Property<int?>("GroupId");
 
-                    b.Property<int>("ProblemId");
+                    b.Property<int?>("ProblemId");
 
                     b.Property<string>("Title");
 

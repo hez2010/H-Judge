@@ -1,5 +1,6 @@
 using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
+using hjudgeWeb.Hubs;
 using hjudgeWeb.Middleware;
 using hjudgeWeb.Services;
 using Microsoft.AspNetCore.Builder;
@@ -62,6 +63,9 @@ namespace hjudgeWeb
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-Token");
             services.AddTransient<AntiForgeryFilter>();
 
+            //Chat hub: signalR
+            services.AddSignalR();
+
             //MVC
             services.AddMvc(options =>
             {
@@ -94,6 +98,12 @@ namespace hjudgeWeb
             app.UseStaticFiles();
             
             app.UseAuthentication();
+
+            //signalR routing
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ChatHub>("/ChatHub");
+            });
 
             //Route and spa fallback
             app.UseMvc(routes =>

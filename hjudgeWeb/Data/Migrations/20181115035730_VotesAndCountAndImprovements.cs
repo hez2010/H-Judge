@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace hjudgeWeb.Data.Migrations
 {
-    public partial class AddVotesRecord : Migration
+    public partial class VotesAndCountAndImprovements : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -85,6 +85,12 @@ namespace hjudgeWeb.Data.Migrations
                 table: "Judge",
                 nullable: false,
                 defaultValue: false);
+
+            migrationBuilder.AddColumn<int>(
+                name: "JudgeCount",
+                table: "Judge",
+                nullable: false,
+                defaultValueSql: "0");
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
@@ -189,7 +195,8 @@ namespace hjudgeWeb.Data.Migrations
             migrationBuilder.AddColumn<int>(
                 name: "AcceptedCount",
                 table: "AspNetUsers",
-                nullable: true);
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "ContinuousSignedIn",
@@ -204,9 +211,59 @@ namespace hjudgeWeb.Data.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<int>(
+                name: "MessageReplyCount",
+                table: "AspNetUsers",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
                 name: "SubmissionCount",
                 table: "AspNetUsers",
-                nullable: true);
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.CreateTable(
+                name: "Discussion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<string>(nullable: true),
+                    ProblemId = table.Column<int>(nullable: true),
+                    ContestId = table.Column<int>(nullable: true),
+                    GroupId = table.Column<int>(nullable: true),
+                    SubmitTime = table.Column<DateTime>(nullable: false),
+                    Title = table.Column<string>(nullable: true),
+                    Content = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Discussion", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Discussion_Contest_ContestId",
+                        column: x => x.ContestId,
+                        principalTable: "Contest",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Discussion_Group_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Group",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Discussion_Problem_ProblemId",
+                        column: x => x.ProblemId,
+                        principalTable: "Problem",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Discussion_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "VotesRecord",
@@ -221,7 +278,7 @@ namespace hjudgeWeb.Data.Migrations
                     VoteTime = table.Column<DateTime>(nullable: false),
                     VoteType = table.Column<int>(nullable: false, defaultValueSql: "1"),
                     Title = table.Column<string>(nullable: true),
-                    Message = table.Column<string>(nullable: true)
+                    Content = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -290,6 +347,26 @@ namespace hjudgeWeb.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Contest_UserId",
                 table: "Contest",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Discussion_ContestId",
+                table: "Discussion",
+                column: "ContestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Discussion_GroupId",
+                table: "Discussion",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Discussion_ProblemId",
+                table: "Discussion",
+                column: "ProblemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Discussion_UserId",
+                table: "Discussion",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -412,6 +489,9 @@ namespace hjudgeWeb.Data.Migrations
                 table: "Problem");
 
             migrationBuilder.DropTable(
+                name: "Discussion");
+
+            migrationBuilder.DropTable(
                 name: "VotesRecord");
 
             migrationBuilder.DropIndex(
@@ -459,6 +539,10 @@ namespace hjudgeWeb.Data.Migrations
                 table: "Judge");
 
             migrationBuilder.DropColumn(
+                name: "JudgeCount",
+                table: "Judge");
+
+            migrationBuilder.DropColumn(
                 name: "Downvote",
                 table: "Contest");
 
@@ -476,6 +560,10 @@ namespace hjudgeWeb.Data.Migrations
 
             migrationBuilder.DropColumn(
                 name: "LastSignedIn",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropColumn(
+                name: "MessageReplyCount",
                 table: "AspNetUsers");
 
             migrationBuilder.DropColumn(

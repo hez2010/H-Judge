@@ -263,10 +263,6 @@ namespace hjudgeWeb.Data
 
                 entity.HasOne(d => d.UserInfo)
                     .WithMany(p => p.Discussion)
-                    .HasForeignKey(d => d.ReplyUserId);
-
-                entity.HasOne(d => d.UserInfo)
-                    .WithMany(p => p.Discussion)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
