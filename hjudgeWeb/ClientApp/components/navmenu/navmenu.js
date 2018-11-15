@@ -16,7 +16,10 @@ export default {
             { icon: 'group', text: '小组', link: '/Group' },
             { icon: 'list', text: '状态', link: '/Status' },
             { icon: 'help', text: '关于', link: '/About' }
-        ]
+        ],
+        msgTitle: '',
+        msgContent: '',
+        msgUp: false
     }),
     mounted: function () {
         this.items.splice(7);
@@ -56,6 +59,11 @@ export default {
         closeDlg: function () {
             this.loginDialog = false;
             this.registerDialog = false;
+        },
+        showMsg: function (title, content) {
+            this.msgTitle = title;
+            this.msgContent = content;
+            this.msgUp = true;
         }
     },
     components: {

@@ -92,7 +92,7 @@ namespace hjudgeWeb.Controllers
                 }
                 if (user.Coins < 10 && !HasAdminPrivilege(privilege))
                 {
-                    ret.ErrorMessage = "金币不足，资费：10 金币/条";
+                    ret.ErrorMessage = "金币余额不足";
                     ret.IsSucceeded = false;
                     return ret;
                 }

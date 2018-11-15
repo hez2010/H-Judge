@@ -34,7 +34,12 @@ export default {
         getUserInfo: function () {
             Get('/Account/GetUserInfo')
                 .then(res => res.json())
-                .then(data => this.userInfo = data)
+                .then(data => {
+                    this.userInfo = data;
+                    if (this.userInfo && this.userInfo.coinsBonus !== 0) {
+                        this.$refs.navmenu.showMsg('每日登录奖励', `获得 ${this.userInfo.coinsBonus} 金币。连续登录将获得更多金币呦~`);
+                    }
+                })
                 .catch(() => alert('网络错误'));
         },
         updateFortune: function () {

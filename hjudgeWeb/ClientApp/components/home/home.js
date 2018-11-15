@@ -3,7 +3,7 @@ import * as signalR from '@aspnet/signalr';
 import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
-    props: ['user', 'updateFortune'],
+    props: ['user'],
     data: () => ({
         announcements: [],
         annpage: 0,

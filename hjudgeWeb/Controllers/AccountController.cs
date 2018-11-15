@@ -246,6 +246,23 @@ namespace hjudgeWeb.Controllers
                     return userInfo;
                 }
 
+                if (user.LastSignedIn.Date < DateTime.Now.Date)
+                {
+                    userInfo.CoinsBonus = 20;
+                    user.LastSignedIn = DateTime.Now;
+                    if ((DateTime.Now - user.LastSignedIn).TotalDays <= 1)
+                    {
+                        user.ContinuousSignedIn++;
+                    }
+                    else
+                    {
+                        user.ContinuousSignedIn = 0;
+                    }
+                    userInfo.CoinsBonus += user.ContinuousSignedIn;
+                    user.Coins += userInfo.CoinsBonus;
+                    await _userManager.UpdateAsync(user);
+                }
+
                 userInfo.Id = user.Id;
                 userInfo.Email = user.Email;
                 userInfo.EmailConfirmed = user.EmailConfirmed;
@@ -274,6 +291,7 @@ namespace hjudgeWeb.Controllers
                 userInfo.Name = user.Name;
                 userInfo.OtherInfo = IdentityHelper.GetOtherUserInfo(user.OtherInfo);
                 userInfo.Privilege = user.Privilege;
+                userInfo.CoinsBonus = 0;
             }
             return userInfo;
         }

@@ -17,5 +17,6 @@ namespace hjudgeWeb.Models.Account
         public int Privilege { get; set; }
         public List<OtherInfoList> OtherInfo { get; set; }
         public bool IsSignedIn { get; set; }
+        public int CoinsBonus { get; set; }
     }
 }

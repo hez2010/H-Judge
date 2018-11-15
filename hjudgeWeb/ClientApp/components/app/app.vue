@@ -1,6 +1,6 @@
 ﻿updateFortune<template>
     <v-app :dark="darkTheme">
-        <navmenu :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo" :getUserInfo="getUserInfo"></navmenu>
+        <navmenu ref="navmenu" :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo" :getUserInfo="getUserInfo"></navmenu>
         <v-content>
             <router-view :user="userInfo" :getUserInfo="getUserInfo" :updateFortune="updateFortune"></router-view>
         </v-content>
