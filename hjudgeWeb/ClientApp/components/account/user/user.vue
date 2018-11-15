@@ -11,7 +11,7 @@
                             <v-layout wrap v-bind="isColumn">
                                 <v-flex xs3>
                                     <v-avatar color="grey lighten-4" size="80">
-                                        <img :src="`${'/Account/GetUserAvatar/' + userInfo.id}`" />
+                                        <img :src="`${'/Account/GetUserAvatar?userId=' + userInfo.id}`" />
                                     </v-avatar>
                                     <div>
                                         <v-chip>

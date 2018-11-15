@@ -63,7 +63,7 @@
                     </v-list>
                     <v-layout>
                         <v-flex xs11>
-                            <v-textarea :label="`${'输入你要发送的内容' + (currentReply === 0 ? '（点击头像进行回复）' : '（回复 #' + currentReply + '）')}`" v-model="inputText" :counter="65536" hint="资费：10 金币/条"></v-textarea>
+                            <v-textarea :label="`${'输入消息内容' + (currentReply === 0 ? '（可点击头像回复）' : '（回复 #' + currentReply + '）')}`" v-model="inputText" :counter="65536" hint="资费：10 金币/条"></v-textarea>
                         </v-flex>
                         <v-flex>
                             <v-tooltip bottom>
