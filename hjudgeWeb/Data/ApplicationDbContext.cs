@@ -25,7 +25,7 @@ namespace hjudgeWeb.Data
         public virtual DbSet<GroupJoin> GroupJoin { get; set; }
         public virtual DbSet<Judge> Judge { get; set; }
         public virtual DbSet<Message> Message { get; set; }
-        public virtual DbSet<MessageStatus> MessageStatus { get; set; }
+        public virtual DbSet<MessageContent> MessageContent { get; set; }
         public virtual DbSet<Problem> Problem { get; set; }
         public virtual DbSet<VotesRecord> VotesRecord { get; set; }
         public virtual DbSet<Discussion> Discussion { get; set; }
@@ -168,28 +168,27 @@ namespace hjudgeWeb.Data
 
                 entity.Property(e => e.SendTime).IsRequired();
 
+                entity.HasOne(d => d.MessageContent)
+                    .WithMany(p => p.Messages)
+                    .HasForeignKey(d => d.ContentId);
+
                 entity.HasOne(d => d.UserInfo)
                     .WithMany(p => p.Message)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity<MessageStatus>(entity =>
-            {
-                entity.HasIndex(e => e.MessageId);
-
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-                entity.Property(e => e.OperationTime).IsRequired();
-
-                entity.HasOne(d => d.Message)
-                    .WithMany(p => p.MessageStatus)
-                    .HasForeignKey(d => d.MessageId)
+                    .HasForeignKey(d => d.FromUserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.UserInfo)
-                    .WithMany(p => p.MessageStatus)
-                    .HasForeignKey(d => d.UserId);
+                    .WithMany(p => p.Message)
+                    .HasForeignKey(d => d.ToUserId);
+            });
+
+            modelBuilder.Entity<MessageContent>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.HasOne(d => d.Message)
+                    .WithMany(p => p.MessageContents)
+                    .HasForeignKey(d => d.MessageId);
             });
 
             modelBuilder.Entity<Problem>(entity =>

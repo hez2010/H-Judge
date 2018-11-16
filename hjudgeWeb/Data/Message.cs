@@ -8,20 +8,21 @@ namespace hjudgeWeb.Data
     {
         public Message()
         {
-            MessageStatus = new HashSet<MessageStatus>();
+            MessageContents = new HashSet<MessageContent>();
         }
 
         public int Id { get; set; }
         public string Title { get; set; }
-        public string Content { get; set; }
+        public int? ContentId { get; set; }
         public int Type { get; set; }
-        public string UserId { get; set; }
-        public string Targets { get; set; }
+        public string FromUserId { get; set; }
+        public string ToUserId { get; set; }
         public DateTime SendTime { get; set; }
+        public int Status { get; set; }
         public int ReplyId { get; set; }
 
         public UserInfo UserInfo { get; set; }
-
-        public ICollection<MessageStatus> MessageStatus { get; set; }
+        public MessageContent MessageContent { get; set; }
+        public ICollection<MessageContent> MessageContents { get; set; }
     }
 }

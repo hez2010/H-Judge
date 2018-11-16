@@ -43,7 +43,7 @@ namespace hjudgeWeb.Data.Identity
             ContestRegister = new HashSet<ContestRegister>();
             GroupJoin = new HashSet<GroupJoin>();
             Message = new HashSet<Message>();
-            MessageStatus = new HashSet<MessageStatus>();
+            MessageStatus = new HashSet<MessageContent>();
             VotesRecord = new HashSet<VotesRecord>();
             Discussion = new HashSet<Discussion>();
         }
@@ -80,7 +80,7 @@ namespace hjudgeWeb.Data.Identity
         public ICollection<ContestRegister> ContestRegister { get; set; }
         public ICollection<GroupJoin> GroupJoin { get; set; }
         public ICollection<Message> Message { get; set; }
-        public ICollection<MessageStatus> MessageStatus { get; set; }
+        public ICollection<MessageContent> MessageStatus { get; set; }
         public ICollection<VotesRecord> VotesRecord { get; set; }
         public ICollection<Discussion> Discussion { get; set; }
     }
