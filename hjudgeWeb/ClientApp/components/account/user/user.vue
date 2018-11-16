@@ -36,23 +36,19 @@
                                 <v-flex xs9>
                                     <v-card flat>
                                         <div v-if="bottomNav === '1'">
-                                            <v-card-title primary-title>
-                                                <h3>资料</h3>
-                                            </v-card-title>
-                                            <v-card-text>
-                                                <v-container>
-                                                    <template v-for="item in userInfo.otherInfo">
-                                                        <v-layout wrap>
-                                                            <v-flex xs4>
-                                                                <strong>{{item.name}}</strong>
-                                                            </v-flex>
-                                                            <v-flex>
-                                                                <p>{{item.value}}</p>
-                                                            </v-flex>
-                                                        </v-layout>
-                                                    </template>
-                                                </v-container>
-                                            </v-card-text>
+                                            <h3>用户资料</h3>
+                                            <v-container>
+                                                <template v-for="item in userInfo.otherInfo">
+                                                    <v-layout wrap>
+                                                        <v-flex xs4>
+                                                            <strong>{{item.name}}</strong>
+                                                        </v-flex>
+                                                        <v-flex>
+                                                            <p>{{item.value}}</p>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </template>
+                                            </v-container>
                                         </div>
                                         <div v-else-if="bottomNav === '2'">
                                             <p v-if="loadingProblems">加载中...</p>
