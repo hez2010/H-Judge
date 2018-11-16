@@ -6,8 +6,32 @@ export default {
     data: () => ({
         avatar: '',
         loading: true,
-        userInfo: {}
+        userInfo: {},
+        loadingProblems: true,
+        problemSet: [],
+        bottomNav: '1'
     }),
+    watch: {
+        bottomNav: function () {
+            if (this.bottomNav === '2') {
+                this.loadingProblems = true;
+                Get('/Status/GetSolvedProblemList?userId=' + this.userInfo.id)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.isSucceeded) {
+                            this.problemSet = data.problemSet;
+                        } else {
+                            alert(data.errorMessage);
+                        }
+                        this.loadingProblems = false;
+                    })
+                    .catch(() => {
+                        alert('加载失败');
+                        this.loadingProblems = false;
+                    });
+            }
+        }
+    },
     mounted: function () {
         setTitle('用户');
         Get('/Account/GetUserInfo', { userId: this.$route.params.uid })

@@ -35,23 +35,66 @@
                                 </v-flex>
                                 <v-flex xs9>
                                     <v-card flat>
-                                        <v-card-title primary-title>
-                                            <h3>资料</h3>
-                                        </v-card-title>
-                                        <v-card-text>
-                                            <v-container>
-                                                <template v-for="item in userInfo.otherInfo">
-                                                    <v-layout wrap>
-                                                        <v-flex xs4>
-                                                            <strong>{{item.name}}</strong>
-                                                        </v-flex>
-                                                        <v-flex>
-                                                            <p>{{item.value}}</p>
-                                                        </v-flex>
-                                                    </v-layout>
-                                                </template>
-                                            </v-container>
-                                        </v-card-text>
+                                        <div v-if="bottomNav === '1'">
+                                            <v-card-title primary-title>
+                                                <h3>资料</h3>
+                                            </v-card-title>
+                                            <v-card-text>
+                                                <v-container>
+                                                    <template v-for="item in userInfo.otherInfo">
+                                                        <v-layout wrap>
+                                                            <v-flex xs4>
+                                                                <strong>{{item.name}}</strong>
+                                                            </v-flex>
+                                                            <v-flex>
+                                                                <p>{{item.value}}</p>
+                                                            </v-flex>
+                                                        </v-layout>
+                                                    </template>
+                                                </v-container>
+                                            </v-card-text>
+                                        </div>
+                                        <div v-else-if="bottomNav === '2'">
+                                            <p v-if="loadingProblems">加载中...</p>
+                                            <div v-else>
+                                                <h3>已解决的题目</h3>
+                                                <p v-if="problemSet.length === 0">无</p>
+                                                <v-layout v-if="problemSet.length >= 6" v-for="i in parseInt(problemSet.length / 6)">
+                                                    <v-flex xs2 v-for="j in 6">
+                                                        <router-link :to="{ path: '/ProblemDetails/' + problemSet[(i - 1) * 6 + j - 1] }">
+                                                            #{{problemSet[(i - 1) * 6 + j - 1]}}
+                                                        </router-link>
+                                                    </v-flex>
+                                                </v-layout>
+                                                <v-layout v-if="problemSet.length % 6 !== 0">
+                                                    <v-flex xs2 v-for="j in problemSet.length % 6">
+                                                        <router-link :to="{ path: '/ProblemDetails/' + problemSet[parseInt(problemSet.length / 6) * 6 + j - 1] }">
+                                                            #{{problemSet[parseInt(problemSet.length / 6) * 6 + j - 1]}}
+                                                        </router-link>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </div>
+                                        </div>
+                                        <br />
+                                        <br />
+                                        <br />
+                                        <v-bottom-nav :active.sync="bottomNav"
+                                                      :value="true"
+                                                      absolute
+                                                      color="transparent">
+                                            <v-btn color="teal"
+                                                   flat
+                                                   value="1">
+                                                <span>用户信息</span>
+                                                <v-icon>info</v-icon>
+                                            </v-btn>
+                                            <v-btn color="teal"
+                                                   flat
+                                                   value="2">
+                                                <span>解决题目</span>
+                                                <v-icon>code</v-icon>
+                                            </v-btn>
+                                        </v-bottom-nav>
                                     </v-card>
                                 </v-flex>
                             </v-layout>

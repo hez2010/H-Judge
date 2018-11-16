@@ -89,6 +89,20 @@ export default {
                     else alert(data.errorMessage);
                 })
                 .catch(() => alert('请求失败'));
+        },
+        setPublic: function () {
+            Post('/Status/SetResultVisibility', { judgeId: this.result.id, isPublic: this.result.isPublic })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.isSucceeded) {
+                        alert(data.errorMessage);
+                        this.result.isPublic = !this.result.isPublic;
+                    }
+                })
+                .catch(() => {
+                    this.result.isPublic = !this.result.isPublic;
+                    alert('请求失败');
+                });
         }
     }
 };

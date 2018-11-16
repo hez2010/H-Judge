@@ -1,5 +1,5 @@
 ﻿import { setTitle } from '../../../utilities/titleHelper';
-import { Post, ReadCookie } from '../../../utilities/requestHelper';
+import { Post, ReadCookie, Get } from '../../../utilities/requestHelper';
 import emailConfirm from '../verification/email/emailConfirm.vue';
 import phoneConfirm from '../verification/phone/phoneConfirm.vue';
 
@@ -14,7 +14,9 @@ export default {
             v => /.+@.+\..+/.test(v) || '邮箱地址格式不正确'
         ],
         confirmEmailDialog: false,
-        submitting: false
+        submitting: false,
+        loading: true,
+        problemSet: []
     }),
     mounted: function () {
         setTitle('门户');
@@ -40,6 +42,25 @@ export default {
         },
         confirmEmailDialog: function () {
             this.$refs.confirmEmailDlg.clearForm();
+        },
+        bottomNav: function () {
+            if (this.bottomNav === '3') {
+                this.loading = true;
+                Get('/Status/GetSolvedProblemList?userId=' + this.user.id)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.isSucceeded) {
+                            this.problemSet = data.problemSet;
+                        } else {
+                            alert(data.errorMessage);
+                        }
+                        this.loading = false;
+                    })
+                    .catch(() => {
+                        alert('加载失败');
+                        this.loading = false;
+                    });
+            }
         }
     },
     computed: {

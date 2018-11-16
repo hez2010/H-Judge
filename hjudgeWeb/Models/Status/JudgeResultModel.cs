@@ -24,5 +24,6 @@ namespace hjudgeWeb.Models.Status
         public float FullScore { get; set; }
         public string Content { get; set; }
         public JudgeResult JudgeResult { get; set; }
+        public bool IsPublic { get; set; }
     }
 }

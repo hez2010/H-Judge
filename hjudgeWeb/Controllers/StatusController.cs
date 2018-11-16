@@ -238,11 +238,79 @@ namespace hjudgeWeb.Controllers
             return ret;
         }
 
+        public class ResultVisibilityModel
+        {
+            public int JudgeId { get; set; }
+            public bool IsPublic { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> SetResultVisibility([FromBody]ResultVisibilityModel model)
+        {
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            var ret = new ResultModel { IsSucceeded = true };
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有登录";
+                return ret;
+            }
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var judge = await db.Judge.FindAsync(model.JudgeId);
+                if (judge?.UserId == user.Id)
+                {
+                    judge.IsPublic = model.IsPublic;
+                    await db.SaveChangesAsync();
+                    return ret;
+                }
+                else
+                {
+                    ret.IsSucceeded = false;
+                    ret.ErrorMessage = "没有权限";
+                    return ret;
+                }
+            }
+        }
+
+        [HttpGet]
+        public async Task<SolvedProblemModel> GetSolvedProblemList(string userId)
+        {
+            var ret = new SolvedProblemModel { IsSucceeded = true };
+
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有登录";
+                return ret;
+            }
+
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                ret.ProblemSet = await db.Judge
+                    .Where(i => i.UserId == userId && i.ResultType == (int)ResultCode.Accepted)
+                    .Select(i => i.ProblemId)
+                    .Distinct()
+                    .ToArrayAsync();
+
+                return ret;
+            }
+        }
+
         [HttpGet]
         public async Task<JudgeResultModel> GetJudgeResult(int jid)
         {
             var (user, privilege) = await GetUserPrivilegeAsync();
             var ret = new JudgeResultModel { IsSucceeded = true };
+
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有登录";
+                return ret;
+            }
+
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var judge =
@@ -258,7 +326,7 @@ namespace hjudgeWeb.Controllers
                     ret.ErrorMessage = "找不到该结果";
                     return ret;
                 }
-                if (!HasAdminPrivilege(privilege) && judge.UserId != user?.Id)
+                if (!HasAdminPrivilege(privilege) && judge.UserId != user.Id && !judge.IsPublic)
                 {
                     ret.IsSucceeded = false;
                     ret.ErrorMessage = "没有权限";
@@ -281,6 +349,7 @@ namespace hjudgeWeb.Controllers
                 ret.ProblemName = judge.Problem?.Name;
                 ret.ContestName = judge.Contest?.Name;
                 ret.GroupName = judge.Group?.Name;
+                ret.IsPublic = judge.IsPublic;
 
                 var contest = await db.Contest.Select(i => new { i.Id, i.Config, i.EndTime, i.Name }).FirstOrDefaultAsync(i => i.Id == judge.ContestId);
 

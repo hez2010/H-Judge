@@ -59,7 +59,7 @@
                                     <strong>评测结果</strong>
                                 </v-flex>
                                 <v-flex xs8>
-                                    <p>
+                                    <div>
                                         <v-progress-circular indeterminate
                                                              color="primary"
                                                              v-if="result.resultType <= 0">
@@ -71,7 +71,7 @@
                                             </v-btn>
                                             <span>重新评测</span>
                                         </v-tooltip>
-                                    </p>
+                                    </div>
                                 </v-flex>
                                 <v-flex xs4>
                                     <strong>所得总分</strong>
@@ -91,6 +91,16 @@
                                 <v-flex xs8 v-if="result.groupId !== 0">
                                     <p><router-link :to="{ path: '/GroupDetails/' + result.groupId }">{{result.groupName}}</router-link></p>
                                 </v-flex>
+                            </v-layout>
+                            <v-layout>
+                                <v-spacer></v-spacer>
+                                <div>
+                                    <v-checkbox label="公开评测结果"
+                                                v-model="result.isPublic"
+                                                @change="setPublic"
+                                                v-if="user.id === result.userId">
+                                    </v-checkbox>
+                                </div>
                             </v-layout>
                         </v-container>
                     </v-card-text>
