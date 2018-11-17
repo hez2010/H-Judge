@@ -91,8 +91,8 @@
                 } else {
                     loadCodeMirror(editor, editable);
                 }
-                if (typeof(marked) == 'undefined') {
-                    CKEDITOR.scriptLoader.load(rootPath + 'js/marked.js');
+                if (typeof(kramed) == 'undefined') {
+                    CKEDITOR.scriptLoader.load(rootPath + 'js/kramed.js');
                 }
                 // Having to make <textarea> fixed sized to conquer the following bugs:
                 // 1. The textarea height/width='100%' doesn't constraint to the 'td' in IE6/7.
@@ -179,7 +179,11 @@
                 window["codemirror_" + editor.id] = null; // Free Memory on destroy
 
                 var markdownSource = editor.getData();
-                editor.setData(marked(markdownSource, {langPrefix: 'language-'}));
+                var rendered = kramed(markdownSource, {langPrefix: 'language-'});
+                
+                rendered = rendered.replace(/<script type="math\/tex.*?">(.*?)<\/script\>/g, function (_, inner) { return "<span class=\"math-tex\">\\(" + inner + "\\)</span>"; })
+                
+                editor.setData(rendered);
 
                 sourceEditable.baseProto.detach.call(this);
 
