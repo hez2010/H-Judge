@@ -2,6 +2,7 @@
 import { Get } from '../../utilities/requestHelper';
 
 export default {
+    props: ['showSnack'],
     data: () => ({
         headers: [
             { text: '排名', value: 'rank' },
@@ -62,11 +63,11 @@ export default {
                     }
 
                 }
-                else alert(data.errorMessage);
+                else this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
     }

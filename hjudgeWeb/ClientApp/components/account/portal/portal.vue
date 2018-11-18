@@ -86,7 +86,7 @@
                                                             <p>
                                                                 <v-dialog v-model="confirmEmailDialog" width="500" :disabled="user.emailConfirmed">
                                                                     <v-btn slot="activator" color="primary" :disabled="submitting || user.emailConfirmed" @click="confirmEmail">验证邮箱地址</v-btn>
-                                                                    <emailConfirm ref="confirmEmailDlg" :getUserInfo="getUserInfo" :closeDlg="closeDlg"></emailConfirm>
+                                                                    <emailConfirm ref="confirmEmailDlg" :getUserInfo="getUserInfo" :closeDlg="closeDlg" :showSnack="showSnack"></emailConfirm>
                                                                 </v-dialog>
                                                             </p>
                                                         </v-flex>

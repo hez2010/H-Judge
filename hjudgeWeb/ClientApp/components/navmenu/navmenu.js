@@ -3,7 +3,7 @@ import register from '../account/register/register.vue';
 import { Post } from '../../utilities/requestHelper';
 
 export default {
-    props: ['user', 'themeIcon', 'switchTheme', 'getUserInfo'],
+    props: ['user', 'themeIcon', 'switchTheme', 'getUserInfo', 'showSnack'],
     data: () => ({
         drawer: null,
         loginDialog: false,

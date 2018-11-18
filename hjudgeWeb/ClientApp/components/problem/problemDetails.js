@@ -2,7 +2,7 @@
 import { setTitle } from '../../utilities/titleHelper';
 
 export default {
-    props: ['user'],
+    props: ['user', 'showSnack'],
     data: () => ({
         problem: {},
         param: {
@@ -42,11 +42,11 @@ export default {
                     this.problem = data;
                     this.$nextTick(() => this.timer = setInterval(() => this.loadMath(), 200));
                 }
-                else alert(data.errorMessage);
+                else this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
     },
@@ -68,20 +68,20 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) {
+                            this.showSnack('提交成功', 'success', 3000);
                             if (data.redirect)
                                 this.$router.push('/Result/' + data.id);
                             else {
-                                alert('提交成功');
                                 this.submitting = false;
                             }
                         }
                         else {
-                            alert(data.errorMessage);
+                            this.showSnack(data.errorMessage, 'error', 3000);
                             this.submitting = false;
                         }
                     })
                     .catch(() => {
-                        alert('提交失败');
+                        this.showSnack('提交失败', 'error', 3000);
                         this.submitting = false;
                     });
             }

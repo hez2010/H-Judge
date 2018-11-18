@@ -26,7 +26,7 @@
                 </v-btn>
                 <v-dialog v-model="resetDialog" width="500">
                     <a slot="activator">忘记密码</a>
-                    <resetpassword ref="resetpwd" :closeDlg="closeResetDialog"></resetpassword>
+                    <resetpassword ref="resetpwd" :closeDlg="closeResetDialog" :showSnack="showSnack"></resetpassword>
                 </v-dialog>
             </v-form>
         </v-card-text>

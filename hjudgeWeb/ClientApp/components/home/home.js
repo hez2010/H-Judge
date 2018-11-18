@@ -106,7 +106,7 @@ export default {
                     return data.length;
                 })
                 .catch(() => {
-                    alert('消息加载失败');
+                    this.showSnack('消息加载失败', 'error', 3000);
                 });
         },
         sendMessage: function () {
@@ -115,14 +115,14 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (!data.isSucceeded) {
-                            alert(data.errorMessage);
+                            this.showSnack(data.errorMessage, 'error', 3000);
                         } else {
-                            this.showSnack('发送成功，获得 5 经验', 'primary', 3000);
+                            this.showSnack('发送成功，获得 5 经验', 'success', 3000);
                             this.currentReply = 0;
                         }
                     })
                     .catch(() => {
-                        alert('发送失败');
+                        this.showSnack('发送失败', 'error', 3000);
                     });
         },
         cancelReply: function () {

@@ -2,7 +2,7 @@
 import { setTitle } from '../../utilities/titleHelper';
 
 export default {
-    props: ['user'],
+    props: ['user', 'showSnack'],
     data: () => ({
         contest: {},
         param: {
@@ -54,11 +54,11 @@ export default {
                     }
                     this.$nextTick(() => this.timer = setInterval(() => this.loadMath(), 200));
                 }
-                else alert(data.errorMessage);
+                else this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
         Get('/Contest/GetProblemCount', this.param)
@@ -77,7 +77,7 @@ export default {
                 this.loadingProblem = false;
             })
             .catch(() => {
-                alert('题目列表加载失败');
+                this.showSnack('题目列表加载失败', 'error', 3000);
                 this.problems = [];
                 this.loadingProblem = false;
             });
@@ -97,7 +97,7 @@ export default {
                     this.loadingProblem = false;
                 })
                 .catch(() => {
-                    alert('题目列表加载失败');
+                    this.showSnack('题目列表加载失败', 'error', 3000);
                     this.problems = [];
                     this.loadingProblem = false;
                 });

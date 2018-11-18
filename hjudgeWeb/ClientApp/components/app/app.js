@@ -12,7 +12,7 @@ export default {
         snackContent: '',
         snackUp: false,
         snackColor: '',
-        snackTimeout: 5000
+        snackTimeout: 3000
     }),
     components: {
         navmenu: navmenu
@@ -47,7 +47,7 @@ export default {
                         this.showMsg('每日登录奖励', `获得 ${this.userInfo.coinsBonus} 金币。连续登录将获得更多金币呦~`);
                     }
                 })
-                .catch(() => alert('网络错误'));
+                .catch(() => this.showSnack('网络错误', 'error', 3000));
         },
         updateFortune: function () {
             Get('/Account/GetFortune')
@@ -68,10 +68,13 @@ export default {
             this.msgUp = true;
         },
         showSnack: function (content, color, timeout) {
-            this.snackContent = content;
-            this.snackColor = color;
-            this.snackTimeout = timeout;
-            this.snackUp = true;
+            this.snackUp = false;
+            this.$nextTick(() => {
+                this.snackContent = content;
+                this.snackColor = color;
+                this.snackTimeout = timeout;
+                this.snackUp = true;
+            });
         }
     }
 };

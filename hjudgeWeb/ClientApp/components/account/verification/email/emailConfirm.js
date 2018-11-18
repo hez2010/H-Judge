@@ -1,7 +1,7 @@
 ﻿import { Post } from '../../../../utilities/requestHelper';
 
 export default {
-    props: ['user', 'getUserInfo', 'closeDlg'],
+    props: ['user', 'getUserInfo', 'closeDlg', 'showSnack'],
     data: () => ({
         valid: false,
         token: '',
@@ -21,14 +21,16 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) {
+                            this.showSnack('邮箱地址验证成功', 'success', 3000);
                             this.getUserInfo();
                             this.closeDlg();
                         }
-                        else alert(data.errorMessage);
+                        else
+                            this.showSnack(data.errorMessage, 'error', 3000);
                         this.submitting = false;
                     })
                     .catch(() => {
-                        alert('请求失败');
+                        this.showSnack('请求失败', 'error', 3000);
                         this.submitting = false;
                     });
             }

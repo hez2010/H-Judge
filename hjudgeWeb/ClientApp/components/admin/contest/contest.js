@@ -2,6 +2,7 @@
 import { setTitle } from '../../../utilities/titleHelper';
 
 export default {
+    props: ['showSnack'],
     data: () => ({
         contest: {},
         valid: false,
@@ -21,11 +22,12 @@ export default {
                     this.contest = data;
                     this.$nextTick(() => this.timer = setInterval(() => this.loadEditor(), 200));
                 }
-                else alert(data.errorMessage);
+                else
+                    this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
     },
@@ -55,13 +57,14 @@ export default {
                             this.$router.push('/Admin/Contest/' + data.id.toString());
                             this.contest.id = data.id;
                         }
-                        alert('保存成功');
+                        this.showSnack('保存成功', 'success', 3000);
                     }
-                    else alert(data.errorMessage);
+                    else
+                        this.showSnack(data.errorMessage, 'error', 3000);
                     this.submitting = false;
                 })
                 .catch(() => {
-                    alert('保存失败');
+                    this.showSnack('保存失败', 'error', 3000);
                     this.submitting = false;
                 });
         }

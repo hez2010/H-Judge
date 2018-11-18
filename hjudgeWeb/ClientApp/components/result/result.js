@@ -2,7 +2,7 @@
 import { setTitle } from '../../utilities/titleHelper';
 
 export default {
-    props: ['user'],
+    props: ['user', 'showSnack'],
     data: () => ({
         result: {},
         loading: true,
@@ -30,12 +30,12 @@ export default {
                     }
                 }
                 else {
-                    alert(data.errorMessage);
+                    this.showSnack(data.errorMessage, 'error', 3000);
                 }
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
     },
@@ -77,31 +77,34 @@ export default {
                                     }
                                 }
                                 else {
-                                    alert(data.errorMessage);
+                                    this.showSnack(data.errorMessage, 'error', 3000);
                                 }
                                 this.loading = false;
                             })
                             .catch(() => {
-                                alert('加载失败');
+                                this.showSnack('加载失败', 'error', 3000);
                                 this.loading = false;
                             });
                     }
-                    else alert(data.errorMessage);
+                    else this.showSnack(data.errorMessage, 'error', 3000);
                 })
-                .catch(() => alert('请求失败'));
+                .catch(() => this.showSnack('请求失败', 'error', 3000));
         },
         setPublic: function () {
             Post('/Status/SetResultVisibility', { judgeId: this.result.id, isPublic: this.result.isPublic })
                 .then(res => res.json())
                 .then(data => {
                     if (!data.isSucceeded) {
-                        alert(data.errorMessage);
+                        this.showSnack(data.errorMessage, 'error', 3000);
                         this.result.isPublic = !this.result.isPublic;
+                    }
+                    else {
+                        this.showSnack('设置成功', 'success', 3000);
                     }
                 })
                 .catch(() => {
                     this.result.isPublic = !this.result.isPublic;
-                    alert('请求失败');
+                    this.showSnack('请求失败', 'error', 3000);
                 });
         }
     }

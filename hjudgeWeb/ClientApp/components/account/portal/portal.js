@@ -4,7 +4,7 @@ import emailConfirm from '../verification/email/emailConfirm.vue';
 import phoneConfirm from '../verification/phone/phoneConfirm.vue';
 
 export default {
-    props: ['user', 'getUserInfo', 'updateFortune'],
+    props: ['user', 'getUserInfo', 'updateFortune', 'showSnack'],
     data: () => ({
         avatar: '',
         bottomNav: '1',
@@ -52,12 +52,12 @@ export default {
                         if (data.isSucceeded) {
                             this.problemSet = data.problemSet;
                         } else {
-                            alert(data.errorMessage);
+                            this.showSnack(data.errorMessage, 'error', 3000);
                         }
                         this.loading = false;
                     })
                     .catch(() => {
-                        alert('加载失败');
+                        this.showSnack('加载失败', 'error', 3000);
                         this.loading = false;
                     });
             }
@@ -86,19 +86,20 @@ export default {
             Post('/Account/UpdateOtherInfo', otherInfo)
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.isSucceeded)
-                        alert(data.errorMessage);
+                    if (!data.isSucceeded) this.showSnack(data.errorMessage, 'error', 3000);
+                    else this.showSnack('修改成功', 'success', 3000);
                 })
-                .catch(() => alert('修改失败'));
+                .catch(() => this.showSnack('修改失败', 'error', 3000));
         },
         updateName: function (name) {
             Post('/Account/UpdateName', { value: name })
                 .then(res => res.json())
                 .then(data => {
                     if (!data.isSucceeded)
-                        alert(data.errorMessage);
+                        this.showSnack(data.errorMessage, 'error', 3000);
+                    else this.showSnack('修改成功', 'success', 3000);
                 })
-                .catch(() => alert('修改失败'));
+                .catch(() => this.showSnack('修改失败', 'error', 3000));
         },
         updateEmail: function (email) {
             if (this.$refs.form.validate()) {
@@ -106,10 +107,13 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (!data.isSucceeded)
-                            alert(data.errorMessage);
-                        else this.getUserInfo();
+                            this.showSnack(data.errorMessage, 'error', 3000);
+                        else {
+                            this.showSnack('修改成功', 'success', 3000);
+                            this.getUserInfo();
+                        }
                     })
-                    .catch(() => alert('修改失败'));
+                    .catch(() => this.showSnack('修改失败', 'error', 3000));
             }
         },
         updatePhoneNumber: function (phoneNumber) {
@@ -117,10 +121,13 @@ export default {
                 .then(res => res.json())
                 .then(data => {
                     if (!data.isSucceeded)
-                        alert(data.errorMessage);
-                    else this.getUserInfo();
+                        this.showSnack(data.errorMessage, 'error', 3000);
+                    else {
+                        this.showSnack('修改成功', 'success', 3000);
+                        this.getUserInfo();
+                    }
                 })
-                .catch(() => alert('修改失败'));
+                .catch(() => this.showSnack('修改失败', 'error', 3000));
         },
         selectFile: function () {
             document.getElementById('avatar_file').click();
@@ -129,12 +136,12 @@ export default {
             let ele = document.getElementById('avatar_file');
             let file = ele.files[0];
             if (!file.type.startsWith('image/')) {
-                alert('所选文件不是图片文件');
+                this.showSnack('所选文件不是图片文件', 'error', 3000);
                 ele.value = '';
                 return;
             }
             if (file.size > 1048576) {
-                alert('图片大小不能超过 1 Mb');
+                this.showSnack('图片大小不能超过 1 Mb', 'error', 3000);
                 ele.value = '';
                 return;
             }
@@ -152,17 +159,17 @@ export default {
                 .then(res => res.json())
                 .then(data => {
                     if (data.isSucceeded) this.getUserInfo();
-                    else alert(data.errorMessage);
+                    else this.showSnack(data.errorMessage, 'error', 3000);
                     ele.value = '';
-                    alert('修改成功');
+                    this.showSnack('修改成功', 'success', 3000);
                 })
                 .catch(() => {
-                    alert('修改失败');
+                    this.showSnack('修改失败', 'error', 3000);
                     ele.value = '';
                 });
         },
         confirmPhoneNumber: function () {
-            alert('此功能正在开发中, 敬请期待');
+            this.showSnack('此功能正在开发中，敬请期待...', 'info', 3000);
         },
         confirmEmail: function () {
             this.submitting = true;
@@ -170,11 +177,12 @@ export default {
                 .then(res => res.json())
                 .then(data => {
                     if (data.isSucceeded) this.confirmEmailDialog = true;
-                    else alert(data.errorMessage);
+                    else
+                        this.showSnack(data.errorMessage, 'error', 3000);
                     this.submitting = false;
                 })
                 .catch(() => {
-                    alert('请求失败');
+                    this.showSnack('请求失败', 'error', 3000);
                     this.submitting = false;
                 });
         },

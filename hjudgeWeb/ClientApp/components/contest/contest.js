@@ -2,7 +2,7 @@
 import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
-    props: ['user'],
+    props: ['user', 'showSnack'],
     data: () => ({
         loading: true,
         page: 0,
@@ -83,6 +83,7 @@ export default {
                 .catch(() => {
                     this.contests = [];
                     this.loading = false;
+                    this.showSnack('加载失败', 'error', 3000);
                 });
         },
         deleteContest: function (id) {
@@ -91,11 +92,12 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) {
+                            this.showSnack('删除成功', 'success', 3000);
                             this.load();
                         }
-                        else alert(data.errorMessage);
+                        else this.showSnack(data.errorMessage, 'error', 3000);
                     })
-                    .catch(() => alert('删除失败'));
+                    .catch(() => this.showSnack('删除失败', 'error', 3000));
             }
         }
     }

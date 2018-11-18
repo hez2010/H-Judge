@@ -1,7 +1,7 @@
 ﻿import { Post } from '../../../utilities/requestHelper';
 
 export default {
-    props: ['closeDlg'],
+    props: ['closeDlg', 'showSnack'],
     data: () => ({
         username: '',
         usernameRules: [
@@ -37,14 +37,14 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) {
-                            alert('密码重置成功');
+                            this.showSnack('密码重置成功', 'success', 3000);
                             this.closeDlg();
                         }
-                        else alert(data.errorMessage);
+                        else this.showSnack(data.errorMessage, 'error', 3000);
                         this.submitting = false;
                     })
                     .catch(() => {
-                        alert('密码重置失败');
+                        this.showSnack('密码重置失败', 'error', 3000);
                         this.submitting = false;
                     });
             }
@@ -59,11 +59,11 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) this.sent = true;
-                        else alert(data.errorMessage);
+                        else this.showSnack(data.errorMessage, 'error', 3000);
                         this.submitting = false;
                     })
                     .catch(() => {
-                        alert('请求失败');
+                        this.showSnack('请求失败', 'error', 3000);
                         this.submitting = false;
                     });
             }

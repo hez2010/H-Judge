@@ -2,6 +2,7 @@
 import { setTitle } from '../../../utilities/titleHelper';
 
 export default {
+    props: ['showSnack'],
     data: () => ({
         problem: {},
         valid_basic: false,
@@ -32,11 +33,12 @@ export default {
                     this.problem = data;
                     this.$nextTick(() => this.timer = setInterval(() => this.loadEditor(), 200));
                 }
-                else alert(data.errorMessage);
+                else
+                    this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
     },
@@ -89,13 +91,13 @@ export default {
                             this.$router.push('/Admin/Problem/' + data.id.toString());
                             this.problem.id = data.id;
                         }
-                        alert('保存成功');
+                        this.showSnack('保存成功', 'success', 3000);
                     }
-                    else alert(data.errorMessage);
+                    else this.showSnack(data.errorMessage, 'error', 3000);
                     this.submitting = false;
                 })
                 .catch(() => {
-                    alert('保存失败');
+                    this.showSnack('保存失败', 'error', 3000);
                     this.submitting = false;
                 });
         },
@@ -103,12 +105,12 @@ export default {
             let ele = document.getElementById('data_file');
             let file = ele.files[0];
             if (file.type !== 'application/x-zip-compressed' && file.type !== 'application/zip') {
-                alert('文件格式不正确');
+                this.showSnack('文件格式不正确', 'error', 3000);
                 ele.value = '';
                 return;
             }
             if (file.size > 134217728) {
-                alert('文件大小不能超过 128 Mb');
+                this.showSnack('文件大小不能超过 128 Mb', 'error', 3000);
                 ele.value = '';
                 return;
             }
@@ -128,14 +130,15 @@ export default {
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.isSucceeded) alert('上传成功');
-                    else alert(data.errorMessage);
+                    if (data.isSucceeded)
+                        this.showSnack('上传成功', 'success', 3000);
+                    else this.showSnack(data.errorMessage, 'error', 3000);
                     this.uploadingText = '上传题目数据';
                     this.uploading = false;
                     ele.value = '';
                 })
                 .catch(() => {
-                    alert('上传失败');
+                    this.showSnack('上传失败', 'error', 3000);
                     this.uploadingText = '上传题目数据';
                     this.uploading = false;
                     ele.value = '';
@@ -154,11 +157,13 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) {
-                            alert('删除成功');
+                            this.showSnack('删除成功', 'success', 3000);
                         }
-                        else alert(data.errorMessage);
+                        else
+                            this.showSnack(data.errorMessage, 'error', 3000);
                     })
-                    .catch(() => alert('删除失败'));
+                    .catch(() =>
+                        this.showSnack('删除失败', 'error', 3000));
             }
         },
         selectFile: function () {

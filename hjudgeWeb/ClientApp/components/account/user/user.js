@@ -2,7 +2,7 @@
 import { Get } from '../../../utilities/requestHelper';
 
 export default {
-    props: ['user'],
+    props: ['user', 'showSnack'],
     data: () => ({
         avatar: '',
         loading: true,
@@ -21,12 +21,12 @@ export default {
                         if (data.isSucceeded) {
                             this.problemSet = data.problemSet;
                         } else {
-                            alert(data.errorMessage);
+                            this.showSnack(data.errorMessage, 'error', 3000);
                         }
                         this.loadingProblems = false;
                     })
                     .catch(() => {
-                        alert('加载失败');
+                        this.showSnack('加载失败', 'error', 3000);
                         this.loadingProblems = false;
                     });
             }
@@ -48,12 +48,12 @@ export default {
                     }
                 }
                 else {
-                    alert('该用户不存在');
+                    this.showSnack('该用户不存在', 'error', 3000);
                 }
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
     },

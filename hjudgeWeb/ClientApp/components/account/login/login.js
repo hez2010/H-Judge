@@ -2,7 +2,7 @@
 import resetpassword from '../password/password.vue';
 
 export default {
-    props: ['getUserInfo', 'closeDlg'],
+    props: ['getUserInfo', 'closeDlg', 'showSnack'],
     data: () => ({
         valid: false,
         submitting: false,
@@ -31,14 +31,15 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                         if (data.isSucceeded) {
+                            this.showSnack('登录成功', 'success', 3000);
                             this.getUserInfo();
                             this.closeDlg();
                         }
-                        else alert(data.errorMessage);
+                        else this.showSnack(data.errorMessage, 'error', 3000);
                         this.submitting = false;
                     })
                     .catch(() => {
-                        alert('登录失败');
+                        this.showSnack('登录失败', 'error', 3000);
                         this.submitting = false;
                     });
             }

@@ -2,6 +2,7 @@
 import { setTitle } from '../../../utilities/titleHelper';
 
 export default {
+    props: ['showSnack'],
     data: () => ({
         config: {},
         loading: true,
@@ -19,11 +20,12 @@ export default {
                 if (data.isSucceeded) {
                     this.config = data;
                 }
-                else alert(data.errorMessage);
+                else
+                    this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
             })
             .catch(() => {
-                alert('加载失败');
+                this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
     },
@@ -34,12 +36,14 @@ export default {
                 Post('/Admin/UpdateSystemConfig', this.config)
                     .then(res => res.json())
                     .then(data => {
-                        if (data.isSucceeded) alert('保存成功');
-                        else alert(data.errorMessage);
+                        if (data.isSucceeded)
+                            this.showSnack('保存成功', 'success', 3000);
+                        else
+                            this.showSnack(data.errorMessage, 'error', 3000);
                         this.submitting = false;
                     })
                     .catch(() => {
-                        alert('保存失败');
+                        this.showSnack('保存失败', 'error', 3000);
                         this.submitting = false;
                     });
             }
