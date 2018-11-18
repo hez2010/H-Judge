@@ -67,7 +67,7 @@
                         </v-flex>
                         <v-flex>
                             <v-tooltip bottom>
-                                <v-btn icon slot="activator" @click="sendMessage" :disabled="!inputText || inputText.length > 65536">
+                                <v-btn color="primary" icon slot="activator" @click="sendMessage" :disabled="!inputText || inputText.length > 65536">
                                     <v-icon>send</v-icon>
                                 </v-btn>
                                 <span>发送</span>

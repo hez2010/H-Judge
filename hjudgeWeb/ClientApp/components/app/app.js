@@ -5,7 +5,14 @@ export default {
     data: () => ({
         userInfo: {},
         themeIcon: 'brightness_4',
-        darkTheme: false
+        darkTheme: false,
+        msgTitle: '',
+        msgContent: '',
+        msgUp: false,
+        snackContent: '',
+        snackUp: false,
+        snackColor: '',
+        snackTimeout: 5000
     }),
     components: {
         navmenu: navmenu
@@ -37,7 +44,7 @@ export default {
                 .then(data => {
                     this.userInfo = data;
                     if (this.userInfo && this.userInfo.coinsBonus !== 0) {
-                        this.$refs.navmenu.showMsg('每日登录奖励', `获得 ${this.userInfo.coinsBonus} 金币。连续登录将获得更多金币呦~`);
+                        this.showMsg('每日登录奖励', `获得 ${this.userInfo.coinsBonus} 金币。连续登录将获得更多金币呦~`);
                     }
                 })
                 .catch(() => alert('网络错误'));
@@ -54,6 +61,17 @@ export default {
                 .catch(() => {
                     //ignore
                 });
+        },
+        showMsg: function (title, content) {
+            this.msgTitle = title;
+            this.msgContent = content;
+            this.msgUp = true;
+        },
+        showSnack: function (content, color, timeout) {
+            this.snackContent = content;
+            this.snackColor = color;
+            this.snackTimeout = timeout;
+            this.snackUp = true;
         }
     }
 };

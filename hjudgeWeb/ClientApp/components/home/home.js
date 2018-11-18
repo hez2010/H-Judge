@@ -3,7 +3,7 @@ import * as signalR from '@aspnet/signalr';
 import { Get, Post } from '../../utilities/requestHelper';
 
 export default {
-    props: ['user'],
+    props: ['user', 'showSnack'],
     data: () => ({
         announcements: [],
         annpage: 0,
@@ -117,6 +117,7 @@ export default {
                         if (!data.isSucceeded) {
                             alert(data.errorMessage);
                         } else {
+                            this.showSnack('发送成功，获得 5 经验', 'primary', 3000);
                             this.currentReply = 0;
                         }
                     })

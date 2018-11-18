@@ -130,11 +130,12 @@ namespace hjudgeWeb.Controllers
                     await db.SaveChangesAsync();
                     await _chatHub.Clients.All.SendAsync("ChatMessage", diss.Id, user.Id, user.UserName, $"{sendTime.ToShortDateString()} {sendTime.ToLongTimeString()}", content, model.ReplyId);
                 }
+                user.Experience += 5;
                 if (!HasAdminPrivilege(privilege))
                 {
                     user.Coins -= 10;
-                    await _userManager.UpdateAsync(user);
                 }
+                await _userManager.UpdateAsync(user);
             }
             else
             {
