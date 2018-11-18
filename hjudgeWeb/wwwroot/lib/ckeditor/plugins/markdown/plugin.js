@@ -69,13 +69,33 @@
 
                 // Convert to Markdown and Fill the textarea.
                 if (typeof(TurndownService) == 'undefined') {
-                    CKEDITOR.scriptLoader.load(rootPath + 'js/turndown.js', function() {
-                        var turndownService = new TurndownService(turndownOption);
-                        editable.setData(turndownService.turndown(htmlData));
+                    CKEDITOR.scriptLoader.load(rootPath + 'js/turndown.js', function () {
+                        if (typeof (turndownPluginGfm) == 'undefined') {
+                            CKEDITOR.scriptLoader.load(rootPath + 'js/turndown-plugin-gfm.js', function () {
+                                var turndownService = new TurndownService(turndownOption);
+                                turndownService.use([turndownPluginGfm.tables, turndownPluginGfm.strikethrough]);
+                                editable.setData(turndownService.turndown(htmlData));
+                            })
+                        }
+                        else {
+                            var turndownService = new TurndownService(turndownOption);
+                            turndownService.use([turndownPluginGfm.tables, turndownPluginGfm.strikethrough]);
+                            editable.setData(turndownService.turndown(htmlData));
+                        }
                     });
                 } else {
-                    var turndownService = new TurndownService(turndownOption);
-                    editable.setData(turndownService.turndown(htmlData));
+                    if (typeof (turndownPluginGfm) == 'undefined') {
+                        CKEDITOR.scriptLoader.load(rootPath + 'js/turndown-plugin-gfm.js', function () {
+                            var turndownService = new TurndownService(turndownOption);
+                            turndownService.use([turndownPluginGfm.tables, turndownPluginGfm.strikethrough]);
+                            editable.setData(turndownService.turndown(htmlData));
+                        })
+                    }
+                    else {
+                        var turndownService = new TurndownService(turndownOption);
+                        turndownService.use([turndownPluginGfm.tables, turndownPluginGfm.strikethrough]);
+                        editable.setData(turndownService.turndown(htmlData));
+                    }
                 }
 
                 if (typeof (CodeMirror) == 'undefined' || typeof (CodeMirror.modes.gfm) == 'undefined') {
