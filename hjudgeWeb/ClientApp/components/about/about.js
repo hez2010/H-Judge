@@ -4,6 +4,19 @@ export default {
     data: () => ({
         logs: [
             {
+                color: 'amber',
+                version: 'Beta: v1.6',
+                reldate: '2018/11/18',
+                content: [
+                    '1. 优化 UI',
+                    '2. 改善用户体验',
+                    '3. 发送消息获得经验',
+                    '4. 添加每日登录奖励',
+                    '5. 编辑器支持 Markdown',
+                    '6. 性能优化'
+                ]
+            },
+            {
                 color: 'indigo',
                 version: 'Beta: v1.5',
                 reldate: '2018/11/15',
