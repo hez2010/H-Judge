@@ -199,10 +199,9 @@
                 window["codemirror_" + editor.id] = null; // Free Memory on destroy
 
                 var markdownSource = editor.getData();
-                var rendered = kramed(markdownSource, {langPrefix: 'language-'});
+                var rendered = kramed(markdownSource);
                 
                 rendered = rendered.replace(/<script type="math\/tex.*?">(.*?)<\/script\>/g, function (_, inner) { return "<span class=\"math-tex\">\\(" + inner + "\\)</span>"; })
-                console.log(rendered);
                 editor.setData(rendered);
 
                 sourceEditable.baseProto.detach.call(this);
