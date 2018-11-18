@@ -808,14 +808,14 @@ function html2Escape(sHtml) {
 
 function process (parentNode) {
   var self = this;
-  var math = /\\\((.*?)\\\)/g;
+  var math = /^\\\((.*?)\\\)/;
   return reduce.call(parentNode.childNodes, function (output, node) {
     node = new Node(node);
     var replacement = '';
     if (node.nodeType === 3) {
       replacement = node.isCode ? node.nodeValue : html2Escape(self.escape(node.nodeValue));
     } else if (node.nodeType === 1) {
-      replacement = node.isMath ? " $$ " + node.innerHTML.replace(math, function(_, inner) { return inner; }) + " $$ " : replacementForNode.call(self, node);
+      replacement = node.isMath ? node.innerHTML : replacementForNode.call(self, node);
     }
 
     return join(output, replacement)

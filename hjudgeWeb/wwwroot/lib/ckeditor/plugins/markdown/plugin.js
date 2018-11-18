@@ -182,7 +182,7 @@
                 var rendered = kramed(markdownSource, {langPrefix: 'language-'});
                 
                 rendered = rendered.replace(/<script type="math\/tex.*?">(.*?)<\/script\>/g, function (_, inner) { return "<span class=\"math-tex\">\\(" + inner + "\\)</span>"; })
-                
+                console.log(rendered);
                 editor.setData(rendered);
 
                 sourceEditable.baseProto.detach.call(this);
