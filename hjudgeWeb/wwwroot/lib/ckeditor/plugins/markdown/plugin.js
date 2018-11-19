@@ -27,14 +27,16 @@
             editor.config.markdown = CKEDITOR.tools.extend(defaultConfig, editor.config.markdown || {}, true);
 
             editor.addMode('markdown', function (callback) {
+
+                editor.fire('markdownEnabled', true);
+
                 var contentsSpace = editor.ui.space('contents'),
                     textarea = contentsSpace.getDocument().createElement('textarea'),
                     config = editor.config.markdown;
 
                 textarea.setStyles(
                     CKEDITOR.tools.extend({
-                        // IE7 has overflow the <textarea> from wrapping table cell.
-                        width: CKEDITOR.env.ie7Compat ? '99%' : '100%',
+                        width: '100%',
                         height: '100%',
                         resize: 'none',
                         outline: 'none',
@@ -111,16 +113,6 @@
                 else callbackForEditor();
 
                 function callbackForEditor() {
-                    // Having to make <textarea> fixed sized to conquer the following bugs:
-                    // 1. The textarea height/width='100%' doesn't constraint to the 'td' in IE6/7.
-                    // 2. Unexpected vertical-scrolling behavior happens whenever focus is moving out of editor
-                    // if text content within it has overflowed. (#4762)
-                    if (CKEDITOR.env.ie) {
-                        editable.attachListener(editor, 'resize', onResize, editable);
-                        editable.attachListener(CKEDITOR.document.getWindow(), 'resize', onResize, editable);
-                        CKEDITOR.tools.setTimeout(onResize, 0, editable);
-                    }
-
                     editor.fire('ariaWidget', this);
                     editor.commands.maximize.modes.markdown = 1;
                     callback();
@@ -145,25 +137,6 @@
             editor.on('mode', function () {
                 editor.getCommand('markdown').setState(editor.mode == 'markdown' ? CKEDITOR.TRISTATE_ON : CKEDITOR.TRISTATE_OFF);
             });
-
-            var needsFocusHack = CKEDITOR.env.ie && CKEDITOR.env.version == 9;
-
-            function onResize() {
-                // We have to do something with focus on IE9, because if sourcearea had focus
-                // before being resized, the caret ends somewhere in the editor UI (#11839).
-                var wasActive = needsFocusHack && this.equals(CKEDITOR.document.getActive());
-
-                // Holder rectange size is stretched by textarea,
-                // so hide it just for a moment.
-                this.hide();
-                this.setStyle('height', this.getParent().$.clientHeight + 'px');
-                this.setStyle('width', this.getParent().$.clientWidth + 'px');
-                // When we have proper holder size, show textarea again.
-                this.show();
-
-                if (wasActive)
-                    this.focus();
-            }
         }
     });
 
@@ -204,6 +177,8 @@
                 editor.setData(rendered);
 
                 sourceEditable.baseProto.detach.call(this);
+
+                editor.fire('markdownEnabled', false);
 
                 this.clearCustomData();
                 this.remove();

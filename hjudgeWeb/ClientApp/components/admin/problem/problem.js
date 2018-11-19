@@ -22,7 +22,8 @@ export default {
         ],
         templateSelection: '${datadir}/${name}${index}.in|${datadir}/${name}${index}.ans|1000|131072|10',
         timer: null,
-        submitting: false
+        submitting: false,
+        markdownEnabled: false
     }),
     mounted: function () {
         setTitle('题目编辑');
@@ -64,7 +65,8 @@ export default {
         loadEditor: function () {
             if (window.CKEDITOR) {
                 clearInterval(this.timer);
-                window.CKEDITOR.replace('editor');
+                window.CKEDITOR.replace('editor')
+                    .on('markdownEnabled', obj => this.markdownEnabled = obj.data);
             }
         },
         valid: function () {

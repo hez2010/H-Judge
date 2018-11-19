@@ -11,7 +11,8 @@ export default {
             v => !!v || '此项不能为空'
         ],
         timer: null,
-        submitting: false
+        submitting: false,
+        markdownEnabled: false
     }),
     mounted: function () {
         setTitle('比赛编辑');
@@ -35,7 +36,8 @@ export default {
         loadEditor: function () {
             if (window.CKEDITOR) {
                 clearInterval(this.timer);
-                window.CKEDITOR.replace('editor');
+                window.CKEDITOR.replace('editor')
+                    .on('markdownEnabled', obj => this.markdownEnabled = obj.data);
             }
         },
         isValid: function () {

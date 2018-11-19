@@ -16,7 +16,9 @@ export default {
         inputRules: [
             v => !!v || '请输入发送内容'
         ],
-        currentReply: 0
+        currentReply: 0,
+        hubConnected: false,
+        sending: false
     }),
     mounted: function () {
         setTitle('主页');
@@ -43,30 +45,7 @@ export default {
                 };
             }
 
-            this.connection = new signalR.HubConnectionBuilder().withUrl('/ChatHub').build();
-            this.connection.on('ChatMessage', (id, userId, userName, sendTime, content, replyId) => {
-                let data = {
-                    id: id,
-                    userId: userId,
-                    userName: userName,
-                    sendTime: sendTime,
-                    content: content,
-                    replyId: replyId,
-                    avatar: '/Account/GetUserAvatar?userId=' + userId
-                };
-                let msgList = document.getElementById('msgList');
-                if (msgList !== null) {
-                    let dTop = msgList.scrollHeight - msgList.clientHeight - msgList.scrollTop;
-                    this.chats = this.chats.concat([data]);
-                    if (dTop <= 100 || !!this.inputText) {
-                        this.$nextTick(() => {
-                            msgList.scrollTop = msgList.scrollHeight - msgList.clientHeight;
-                        });
-                    }
-                }
-                this.inputText = '';
-            });
-            this.connection.start();
+            this.connection = this.buildSingalR();
         });
     },
     destroyed: function () {
@@ -111,25 +90,66 @@ export default {
         },
         sendMessage: function () {
             if (this.inputText && this.inputText.length <= 65536)
-                Post('/Message/SendChat', { content: this.inputText, replyId: this.currentReply })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (!data.isSucceeded) {
-                            this.showSnack(data.errorMessage, 'error', 3000);
-                        } else {
-                            this.showSnack('发送成功，获得 5 经验', 'success', 3000);
-                            this.currentReply = 0;
-                        }
-                    })
-                    .catch(() => {
-                        this.showSnack('发送失败', 'error', 3000);
-                    });
+                this.sending = true;
+            Post('/Message/SendChat', { content: this.inputText, replyId: this.currentReply })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.isSucceeded) {
+                        this.showSnack(data.errorMessage, 'error', 3000);
+                    } else {
+                        this.showSnack('发送成功，获得 5 经验', 'success', 3000);
+                        this.currentReply = 0;
+                    }
+                    this.sending = false;
+                })
+                .catch(() => {
+                    this.showSnack('发送失败', 'error', 3000);
+                    this.sending = false;
+                });
         },
         cancelReply: function () {
             this.currentReply = 0;
         },
         processReply: function (id) {
             this.currentReply = id;
+        },
+        buildSingalR: function () {
+            let conn = new signalR.HubConnectionBuilder().withUrl('/ChatHub').build();
+            conn.on('ChatMessage', (id, userId, userName, sendTime, content, replyId) => {
+                let data = {
+                    id: id,
+                    userId: userId,
+                    userName: userName,
+                    sendTime: sendTime,
+                    content: content,
+                    replyId: replyId,
+                    avatar: '/Account/GetUserAvatar?userId=' + userId
+                };
+                let msgList = document.getElementById('msgList');
+                if (msgList !== null) {
+                    let dTop = msgList.scrollHeight - msgList.clientHeight - msgList.scrollTop;
+                    this.chats = this.chats.concat([data]);
+                    if (dTop <= 100 || !!this.inputText) {
+                        this.$nextTick(() => {
+                            msgList.scrollTop = msgList.scrollHeight - msgList.clientHeight;
+                        });
+                    }
+                }
+                this.inputText = '';
+            });
+            conn.onclose(error => {
+                this.hubConnected = false;
+                if (error) {
+                    this.connection = this.buildSingalR();
+                }
+            });
+            conn.start()
+                .then(() => this.hubConnected = true)
+                .catch(() => {
+                    this.hubConnected = false;
+                    this.connection = this.buildSingalR();
+                });
+            return conn;
         }
     }
 };

@@ -4,7 +4,7 @@
   {
     "outputFileName": "wwwroot/css/site.min.css",
     "inputFiles": [
-      "wwwroot/css/preloader.css"
+      "wwwroot/css/site.css"
     ]
   }//,
   //{

@@ -1,0 +1,144 @@
+﻿.cke_contents {
+    font-size: 13px;
+    line-height: 1.6;
+    /* Fix for missing scrollbars with RTL texts. (#10488) */
+    word-wrap: break-word;
+}
+
+    .cke_contents blockquote {
+        font-family: Georgia, Times, "Times New Roman", serif;
+        padding: 2px 0;
+        border-style: solid;
+        border-color: #ccc;
+        border-width: 0;
+        padding-left: 20px;
+        padding-right: 8px;
+        border-left-width: 5px;
+    }
+
+    .cke_contents ol, ul, dl {
+        /* IE7: reset rtl list margin. (#7334) */
+        *margin-right: 0px;
+        /* Preserved spaces for list items with text direction different than the list. (#6249,#8049)*/
+        padding: 0 40px;
+    }
+
+    .cke_contents pre {
+        white-space: pre-wrap; /* CSS 2.1 */
+        word-wrap: break-word; /* IE7 */
+        -moz-tab-size: 4;
+        tab-size: 4;
+    }
+
+    .cke_contents h1, h2, h3, h4, h5, h6 {
+        font-weight: normal;
+        line-height: 1.2;
+    }
+
+    .cke_contents hr {
+        border: 0px;
+        border-top: 1px solid #ccc;
+    }
+
+    .cke_contents img.right {
+        border: 1px solid #ccc;
+        float: right;
+        margin-left: 15px;
+        padding: 5px;
+    }
+
+    .cke_contents img.left {
+        border: 1px solid #ccc;
+        float: left;
+        margin-right: 15px;
+        padding: 5px;
+    }
+
+    .cke_contents a {
+        color: #0782C1;
+    }
+
+    .cke_contents .marker {
+        background-color: Yellow;
+    }
+
+    .cke_contents span[lang] {
+        font-style: italic;
+    }
+
+    .cke_contents figure {
+        text-align: center;
+        outline: solid 1px #ccc;
+        background: rgba(0,0,0,0.05);
+        padding: 10px;
+        margin: 10px 20px;
+        display: inline-block;
+    }
+
+        .cke_contents figure > figcaption {
+            text-align: center;
+            display: block; /* For IE8 */
+        }
+
+    .cke_contents a > img {
+        padding: 1px;
+        margin: 1px;
+        border: none;
+        outline: 1px solid #0782C1;
+    }
+
+
+
+.preloader {
+    position: fixed;
+    background-position: center;
+    margin: -50px 0 0 -50px;
+    left: 48%;
+    top: 45%;
+}
+
+.loader {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 20px;
+}
+
+@keyframes load1 {
+    50% {
+        transform: rotateZ(-1060deg);
+    }
+
+    100% {
+        transform: rotateZ(0deg);
+    }
+}
+
+.loader1::before {
+    content: "";
+    color: white;
+    height: 50px;
+    width: 50px;
+    background: transparent;
+    border-radius: 50%;
+    border: 10px solid transparent;
+    border-color: #039BE5 #039BE5 transparent transparent;
+    animation: load1 2s infinite;
+}
+
+.detail-field {
+    max-height: 500px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+.router-link-active {
+    text-decoration: none;
+}

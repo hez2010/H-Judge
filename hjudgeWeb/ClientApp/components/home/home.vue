@@ -52,11 +52,11 @@
                                     <router-link :to="{ path: '/Account/' + item.userId }">
                                         <v-list-tile-title>{{item.userName}}</v-list-tile-title>
                                     </router-link>
-                                    <v-list-tile-sub-title>{{item.sendTime}} #{{item.id}} {{item.replyId !== 0 ? '回复 #' + item.replyId : ''}}</v-list-tile-sub-title>
+                                    <v-list-tile-sub-title>#{{item.id}} {{item.replyId !== 0 ? '回复 #' + item.replyId : ''}} {{item.sendTime}}</v-list-tile-sub-title>
                                 </v-list-tile-content>
                             </v-list-tile>
                             <v-container style="width: 90%; overflow: auto; height: 100px;">
-                                <pre v-html="item.content"></pre>
+                                <pre style="white-space: pre-wrap; word-wrap: break-word;" v-html="item.content"></pre>
                             </v-container>
                             <v-divider v-if="index + 1 < chats.length" :key="`divider-${index}`"></v-divider>
                         </div>
@@ -67,10 +67,12 @@
                         </v-flex>
                         <v-flex>
                             <v-tooltip bottom>
-                                <v-btn icon slot="activator" @click="sendMessage" :disabled="!inputText || inputText.length > 65536">
+                                <v-btn icon slot="activator" @click="sendMessage" :disabled="!inputText || inputText.length > 65536 || !hubConnected || sending">
                                     <v-icon color="primary">send</v-icon>
                                 </v-btn>
-                                <span>发送</span>
+                                <span v-if="hubConnected && !sending">发送</span>
+                                <span v-else-if="!hubConnected">正在连接服务器</span>
+                                <span v-else>发送中</span>
                             </v-tooltip>
                             <v-spacer></v-spacer>
                             <v-tooltip bottom v-if="currentReply !== 0">
