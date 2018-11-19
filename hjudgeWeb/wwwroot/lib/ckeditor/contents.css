@@ -78,8 +78,6 @@ img.left {
 }
 
 pre {
-    white-space: pre-wrap; /* CSS 2.1 */
-    word-wrap: break-word; /* IE7 */
     -moz-tab-size: 4;
     tab-size: 4;
 }

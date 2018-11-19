@@ -16,7 +16,7 @@
         border-left-width: 5px;
     }
 
-    .cke_contents ol, ul, dl {
+    .cke_contents ol, .cke_contents ul, .cke_contents dl {
         /* IE7: reset rtl list margin. (#7334) */
         *margin-right: 0px;
         /* Preserved spaces for list items with text direction different than the list. (#6249,#8049)*/
@@ -24,13 +24,11 @@
     }
 
     .cke_contents pre {
-        white-space: pre-wrap; /* CSS 2.1 */
-        word-wrap: break-word; /* IE7 */
         -moz-tab-size: 4;
         tab-size: 4;
     }
 
-    .cke_contents h1, h2, h3, h4, h5, h6 {
+    .cke_contents h1, .cke_contents h2, .cke_contents h3, .cke_contents h4, .cke_contents h5, .cke_contents h6 {
         font-weight: normal;
         line-height: 1.2;
     }
