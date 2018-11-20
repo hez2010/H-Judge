@@ -77,7 +77,7 @@
                 <v-tab-item :key="2">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
-                        <v-container class="cke_contents" v-else v-highlight v-html="contest.description"></v-container>
+                        <v-container id="details_content" class="cke_contents" v-else v-highlight v-html="contest.description"></v-container>
                     </v-card-text>
                 </v-tab-item>
                 <v-tab-item :key="3">
@@ -148,7 +148,6 @@
                 </v-tab-item>
             </v-tabs>
         </v-card>
-        <remote-script src="https://cdn.hjudge.com/hjudge/lib/MathJax-2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></remote-script>
     </v-container>
 </template>
 

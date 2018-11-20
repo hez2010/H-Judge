@@ -10,9 +10,9 @@ export default {
         requireRules: [
             v => !!v || '此项不能为空'
         ],
-        timer: null,
         submitting: false,
-        markdownEnabled: false
+        markdownEnabled: false,
+        timer: null
     }),
     mounted: function () {
         setTitle('比赛编辑');
@@ -21,7 +21,7 @@ export default {
             .then(data => {
                 if (data.isSucceeded) {
                     this.contest = data;
-                    this.$nextTick(() => this.timer = setInterval(() => this.loadEditor(), 200));
+                    this.$nextTick(() => this.loadEditor());
                 }
                 else
                     this.showSnack(data.errorMessage, 'error', 3000);
@@ -32,13 +32,20 @@ export default {
                 this.loading = false;
             });
     },
+    destroyed: function () {
+        if (window.CKEDITOR.instances.editor)
+            window.CKEDITOR.instances.editor.destroy();
+    },
     methods: {
         loadEditor: function () {
-            if (window.CKEDITOR) {
-                clearInterval(this.timer);
-                window.CKEDITOR.replace('editor')
-                    .on('markdownEnabled', obj => this.markdownEnabled = obj.data);
-            }
+            this.timer = setInterval(() => {
+                if (document.getElementById('editor')) {
+                    clearInterval(this.timer);
+                    window.CKEDITOR.replace('editor')
+                        .on('markdownEnabled', obj => this.markdownEnabled = obj.data);
+                    this.timer = null;
+                }
+            }, 1000);
         },
         isValid: function () {
             return this.valid && this.contest.startTime && this.contest.endTime;
@@ -47,8 +54,7 @@ export default {
             if (!this.$refs.basic.validate()) return;
             if (!this.isValid()) return;
 
-            if (window.CKEDITOR)
-                this.contest.description = window.CKEDITOR.instances['editor'].getData();
+            this.contest.description = window.CKEDITOR.instances['editor'].getData();
 
             this.submitting = true;
             Post('/Admin/UpdateContestConfig', this.contest)

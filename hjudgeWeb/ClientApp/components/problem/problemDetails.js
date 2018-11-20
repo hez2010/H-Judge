@@ -40,7 +40,7 @@ export default {
             .then(data => {
                 if (data.isSucceeded) {
                     this.problem = data;
-                    this.$nextTick(() => this.timer = setInterval(() => this.loadMath(), 200));
+                    this.$nextTick(() => this.loadMath());
                 }
                 else this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
@@ -52,10 +52,13 @@ export default {
     },
     methods: {
         loadMath: function () {
-            if (window.MathJax) {
-                clearInterval(this.timer);
-                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
-            }
+            this.timer = setInterval(() => {
+                if (document.getElementById('details_content')) {
+                    clearInterval(this.timer);
+                    window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
+                    this.timer = null;
+                }
+            }, 1000);
         },
         submit: function () {
             if (this.$refs.form.validate()) {

@@ -21,9 +21,9 @@ export default {
             '${datadir}/${name}${index0}.in|${datadir}/${name}${index0}.out|1000|131072|10'
         ],
         templateSelection: '${datadir}/${name}${index}.in|${datadir}/${name}${index}.ans|1000|131072|10',
-        timer: null,
         submitting: false,
-        markdownEnabled: false
+        markdownEnabled: false,
+        timer: null
     }),
     mounted: function () {
         setTitle('题目编辑');
@@ -32,7 +32,7 @@ export default {
             .then(data => {
                 if (data.isSucceeded) {
                     this.problem = data;
-                    this.$nextTick(() => this.timer = setInterval(() => this.loadEditor(), 200));
+                    this.$nextTick(() => this.loadEditor());
                 }
                 else
                     this.showSnack(data.errorMessage, 'error', 3000);
@@ -42,6 +42,10 @@ export default {
                 this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
+    },
+    destroyed: function () {
+        if (window.CKEDITOR.instances.editor)
+            window.CKEDITOR.instances.editor.destroy();
     },
     methods: {
         addPoint: function () {
@@ -63,11 +67,14 @@ export default {
             }
         },
         loadEditor: function () {
-            if (window.CKEDITOR) {
-                clearInterval(this.timer);
-                window.CKEDITOR.replace('editor')
-                    .on('markdownEnabled', obj => this.markdownEnabled = obj.data);
-            }
+            this.timer = setInterval(() => {
+                if (document.getElementById('editor')) {
+                    clearInterval(this.timer);
+                    window.CKEDITOR.replace('editor')
+                        .on('markdownEnabled', obj => this.markdownEnabled = obj.data);
+                    this.timer = null;
+                }
+            }, 1000);
         },
         valid: function () {
             return (this.valid_basic && (this.problem.type === 1 ? this.valid_points : this.valid_answer));
@@ -81,8 +88,7 @@ export default {
             }
             if (this.problem.config.extraFilesText) this.problem.config.extraFiles = this.problem.config.extraFilesText.split('\n');
 
-            if (window.CKEDITOR)
-                this.problem.description = window.CKEDITOR.instances['editor'].getData();
+            this.problem.description = window.CKEDITOR.instances['editor'].getData();
 
             this.submitting = true;
             Post('/Admin/UpdateProblemConfig', this.problem)

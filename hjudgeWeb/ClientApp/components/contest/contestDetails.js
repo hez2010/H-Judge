@@ -52,7 +52,7 @@ export default {
                             this.verified = this.valid = true;
                         }
                     }
-                    this.$nextTick(() => this.timer = setInterval(() => this.loadMath(), 200));
+                    this.$nextTick(() => this.loadMath());
                 }
                 else this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
@@ -113,10 +113,13 @@ export default {
     },
     methods: {
         loadMath: function () {
-            if (window.MathJax) {
-                window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
-                clearInterval(this.timer);
-            }
+            this.timer = setInterval(() => {
+                if (document.getElementById('details_content')) {
+                    clearInterval(this.timer);
+                    window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
+                    this.timer = null;
+                }
+            }, 1000);
         },
         verify: function () {
             if (this.password === this.contest.password) {
