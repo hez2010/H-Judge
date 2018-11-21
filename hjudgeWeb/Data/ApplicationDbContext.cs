@@ -6,12 +6,6 @@ namespace hjudgeWeb.Data
 {
     public partial class ApplicationDbContext : IdentityDbContext<UserInfo>
     {
-        public class ExperienceCoins
-        {
-            public long Experience { get; set; }
-            public long Coins { get; set; }
-        }
-
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -29,7 +23,6 @@ namespace hjudgeWeb.Data
         public virtual DbSet<Problem> Problem { get; set; }
         public virtual DbSet<VotesRecord> VotesRecord { get; set; }
         public virtual DbSet<Discussion> Discussion { get; set; }
-        public DbQuery<ExperienceCoins> ExperienceCoinsQuery { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

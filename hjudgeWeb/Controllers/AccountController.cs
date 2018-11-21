@@ -36,16 +36,22 @@ namespace hjudgeWeb.Controllers
             _emailSender = emailSender;
         }
 
+        public class ExperienceCoins
+        {
+            public long Experience { get; set; }
+            public long Coins { get; set; }
+        }
+
         [HttpGet]
-        public async Task<ApplicationDbContext.ExperienceCoins> GetFortune()
+        public async Task<ExperienceCoins> GetFortune()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
                 using (var db = new ApplicationDbContext(_dbContextOptions))
                 {
-                    var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id=@1", new SqlParameter("@1", user.Id)).FirstOrDefault();
-                    return fortune;
+                    var fortune = db.Users.Select(i => new { i.Id, i.Experience, i.Coins }).FirstOrDefault(i => i.Id == user.Id);
+                    return new ExperienceCoins { Experience = fortune.Experience, Coins = fortune.Coins };
                 }
             }
             return null;

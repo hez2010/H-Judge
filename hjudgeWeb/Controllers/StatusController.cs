@@ -174,10 +174,10 @@ namespace hjudgeWeb.Controllers
                     ResultType = i.ResultType,
                     UserId = i.UserId,
                     RawType = i.Type,
-                    GroupName = i.Group == null ? null : i.Group.Name,
-                    ContestName = i.Contest == null ? null : i.Contest.Name,
-                    ProblemName = i.Problem == null ? null : i.Problem.Name,
-                    UserName = i.UserInfo == null ? null : i.UserInfo.UserName
+                    GroupName = i.Group.Name,
+                    ContestName = i.Contest.Name,
+                    ProblemName = i.Problem.Name,
+                    UserName = i.UserInfo.UserName
                 }).ToListAsync();
 
                 foreach (var i in result)

@@ -78,7 +78,7 @@ namespace hjudgeWeb.Controllers
                     RawLevel = i.Level,
                     Hidden = i.Hidden,
                     UserId = i.UserId,
-                    UserName = i.UserInfo == null ? null : i.UserInfo.UserName
+                    UserName = i.UserInfo.UserName
                 }).ToListAsync();
 
                 foreach (var i in list)

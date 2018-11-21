@@ -116,15 +116,15 @@
                                                 <p v-if="loading">加载中...</p>
                                                 <div v-else>
                                                     <p v-if="problemSet.length === 0">无</p>
-                                                    <v-layout v-if="problemSet.length >= 6" v-for="i in parseInt(problemSet.length / 6)">
-                                                        <v-flex xs2 v-for="j in 6">
+                                                    <v-layout v-if="problemSet.length >= 6" v-for="i in parseInt(problemSet.length / 6)" :key="i">
+                                                        <v-flex xs2 v-for="j in 6" :key="j">
                                                             <router-link :to="{ path: '/ProblemDetails/' + problemSet[(i - 1) * 6 + j - 1] }">
                                                                 #{{problemSet[(i - 1) * 6 + j - 1]}}
                                                             </router-link>
                                                         </v-flex>
                                                     </v-layout>
                                                     <v-layout v-if="problemSet.length % 6 !== 0">
-                                                        <v-flex xs2 v-for="j in problemSet.length % 6">
+                                                        <v-flex xs2 v-for="j in problemSet.length % 6" :key="j">
                                                             <router-link :to="{ path: '/ProblemDetails/' + problemSet[parseInt(problemSet.length / 6) * 6 + j - 1] }">
                                                                 #{{problemSet[parseInt(problemSet.length / 6) * 6 + j - 1]}}
                                                             </router-link>

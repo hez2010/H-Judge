@@ -374,7 +374,7 @@ namespace hjudgeWeb
                             }
                             try
                             {
-                                var fortune = db.ExperienceCoinsQuery.FromSql("Select Experience, Coins from AspNetUsers where Id=@1", new SqlParameter("@1", judge.UserId)).FirstOrDefault();
+                                var fortune = db.Users.Select(i => new { i.Id, i.Experience, i.Coins }).FirstOrDefault(i => i.Id == judge.UserId);
                                 if (fortune != null)
                                 {
                                     long dExp = 0, dCoins = 0;

@@ -77,7 +77,7 @@ namespace hjudgeWeb.Controllers
                     RawEndTime = i.EndTime,
                     ProblemCount = i.ContestProblemConfig.Count(j => j.ContestId == i.Id),
                     UserId = i.UserId,
-                    UserName = i.UserInfo == null ? null : i.UserInfo.Name
+                    UserName = i.UserInfo.Name
                 }).ToList();
                 foreach (var item in list)
                 {

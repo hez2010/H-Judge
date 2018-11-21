@@ -11,15 +11,7 @@ module.exports = (env) => {
         resolve: { extensions: ['.js', '.jsx'] },
         entry: {
             vendor: [
-                'vuetify',
-                'event-source-polyfill',
-                'highlight.js',
-                'vue',
-                'vue-router',
-                'isomorphic-fetch',
-                'vuetify/dist/vuetify.min.css',
-                'material-design-icons-iconfont/dist/material-design-icons.css',
-                'highlight.js/styles/github.css'
+                'event-source-polyfill'
             ]
         },
         module: {
