@@ -61,9 +61,9 @@ namespace hjudgeWeb.Controllers
             }
             if (user.Avatar == null || user.Avatar.Length == 0)
             {
-                return File(Convert.FromBase64String(Properties.Resource.DefaultAvatar), "image/png");
+                return File(Utils.ImageScaler.ScaleImage(Convert.FromBase64String(Properties.Resource.DefaultAvatar), 128, 128), "image/png");
             }
-            return File(user.Avatar, "image/png");
+            return File(Utils.ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
         }
 
         public class EmailModel

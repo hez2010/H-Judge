@@ -12,7 +12,7 @@ export default {
         },
         active: 0,
         loading: true,
-        language: { name: '', information: '', syntaxHighlight: 'plain-text' },
+        language: { name: '', information: '', syntaxHighlight: 'plain_text' },
         languageRules: [
             v => !!v.name || '请选择语言'
         ],
