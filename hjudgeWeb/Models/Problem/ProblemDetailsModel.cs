@@ -8,6 +8,7 @@ namespace hjudgeWeb.Models.Problem
     {
         public string Name { get; set; }
         public string Information { get; set; }
+        public string SyntaxHighlight { get; set; }
     }
 
     public class ProblemDetailsModel : ResultModel

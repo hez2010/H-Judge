@@ -3,10 +3,10 @@
 }
 
 <environment include="Development">
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </environment>
 <environment exclude="Development">
-    <link rel="stylesheet" href="https://cdn.hjudge.com/hjudge/css/site.min.css" asp-fallback-href="~/css/site.min.css" />
+    <link rel="stylesheet" href="https://cdn.hjudge.com/hjudge/css/site.min.css" asp-append-version="true" asp-fallback-href="~/css/site.min.css" />
 </environment>
 
 <div id='app-root'>
@@ -17,12 +17,19 @@
 </div>
 
 @section scripts{
-    <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/lib/ckeditor/ckeditor.js"></script>
     <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/lib/MathJax-2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <environment include="Development">
+        <script type="text/javascript" src="~/lib/ckeditor/ckeditor.js" asp-append-version="true"></script>
+        <script type="text/javascript" src="~/lib/ace/ace.js" asp-append-version="true"></script>
+        <script type="text/javascript" src="~/lib/ace/theme-github.js" asp-append-version="true"></script>
+        <script type="text/javascript" src="~/lib/ace/theme-twilight.js" asp-append-version="true"></script>
         <script type="text/javascript" src="~/dist/main.js" asp-append-version="true"></script>
     </environment>
     <environment exclude="Development">
+        <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/lib/ckeditor/ckeditor.js" asp-append-version="true" asp-fallback-src="~/lib/ckeditor/ckeditor.js"></script>
+        <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/lib/ace/ace.js" asp-append-version="true" asp-fallback-src="~/lib/ace/ace.js"></script>
+        <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/lib/ace/theme-github.js" asp-append-version="true" asp-fallback-src="~/lib/ace/theme/github.js"></script>
+        <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/lib/ace/theme-twilight.js" asp-append-version="true" asp-fallback-src="~/lib/ace/theme-twilight.js"></script>
         <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/dist/main.js" asp-append-version="true" asp-fallback-src="~/dist/main.js"></script>
     </environment>
 }

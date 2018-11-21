@@ -60,6 +60,12 @@
                                     <v-text-field v-model="item.information"
                                                   label="详情信息">
                                     </v-text-field>
+                                    <v-select v-model="item.syntaxHighlight"
+                                              :items="supportLanguages"
+                                              single-line
+                                              label="语法高亮模板">
+
+                                    </v-select>
                                 </v-tab-item>
                                 <v-tab-item :key="2">
                                     <v-text-field v-model="item.compilerExec"

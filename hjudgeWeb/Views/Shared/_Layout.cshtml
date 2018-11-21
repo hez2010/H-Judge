@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - H::Judge</title>
     <environment include="Development">
-        <link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon" asp-append-version="true" />
         <link rel="stylesheet" href="~/dist/vendor.css" asp-append-version="true" />
     </environment>
     <environment exclude="Development">
-        <link rel="shortcut icon" href="https://cdn.hjudge.com/hjudge/favicon.ico" type="image/x-icon" asp-fallback-href="~/favicon.ico" />
+        <link rel="shortcut icon" href="https://cdn.hjudge.com/hjudge/favicon.ico" type="image/x-icon" asp-append-version="true" asp-fallback-href="~/favicon.ico" />
         <link rel="stylesheet" href="https://cdn.hjudge.com/hjudge/dist/vendor.css" asp-append-version="true" asp-fallback-href="~/dist/vendor.css" />
     </environment>
 </head>

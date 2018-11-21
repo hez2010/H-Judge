@@ -117,12 +117,8 @@
                                           required
                                           :rules="languageRules">
                                 </v-select>
-                                <v-textarea outline
-                                            v-model="content"
-                                            :rules="contentRules"
-                                            label="提交内容"
-                                            required>
-                                </v-textarea>
+                                <pre style="height: 300px" id="submit_content"></pre>
+                                <br />
                                 <v-btn color="primary" :disabled="!valid || submitting" @click="submit">提交</v-btn>
                             </v-form>
                             <p v-else>请登录后再操作</p>

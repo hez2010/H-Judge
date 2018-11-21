@@ -424,7 +424,7 @@ namespace hjudgeWeb.Controllers
                     languages = languages.Intersect(templang).ToList();
                 }
 
-                var langList = Languages.LanguageConfigurations.Where(i => languages.Contains(i.Name)).Select(i => new LanguageConfig { Name = i.Name, Information = i.Information }).ToList();
+                var langList = Languages.LanguageConfigurations.Where(i => languages.Contains(i.Name)).Select(i => new LanguageConfig { Name = i.Name, Information = i.Information, SyntaxHighlight = i.SyntaxHighlight }).ToList();
 
                 if (problem.Hidden && cid == 0)
                 {

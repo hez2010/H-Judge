@@ -2,7 +2,7 @@
 import { setTitle } from '../../utilities/titleHelper';
 
 export default {
-    props: ['user', 'showSnack'],
+    props: ['user', 'showSnack', 'isDarkTheme'],
     data: () => ({
         problem: {},
         param: {
@@ -12,17 +12,15 @@ export default {
         },
         active: 0,
         loading: true,
-        language: { name: '', information: '' },
+        language: { name: '', information: '', syntaxHighlight: 'plain-text' },
         languageRules: [
             v => !!v.name || '请选择语言'
         ],
-        content: '',
-        contentRules: [
-            v => !!v || '请输入提交内容'
-        ],
         submitting: false,
         valid: false,
-        timer: null
+        timer1: null,
+        timer2: null,
+        editor: null
     }),
     mounted: function () {
         if (this.$route.params.pid) {
@@ -40,7 +38,10 @@ export default {
             .then(data => {
                 if (data.isSucceeded) {
                     this.problem = data;
-                    this.$nextTick(() => this.loadMath());
+                    this.$nextTick(() => {
+                        this.loadMath();
+                        this.loadEditor();
+                    });
                 }
                 else this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;
@@ -50,13 +51,30 @@ export default {
                 this.loading = false;
             });
     },
+    destroyed: function () {
+        if (this.editor) {
+            this.editor.destroy();
+            this.editor.container.remove();
+            this.editor = null;
+        }
+    },
     methods: {
+        loadEditor: function () {
+            this.timer1 = setInterval(() => {
+                if (document.getElementById('submit_content')) {
+                    clearInterval(this.timer1);
+                    this.editor = window.ace.edit('submit_content');
+                    this.editor.setTheme('ace/theme/' + (this.isDarkTheme ? 'twilight' : 'github'));
+                    this.timer1 = null;
+                }
+            }, 1000);
+        },
         loadMath: function () {
-            this.timer = setInterval(() => {
+            this.timer2 = setInterval(() => {
                 if (document.getElementById('details_content')) {
-                    clearInterval(this.timer);
+                    clearInterval(this.timer2);
                     window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
-                    this.timer = null;
+                    this.timer2 = null;
                 }
             }, 1000);
         },
@@ -91,6 +109,11 @@ export default {
         },
         showUser: function (userId) {
             this.$router.push('/Account/' + userId);
+        },
+        loadSyntaxHighlight: function () {
+            let name = this.language.syntaxHighlight ? this.language.syntaxHighlight : 'plain_text';
+            let langMode = window.ace.require('ace/mode/' + name).Mode;
+            this.editor.session.setMode(new langMode());
         }
     },
     watch: {
@@ -98,6 +121,21 @@ export default {
             if (this.active === 3) {
                 this.$router.push('/Status/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + (this.param.cid ? this.param.cid.toString() + '/' : '') + this.param.pid.toString() + '/1');
             }
+        },
+        language: function () {
+            let name = this.language.syntaxHighlight ? this.language.syntaxHighlight : 'plain_text';
+            if (!document.getElementById('ace_mode_' + name)) {
+                let script = document.createElement('script');
+                script.id = 'ace_mode_' + name;
+                script.type = 'text/javascript';
+                script.src = 'https://cdn.hjudge.com/hjudge/lib/ace/mode-' + name + '.js';
+                document.body.appendChild(script);
+                script.onload = this.loadSyntaxHighlight;
+            }
+            else this.loadSyntaxHighlight();
+        },
+        isDarkTheme: function () {
+            this.editor.setTheme('ace/theme/' + (this.isDarkTheme ? 'twilight' : 'github'));
         }
     }
 };
