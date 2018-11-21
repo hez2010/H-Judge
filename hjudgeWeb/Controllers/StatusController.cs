@@ -277,15 +277,6 @@ namespace hjudgeWeb.Controllers
         public async Task<SolvedProblemModel> GetSolvedProblemList(string userId)
         {
             var ret = new SolvedProblemModel { IsSucceeded = true };
-
-            var (user, privilege) = await GetUserPrivilegeAsync();
-            if (user == null)
-            {
-                ret.IsSucceeded = false;
-                ret.ErrorMessage = "没有登录";
-                return ret;
-            }
-
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 ret.ProblemSet = await db.Judge
