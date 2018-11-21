@@ -79,32 +79,36 @@ export default {
             }, 1000);
         },
         submit: function () {
-            if (this.$refs.form.validate()) {
-                this.submitting = true;
-                let param = this.param;
-                param['content'] = this.content;
-                if (this.problem.rawType === 1)
-                    param['language'] = this.language.name;
-                Post('/Problem/Submit', param)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.isSucceeded) {
-                            this.showSnack('提交成功', 'success', 3000);
-                            if (data.redirect)
-                                this.$router.push('/Result/' + data.id);
+            if (this.$refs.form.validate() && this.editor) {
+                let content = this.editor.getValue();
+                if (content) {
+                    this.submitting = true;
+                    let param = this.param;
+                    param['content'] = content;
+                    if (this.problem.rawType === 1)
+                        param['language'] = this.language.name;
+                    Post('/Problem/Submit', param)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.isSucceeded) {
+                                this.showSnack('提交成功', 'success', 3000);
+                                if (data.redirect)
+                                    this.$router.push('/Result/' + data.id);
+                                else {
+                                    this.submitting = false;
+                                }
+                            }
                             else {
+                                this.showSnack(data.errorMessage, 'error', 3000);
                                 this.submitting = false;
                             }
-                        }
-                        else {
-                            this.showSnack(data.errorMessage, 'error', 3000);
+                        })
+                        .catch(() => {
+                            this.showSnack('提交失败', 'error', 3000);
                             this.submitting = false;
-                        }
-                    })
-                    .catch(() => {
-                        this.showSnack('提交失败', 'error', 3000);
-                        this.submitting = false;
-                    });
+                        });
+                }
+                else this.showSnack('请输入提交内容', 'error', 3000);
             }
         },
         showUser: function (userId) {
@@ -135,7 +139,8 @@ export default {
             else this.loadSyntaxHighlight();
         },
         isDarkTheme: function () {
-            this.editor.setTheme('ace/theme/' + (this.isDarkTheme ? 'twilight' : 'github'));
+            if (this.editor)
+                this.editor.setTheme('ace/theme/' + (this.isDarkTheme ? 'twilight' : 'github'));
         }
     }
 };
