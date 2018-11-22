@@ -1,5 +1,5 @@
 ﻿import { Post } from '../../../utilities/requestHelper';
-import resetpassword from '../password/password.vue';
+const resetpassword = () => import(/* webpackChunkName: 'password' */'../password/password.vue');
 
 export default {
     props: ['getUserInfo', 'closeDlg', 'showSnack'],

@@ -1,7 +1,7 @@
 ﻿import { setTitle } from '../../../utilities/titleHelper';
 import { Post, ReadCookie, Get } from '../../../utilities/requestHelper';
-import emailConfirm from '../verification/email/emailConfirm.vue';
-import phoneConfirm from '../verification/phone/phoneConfirm.vue';
+const emailConfirm = () => import(/* webpackChunkName: 'emailConfirm' */'../verification/email/emailConfirm.vue');
+const phoneConfirm = () => import(/* webpackChunkName: 'phoneConfirm' */'../verification/phone/phoneConfirm.vue');
 
 export default {
     props: ['user', 'getUserInfo', 'updateFortune', 'showSnack'],

@@ -41,10 +41,14 @@ export default {
     },
     methods: {
         getProblemRouteParams: function (id) {
-            return (this.result.groupId ? this.result.groupId.toString() + '/' : '') + (this.result.contestId ? this.result.contestId.toString() + '/' : '') + id.toString();
+            if (id)
+                return (this.result.groupId ? this.result.groupId.toString() + '/' : '') + (this.result.contestId ? this.result.contestId.toString() + '/' : '') + id.toString();
+            else return '';
         },
         getContestRouteParams: function (id) {
-            return (this.result.groupId ? this.result.groupId.toString() + '/' : '') + id.toString();
+            if (id)
+                return (this.result.groupId ? this.result.groupId.toString() + '/' : '') + id.toString();
+            else return '';
         },
         queryResult: function (jid) {
             Get('/Status/GetJudgeResult', { jid: jid })

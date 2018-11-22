@@ -1,4 +1,4 @@
-﻿import navmenu from '../navmenu/navmenu.vue';
+﻿const navmenu = () => import(/* webpackChunkName: 'navmenu' */'../navmenu/navmenu.vue');
 import { Get } from '../../utilities/requestHelper';
 
 export default {

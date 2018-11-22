@@ -43,6 +43,10 @@
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
+  <Target Name="CleanWebpackBundledFiles" BeforeTargets="Build">
+    <Exec Command="del /f /q wwwroot\dist\*.*" />
+  </Target>
+
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">

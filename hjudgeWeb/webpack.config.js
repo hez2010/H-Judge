@@ -16,8 +16,8 @@ module.exports = (env) => {
         entry: { 'main': ['@babel/polyfill', './ClientApp/boot.js'] },
         module: {
             rules: [
-                { test: /\.vue$/, include: /ClientApp/, loader: 'vue-loader', options: { loaders: { js: { loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]] } } } } },
-                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]] } },
+                { test: /\.vue$/, include: /ClientApp/, loader: 'vue-loader', options: { loaders: { js: { loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]], plugins: ['@babel/plugin-syntax-dynamic-import'] } } } } },
+                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]], plugins: ['@babel/plugin-syntax-dynamic-import'] } },
                 { test: /\.css$/, use: isDevBuild ? ['style-loader', 'css-loader'] : [{ loader: MiniCssExtractPlugin.loader }, 'css-loader?minimize'] },
                 { test: /\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot)$/, use: 'url-loader?limit=25000' }
             ]
@@ -25,6 +25,7 @@ module.exports = (env) => {
         output: {
             path: path.join(__dirname, bundleOutputDir),
             filename: '[name].js',
+            chunkFilename: '[name].js',
             publicPath: '/dist/'
         },
         plugins: [

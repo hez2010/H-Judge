@@ -1,5 +1,5 @@
-﻿import login from '../account/login/login.vue';
-import register from '../account/register/register.vue';
+﻿const login = () => import(/* webpackChunkName: 'login' */'../account/login/login.vue');
+const register = () => import(/* webpackChunkName: 'register' */'../account/register/register.vue');
 import { Post } from '../../utilities/requestHelper';
 
 export default {

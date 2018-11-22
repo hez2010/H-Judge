@@ -1,17 +1,12 @@
-import '@babel/polyfill';
 import Vue from 'vue';
 import Vuetify from 'vuetify';
 import VueRouter from 'vue-router';
-import 'vuetify/dist/vuetify.min.css';
-import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import hljs from 'highlight.js';
-import 'highlight.js/styles/github.css';
-import 'isomorphic-fetch';
 
 Vue.use(VueRouter);
 Vue.use(Vuetify);
 Vue.directive('highlight', function (el) {
-    let blocks = el.querySelectorAll('pre code');
+    const blocks = el.querySelectorAll('pre code');
     blocks.forEach((block) => {
         hljs.highlightBlock(block);
     });
@@ -33,7 +28,7 @@ Vue.component('remote-script', {
                     self.$emit('error', event);
                 },
                 readystatechange: function (event) {
-                    if (this.readyState == 'complete') {
+                    if (this.readyState == 'compconste') {
                         self.$emit('load', event);
                     }
                 }
@@ -48,23 +43,23 @@ Vue.component('remote-script', {
     }
 });
 
-import home from './components/home/home.vue';
-import problem from './components/problem/problem.vue';
-import problemDetails from './components/problem/problemDetails.vue';
-import contest from './components/contest/contest.vue';
-import contestDetails from './components/contest/contestDetails.vue';
-import status from './components/status/status.vue';
-import result from './components/result/result.vue';
-import rank from './components/rank/rank.vue';
-import group from './components/group/group.vue';
-import message from './components/message/message.vue';
-import about from './components/about/about.vue';
-import portal from './components/account/portal/portal.vue';
-import user from './components/account/user/user.vue';
-import problemAdmin from './components/admin/problem/problem.vue';
-import contestAdmin from './components/admin/contest/contest.vue';
-import groupAdmin from './components/admin/group/group.vue';
-import configAdmin from './components/admin/config/config.vue';
+const home = () => import(/* webpackChunkName: 'home' */'./components/home/home.vue');
+const problem = () => import(/* webpackChunkName: 'problem' */'./components/problem/problem.vue');
+const problemDetails = () => import(/* webpackChunkName: 'problemDetails' */'./components/problem/problemDetails.vue');
+const contest = () => import(/* webpackChunkName: 'contest' */'./components/contest/contest.vue');
+const contestDetails = () => import(/* webpackChunkName: 'contestDetails' */'./components/contest/contestDetails.vue');
+const status = () => import(/* webpackChunkName: 'status' */'./components/status/status.vue');
+const result = () => import(/* webpackChunkName: 'result' */'./components/result/result.vue');
+const rank = () => import(/* webpackChunkName: 'rank' */'./components/rank/rank.vue');
+const group = () => import(/* webpackChunkName: 'group' */'./components/group/group.vue');
+const message = () => import(/* webpackChunkName: 'message' */'./components/message/message.vue');
+const about = () => import(/* webpackChunkName: 'about' */'./components/about/about.vue');
+const portal = () => import(/* webpackChunkName: 'portal' */'./components/account/portal/portal.vue');
+const user = () => import(/* webpackChunkName: 'user' */'./components/account/user/user.vue');
+const problemAdmin = () => import(/* webpackChunkName: 'problemAdmin' */'./components/admin/problem/problem.vue');
+const contestAdmin = () => import(/* webpackChunkName: 'contestAdmin' */'./components/admin/contest/contest.vue');
+const groupAdmin = () => import(/* webpackChunkName: 'groupAdmin' */'./components/admin/group/group.vue');
+const configAdmin = () => import(/* webpackChunkName: 'configAdmin' */'./components/admin/config/config.vue');
 
 const routes = [
     { path: '/', component: home },

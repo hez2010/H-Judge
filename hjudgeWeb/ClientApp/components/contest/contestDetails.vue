@@ -84,7 +84,6 @@
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
                         <v-container v-else-if="(verified || (!contest.password || contest.password === '')) && contest.started">
-                            <h3>题目列表</h3>
                             <v-data-table :headers="headers"
                                           :items="problems"
                                           hide-actions>
