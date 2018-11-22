@@ -11,12 +11,9 @@ module.exports = (env) => {
         resolve: { extensions: ['.js', '.jsx'] },
         entry: {
             vendor: [
-                '@babel/polyfill',
-                'event-source-polyfill',
                 'vuetify/dist/vuetify.min.css',
                 'material-design-icons-iconfont/dist/material-design-icons.css',
-                'highlight.js/styles/github.css',
-                'isomorphic-fetch'
+                'highlight.js/styles/github.css'
             ]
         },
         module: {

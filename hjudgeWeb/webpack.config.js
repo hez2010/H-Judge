@@ -13,7 +13,7 @@ module.exports = (env) => {
         stats: { modules: false },
         context: __dirname,
         resolve: { extensions: ['.js', '.jsx', '.vue'] },
-        entry: { 'main': ['@babel/polyfill', './ClientApp/boot.js'] },
+        entry: { 'main': ['@babel/polyfill', 'isomorphic-fetch', 'event-source-polyfill', './ClientApp/boot.js'] },
         module: {
             rules: [
                 { test: /\.vue$/, include: /ClientApp/, loader: 'vue-loader', options: { loaders: { js: { loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]], plugins: ['@babel/plugin-syntax-dynamic-import'] } } } } },
