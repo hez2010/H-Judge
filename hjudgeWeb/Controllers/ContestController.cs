@@ -248,15 +248,15 @@ namespace hjudgeWeb.Controllers
                     }
                 }
 
-                var problems = db.ContestProblemConfig.Where(i => i.ContestId == cid);
+                var problems = db.ContestProblemConfig.Include(i => i.Problem).Where(i => i.ContestId == cid)
+                    .Select(i => new { i.ProblemId, i.AcceptCount, i.SubmissionCount, ProblemName = i.Problem.Name });
+
                 foreach (var item in problems)
                 {
-                    var pid = item.ProblemId;
-                    var problemName = db.Problem.Select(i => new { i.Id, i.Name }).FirstOrDefault(i => i.Id == pid)?.Name;
-                    ret.ProblemInfo[pid] = new RankProblemInfo
+                    ret.ProblemInfo[item.ProblemId] = new RankProblemInfo
                     {
-                        Id = pid,
-                        Name = problemName,
+                        Id = item.ProblemId,
+                        Name = item.ProblemName,
                         AcceptedCount = item.AcceptCount,
                         SubmissionCount = item.SubmissionCount
                     };
