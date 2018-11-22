@@ -25,7 +25,7 @@ module.exports = (env) => {
         },
         output: {
             path: path.join(__dirname, 'wwwroot', 'dist'),
-            publicPath: '/dist/',
+            publicPath: isDevBuild ? '/dist/' : 'https://cdn.hjudge.com/hjudge/dist/',
             filename: '[name].js',
             library: '[name]_[hash]'
         },

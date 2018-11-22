@@ -26,7 +26,7 @@ module.exports = (env) => {
             path: path.join(__dirname, bundleOutputDir),
             filename: '[name].js',
             chunkFilename: '[name].js',
-            publicPath: '/dist/'
+            publicPath: isDevBuild ? '/dist/' : 'https://cdn.hjudge.com/hjudge/dist/'
         },
         plugins: [
             new MiniCssExtractPlugin({
