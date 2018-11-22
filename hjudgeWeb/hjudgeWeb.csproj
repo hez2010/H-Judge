@@ -43,10 +43,6 @@
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="del /f /q wwwroot\dist\*.*" />
-  </Target>
-
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition="'$(Configuration)' == 'Debug'">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">
