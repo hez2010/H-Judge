@@ -55,7 +55,8 @@ export default {
             if (!this.$refs.basic.validate()) return;
             if (!this.isValid()) return;
 
-            this.contest.description = window.CKEDITOR.instances['editor'].getData();
+            if (window.CKEDITOR)
+                this.contest.description = window.CKEDITOR.instances['editor'].getData();
 
             this.submitting = true;
             Post('/Admin/UpdateContestConfig', this.contest)

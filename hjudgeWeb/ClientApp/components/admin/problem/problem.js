@@ -89,7 +89,8 @@ export default {
             }
             if (this.problem.config.extraFilesText) this.problem.config.extraFiles = this.problem.config.extraFilesText.split('\n');
 
-            this.problem.description = window.CKEDITOR.instances['editor'].getData();
+            if (window.CKEDITOR)
+                this.problem.description = window.CKEDITOR.instances['editor'].getData();
 
             this.submitting = true;
             Post('/Admin/UpdateProblemConfig', this.problem)
