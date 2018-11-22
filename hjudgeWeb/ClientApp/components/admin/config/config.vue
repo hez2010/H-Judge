@@ -26,7 +26,7 @@
                         </v-layout>
                         <p v-if="config.languages.length === 0">没有配置</p>
                         <template v-for="(item, index) in config.languages">
-                            <v-tabs right>
+                            <v-tabs right :key="index">
                                 <v-spacer></v-spacer>
                                 <v-tab :key="1">
                                     语言选项

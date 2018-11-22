@@ -1,5 +1,6 @@
 ﻿import { Get, Post, ReadCookie } from '../../../utilities/requestHelper';
 import { setTitle } from '../../../utilities/titleHelper';
+import { ensureLoading } from '../../../utilities/scriptHelper';
 
 export default {
     props: ['showSnack'],
@@ -32,7 +33,7 @@ export default {
             .then(data => {
                 if (data.isSucceeded) {
                     this.problem = data;
-                    this.$nextTick(() => this.loadEditor());
+                    this.$nextTick(() => ensureLoading('ckeditor', 'https://cdn.hjudge.com/hjudge/lib/ckeditor/ckeditor.js', this.loadEditor));
                 }
                 else
                     this.showSnack(data.errorMessage, 'error', 3000);

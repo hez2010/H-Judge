@@ -1,5 +1,6 @@
 ﻿import { Get } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
+import { ensureLoading } from '../../utilities/scriptHelper';
 
 export default {
     props: ['user', 'showSnack'],
@@ -52,7 +53,7 @@ export default {
                             this.verified = this.valid = true;
                         }
                     }
-                    this.$nextTick(() => this.loadMath());
+                    this.$nextTick(() => ensureLoading('mathjax', 'https://cdn.hjudge.com/hjudge/lib/MathJax-2.7.5/MathJax.js?config=TeX-MML-AM_CHTML', this.loadMath));
                 }
                 else this.showSnack(data.errorMessage, 'error', 3000);
                 this.loading = false;

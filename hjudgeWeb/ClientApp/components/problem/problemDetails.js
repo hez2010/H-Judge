@@ -1,5 +1,6 @@
 ﻿import { Get, Post } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
+import { ensureLoading } from '../../utilities/scriptHelper';
 
 export default {
     props: ['user', 'showSnack', 'isDarkTheme'],
@@ -39,8 +40,8 @@ export default {
                 if (data.isSucceeded) {
                     this.problem = data;
                     this.$nextTick(() => {
-                        this.loadMath();
-                        this.loadEditor();
+                        ensureLoading('mathjax', 'https://cdn.hjudge.com/hjudge/lib/MathJax-2.7.5/MathJax.js?config=TeX-MML-AM_CHTML', this.loadMath);
+                        ensureLoading('ace', 'https://cdn.hjudge.com/hjudge/lib/ace/ace.js', this.loadEditor);
                     });
                 }
                 else this.showSnack(data.errorMessage, 'error', 3000);
@@ -59,12 +60,16 @@ export default {
         }
     },
     methods: {
+        loadTheme: function (theme) {
+            this.editor.setTheme('ace/theme/' + theme);
+        },
         loadEditor: function () {
             this.timer1 = setInterval(() => {
                 if (document.getElementById('submit_content')) {
                     clearInterval(this.timer1);
                     this.editor = window.ace.edit('submit_content');
-                    this.editor.setTheme('ace/theme/' + (this.isDarkTheme ? 'twilight' : 'github'));
+                    if (this.isDarkTheme) ensureLoading('ace_theme_twilight', 'https://cdn.hjudge.com/hjudge/lib/ace/theme-twilight.js', () => this.loadTheme('twilight'));
+                    else ensureLoading('ace_theme_github', 'https://cdn.hjudge.com/hjudge/lib/ace/theme-github.js', () => this.loadTheme('github'));
                     this.timer1 = null;
                 }
             }, 1000);
@@ -128,15 +133,7 @@ export default {
         },
         language: function () {
             let name = this.language.syntaxHighlight ? this.language.syntaxHighlight : 'plain_text';
-            if (!document.getElementById('ace_mode_' + name)) {
-                let script = document.createElement('script');
-                script.id = 'ace_mode_' + name;
-                script.type = 'text/javascript';
-                script.src = 'https://cdn.hjudge.com/hjudge/lib/ace/mode-' + name + '.js';
-                document.body.appendChild(script);
-                script.onload = this.loadSyntaxHighlight;
-            }
-            else this.loadSyntaxHighlight();
+            ensureLoading('ace_mode_' + name, 'https://cdn.hjudge.com/hjudge/lib/ace/mode-' + name + '.js', this.loadSyntaxHighlight);
         },
         isDarkTheme: function () {
             if (this.editor)

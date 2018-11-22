@@ -2,11 +2,11 @@
     <v-container>
         <v-card>
             <v-card-title primary-title>
-                <p>
+                <div>
                     <h2>关于 H::Judge</h2>
                     <v-spacer></v-spacer>
                     这是你从来没有上过的船新 H::Judge，快来体验吧
-                </p>
+                </div>
             </v-card-title>
             <v-card-text>
                 <p>开发者：hez2010，Email：<a href="mailto:hez2010@126.com">hez2010@126.com</a></p>
@@ -24,7 +24,7 @@
                                 </v-flex>
                                 <v-flex>
                                     <div class="py-3">
-                                        <div v-for="content in log.content">{{content}}</div>
+                                        <div v-for="content in log.content" :key="content">{{content}}</div>
                                     </div>
                                 </v-flex>
                             </v-layout>

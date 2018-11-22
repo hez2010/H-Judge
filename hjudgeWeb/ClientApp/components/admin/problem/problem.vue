@@ -83,7 +83,7 @@
                             <p>加载中...</p>
                         </v-container>
                         <v-container v-else>
-                            <textarea hidden id="editor">{{problem.description}}</textarea>
+                            <textarea hidden id="editor" v-model="problem.description"></textarea>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
@@ -110,7 +110,7 @@
                             </v-layout>
                             <v-form v-model="valid_points" ref="points" lazy-validation>
                                 <template v-for="(item, index) in problem.config.points">
-                                    <v-layout>
+                                    <v-layout :key="index">
                                         <h4>数据点 #{{index + 1}}</h4>
                                         <v-spacer></v-spacer>
                                         <v-tooltip bottom>
@@ -118,13 +118,13 @@
                                             <span>删除</span>
                                         </v-tooltip>
                                     </v-layout>
-                                    <v-layout>
+                                    <v-layout :key="index">
                                         <v-text-field v-model="item.stdInFile" label="标准输入文件" :rules="requireRules" required>
                                         </v-text-field>
                                         <v-text-field v-model="item.stdOutFile" label="标准输出文件" :rules="requireRules" required>
                                         </v-text-field>
                                     </v-layout>
-                                    <v-layout>
+                                    <v-layout :key="index">
                                         <v-text-field v-model="item.timeLimit" label="时间限制 (ms)" type="number" :rules="requireRules" required>
                                         </v-text-field>
                                         <v-text-field v-model="item.memoryLimit" label="内存限制 (kb)" type="number" :rules="requireRules" required>

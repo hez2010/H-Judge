@@ -59,7 +59,7 @@
                             <p>加载中...</p>
                         </v-container>
                         <v-container v-else>
-                            <textarea hidden id="editor">{{contest.description}}</textarea>
+                            <textarea hidden id="editor" v-model="contest.description"></textarea>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
