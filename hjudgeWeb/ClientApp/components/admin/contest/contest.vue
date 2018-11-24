@@ -153,6 +153,9 @@
                                 <div>
                                     <v-checkbox label="启用封榜" v-model="contest.config.autoStopRank"></v-checkbox>
                                 </div>
+                                <div>
+                                    <v-checkbox label="允许公开代码" v-model="contest.config.canMakeResultPublic"></v-checkbox>
+                                </div>
                             </v-layout>
                             <v-layout>
                                 <v-text-field label="提交次数限制（0 为不限）" v-model="contest.config.submissionLimit" type="number"></v-text-field>

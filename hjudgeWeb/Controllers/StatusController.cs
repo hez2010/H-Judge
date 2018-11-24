@@ -317,6 +317,7 @@ namespace hjudgeWeb.Controllers
                     ret.ErrorMessage = "找不到该结果";
                     return ret;
                 }
+
                 if (!HasAdminPrivilege(privilege) && judge.UserId != user.Id && !judge.IsPublic)
                 {
                     ret.IsSucceeded = false;
@@ -324,23 +325,8 @@ namespace hjudgeWeb.Controllers
                     return ret;
                 }
 
-                ret.Id = judge.Id;
-                ret.ContestId = judge.ContestId ?? 0;
-                ret.GroupId = judge.GroupId ?? 0;
-                ret.ProblemId = judge.ProblemId;
-                ret.UserId = judge.UserId;
-                ret.RawJudgeTime = judge.JudgeTime;
-                ret.ResultType = judge.ResultType;
                 ret.JudgeResult = JsonConvert.DeserializeObject<JudgeResult>(judge.Result ?? "{}");
-                ret.Language = judge.Language;
                 ret.FullScore = judge.FullScore;
-                ret.Content = judge.Content;
-                ret.RawType = judge.Type;
-                ret.UserName = judge.UserInfo?.UserName;
-                ret.ProblemName = judge.Problem?.Name;
-                ret.ContestName = judge.Contest?.Name;
-                ret.GroupName = judge.Group?.Name;
-                ret.IsPublic = judge.IsPublic;
 
                 var contest = await db.Contest.Select(i => new { i.Id, i.Config, i.EndTime, i.Name }).FirstOrDefaultAsync(i => i.Id == judge.ContestId);
 
@@ -355,6 +341,16 @@ namespace hjudgeWeb.Controllers
                             {
                                 ret.IsSucceeded = false;
                                 ret.ErrorMessage = "不允许查看";
+                                ret.JudgeResult = null;
+                                ret.FullScore = 0;
+                                return ret;
+                            }
+                            if (judge.UserId != user.Id && !config.CanMakeResultPublic)
+                            {
+                                ret.IsSucceeded = false;
+                                ret.ErrorMessage = "没有权限";
+                                ret.JudgeResult = null;
+                                ret.FullScore = 0;
                                 return ret;
                             }
                             if (config.ResultType == ResultDisplayType.Summary)
@@ -364,12 +360,28 @@ namespace hjudgeWeb.Controllers
                                 ret.JudgeResult.StaticCheckLog = string.Empty;
                             }
                         }
-                        if (config.ScoreMode == ScoreCountingMode.OnlyAccepted && ret.ResultType != (int)ResultCode.Accepted)
+                        if (config.ScoreMode == ScoreCountingMode.OnlyAccepted && judge.ResultType != (int)ResultCode.Accepted)
                         {
                             ret.FullScore = 0;
                         }
                     }
                 }
+
+                ret.Id = judge.Id;
+                ret.ContestId = judge.ContestId ?? 0;
+                ret.GroupId = judge.GroupId ?? 0;
+                ret.ProblemId = judge.ProblemId;
+                ret.UserId = judge.UserId;
+                ret.RawJudgeTime = judge.JudgeTime;
+                ret.Language = judge.Language;
+                ret.Content = judge.Content;
+                ret.RawType = judge.Type;
+                ret.ResultType = judge.ResultType;
+                ret.UserName = judge.UserInfo?.UserName;
+                ret.ProblemName = judge.Problem?.Name;
+                ret.ContestName = judge.Contest?.Name;
+                ret.GroupName = judge.Group?.Name;
+                ret.IsPublic = judge.IsPublic;
 
                 return ret;
             }
