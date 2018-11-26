@@ -128,7 +128,7 @@ bool execute(const char* param, char* ret) {
 		if (cmdInput == INVALID_HANDLE_VALUE) goto Exit;
 		si.hStdInput = cmdInput;
 
-		cmdOutput = CreateFile(outputFile.c_str(), GENERIC_WRITE,
+		cmdOutput = CreateFile(outputFile.c_str(), GENERIC_WRITE | GENERIC_READ,
 			FILE_SHARE_READ |
 			FILE_SHARE_WRITE |
 			FILE_SHARE_DELETE,
