@@ -28,6 +28,17 @@ namespace hjudgeWeb.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Announcement>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.PublishTime).IsRequired();
+
+                entity.HasOne(d => d.UserInfo)
+                    .WithMany(p => p.Announcement)
+                    .HasForeignKey(d => d.UserId);
+            });
+
             modelBuilder.Entity<Contest>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
@@ -178,10 +189,6 @@ namespace hjudgeWeb.Data
             modelBuilder.Entity<MessageContent>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
-
-                entity.HasOne(d => d.Message)
-                    .WithMany(p => p.MessageContents)
-                    .HasForeignKey(d => d.MessageId);
             });
 
             modelBuilder.Entity<Problem>(entity =>

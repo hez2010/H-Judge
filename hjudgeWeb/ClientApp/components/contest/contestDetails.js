@@ -1,6 +1,7 @@
 ﻿import { Get } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
 import { ensureLoading } from '../../utilities/scriptHelper';
+const chatboard = () => import(/* webpackChunkName: 'chatboard' */'../chatboard/chatboard.vue');
 
 export default {
     props: ['user', 'showSnack'],
@@ -33,6 +34,9 @@ export default {
         ],
         timer: null
     }),
+    components: {
+        chatboard: chatboard
+    },
     mounted: function () {
         if (this.$route.params.cid) this.param.cid = parseInt(this.$route.params.cid);
         if (this.$route.params.gid) this.param.gid = parseInt(this.$route.params.gid);

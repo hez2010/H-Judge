@@ -46,6 +46,7 @@ namespace hjudgeWeb.Data.Identity
             MessageStatus = new HashSet<MessageContent>();
             VotesRecord = new HashSet<VotesRecord>();
             Discussion = new HashSet<Discussion>();
+            Announcement = new HashSet<Announcement>();
         }
 
         [PersonalData]
@@ -83,5 +84,6 @@ namespace hjudgeWeb.Data.Identity
         public ICollection<MessageContent> MessageStatus { get; set; }
         public ICollection<VotesRecord> VotesRecord { get; set; }
         public ICollection<Discussion> Discussion { get; set; }
+        public ICollection<Announcement> Announcement { get; set; }
     }
 }

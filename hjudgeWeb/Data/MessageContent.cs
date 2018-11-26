@@ -9,10 +9,8 @@ namespace hjudgeWeb.Data
             Messages = new HashSet<Message>();
         }
         public int Id { get; set; }
-        public int MessageId { get; set; }
         public string Content { get; set; }
-
-        public Message Message { get; set; }
+        
         public ICollection<Message> Messages { get; set; }
     }
 }

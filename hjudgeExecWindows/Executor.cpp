@@ -20,6 +20,8 @@ std::string getJsonString(Json::Value value)
 	return os.str();
 }
 
+#define CheckHandle(x) !(x == NULL || x == INVALID_HANDLE_VALUE)
+
 bool execute(const char* param, char* ret) {
 	//Set error mode, prevent windows error report utils window
 	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
@@ -66,8 +68,11 @@ bool execute(const char* param, char* ret) {
 	//Improve time counter accuracy
 	timeBeginPeriod(1);
 
+	bool checked = true;
+
 	//Create job object
-	HANDLE hJob = CreateJobObject(nullptr, nullptr);
+	HANDLE hJob = CreateJobObject(NULL, NULL);
+	checked = CheckHandle(hJob);
 
 	//Set time, memory, process instance count limits
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimit = { 0 };
@@ -98,24 +103,28 @@ bool execute(const char* param, char* ret) {
 	SetInformationJobObject(hJob, JobObjectBasicUIRestrictions, &jobUIRestrictions, sizeof jobUIRestrictions);
 
 	//Create Io completion port and thread in order to get notification when limits exceeded
-	HANDLE hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, 1);
+	HANDLE hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 0);
+	checked = CheckHandle(hIOCP);
+
 	JOBOBJECT_ASSOCIATE_COMPLETION_PORT jobIOCP = { 0 };
 	jobIOCP.CompletionKey = hJob;
 	jobIOCP.CompletionPort = hIOCP;
 	SetInformationJobObject(hJob, JobObjectAssociateCompletionPortInformation, &jobIOCP, sizeof jobIOCP);
 
-	HANDLE hIOCPThread = CreateThread(nullptr, 0, static_cast<LPTHREAD_START_ROUTINE>(IOCPThread), static_cast<LPVOID>(hIOCP), 0, nullptr);
+	HANDLE hIOCPThread = CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(IOCPThread), static_cast<LPVOID>(hIOCP), 0, NULL);
+
+	checked = CheckHandle(hIOCPThread);
 
 	//Execute command of target program
 	std::string commandline = exec.insert(0, "\"").append("\" ").append(args);
 
 	//Initilize process info varibles
 	STARTUPINFO si = { sizeof STARTUPINFO };
-	SECURITY_ATTRIBUTES sa = { sizeof SECURITY_ATTRIBUTES, nullptr, TRUE };
+	SECURITY_ATTRIBUTES sa = { sizeof SECURITY_ATTRIBUTES, NULL, TRUE };
 	PROCESS_INFORMATION pi;
 
 	//Redirect standard input/output
-	HANDLE cmdInput = nullptr, cmdOutput = nullptr;
+	HANDLE cmdInput = NULL, cmdOutput = NULL;
 
 	if (isStdIO) {
 		si.dwFlags = STARTF_USESTDHANDLES;
@@ -123,26 +132,29 @@ bool execute(const char* param, char* ret) {
 			FILE_SHARE_READ |
 			FILE_SHARE_WRITE |
 			FILE_SHARE_DELETE,
-			&sa, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+			&sa, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
-		if (cmdInput == INVALID_HANDLE_VALUE) goto Exit;
-		si.hStdInput = cmdInput;
+		checked = CheckHandle(cmdInput);
+		if (checked) si.hStdInput = cmdInput;
 
 		cmdOutput = CreateFile(outputFile.c_str(), GENERIC_WRITE | GENERIC_READ,
 			FILE_SHARE_READ |
 			FILE_SHARE_WRITE |
 			FILE_SHARE_DELETE,
-			&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-		if (cmdOutput == INVALID_HANDLE_VALUE) goto Exit;
-		si.hStdOutput = cmdOutput;
+			&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		checked = CheckHandle(cmdOutput);
+		if (checked) si.hStdOutput = cmdOutput;
 	}
 
+	if (!checked) goto Exit;
+
 	//Create process, and suspend the process at the very beginning
-	if (CreateProcess(nullptr, (LPSTR)commandline.c_str(), nullptr, nullptr, TRUE, CREATE_SUSPENDED, nullptr, workingdir.c_str(), &si, &pi)) {
+	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
 		if (!isStdIO) {
-			if (si.hStdInput != nullptr)
+			if (si.hStdInput != NULL && si.hStdInput != INVALID_HANDLE_VALUE)
 				CloseHandle(si.hStdInput);
-			if (si.hStdOutput != nullptr)
+			if (si.hStdOutput != NULL && si.hStdInput != INVALID_HANDLE_VALUE)
 				CloseHandle(si.hStdOutput);
 		}
 
@@ -158,8 +170,8 @@ bool execute(const char* param, char* ret) {
 
 		DWORD lpReturnLength;
 
-		//Post notification indicated that the process time limit has exceeded
-		PostQueuedCompletionStatus(hIOCP, 0, reinterpret_cast<ULONG_PTR>(hJob), nullptr);
+		//Post notification to terminate Io completion port thread
+		PostQueuedCompletionStatus(hIOCP, 0, reinterpret_cast<ULONG_PTR>(hJob), NULL);
 		WaitForSingleObject(hIOCPThread, INFINITE);
 
 		//Query process info: time/memory cost, exitcode
@@ -221,39 +233,38 @@ bool execute(const char* param, char* ret) {
 		//Terminate all and clean up
 		TerminateProcess(pi.hProcess, 0);
 		TerminateJobObject(hJob, 0);
-		TerminateThread(hIOCPThread, 0);
 
 		CloseHandle(pi.hProcess);
 		CloseHandle(hIOCPThread);
 		CloseHandle(hIOCP);
 		CloseHandle(hJob);
 
-		if (isStdIO && cmdInput != nullptr && cmdInput != INVALID_HANDLE_VALUE)
+		if (isStdIO && CheckHandle(cmdInput))
 			CloseHandle(cmdInput);
-		if (isStdIO && cmdOutput != nullptr && cmdOutput != INVALID_HANDLE_VALUE)
+		if (isStdIO && CheckHandle(cmdOutput))
 			CloseHandle(cmdOutput);
 
 		//Copy memory from stack to heap in order to pass value to parent function
 		auto resultToReturn = getJsonString(result);
 		std::strcpy(ret, resultToReturn.c_str());
+		timeEndPeriod(1);
 		return true;
 	}
+	else PostQueuedCompletionStatus(hIOCP, 0, reinterpret_cast<ULONG_PTR>(hJob), NULL);
 
 	timeEndPeriod(1);
 
 Exit: //If any operation failed then clean up and exit directly
-	result["ExtraInfo"] = "Failed to start progress";
-	if (isStdIO && cmdInput != nullptr && cmdInput != INVALID_HANDLE_VALUE)
+	result["ExtraInfo"] = "Failed to judge";
+	if (isStdIO && CheckHandle(cmdInput))
 		CloseHandle(cmdInput);
-	if (isStdIO && cmdOutput != nullptr && cmdOutput != INVALID_HANDLE_VALUE)
+	if (isStdIO && CheckHandle(cmdOutput))
 		CloseHandle(cmdOutput);
-	if (pi.hProcess != nullptr && pi.hProcess != INVALID_HANDLE_VALUE)
-		CloseHandle(pi.hProcess);
-	if (hIOCPThread != nullptr && hIOCPThread != INVALID_HANDLE_VALUE)
+	if (CheckHandle(hIOCPThread))
 		CloseHandle(hIOCPThread);
-	if (hIOCP != nullptr && hIOCP != INVALID_HANDLE_VALUE)
+	if (CheckHandle(hIOCP))
 		CloseHandle(hIOCP);
-	if (hJob != nullptr && hJob != INVALID_HANDLE_VALUE)
+	if (CheckHandle(hJob))
 		CloseHandle(hJob);
 
 	//Copy memory from stack to heap in order to pass value to parent function
@@ -274,7 +285,7 @@ DWORD WINAPI IOCPThread(LPVOID lpParam) {
 	{
 		switch (dwReasonID)
 		{
-		case 0:
+		case 0: //Stop this thread
 			return 0;
 
 		case JOB_OBJECT_MSG_ACTIVE_PROCESS_LIMIT: //Process instance count limit exceeded

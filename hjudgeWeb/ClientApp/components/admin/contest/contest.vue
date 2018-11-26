@@ -153,8 +153,13 @@
                                 <div>
                                     <v-checkbox label="启用封榜" v-model="contest.config.autoStopRank"></v-checkbox>
                                 </div>
+                            </v-layout>
+                            <v-layout>
                                 <div>
                                     <v-checkbox label="允许公开代码" v-model="contest.config.canMakeResultPublic"></v-checkbox>
+                                </div>
+                                <div>
+                                    <v-checkbox label="允许参与讨论" v-model="contest.config.canDisscussion"></v-checkbox>
                                 </div>
                             </v-layout>
                             <v-layout>

@@ -1,6 +1,7 @@
 ﻿import { Get, Post } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
 import { ensureLoading } from '../../utilities/scriptHelper';
+const chatboard = () => import(/* webpackChunkName: 'chatboard' */'../chatboard/chatboard.vue');
 
 export default {
     props: ['user', 'showSnack', 'isDarkTheme'],
@@ -13,6 +14,7 @@ export default {
         },
         active: 0,
         loading: true,
+        loadingDisscussion: true,
         language: { name: '', information: '', syntaxHighlight: 'plain_text' },
         languageRules: [
             v => !!v.name || '请选择语言'
@@ -23,6 +25,9 @@ export default {
         timer2: null,
         editor: null
     }),
+    components: {
+        chatboard: chatboard
+    },
     mounted: function () {
         if (this.$route.params.pid) {
             this.param.pid = parseInt(this.$route.params.pid);

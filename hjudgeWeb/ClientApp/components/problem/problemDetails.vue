@@ -18,6 +18,9 @@
                 <v-tab :key="4">
                     状态
                 </v-tab>
+                <v-tab :key="5">
+                    讨论
+                </v-tab>
                 <v-tab-item :key="1">
                     <v-card-text>
                         <v-container v-if="loading">
@@ -128,6 +131,21 @@
                 <v-tab-item :key="4">
                     <v-card-text>
                         <p>正在跳转...</p>
+                    </v-card-text>
+                </v-tab-item>
+                <v-tab-item :key="5">
+                    <v-card-text>
+                        <v-container v-if="loading">
+                            <p>加载中...</p>
+                        </v-container>
+                        <v-container v-else style="height: 550px">
+                            <chatboard :loadUrl="'/Message/GetChats'"
+                                       :loadParameters="{ count: 10, problemId: param.pid, contestId: param.cid, groupId: param.gid }"
+                                       :sendUrl="'/Message/SendChat'"
+                                       :sendParameters="{ problemId: param.pid, contestId: param.cid, groupId: param.gid }"
+                                       :showSnack="showSnack">
+                            </chatboard>
+                        </v-container>
                     </v-card-text>
                 </v-tab-item>
             </v-tabs>

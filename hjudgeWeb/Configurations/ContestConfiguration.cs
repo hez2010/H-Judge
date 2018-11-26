@@ -36,6 +36,7 @@
             ScoreMode = ScoreCountingMode.All;
             ShowRank = true;
             CanMakeResultPublic = true;
+            CanDisscussion = true;
         }
 
         public ContestType Type { get; set; }
@@ -47,5 +48,6 @@
         public bool AutoStopRank { get; set; }
         public string Languages { get; set; }
         public bool CanMakeResultPublic { get; set; }
+        public bool CanDisscussion { get; set; }
     }
 }

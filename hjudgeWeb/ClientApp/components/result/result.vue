@@ -95,7 +95,7 @@
                             <v-layout>
                                 <v-spacer></v-spacer>
                                 <div>
-                                    <v-checkbox label="公开评测结果"
+                                    <v-checkbox label="公开评测详情"
                                                 v-model="result.isPublic"
                                                 @change="setPublic"
                                                 v-if="user.id === result.userId">
