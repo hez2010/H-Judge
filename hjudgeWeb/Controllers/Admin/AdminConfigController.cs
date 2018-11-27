@@ -27,6 +27,7 @@ namespace hjudgeWeb.Controllers
             }
             config.System = RuntimeInformation.OSDescription + " " + RuntimeInformation.OSArchitecture;
             config.Environments = SystemConfiguration.Environments;
+            config.CanDiscussion = SystemConfiguration.CanDiscussion;
             config.Languages = Languages.LanguageConfigurations;
             return config;
         }
@@ -39,6 +40,7 @@ namespace hjudgeWeb.Controllers
             }
 
             public string Environments { get; set; }
+            public bool CanDiscussion { get; set; }
             public List<LanguageConfiguration> Languages { get; set; }
         }
 
@@ -52,9 +54,10 @@ namespace hjudgeWeb.Controllers
             }
 
             SystemConfiguration.Environments = submit.Environments;
+            SystemConfiguration.CanDiscussion = submit.CanDiscussion;
             Languages.LanguageConfigurations = submit.Languages;
 
-            System.IO.File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), JsonConvert.SerializeObject(new { submit.Environments }), Encoding.UTF8);
+            System.IO.File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), JsonConvert.SerializeObject(new { submit.Environments, submit.CanDiscussion }), Encoding.UTF8);
             System.IO.File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "LanguageConfig.json"), JsonConvert.SerializeObject(submit.Languages), Encoding.UTF8);
             return new ResultModel { IsSucceeded = true };
         }

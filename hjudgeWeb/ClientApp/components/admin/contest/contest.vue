@@ -159,7 +159,7 @@
                                     <v-checkbox label="允许公开代码" v-model="contest.config.canMakeResultPublic"></v-checkbox>
                                 </div>
                                 <div>
-                                    <v-checkbox label="允许参与讨论" v-model="contest.config.canDisscussion"></v-checkbox>
+                                    <v-checkbox label="允许参与讨论" v-model="contest.config.canDiscussion"></v-checkbox>
                                 </div>
                             </v-layout>
                             <v-layout>

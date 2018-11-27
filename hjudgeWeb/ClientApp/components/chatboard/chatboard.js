@@ -46,21 +46,30 @@ export default {
             return Get(this.loadUrl, param)
                 .then(res => res.json())
                 .then(data => {
-                    for (var i in data) {
-                        data[i]['avatar'] = '/Account/GetUserAvatar?userId=' + data[i]['userId'];
-                    }
-                    this.chats = data.concat(this.chats);
-                    if (data.length > 0) {
-                        this.chatLastload = data[0].id;
+                    if (data.isSucceeded) {
+                        let messages = data.chatMessages;
+                        for (var i in messages) {
+                            messages[i]['avatar'] = '/Account/GetUserAvatar?userId=' + messages[i]['userId'];
+                        }
+                        this.chats = messages.concat(this.chats);
+                        if (messages.length > 0) {
+                            this.chatLastload = messages[0].id;
+                        }
+                        else {
+                            this.chatLastload = -1;
+                        }
+                        this.msgLoading = false;
+                        return messages.length;
                     }
                     else {
-                        this.chatLastload = -1;
+                        this.showSnack(data.errorMessage, 'error', 3000);
+                        this.msgLoading = false;
+                        return 0;
                     }
-                    this.msgLoading = false;
-                    return data.length;
                 })
                 .catch(() => {
                     this.showSnack('消息加载失败', 'error', 3000);
+                    this.msgLoading = false;
                 });
         },
         sendMessage: function () {

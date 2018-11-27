@@ -12,6 +12,7 @@ namespace hjudgeWeb.Models.Admin
 
         public string Environments { get; set; }
         public string System { get; set; }
+        public bool CanDiscussion { get; set; }
         public List<LanguageConfiguration> Languages { get; set; }
     }
 }

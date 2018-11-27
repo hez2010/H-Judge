@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace hjudgeWeb.Models.Message
 {
@@ -11,5 +12,15 @@ namespace hjudgeWeb.Models.Message
         public int ReplyId { get; set; }
         public DateTime RawSendTime { get; set; }
         public string SendTime => $"{RawSendTime.ToShortDateString()} {RawSendTime.ToLongTimeString()}";
+    }
+
+    public class ChatMessageListModel : ResultModel
+    {
+        public ChatMessageListModel()
+        {
+            ChatMessages = new List<ChatMessageModel>();
+        }
+
+        public List<ChatMessageModel> ChatMessages { get; set; }
     }
 }

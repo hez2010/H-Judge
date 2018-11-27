@@ -9,7 +9,6 @@ export default {
     data: () => ({
         active: 0,
         loading: true,
-        loadingDisscussion: true,
         language: { name: '', information: '', syntaxHighlight: 'plain_text' },
         languageRules: [
             v => !!v.name || '请选择语言'

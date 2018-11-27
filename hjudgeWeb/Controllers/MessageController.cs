@@ -207,8 +207,15 @@ namespace hjudgeWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<List<ChatMessageModel>> GetChats(int startId = int.MaxValue, int count = 10, int problemId = 0, int contestId = 0, int groupId = 0)
+        public async Task<ChatMessageListModel> GetChats(int startId = int.MaxValue, int count = 10, int problemId = 0, int contestId = 0, int groupId = 0)
         {
+            var ret = new ChatMessageListModel { IsSucceeded = true };
+            if (!SystemConfiguration.CanDiscussion)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "管理员未开启讨论功能";
+                return ret;
+            }
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var pid = problemId == 0 ? null : (int?)problemId;
@@ -221,14 +228,16 @@ namespace hjudgeWeb.Controllers
                     if (contest != null)
                     {
                         var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
-                        if (!config.CanDisscussion)
+                        if (!config.CanDiscussion)
                         {
-                            return new List<ChatMessageModel>();
+                            ret.IsSucceeded = false;
+                            ret.ErrorMessage = "该比赛未开启讨论功能";
+                            return ret;
                         }
                     }
                 }
 
-                return await db.Discussion.Include(i => i.UserInfo)
+                ret.ChatMessages = await db.Discussion.Include(i => i.UserInfo)
                     .OrderByDescending(i => i.Id)
                     .Where(i => i.Id < startId
                         && i.ProblemId == pid
@@ -245,6 +254,7 @@ namespace hjudgeWeb.Controllers
                     }).Take(count)
                     .OrderBy(i => i.RawSendTime).ToListAsync();
             }
+            return ret;
         }
 
         public class SendChatModel
@@ -260,6 +270,12 @@ namespace hjudgeWeb.Controllers
         public async Task<ResultModel> SendChat([FromBody]SendChatModel model)
         {
             var ret = new ResultModel { IsSucceeded = true };
+            if (!SystemConfiguration.CanDiscussion)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "管理员未开启讨论功能";
+                return ret;
+            }
             var (user, privilege) = await GetUserPrivilegeAsync();
             if (user != null)
             {
@@ -303,9 +319,9 @@ namespace hjudgeWeb.Controllers
                         if (contest != null)
                         {
                             var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
-                            if (!config.CanDisscussion)
+                            if (!config.CanDiscussion)
                             {
-                                ret.ErrorMessage = "此比赛不允许参与讨论";
+                                ret.ErrorMessage = "该比赛未开启讨论功能";
                                 ret.IsSucceeded = false;
                                 return ret;
                             }

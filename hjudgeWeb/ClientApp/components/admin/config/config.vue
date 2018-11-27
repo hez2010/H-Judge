@@ -14,6 +14,11 @@
                                       label="PATH"
                                       placeholder="多个路径请以 ; 分隔">
                         </v-text-field>
+                        <v-layout>
+                            <v-checkbox label="开启讨论功能"
+                                        v-model="config.canDiscussion">
+                            </v-checkbox>
+                        </v-layout>
                         <v-layout row>
                             <h3>语言配置</h3>
                             <v-spacer></v-spacer>
@@ -109,12 +114,12 @@
                                     <v-layout>
                                         <v-flex xs6>
                                             <v-checkbox label="检查时读取标准输出"
-                                                      v-model="item.staticCheckReadStdOutput">
+                                                        v-model="item.staticCheckReadStdOutput">
                                             </v-checkbox>
                                         </v-flex>
                                         <v-flex xs6>
                                             <v-checkbox label="检查时读取标准错误"
-                                                      v-model="item.staticCheckReadStdError">
+                                                        v-model="item.staticCheckReadStdError">
                                             </v-checkbox>
                                         </v-flex>
                                     </v-layout>
