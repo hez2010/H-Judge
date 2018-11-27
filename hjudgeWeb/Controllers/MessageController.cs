@@ -116,7 +116,8 @@ namespace hjudgeWeb.Controllers
                         ContentId = i.ContentId,
                         Title = i.Title,
                         UserId = userId,
-                        Direction = i.FromUserId == user.Id ? 1 : 2,
+                        Type = i.Type,
+                        Direction = i.ToUserId == user.Id ? 2 : 1,
                         UserName = db.Users.Select(j => new { j.Id, j.UserName }).FirstOrDefault(j => j.Id == userId)?.UserName
                     });
                 }
@@ -183,23 +184,26 @@ namespace hjudgeWeb.Controllers
                     ret.ErrorMessage = "没有权限";
                     return ret;
                 }
+                var originalStatus = msg.Status;
                 if (msg.ToUserId == user.Id)
                 {
                     msg.Status = 2;
                     await db.SaveChangesAsync();
                 }
                 var userId = msg.FromUserId == user.Id ? msg.ToUserId : msg.FromUserId;
-                return new MessageContentModel
-                {
-                    Id = msg.Id,
-                    Content = msg.MessageContent.Content,
-                    Status = msg.Status,
-                    RawSendTime = msg.SendTime,
-                    Title = msg.Title,
-                    UserId = userId,
-                    UserName = db.Users.Select(i => new { i.Id, i.UserName }).FirstOrDefault(i => i.Id == userId)?.UserName
-                };
+
+                ret.Id = msg.Id;
+                ret.Content = msg.MessageContent.Content;
+                ret.Status = originalStatus;
+                ret.RawSendTime = msg.SendTime;
+                ret.Direction = msg.ToUserId == user.Id ? 2 : 1;
+                ret.Type = msg.Type;
+                ret.Title = msg.Title;
+                ret.UserId = userId;
+                ret.UserName = db.Users.Select(i => new { i.Id, i.UserName }).FirstOrDefault(i => i.Id == userId)?.UserName;
+
             }
+            return ret;
         }
 
         [HttpGet]
@@ -368,18 +372,19 @@ namespace hjudgeWeb.Controllers
                             }
                             var msgContent = new MessageContent
                             {
-                                Content = $"<h3>回复了您的帖子 #{previousDis.Id}：</h3><br />" +
-                                "<div style=\"width: 90 %; overflow: auto; max-height: 100px; \">" +
-                                $"<pre style=\"white-space: pre-wrap; word-wrap: break-word;\">{new string(content.Take(128).ToArray()) + (content.Length > 128 ? "..." : string.Empty)}</pre>" +
-                                "<h3>原帖内容：</h3><br />" +
-                                $"<pre style=\"white-space: pre-wrap; word-wrap: break-word;\">{new string(previousDis.Content.Take(128).ToArray()) + (previousDis.Content.Length > 128 ? "..." : string.Empty)}</pre>" +
-                                $"<hr /><p>位置：{position}，<a href=\"{link}\">点此前往查看</a></p>"
+                                Content = $"<h3><a href=\"/Account/{user.Id}\">{user.UserName}</a> 回复了您的帖子 #{previousDis.Id}：</h3><br />" +
+                                "<div style=\"width: 90 %; overflow: auto; max-height: 300px; \">" +
+                                $"<pre style=\"white-space: pre-wrap; word-wrap: break-word;\">{new string(content.Take(128).ToArray()) + (content.Length > 128 ? "..." : string.Empty)}</pre></div>" +
+                                "<br /><h3>原帖内容：</h3><br />" +
+                                "<div style=\"width: 90 %; overflow: auto; max-height: 300px; \">" +
+                                $"<pre style=\"white-space: pre-wrap; word-wrap: break-word;\">{new string(previousDis.Content.Take(128).ToArray()) + (previousDis.Content.Length > 128 ? "..." : string.Empty)}</pre></div>" +
+                                $"<br /><hr /><p>位置：{position}，<a href=\"{link}\">点此前往查看</a></p>"
                             };
                             db.MessageContent.Add(msgContent);
                             await db.SaveChangesAsync();
                             db.Message.Add(new Message
                             {
-                                FromUserId = user.Id,
+                                FromUserId = null,
                                 ToUserId = previousDis.UserId,
                                 ContentId = msgContent.Id,
                                 ReplyId = 0,

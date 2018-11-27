@@ -126,9 +126,6 @@ export default {
                 else this.showSnack('请输入提交内容', 'error', 3000);
             }
         },
-        showUser: function (userId) {
-            this.$router.push('/Account/' + userId);
-        },
         loadSyntaxHighlight: function () {
             let name = this.language.syntaxHighlight ? this.language.syntaxHighlight : 'plain_text';
             let langMode = window.ace.require('ace/mode/' + name).Mode;

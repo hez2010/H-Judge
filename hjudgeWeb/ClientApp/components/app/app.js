@@ -24,6 +24,7 @@ export default {
             this.darkTheme = true;
         }
         this.getUserInfo();
+        setInterval(this.getMessageCount(), 100000);
     },
     methods: {
         switchTheme: function () {
@@ -52,12 +53,13 @@ export default {
 
         },
         getMessageCount: function () {
-            Get('/Message/GetMessageCount', { type: 1 })
-                .then(res => res.text())
-                .then(data => {
-                    if (data) this.$refs.navmenu.setMessageCount(1, parseInt(data));
-                })
-                .catch(() => { /* ignored */ });
+            if (this.userInfo && this.userInfo.isSignedIn)
+                Get('/Message/GetMessageCount', { type: 1 })
+                    .then(res => res.text())
+                    .then(data => {
+                        if (data) this.$refs.navmenu.setMessageCount(1, parseInt(data));
+                    })
+                    .catch(() => { /* ignored */ });
         },
         updateFortune: function () {
             Get('/Account/GetFortune')

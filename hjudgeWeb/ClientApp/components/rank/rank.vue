@@ -18,7 +18,7 @@
                             <td>{{props.item.fullScore}}</td>
                             <td>{{props.item.timeCost}}</td>
                             <td>{{props.item.penalty}}</td>
-                            <td v-for="item in props.item.problemInfo" :key="item">
+                            <td v-for="(item, index) in props.item.problemInfo" :key="index">
                                 <div :class="item.isAccepted ? 'success--text' : item.submissionCount === 0 ? '' : 'red--text'">
                                     <v-layout justify-center>{{item.score}}</v-layout>
                                     <v-layout justify-center>{{item.timeCost}}</v-layout>

@@ -13,6 +13,12 @@ namespace hjudgeWeb.Models.Message
         public string Content { get; set; }
         public string UserId { get; set; }
         public string UserName { get; set; }
+        public int Type { get; set; }
+
+        /// <summary>
+        /// 1 -- send, 2 -- receive
+        /// </summary>
+        public int Direction { get; set; }
     }
 
     public class MessageItemModel
@@ -25,6 +31,7 @@ namespace hjudgeWeb.Models.Message
         public int? ContentId { get; set; }
         public string UserId { get; set; }
         public string UserName { get; set; }
+        public int Type { get; set; }
 
         /// <summary>
         /// 1 -- send, 2 -- receive

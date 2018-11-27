@@ -35,11 +35,12 @@ export default {
         pageCount: 0,
         headers: [
             { text: '编号', value: 'id' },
+            { text: '方向', value: 'direction' },
+            { text: '类型', value: 'type' },
             { text: '标题', value: 'title' },
             { text: '用户', value: 'userName' },
             { text: '发送时间', value: 'sendTime' },
-            { text: '状态', value: 'status' },
-            { text: '方向', value: 'direction' },
+            { text: '状态', value: 'status' }
         ]
     }),
     watch: {
@@ -62,6 +63,7 @@ export default {
                 .then(data => {
                     if (data.isSucceeded) {
                         this.messages = data.messages;
+                        this.updateMessageCount();
                     }
                     else this.showSnack(data.errorMessage, 'error', 3000);
                     this.loading = false;

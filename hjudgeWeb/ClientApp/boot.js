@@ -60,6 +60,8 @@ const problemAdmin = () => import(/* webpackChunkName: 'problemAdmin' */'./compo
 const contestAdmin = () => import(/* webpackChunkName: 'contestAdmin' */'./components/admin/contest/contest.vue');
 const groupAdmin = () => import(/* webpackChunkName: 'groupAdmin' */'./components/admin/group/group.vue');
 const configAdmin = () => import(/* webpackChunkName: 'configAdmin' */'./components/admin/config/config.vue');
+const messageDetails = () => import(/* webpackChunkName: 'messageDetails' */'./components/message/messageDetails.vue');
+const messageEditor = () => import(/* webpackChunkName: 'messageEditor' */'./components/message/messageEditor.vue');
 
 const routes = [
     { path: '/', component: home },
@@ -93,6 +95,8 @@ const routes = [
 
     { path: '/Message/:page', component: message },
     { path: '/Message', component: message },
+    { path: '/MessageDetails/:mid', component: messageDetails },
+    { path: '/NewMessage/:mid', component: messageEditor},
 
     { path: '/About', component: about },
 
