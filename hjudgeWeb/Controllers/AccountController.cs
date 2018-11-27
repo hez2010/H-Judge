@@ -255,7 +255,6 @@ namespace hjudgeWeb.Controllers
                 if (user.LastSignedIn.Date < DateTime.Now.Date)
                 {
                     userInfo.CoinsBonus = 20;
-                    user.LastSignedIn = DateTime.Now;
                     if ((DateTime.Now - user.LastSignedIn).TotalDays <= 1)
                     {
                         user.ContinuousSignedIn++;
@@ -264,6 +263,7 @@ namespace hjudgeWeb.Controllers
                     {
                         user.ContinuousSignedIn = 0;
                     }
+                    user.LastSignedIn = DateTime.Now;
                     userInfo.CoinsBonus += user.ContinuousSignedIn;
                     user.Coins += userInfo.CoinsBonus;
                     await _userManager.UpdateAsync(user);
