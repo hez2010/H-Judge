@@ -37,6 +37,11 @@ namespace hjudgeWeb.Data
                 entity.HasOne(d => d.UserInfo)
                     .WithMany(p => p.Announcement)
                     .HasForeignKey(d => d.UserId);
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.Announcement)
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Contest>(entity =>

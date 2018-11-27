@@ -13,6 +13,7 @@ namespace hjudgeWeb.Data
             Judge = new HashSet<Judge>();
             VotesRecord = new HashSet<VotesRecord>();
             Discussion = new HashSet<Discussion>();
+            Announcement = new HashSet<Announcement>();
         }
 
         public int Id { get; set; }
@@ -30,5 +31,6 @@ namespace hjudgeWeb.Data
         public ICollection<Judge> Judge { get; set; }
         public ICollection<VotesRecord> VotesRecord { get; set; }
         public ICollection<Discussion> Discussion { get; set; }
+        public ICollection<Announcement> Announcement { get; set; }
     }
 }

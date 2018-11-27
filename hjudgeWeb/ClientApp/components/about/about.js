@@ -4,6 +4,18 @@ export default {
     data: () => ({
         logs: [
             {
+                color: 'blue',
+                version: 'Beta: v1.8',
+                reldate: '2018/11/28',
+                content: [
+                    '1. 全部板块上线讨论功能',
+                    '2. 部分消息功能上线',
+                    '3. 性能优化',
+                    '4. 评测机改进',
+                    '5. 其他细节优化'
+                ]
+            },
+            {
                 color: 'amber',
                 version: 'Beta: v1.6',
                 reldate: '2018/11/21',

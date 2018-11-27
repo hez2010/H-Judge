@@ -11,7 +11,9 @@ namespace hjudgeWeb.Data
         public string UserId { get; set; }
         public DateTime PublishTime { get; set; }
         public bool Hidden { get; set; }
+        public int? GroupId { get; set; }
 
         public UserInfo UserInfo { get; set; }
+        public Group Group { get; set; }
     }
 }
