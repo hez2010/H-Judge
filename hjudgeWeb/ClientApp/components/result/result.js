@@ -1,10 +1,10 @@
 ﻿import { Get, Post } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
+import { initializeObjects } from '../../utilities/initHelper';
 
 export default {
     props: ['user', 'showSnack'],
     data: () => ({
-        result: {},
         loading: true,
         headers: [
             { text: '编号', value: 'id' },
@@ -14,11 +14,16 @@ export default {
             { text: '结果', value: 'result' },
             { text: '分数', value: 'score' },
             { text: '附加信息', value: 'extraInfo' }
-        ],
-        timer: null
+        ]
     }),
     mounted: function () {
         setTitle('结果');
+
+        initializeObjects({
+            result: {},
+            timer: null
+        }, this);
+
         let jid = this.$route.params.jid;
         Get('/Status/GetJudgeResult', { jid: jid })
             .then(res => res.json())
@@ -56,6 +61,7 @@ export default {
                 .then(data => {
                     if (data.isSucceeded) {
                         this.result = data;
+                        this.$forceUpdate();
                         if (data.resultType > 0) {
                             clearInterval(this.timer);
                             this.timer = null;

@@ -1,12 +1,12 @@
 ﻿import { setTitle } from '../../../utilities/titleHelper';
 import { Post, ReadCookie, Get } from '../../../utilities/requestHelper';
+import { initializeObjects } from '../../../utilities/initHelper';
 const emailConfirm = () => import(/* webpackChunkName: 'emailConfirm' */'../verification/email/emailConfirm.vue');
 const phoneConfirm = () => import(/* webpackChunkName: 'phoneConfirm' */'../verification/phone/phoneConfirm.vue');
 
 export default {
     props: ['user', 'getUserInfo', 'updateFortune', 'showSnack'],
     data: () => ({
-        avatar: '',
         bottomNav: '1',
         privilege: '',
         emailRules: [
@@ -16,10 +16,15 @@ export default {
         confirmEmailDialog: false,
         submitting: false,
         loading: true,
-        problemSet: []
+        cnt: 0
     }),
     mounted: function () {
         setTitle('门户');
+
+        initializeObjects({
+            problemSet: []
+        }, this);
+
         if (this.user !== null) {
             this.updateFortune();
             this.privilege = this.user.privilege === 1 ? '管理员' :
@@ -161,6 +166,7 @@ export default {
                     if (data.isSucceeded) this.getUserInfo();
                     else this.showSnack(data.errorMessage, 'error', 3000);
                     ele.value = '';
+                    this.cnt++;
                     this.showSnack('修改成功', 'success', 3000);
                 })
                 .catch(() => {

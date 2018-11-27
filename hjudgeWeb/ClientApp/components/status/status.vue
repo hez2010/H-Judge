@@ -10,7 +10,7 @@
             </v-card-title>
             <v-card-text>
                 <v-data-table :headers="headers"
-                              :items="statuses"
+                              :items="loading ? [] : statuses"
                               :custom-sort="sortRules"
                               hide-actions>
                     <template slot="items" slot-scope="props">

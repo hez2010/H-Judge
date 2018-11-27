@@ -46,8 +46,19 @@ export default {
                     if (this.userInfo && this.userInfo.coinsBonus !== 0) {
                         this.showMsg('每日登录奖励', `获得 ${this.userInfo.coinsBonus} 金币。连续登录将获得更多金币呦~`);
                     }
+                    this.getMessageCount();
                 })
                 .catch(() => this.showSnack('网络错误', 'error', 3000));
+
+        },
+        getMessageCount: function () {
+            Get('/Message/GetMessageCount', { type: 1 })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.isSucceeded) this.$refs.navmenu.setMessageCount(1, data.count);
+                    else this.showSnack(data.errorMessage, 'error', 3000);
+                })
+                .catch(() => this.showSnack('消息数量加载失败', 'error', 3000));
         },
         updateFortune: function () {
             Get('/Account/GetFortune')
@@ -58,9 +69,7 @@ export default {
                         this.userInfo.experience = data.experience;
                     }
                 })
-                .catch(() => {
-                    //ignore
-                });
+                .catch(() => { /* ignored */ });
         },
         showMsg: function (title, content) {
             this.msgTitle = title;
@@ -75,6 +84,9 @@ export default {
                 this.snackTimeout = timeout;
                 this.snackUp = true;
             });
+        },
+        setMessageCount: function (type, value) {
+            this.$refs.navmenu.setMessageCount(type, value);
         }
     }
 };

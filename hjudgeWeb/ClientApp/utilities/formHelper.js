@@ -2,7 +2,7 @@
     if (!form || form.nodeName !== 'FORM') {
         return;
     }
-    var i, j, q = {};
+    let i, j, q = {};
     for (i = form.elements.length - 1; i >= 0; i = i - 1) {
         if (form.elements[i].name === '') {
             continue;

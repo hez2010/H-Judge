@@ -88,7 +88,7 @@
                         <v-container v-if="loading"><p>加载中...</p></v-container>
                         <v-container v-else-if="(verified || (!contest.password || contest.password === '')) && contest.started">
                             <v-data-table :headers="headers"
-                                          :items="problems"
+                                          :items="loadingProblem ? [] : problems"
                                           hide-actions>
                                 <template slot="items" slot-scope="props">
                                     <td>{{ props.item.id }}</td>

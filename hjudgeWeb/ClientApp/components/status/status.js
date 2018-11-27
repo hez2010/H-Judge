@@ -1,15 +1,14 @@
 ﻿import { setTitle } from '../../utilities/titleHelper';
 import { Get } from '../../utilities/requestHelper';
+import { initializeObjects } from '../../utilities/initHelper';
 
 export default {
     props: ['user'],
     data: () => ({
         loading: true,
         page: 0,
-        param: { start: 0, count: 10 },
-        problems: [],
         pageCount: 0,
-        statuses: [],
+        onlyMe: false,
         headers: [
             { text: '编号', value: 'id' },
             { text: '时间', value: 'judgeTime' },
@@ -18,26 +17,16 @@ export default {
             { text: '语言', value: 'language' },
             { text: '结果', value: 'result' },
             { text: '总分', value: 'fullScore' }
-        ],
-        onlyMe: false,
-        sortRules: function (items, index, isDescending) {
-            if (index === 'id') {
-                return items.sort((x, y) => {
-                    if (x.id < y.id) return isDescending ? -1 : 1;
-                    else if (x.id > y.id) return isDescending ? 1 : -1;
-                    else return 0;
-                });
-            } else {
-                return items.sort((x, y) => {
-                    if (x.id < y.id) return isDescending ? 1 : -1;
-                    else if (x.id > y.id) return isDescending ? -1 : 1;
-                    else return 0;
-                });
-            }
-        }
+        ]
     }),
     mounted: function () {
         setTitle('状态');
+
+        initializeObjects({
+            statuses: [],
+            param: { start: 0, count: 10 }
+        }, this);
+
         if (!this.$route.params.page) this.$router.push(this.$router.currentRoute.fullPath + '/1');
         else this.page = parseInt(this.$route.params.page);
 
@@ -113,6 +102,21 @@ export default {
                     this.statuses = [];
                     this.loading = false;
                 });
+        },
+        sortRules: function (items, index, isDescending) {
+            if (index === 'id') {
+                return items.sort((x, y) => {
+                    if (x.id < y.id) return isDescending ? -1 : 1;
+                    else if (x.id > y.id) return isDescending ? 1 : -1;
+                    else return 0;
+                });
+            } else {
+                return items.sort((x, y) => {
+                    if (x.id < y.id) return isDescending ? 1 : -1;
+                    else if (x.id > y.id) return isDescending ? -1 : 1;
+                    else return 0;
+                });
+            }
         }
     }
 };

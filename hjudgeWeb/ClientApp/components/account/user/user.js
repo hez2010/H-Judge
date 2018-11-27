@@ -1,14 +1,12 @@
 ﻿import { setTitle } from '../../../utilities/titleHelper';
 import { Get } from '../../../utilities/requestHelper';
+import { initializeObjects } from '../../../utilities/initHelper';
 
 export default {
     props: ['user', 'showSnack'],
     data: () => ({
-        avatar: '',
         loading: true,
-        userInfo: {},
         loadingProblems: true,
-        problemSet: [],
         bottomNav: '1'
     }),
     watch: {
@@ -34,6 +32,12 @@ export default {
     },
     mounted: function () {
         setTitle('用户');
+
+        initializeObjects({
+            problemSet: [],
+            userInfo: {}
+        }, this);
+
         Get('/Account/GetUserInfo', { userId: this.$route.params.uid })
             .then(res => res.json())
             .then(data => {

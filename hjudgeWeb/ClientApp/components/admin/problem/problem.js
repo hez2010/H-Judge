@@ -1,11 +1,11 @@
 ﻿import { Get, Post, ReadCookie } from '../../../utilities/requestHelper';
 import { setTitle } from '../../../utilities/titleHelper';
 import { ensureLoading } from '../../../utilities/scriptHelper';
+import { initializeObjects } from '../../../utilities/initHelper';
 
 export default {
     props: ['showSnack'],
     data: () => ({
-        problem: {},
         valid_basic: false,
         valid_answer: false,
         valid_points: false,
@@ -15,19 +15,24 @@ export default {
         requireRules: [
             v => !!v || '此项不能为空'
         ],
-        dataTemplate: [
-            '${datadir}/${name}${index}.in|${datadir}/${name}${index}.ans|1000|131072|10',
-            '${datadir}/${name}${index}.in|${datadir}/${name}${index}.out|1000|131072|10',
-            '${datadir}/${name}${index0}.in|${datadir}/${name}${index0}.ans|1000|131072|10',
-            '${datadir}/${name}${index0}.in|${datadir}/${name}${index0}.out|1000|131072|10'
-        ],
         templateSelection: '${datadir}/${name}${index}.in|${datadir}/${name}${index}.ans|1000|131072|10',
         submitting: false,
         markdownEnabled: false,
-        timer: null
     }),
     mounted: function () {
         setTitle('题目编辑');
+
+        initializeObjects({
+            problem: {},
+            timer: null,
+            dataTemplate: [
+                '${datadir}/${name}${index}.in|${datadir}/${name}${index}.ans|1000|131072|10',
+                '${datadir}/${name}${index}.in|${datadir}/${name}${index}.out|1000|131072|10',
+                '${datadir}/${name}${index0}.in|${datadir}/${name}${index0}.ans|1000|131072|10',
+                '${datadir}/${name}${index0}.in|${datadir}/${name}${index0}.out|1000|131072|10'
+            ]
+        }, this);
+
         Get('/Admin/GetProblemConfig', { pid: this.$route.params.pid })
             .then(res => res.json())
             .then(data => {
@@ -51,9 +56,11 @@ export default {
     methods: {
         addPoint: function () {
             this.problem.config.points = this.problem.config.points.concat([{ stdInFile: '', stdOutFile: '', timeLimit: 1000, memoryLimit: 131072, score: 10 }]);
+            this.$forceUpdate();
         },
         removePoint: function (index) {
             this.problem.config.points.splice(index, 1);
+            this.$forceUpdate();
         },
         applyTemplate: function () {
             let args = this.templateSelection.split('|');
@@ -66,6 +73,7 @@ export default {
                     }
                 }
             }
+            this.$forceUpdate();
         },
         loadEditor: function () {
             this.timer = setInterval(() => {

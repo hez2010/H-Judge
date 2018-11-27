@@ -55,6 +55,130 @@ namespace hjudgeWeb.Controllers
             return privilege >= 1 && privilege <= 3;
         }
 
+        /// <summary>
+        /// Get messages quantity
+        /// </summary>
+        /// <param name="type">1 -- unread, 2 -- read, other -- all</param>
+        /// <returns>quantity</returns>
+        [HttpGet]
+        public async Task<MessageCountModel> GetMessageCount(int type = 1)
+        {
+            var ret = new MessageCountModel { IsSucceeded = true };
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有登录";
+                return ret;
+            }
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var msgList = db.Message
+                    .Where(i => i.ToUserId == user.Id);
+
+                switch (type)
+                {
+                    case 1:
+                        msgList = msgList.Where(i => i.Status == 1);
+                        break;
+                    case 2:
+                        msgList = msgList.Where(i => i.Status == 2);
+                        break;
+                }
+
+                ret.Count = await msgList.CountAsync();
+            }
+            return ret;
+        }
+
+        [HttpGet]
+        public async Task<MessageListModel> GetMessages(int start = 0, int count = 10)
+        {
+            var ret = new MessageListModel { IsSucceeded = true };
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有登录";
+                return ret;
+            }
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var msgList = db.Message
+                    .Where(i => i.FromUserId == user.Id || i.ToUserId == user.Id)
+                    .OrderByDescending(i => i.Id)
+                    .Skip(start).Take(count);
+
+                foreach (var i in msgList)
+                {
+                    var userId = i.FromUserId == user.Id ? i.ToUserId : i.FromUserId;
+                    ret.Messages.Add(new MessageItemModel
+                    {
+                        Id = i.Id,
+                        SendTime = i.SendTime,
+                        Status = i.Status,
+                        ContentId = i.ContentId,
+                        Title = i.Title,
+                        UserId = userId,
+                        Direction = i.FromUserId == user.Id ? 1 : 2,
+                        UserName = db.Users.Select(j => new { j.Id, j.UserName }).FirstOrDefault(j => j.Id == userId)?.UserName
+                    });
+                }
+            }
+            return ret;
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> SetMessageStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public async Task<MessageContentModel> GetMessageContent(int msgId)
+        {
+            var ret = new MessageContentModel { IsSucceeded = true };
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有登录";
+                return ret;
+            }
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var msg = db.Message.Include(i => i.MessageContent).FirstOrDefault(i => i.Id == msgId);
+                if (msg == null)
+                {
+                    ret.IsSucceeded = false;
+                    ret.ErrorMessage = "消息不存在";
+                    return ret;
+                }
+                if (msg.FromUserId != user.Id && msg.ToUserId != user.Id)
+                {
+                    ret.IsSucceeded = false;
+                    ret.ErrorMessage = "没有权限";
+                    return ret;
+                }
+                if (msg.ToUserId == user.Id)
+                {
+                    msg.Status = 2;
+                    await db.SaveChangesAsync();
+                }
+                var userId = msg.FromUserId == user.Id ? msg.ToUserId : msg.FromUserId;
+                return new MessageContentModel
+                {
+                    Id = msg.Id,
+                    Content = msg.MessageContent.Content,
+                    Status = msg.Status,
+                    SendTime = msg.SendTime,
+                    Title = msg.Title,
+                    UserId = userId,
+                    UserName = db.Users.Select(i => new { i.Id, i.UserName }).FirstOrDefault(i => i.Id == userId)?.UserName
+                };
+            }
+        }
+
         [HttpGet]
         public async Task<List<ChatMessageModel>> GetChats(int startId = int.MaxValue, int count = 10, int problemId = 0, int contestId = 0, int groupId = 0)
         {
@@ -110,7 +234,7 @@ namespace hjudgeWeb.Controllers
         {
             var ret = new ResultModel { IsSucceeded = true };
             var (user, privilege) = await GetUserPrivilegeAsync();
-            if (_signInManager.IsSignedIn(User) && user != null)
+            if (user != null)
             {
                 if (!user.EmailConfirmed)
                 {

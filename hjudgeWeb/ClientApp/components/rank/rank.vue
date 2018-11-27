@@ -10,7 +10,7 @@
                 </v-container>
                 <v-container v-else>
                     <v-data-table :headers="headers"
-                                  :items="rankInfo"
+                                  :items="loading ? [] : rankInfo"
                                   hide-actions>
                         <template slot="items" slot-scope="props">
                             <td>{{props.item.rank}}</td>

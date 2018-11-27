@@ -28,7 +28,7 @@ export function Post(url, data = {}) {
 
 export function Get(url, data = {}) {
     let paramStr = '?';
-    for (var x in data) {
+    for (let x in data) {
         paramStr += `${x}=${escape(data[x])}&`;
     }
 

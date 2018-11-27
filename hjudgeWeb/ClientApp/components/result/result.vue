@@ -12,10 +12,10 @@
                 <v-tab :key="2">
                     提交
                 </v-tab>
-                <v-tab :key="3" v-if="result.resultType > 0">
+                <v-tab :key="3" v-if="!loading && result.resultType > 0">
                     详情
                 </v-tab>
-                <v-tab :key="4" v-if="result.rawType === 1 && (!!result.judgeResult.compileLog || !!result.judgeResult.staticCheckLog)">
+                <v-tab :key="4" v-if="!loading && result.rawType === 1 && (!!result.judgeResult.compileLog || !!result.judgeResult.staticCheckLog)">
                     日志
                 </v-tab>
                 <v-tab-item :key="1">
@@ -115,7 +115,7 @@
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
-                <v-tab-item :key="3" v-if="result.resultType > 0">
+                <v-tab-item :key="3" v-if="!loading && result.resultType > 0">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
                         <v-container v-else>
@@ -139,7 +139,7 @@
                         </v-container>
                     </v-card-text>
                 </v-tab-item>
-                <v-tab-item :key="4" v-if="result.rawType === 1 && (!!result.judgeResult.compileLog || !!result.judgeResult.staticCheckLog)">
+                <v-tab-item :key="4" v-if="!loading && result.rawType === 1 && (!!result.judgeResult.compileLog || !!result.judgeResult.staticCheckLog)">
                     <v-card-text>
                         <v-container v-if="loading"><p>加载中...</p></v-container>
                         <v-container v-else>

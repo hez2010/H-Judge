@@ -1,22 +1,17 @@
 ﻿import { Get } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
 import { ensureLoading } from '../../utilities/scriptHelper';
+import { initializeObjects } from '../../utilities/initHelper';
 const chatboard = () => import(/* webpackChunkName: 'chatboard' */'../chatboard/chatboard.vue');
 
 export default {
     props: ['user', 'showSnack'],
     data: () => ({
-        contest: {},
-        param: {
-            cid: 0,
-            gid: 0
-        },
         loading: true,
         loadingProblem: true,
         page: 0,
         pageCount: 0,
         active: 0,
-        problems: [],
         verified: false,
         valid: false,
         password: '',
@@ -31,16 +26,26 @@ export default {
             { text: '通过量', value: 'acceptCount' },
             { text: '提交量', value: 'submissionCount' },
             { text: '比率', value: 'ratio' }
-        ],
-        timer: null
+        ]
     }),
     components: {
         chatboard: chatboard
     },
     mounted: function () {
+        setTitle('比赛详情');
+
+        initializeObjects({
+            contest: {},
+            param: {
+                cid: 0,
+                gid: 0
+            },
+            problems: [],
+            timer: null
+        }, this);
+
         if (this.$route.params.cid) this.param.cid = parseInt(this.$route.params.cid);
         if (this.$route.params.gid) this.param.gid = parseInt(this.$route.params.gid);
-        setTitle('比赛详情');
         Get('/Contest/GetContestDetails', this.param)
             .then(res => res.json())
             .then(data => {

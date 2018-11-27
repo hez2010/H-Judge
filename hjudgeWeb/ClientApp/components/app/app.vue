@@ -1,8 +1,8 @@
 ﻿<template>
     <v-app :dark="darkTheme">
-        <navmenu :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo" :getUserInfo="getUserInfo" :showMsg="showMsg" :showSnack="showSnack"></navmenu>
+        <navmenu ref="navmenu" :themeIcon="themeIcon" :switchTheme="switchTheme" :user="userInfo" :getUserInfo="getUserInfo" :showMsg="showMsg" :showSnack="showSnack"></navmenu>
         <v-content>
-            <router-view :user="userInfo" :getUserInfo="getUserInfo" :updateFortune="updateFortune" :showMsg="showMsg" :showSnack="showSnack" :isDarkTheme="darkTheme"></router-view>
+            <router-view :user="userInfo" :getUserInfo="getUserInfo" :updateFortune="updateFortune" :showMsg="showMsg" :showSnack="showSnack" :isDarkTheme="darkTheme" :setMessageCount="setMessageCount" :updateMessageCount="getMessageCount"></router-view>
         </v-content>
         <v-footer class="pa-3 primary darken-2">
             <v-spacer></v-spacer>

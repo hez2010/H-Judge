@@ -1,11 +1,11 @@
 ﻿import { Get, Post } from '../../../utilities/requestHelper';
 import { setTitle } from '../../../utilities/titleHelper';
 import { ensureLoading } from '../../../utilities/scriptHelper';
+import { initializeObjects } from '../../../utilities/initHelper';
 
 export default {
     props: ['showSnack'],
     data: () => ({
-        contest: {},
         valid: false,
         loading: true,
         requireRules: [
@@ -17,6 +17,11 @@ export default {
     }),
     mounted: function () {
         setTitle('比赛编辑');
+
+        initializeObjects({
+            contest: {}
+        }, this);
+
         Get('/Admin/GetContestConfig', { cid: this.$route.params.cid })
             .then(res => res.json())
             .then(data => {

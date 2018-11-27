@@ -1,17 +1,12 @@
 ﻿import { Get, Post } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
 import { ensureLoading } from '../../utilities/scriptHelper';
+import { initializeObjects } from '../../utilities/initHelper';
 const chatboard = () => import(/* webpackChunkName: 'chatboard' */'../chatboard/chatboard.vue');
 
 export default {
     props: ['user', 'showSnack', 'isDarkTheme'],
     data: () => ({
-        problem: {},
-        param: {
-            pid: 0,
-            cid: 0,
-            gid: 0
-        },
         active: 0,
         loading: true,
         loadingDisscussion: true,
@@ -20,15 +15,26 @@ export default {
             v => !!v.name || '请选择语言'
         ],
         submitting: false,
-        valid: false,
-        timer1: null,
-        timer2: null,
-        editor: null
+        valid: false
     }),
     components: {
         chatboard: chatboard
     },
     mounted: function () {
+        setTitle('题目详情');
+
+        initializeObjects({
+            problem: {},
+            param: {
+                pid: 0,
+                cid: 0,
+                gid: 0
+            },
+            timer1: null,
+            timer2: null,
+            editor: null
+        }, this);
+
         if (this.$route.params.pid) {
             this.param.pid = parseInt(this.$route.params.pid);
         }
@@ -38,7 +44,6 @@ export default {
         if (this.$route.params.gid) {
             this.param.gid = parseInt(this.$route.params.gid);
         }
-        setTitle('题目详情');
         Get('/Problem/GetProblemDetails', this.param)
             .then(res => res.json())
             .then(data => {

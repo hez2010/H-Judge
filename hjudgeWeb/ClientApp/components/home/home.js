@@ -4,7 +4,6 @@ const chatboard = () => import(/* webpackChunkName: 'chatboard' */'../chatboard/
 export default {
     props: ['user', 'showSnack'],
     data: () => ({
-        announcements: [],
         annpage: 0,
         annLoading: true
     }),
@@ -14,6 +13,7 @@ export default {
     mounted: function () {
         setTitle('主页');
 
+        this.announcements = [];
         this.annLoading = false;
     },
     computed: {

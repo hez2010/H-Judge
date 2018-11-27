@@ -1,12 +1,12 @@
 ﻿import { setTitle } from '../../utilities/titleHelper';
 import { Get, Post } from '../../utilities/requestHelper';
+import { initializeObjects } from '../../utilities/initHelper';
 
 export default {
     props: ['user', 'showSnack'],
     data: () => ({
         loading: true,
         page: 0,
-        problems: [],
         pageCount: 0,
         headers: [
             { text: '编号', value: 'id' },
@@ -22,6 +22,11 @@ export default {
     }),
     mounted: function () {
         setTitle('题目');
+
+        initializeObjects({
+            problems: []
+        }, this);
+
         if (!this.$route.params.page) this.$router.push('/Problem/1');
         else this.page = parseInt(this.$route.params.page);
         this.load();

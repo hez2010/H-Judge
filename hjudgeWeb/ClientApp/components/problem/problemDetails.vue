@@ -97,7 +97,7 @@
                         <v-container v-if="loading">
                             <p>加载中...</p>
                         </v-container>
-                        <v-container id="details_content" class="cke_contents" v-else v-highlight v-html="problem.description"></v-container>
+                        <v-container v-else id="details_content" class="cke_contents" v-highlight v-html="problem.description"></v-container>
                     </v-card-text>
                 </v-tab-item>
                 <v-tab-item :key="3">

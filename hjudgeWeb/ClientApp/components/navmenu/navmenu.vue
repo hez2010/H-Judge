@@ -4,7 +4,7 @@
                              v-model="drawer"
                              fixed
                              app>
-            <v-list dense>
+            <v-list>
                 <template v-for="item in items">
                     <v-layout v-if="item.heading"
                               :key="item.heading"
@@ -51,7 +51,13 @@
                             <v-icon>{{ item.icon }}</v-icon>
                         </v-list-tile-action>
                         <v-list-tile-content>
-                            <v-list-tile-title>
+                            <v-badge color="primary" v-if="item.badge !== 0">
+                                <span slot="badge" small>{{item.badge}}</span>
+                                <v-list-tile-title>
+                                    {{ item.text }}
+                                </v-list-tile-title>
+                            </v-badge>
+                            <v-list-tile-title v-else>
                                 {{ item.text }}
                             </v-list-tile-title>
                         </v-list-tile-content>

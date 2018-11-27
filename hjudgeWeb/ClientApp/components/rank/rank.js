@@ -1,5 +1,6 @@
 ﻿import { setTitle } from '../../utilities/titleHelper';
 import { Get } from '../../utilities/requestHelper';
+import { initializeObjects } from '../../utilities/initHelper';
 
 export default {
     props: ['showSnack'],
@@ -11,11 +12,15 @@ export default {
             { text: '用时', value: 'timeCost' },
             { text: '罚时', value: 'penalty' }
         ],
-        rankInfo: [],
         loading: true
     }),
     mounted: function () {
         setTitle('排名');
+
+        initializeObjects({
+            rankInfo: []
+        }, this);
+
         let cid = this.$route.params.cid;
         let gid = this.$route.params.gid;
         if (!cid) cid = 0;

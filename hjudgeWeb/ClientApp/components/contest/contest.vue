@@ -13,7 +13,7 @@
             </v-card-title>
             <v-card-text>
                 <v-data-table :headers="headers"
-                              :items="contests"
+                              :items="loading ? [] : contests"
                               :custom-sort="sortRules"
                               hide-actions>
                     <template slot="items" slot-scope="props">
