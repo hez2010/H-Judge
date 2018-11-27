@@ -91,6 +91,7 @@ const routes = [
     { path: '/Group/:page', component: group },
     { path: '/Group', component: group },
 
+    { path: '/Message/:page', component: message },
     { path: '/Message', component: message },
 
     { path: '/About', component: about },

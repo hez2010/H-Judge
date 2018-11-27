@@ -7,7 +7,8 @@ namespace hjudgeWeb.Models.Message
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public DateTime SendTime { get; set; }
+        public DateTime RawSendTime { get; set; }
+        public string SendTime => $"{RawSendTime.ToShortDateString()} {RawSendTime.ToLongTimeString()}";
         public int Status { get; set; }
         public string Content { get; set; }
         public string UserId { get; set; }
@@ -18,7 +19,8 @@ namespace hjudgeWeb.Models.Message
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public DateTime SendTime { get; set; }
+        public DateTime RawSendTime { get; set; }
+        public string SendTime => $"{RawSendTime.ToShortDateString()} {RawSendTime.ToLongTimeString()}";
         public int Status { get; set; }
         public int? ContentId { get; set; }
         public string UserId { get; set; }

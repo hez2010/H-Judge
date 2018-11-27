@@ -61,15 +61,12 @@ namespace hjudgeWeb.Controllers
         /// <param name="type">1 -- unread, 2 -- read, other -- all</param>
         /// <returns>quantity</returns>
         [HttpGet]
-        public async Task<MessageCountModel> GetMessageCount(int type = 1)
+        public async Task<int> GetMessageCount(int type = 1)
         {
-            var ret = new MessageCountModel { IsSucceeded = true };
             var (user, privilege) = await GetUserPrivilegeAsync();
             if (user == null)
             {
-                ret.IsSucceeded = false;
-                ret.ErrorMessage = "没有登录";
-                return ret;
+                return 0;
             }
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
@@ -86,9 +83,8 @@ namespace hjudgeWeb.Controllers
                         break;
                 }
 
-                ret.Count = await msgList.CountAsync();
+                return await msgList.CountAsync();
             }
-            return ret;
         }
 
         [HttpGet]
@@ -115,7 +111,7 @@ namespace hjudgeWeb.Controllers
                     ret.Messages.Add(new MessageItemModel
                     {
                         Id = i.Id,
-                        SendTime = i.SendTime,
+                        RawSendTime = i.SendTime,
                         Status = i.Status,
                         ContentId = i.ContentId,
                         Title = i.Title,
@@ -128,10 +124,37 @@ namespace hjudgeWeb.Controllers
             return ret;
         }
 
-        [HttpPost]
-        public async Task<ResultModel> SetMessageStatus()
+        public class MessageStatusModel
         {
-            throw new NotImplementedException();
+            public int Status { get; set; }
+            public int MessageId { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> SetMessageStatus([FromBody]MessageStatusModel model)
+        {
+            var ret = new ResultModel { IsSucceeded = true };
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            if (user == null)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有登录";
+                return ret;
+            }
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var msgs = db.Message.Where(i => i.ToUserId == user.Id && i.Status != model.Status);
+                if (model.MessageId != 0)
+                {
+                    msgs = msgs.Where(i => i.Id == model.MessageId);
+                }
+                foreach (var i in msgs)
+                {
+                    i.Status = model.Status;
+                }
+                await db.SaveChangesAsync();
+            }
+            return ret;
         }
 
         [HttpGet]
@@ -171,7 +194,7 @@ namespace hjudgeWeb.Controllers
                     Id = msg.Id,
                     Content = msg.MessageContent.Content,
                     Status = msg.Status,
-                    SendTime = msg.SendTime,
+                    RawSendTime = msg.SendTime,
                     Title = msg.Title,
                     UserId = userId,
                     UserName = db.Users.Select(i => new { i.Id, i.UserName }).FirstOrDefault(i => i.Id == userId)?.UserName

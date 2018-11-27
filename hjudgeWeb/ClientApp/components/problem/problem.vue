@@ -13,7 +13,7 @@
             </v-card-title>
             <v-card-text>
                 <v-data-table :headers="headers"
-                              :items="problems"
+                              :items="loading ? [] : problems"
                               hide-actions>
                     <template slot="items" slot-scope="props">
                         <td>{{ props.item.id }} <span v-if="props.item.hidden">(隐藏)</span></td>

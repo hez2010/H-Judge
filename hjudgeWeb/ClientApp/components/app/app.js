@@ -53,12 +53,11 @@ export default {
         },
         getMessageCount: function () {
             Get('/Message/GetMessageCount', { type: 1 })
-                .then(res => res.json())
+                .then(res => res.text())
                 .then(data => {
-                    if (data.isSucceeded) this.$refs.navmenu.setMessageCount(1, data.count);
-                    else this.showSnack(data.errorMessage, 'error', 3000);
+                    if (data) this.$refs.navmenu.setMessageCount(1, parseInt(data));
                 })
-                .catch(() => this.showSnack('消息数量加载失败', 'error', 3000));
+                .catch(() => { /* ignored */ });
         },
         updateFortune: function () {
             Get('/Account/GetFortune')
