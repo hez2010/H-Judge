@@ -5,7 +5,7 @@ export default {
         logs: [
             {
                 color: 'blue',
-                version: 'Beta: v1.8',
+                version: 'Beta: v1.7',
                 reldate: '2018/11/28',
                 content: [
                     '1. 全部板块上线讨论功能',
