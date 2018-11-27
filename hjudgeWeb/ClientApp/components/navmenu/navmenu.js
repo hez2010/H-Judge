@@ -18,6 +18,9 @@ export default {
             { icon: 'help', text: '关于', link: '/About', badge: 0 }
         ]
     }),
+    mounted: function () {
+        this.loadPersonalMenu();
+    },
     watch: {
         user: function () {
             this.loadPersonalMenu();
