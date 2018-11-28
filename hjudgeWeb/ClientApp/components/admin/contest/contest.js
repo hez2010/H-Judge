@@ -69,7 +69,7 @@ export default {
                 .then(data => {
                     if (data.isSucceeded) {
                         if (this.contest.id === 0) {
-                            this.$router.push('/Admin/Contest/' + data.id.toString());
+                            this.$router.replace('/Admin/Contest/' + data.id.toString());
                             this.contest.id = data.id;
                         }
                         this.showSnack('保存成功', 'success', 3000);

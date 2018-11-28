@@ -27,7 +27,7 @@ export default {
             problems: []
         }, this);
 
-        if (!this.$route.params.page) this.$router.push('/Problem/1');
+        if (!this.$route.params.page) this.$router.replace('/Problem/1');
         else this.page = parseInt(this.$route.params.page);
         this.load();
 

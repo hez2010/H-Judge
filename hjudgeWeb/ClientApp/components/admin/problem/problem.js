@@ -103,7 +103,7 @@ export default {
                 .then(data => {
                     if (data.isSucceeded) {
                         if (this.problem.id === 0) {
-                            this.$router.push('/Admin/Problem/' + data.id.toString());
+                            this.$router.replace('/Admin/Problem/' + data.id.toString());
                             this.problem.id = data.id;
                         }
                         this.showSnack('保存成功', 'success', 3000);

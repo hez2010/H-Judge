@@ -23,7 +23,7 @@ export default {
             contests: []
         }, this);
 
-        if (!this.$route.params.page) this.$router.push('/Contest/1');
+        if (!this.$route.params.page) this.$router.replace('/Contest/1');
         else this.page = parseInt(this.$route.params.page);
         this.load();
         Get('/Contest/GetContestCount')

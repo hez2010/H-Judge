@@ -27,7 +27,7 @@ export default {
             param: { start: 0, count: 10 }
         }, this);
 
-        if (!this.$route.params.page) this.$router.push(this.$router.currentRoute.fullPath + '/1');
+        if (!this.$route.params.page) this.$router.replace(this.$router.currentRoute.fullPath + '/1');
         else this.page = parseInt(this.$route.params.page);
 
         if (this.$route.params.pid) this.param['pid'] = parseInt(this.$route.params.pid);
