@@ -53,12 +53,12 @@
                                 </v-tooltip>
                                 <v-tab-item :key="1">
                                     <v-text-field v-model="item.name"
-                                                  label="语言名称"
+                                                  label="语言名称 *"
                                                   required
                                                   :rules="requireRules">
                                     </v-text-field>
                                     <v-text-field v-model="item.extensions"
-                                                  label="扩展名"
+                                                  label="扩展名 *"
                                                   required
                                                   :rules="requireRules">
                                     </v-text-field>
@@ -126,7 +126,7 @@
                                 </v-tab-item>
                                 <v-tab-item :key="4">
                                     <v-text-field v-model="item.runExec"
-                                                  label="执行文件"
+                                                  label="执行文件 *"
                                                   required
                                                   :rules="requireRules">
                                     </v-text-field>

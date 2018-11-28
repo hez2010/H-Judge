@@ -30,7 +30,7 @@
                             <v-form ref="basic" v-model="valid_basic" lazy-validation>
                                 <v-text-field v-model="problem.name"
                                               :rules="requireRules"
-                                              label="题目名称"
+                                              label="题目名称 *"
                                               required>
                                 </v-text-field>
                                 <v-slider v-model="problem.level"
@@ -44,13 +44,13 @@
                                     <v-checkbox label="使用标准输入输出" v-model="problem.config.useStdIO"></v-checkbox>
                                     <v-text-field v-model="problem.config.inputFileName"
                                                   :rules="requireRules"
-                                                  label="输入文件名"
+                                                  label="输入文件名 *"
                                                   required
                                                   v-if="!problem.config.useStdIO">
                                     </v-text-field>
                                     <v-text-field v-model="problem.config.outputFileName"
                                                   :rules="requireRules"
-                                                  label="输出文件名"
+                                                  label="输出文件名 *"
                                                   required
                                                   v-if="!problem.config.useStdIO">
                                     </v-text-field>
@@ -119,17 +119,17 @@
                                         </v-tooltip>
                                     </v-layout>
                                     <v-layout :key="index">
-                                        <v-text-field v-model="item.stdInFile" label="标准输入文件" :rules="requireRules" required>
+                                        <v-text-field v-model="item.stdInFile" label="标准输入文件 *" :rules="requireRules" required>
                                         </v-text-field>
-                                        <v-text-field v-model="item.stdOutFile" label="标准输出文件" :rules="requireRules" required>
+                                        <v-text-field v-model="item.stdOutFile" label="标准输出文件 *" :rules="requireRules" required>
                                         </v-text-field>
                                     </v-layout>
                                     <v-layout :key="index">
-                                        <v-text-field v-model="item.timeLimit" label="时间限制 (ms)" type="number" :rules="requireRules" required>
+                                        <v-text-field v-model="item.timeLimit" label="时间限制 (ms) *" type="number" :rules="requireRules" required>
                                         </v-text-field>
-                                        <v-text-field v-model="item.memoryLimit" label="内存限制 (kb)" type="number" :rules="requireRules" required>
+                                        <v-text-field v-model="item.memoryLimit" label="内存限制 (kb) *" type="number" :rules="requireRules" required>
                                         </v-text-field>
-                                        <v-text-field v-model="item.score" label="分数" type="number" :rules="requireRules" required>
+                                        <v-text-field v-model="item.score" label="分数 *" type="number" :rules="requireRules" required>
                                         </v-text-field>
                                     </v-layout>
                                 </template>
@@ -139,12 +139,12 @@
                             <v-form v-model="valid_answer" ref="answer" lazy-validation>
                                 <v-text-field v-model="problem.config.answer.answerFile"
                                               :rules="requireRules"
-                                              label="答案文件"
+                                              label="答案文件 *"
                                               required>
                                 </v-text-field>
                                 <v-text-field v-model="problem.config.answer.score"
                                               :rules="requireRules"
-                                              label="分数"
+                                              label="分数 *"
                                               type="number"
                                               required>
                                 </v-text-field>

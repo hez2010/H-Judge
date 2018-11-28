@@ -24,7 +24,7 @@
                             <v-form ref="basic" v-model="valid" lazy-validation>
                                 <v-text-field v-model="contest.name"
                                               :rules="requireRules"
-                                              label="比赛名称"
+                                              label="比赛名称 *"
                                               required>
                                 </v-text-field>
                                 <v-layout>

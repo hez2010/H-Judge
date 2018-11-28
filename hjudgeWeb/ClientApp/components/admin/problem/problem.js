@@ -6,6 +6,7 @@ import { initializeObjects } from '../../../utilities/initHelper';
 export default {
     props: ['showSnack'],
     data: () => ({
+        problem: {},
         valid_basic: false,
         valid_answer: false,
         valid_points: false,
@@ -23,7 +24,6 @@ export default {
         setTitle('题目编辑');
 
         initializeObjects({
-            problem: {},
             timer: null,
             dataTemplate: [
                 '${datadir}/${name}${index}.in|${datadir}/${name}${index}.ans|1000|131072|10',
@@ -56,11 +56,9 @@ export default {
     methods: {
         addPoint: function () {
             this.problem.config.points = this.problem.config.points.concat([{ stdInFile: '', stdOutFile: '', timeLimit: 1000, memoryLimit: 131072, score: 10 }]);
-            this.$forceUpdate();
         },
         removePoint: function (index) {
             this.problem.config.points.splice(index, 1);
-            this.$forceUpdate();
         },
         applyTemplate: function () {
             let args = this.templateSelection.split('|');
@@ -73,7 +71,6 @@ export default {
                     }
                 }
             }
-            this.$forceUpdate();
         },
         loadEditor: function () {
             this.timer = setInterval(() => {

@@ -6,20 +6,20 @@ import { initializeObjects } from '../../../utilities/initHelper';
 export default {
     props: ['showSnack'],
     data: () => ({
+        contest: {},
         valid: false,
         loading: true,
         requireRules: [
             v => !!v || '此项不能为空'
         ],
         submitting: false,
-        markdownEnabled: false,
-        timer: null
+        markdownEnabled: false
     }),
     mounted: function () {
         setTitle('比赛编辑');
 
         initializeObjects({
-            contest: {}
+            timer: null
         }, this);
 
         Get('/Admin/GetContestConfig', { cid: this.$route.params.cid })

@@ -152,9 +152,9 @@ bool execute(const char* param, char* ret) {
 	//Create process, and suspend the process at the very beginning
 	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
 		if (!isStdIO) {
-			if (si.hStdInput != NULL && si.hStdInput != INVALID_HANDLE_VALUE)
+			if (CheckHandle(si.hStdInput))
 				CloseHandle(si.hStdInput);
-			if (si.hStdOutput != NULL && si.hStdInput != INVALID_HANDLE_VALUE)
+			if (CheckHandle(si.hStdOutput))
 				CloseHandle(si.hStdOutput);
 		}
 
@@ -239,10 +239,13 @@ bool execute(const char* param, char* ret) {
 		CloseHandle(hIOCP);
 		CloseHandle(hJob);
 
-		if (isStdIO && CheckHandle(cmdInput))
-			CloseHandle(cmdInput);
-		if (isStdIO && CheckHandle(cmdOutput))
-			CloseHandle(cmdOutput);
+		if (isStdIO) {
+			if (CheckHandle(cmdInput)) CloseHandle(cmdInput);
+			if (CheckHandle(cmdOutput)) {
+				FlushFileBuffers(cmdOutput);
+				CloseHandle(cmdOutput);
+			}
+		}
 
 		//Copy memory from stack to heap in order to pass value to parent function
 		auto resultToReturn = getJsonString(result);
@@ -256,10 +259,13 @@ bool execute(const char* param, char* ret) {
 
 Exit: //If any operation failed then clean up and exit directly
 	result["ExtraInfo"] = "Failed to judge";
-	if (isStdIO && CheckHandle(cmdInput))
-		CloseHandle(cmdInput);
-	if (isStdIO && CheckHandle(cmdOutput))
-		CloseHandle(cmdOutput);
+	if (isStdIO) {
+		if (CheckHandle(cmdInput)) CloseHandle(cmdInput);
+		if (CheckHandle(cmdOutput)) {
+			FlushFileBuffers(cmdOutput);
+			CloseHandle(cmdOutput);
+		}
+	}
 	if (CheckHandle(hIOCPThread))
 		CloseHandle(hIOCPThread);
 	if (CheckHandle(hIOCP))
