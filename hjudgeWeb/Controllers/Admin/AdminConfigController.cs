@@ -26,8 +26,8 @@ namespace hjudgeWeb.Controllers
                 return config;
             }
             config.System = RuntimeInformation.OSDescription + " " + RuntimeInformation.OSArchitecture;
-            config.Environments = SystemConfiguration.Environments;
-            config.CanDiscussion = SystemConfiguration.CanDiscussion;
+            config.Environments = SystemConfiguration.Config.Environments;
+            config.CanDiscussion = SystemConfiguration.Config.CanDiscussion;
             config.Languages = Languages.LanguageConfigurations;
             return config;
         }
@@ -53,11 +53,11 @@ namespace hjudgeWeb.Controllers
                 return new ResultModel { IsSucceeded = false, ErrorMessage = "没有权限" };
             }
 
-            SystemConfiguration.Environments = submit.Environments;
-            SystemConfiguration.CanDiscussion = submit.CanDiscussion;
+            SystemConfiguration.Config.Environments = submit.Environments;
+            SystemConfiguration.Config.CanDiscussion = submit.CanDiscussion;
             Languages.LanguageConfigurations = submit.Languages;
 
-            System.IO.File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), JsonConvert.SerializeObject(new { submit.Environments, submit.CanDiscussion }), Encoding.UTF8);
+            System.IO.File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), JsonConvert.SerializeObject(SystemConfiguration.Config), Encoding.UTF8);
             System.IO.File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "LanguageConfig.json"), JsonConvert.SerializeObject(submit.Languages), Encoding.UTF8);
             return new ResultModel { IsSucceeded = true };
         }

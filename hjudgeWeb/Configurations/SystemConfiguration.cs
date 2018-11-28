@@ -1,8 +1,13 @@
 ﻿namespace hjudgeWeb.Configurations
 {
-    public static class SystemConfiguration
+    public class SystemConfig
     {
-        public static string Environments;
-        public static bool CanDiscussion;
+        public string Environments;
+        public bool CanDiscussion;
+    }
+
+    public class SystemConfiguration
+    {
+        public static SystemConfig Config { get; set; }
     }
 }

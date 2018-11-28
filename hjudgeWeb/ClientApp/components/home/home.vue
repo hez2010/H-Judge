@@ -36,7 +36,8 @@
                     <v-toolbar-title>版聊区</v-toolbar-title>
                 </v-toolbar>
                 <div style="height: 550px">
-                    <chatboard :loadUrl="'/Message/GetChats'" 
+                    <chatboard :path="{ pid: 0, cid: 0, gid: 0 }"
+                               :loadUrl="'/Message/GetChats'" 
                                :loadParameters="{ count: 10 }" 
                                :sendUrl="'/Message/SendChat'"
                                :sendParameters="{}"

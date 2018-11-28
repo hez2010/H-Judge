@@ -139,7 +139,8 @@
                             <p>加载中...</p>
                         </v-container>
                         <v-container v-else style="height: 550px">
-                            <chatboard :loadUrl="'/Message/GetChats'"
+                            <chatboard :path="{ pid: param.pid, cid: param.cid, gid: param.gid }"
+                                       :loadUrl="'/Message/GetChats'"
                                        :loadParameters="{ count: 10, problemId: param.pid, contestId: param.cid, groupId: param.gid }"
                                        :sendUrl="'/Message/SendChat'"
                                        :sendParameters="{ problemId: param.pid, contestId: param.cid, groupId: param.gid }"

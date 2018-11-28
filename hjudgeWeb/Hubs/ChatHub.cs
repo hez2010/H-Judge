@@ -6,9 +6,16 @@ namespace hjudgeWeb.Hubs
 {
     public class ChatHub : Hub
     {
-        public async Task BroadcastMessage(int id, string userId, string userName, DateTime sendTime, string content, int replyId)
+        public override async Task OnConnectedAsync()
         {
-            await Clients.All.SendAsync("ChatMessage", id, userId, userName, $"{sendTime.ToShortDateString()} {sendTime.ToLongTimeString()}", content, replyId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, Context.GetHttpContext().Request.Query["path"]);
+            await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, Context.GetHttpContext().Request.Query["path"]);
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

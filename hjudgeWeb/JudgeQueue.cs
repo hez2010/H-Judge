@@ -325,7 +325,7 @@ namespace hjudgeWeb
                         var (judgeOptionBuilder, buildOptionBuilder) = GetOptionBuilders(problem, judge, config);
                         buildOptionBuilder.AddSource(judge.Content);
                         //Init judge task
-                        var judgeMain = new JudgeMain(SystemConfiguration.Environments);
+                        var judgeMain = new JudgeMain(SystemConfiguration.Config.Environments);
                         //Judge
                         var result = await judgeMain.JudgeAsync(buildOptionBuilder.Build(), judgeOptionBuilder.Build());
 

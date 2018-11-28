@@ -210,7 +210,7 @@ namespace hjudgeWeb.Controllers
         public async Task<ChatMessageListModel> GetChats(int startId = int.MaxValue, int count = 10, int problemId = 0, int contestId = 0, int groupId = 0)
         {
             var ret = new ChatMessageListModel { IsSucceeded = true };
-            if (!SystemConfiguration.CanDiscussion)
+            if (!SystemConfiguration.Config.CanDiscussion)
             {
                 ret.IsSucceeded = false;
                 ret.ErrorMessage = "管理员未开启讨论功能";
@@ -261,16 +261,16 @@ namespace hjudgeWeb.Controllers
         {
             public string Content { get; set; }
             public int ReplyId { get; set; }
-            public int? ProblemId { get; set; }
-            public int? ContestId { get; set; }
-            public int? GroupId { get; set; }
+            public int ProblemId { get; set; }
+            public int ContestId { get; set; }
+            public int GroupId { get; set; }
         }
 
         [HttpPost]
         public async Task<ResultModel> SendChat([FromBody]SendChatModel model)
         {
             var ret = new ResultModel { IsSucceeded = true };
-            if (!SystemConfiguration.CanDiscussion)
+            if (!SystemConfiguration.Config.CanDiscussion)
             {
                 ret.IsSucceeded = false;
                 ret.ErrorMessage = "管理员未开启讨论功能";
@@ -306,10 +306,9 @@ namespace hjudgeWeb.Controllers
                 var sendTime = DateTime.Now;
                 var content = HttpUtility.HtmlEncode(model.Content);
 
-
-                var pid = model.ProblemId == 0 ? null : model.ProblemId;
-                var cid = model.ContestId == 0 ? null : model.ContestId;
-                var gid = model.GroupId == 0 ? null : model.GroupId;
+                var pid = model.ProblemId == 0 ? null : (int?)model.ProblemId;
+                var cid = model.ContestId == 0 ? null : (int?)model.ContestId;
+                var gid = model.GroupId == 0 ? null : (int?)model.GroupId;
 
                 using (var db = new ApplicationDbContext(_dbContextOptions))
                 {
@@ -335,6 +334,21 @@ namespace hjudgeWeb.Controllers
                         ret.IsSucceeded = false;
                         return ret;
                     }
+
+                    var dis = new Discussion
+                    {
+                        UserId = user.Id,
+                        Content = content,
+                        SubmitTime = sendTime,
+                        ReplyId = model.ReplyId,
+                        ProblemId = pid,
+                        ContestId = cid,
+                        GroupId = gid
+                    };
+                    db.Discussion.Add(dis);
+
+                    await db.SaveChangesAsync();
+
                     if (model.ReplyId != 0)
                     {
                         var previousDis = await db.Discussion
@@ -388,13 +402,13 @@ namespace hjudgeWeb.Controllers
                             }
                             var msgContent = new MessageContent
                             {
-                                Content = $"<h3><a href=\"/Account/{user.Id}\">{user.UserName}</a> 回复了您的帖子 #{previousDis.Id}：</h3><br />" +
+                                Content = $"<h3><a href=\"/Account/{user.Id}\">{user.UserName}</a> 在 #{dis.Id} 回复了您的帖子 #{previousDis.Id}：</h3><br />" +
                                 "<div style=\"width: 90 %; overflow: auto; max-height: 300px; \">" +
                                 $"<pre style=\"white-space: pre-wrap; word-wrap: break-word;\">{new string(content.Take(128).ToArray()) + (content.Length > 128 ? "..." : string.Empty)}</pre></div>" +
-                                "<br /><h3>原帖内容：</h3><br />" +
+                                "<br /><hr /><br /><h3>原帖内容：</h3><br />" +
                                 "<div style=\"width: 90 %; overflow: auto; max-height: 300px; \">" +
                                 $"<pre style=\"white-space: pre-wrap; word-wrap: break-word;\">{new string(previousDis.Content.Take(128).ToArray()) + (previousDis.Content.Length > 128 ? "..." : string.Empty)}</pre></div>" +
-                                $"<br /><hr /><p>位置：{position}，<a href=\"{link}\">点此前往查看</a></p>"
+                                $"<br /><hr /><br /><h4>位置：{position}，<a href=\"{link}\">点此前往查看</a></h4>"
                             };
                             db.MessageContent.Add(msgContent);
                             await db.SaveChangesAsync();
@@ -409,23 +423,12 @@ namespace hjudgeWeb.Controllers
                                 Title = $"您的帖子 #{previousDis.Id} 有新的回复",
                                 Type = 1
                             });
+                            await db.SaveChangesAsync();
                         }
                     }
 
-                    var dis = new Discussion
-                    {
-                        UserId = user.Id,
-                        Content = content,
-                        SubmitTime = sendTime,
-                        ReplyId = model.ReplyId,
-                        ProblemId = pid,
-                        ContestId = cid,
-                        GroupId = gid
-                    };
-                    db.Discussion.Add(dis);
-
-                    await db.SaveChangesAsync();
-                    await _chatHub.Clients.All.SendAsync("ChatMessage", dis.Id, user.Id, user.UserName, $"{sendTime.ToShortDateString()} {sendTime.ToLongTimeString()}", content, model.ReplyId);
+                    await _chatHub.Clients.Group($"pid-{model.ProblemId};cid-{model.ContestId};gid-{model.GroupId};")
+                        .SendAsync("ChatMessage", dis.Id, user.Id, user.UserName, $"{sendTime.ToShortDateString()} {sendTime.ToLongTimeString()}", content, model.ReplyId);
                 }
                 user.Experience += 5;
                 if (!HasAdminPrivilege(privilege))

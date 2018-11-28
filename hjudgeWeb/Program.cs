@@ -24,9 +24,7 @@ namespace hjudgeWeb
         public static async Task Main(string[] args)
         {
             //Read system and language config from ./AppData/SystemConfig.json and ./AppData/LanguageConfig.json
-            var systemConfig = JObject.Parse(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), Encoding.UTF8));
-            SystemConfiguration.Environments = systemConfig.ContainsKey("Environments") ? systemConfig["Environments"].ToString() : string.Empty;
-            SystemConfiguration.CanDiscussion = systemConfig.ContainsKey("CanDiscussion") ? bool.Parse(systemConfig["CanDiscussion"].ToString()) : true;
+            SystemConfiguration.Config = JsonConvert.DeserializeObject<SystemConfig>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), Encoding.UTF8));
             Languages.LanguageConfigurations = JsonConvert.DeserializeObject<List<LanguageConfiguration>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "LanguageConfig.json"), Encoding.UTF8));
 
             //Get database connection string stored in appsettings.json

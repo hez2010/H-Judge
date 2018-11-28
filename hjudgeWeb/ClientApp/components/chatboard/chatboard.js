@@ -3,7 +3,7 @@ import * as signalR from '@aspnet/signalr';
 
 export default {
     // loadParameters : { count: int, others... }
-    props: ['loadUrl', 'loadParameters', 'sendUrl', 'sendParameters', 'showSnack'],
+    props: ['path', 'loadUrl', 'loadParameters', 'sendUrl', 'sendParameters', 'showSnack'],
     data: () => ({
         chats: [],
         chatLastload: 2147483647,
@@ -101,7 +101,11 @@ export default {
             this.currentReply = id;
         },
         buildSingalR: function () {
-            let conn = new signalR.HubConnectionBuilder().withUrl('/ChatHub').build();
+            let path = '';
+            for (let i in this.path) {
+                path += i + '-' + this.path[i] + ';';
+            }
+            let conn = new signalR.HubConnectionBuilder().withUrl('/ChatHub?path=' + path).build();
             conn.on('ChatMessage', (id, userId, userName, sendTime, content, replyId) => {
                 let data = {
                     id: id,
