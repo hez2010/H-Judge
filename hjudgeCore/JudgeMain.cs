@@ -49,7 +49,8 @@ namespace hjudgeCore
                     return await AnswerJudgeAsync(buildOption, judgeOption);
                 }
 
-                File.WriteAllText(Path.Combine(_workingdir, $"{buildOption.SubmitFileName}{buildOption.ExtensionName}"), buildOption.Source, Encoding.UTF8);
+                var fileName = Path.Combine(_workingdir, $"{buildOption.SubmitFileName}{buildOption.ExtensionName}");
+                File.WriteAllText(fileName, buildOption.Source, Encoding.UTF8);
 
                 if (buildOption.StaticCheckOption != null)
                 {
@@ -122,7 +123,7 @@ namespace hjudgeCore
                             throw new InvalidOperationException("Unable to find standard output file");
                         }
                         var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
-                            await CompareAsync(Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption)
+                            await CompareAsync(fileName, Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption)
                             : (point.ResultType, 0, point.ExtraInfo);
                         point.ExtraInfo = extraInfo;
                         if (point.ResultType == ResultCode.Runtime_Error && point.ExitCode != 0)
@@ -189,8 +190,9 @@ namespace hjudgeCore
             try
             {
                 File.Copy(judgeOption.AnswerPoint.AnswerFile, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
-                File.WriteAllText(Path.Combine(_workingdir, buildOption.SubmitFileName), buildOption.Source, Encoding.UTF8);
-                var (resultType, percentage, extraInfo) = await CompareAsync(null, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption, true);
+                var fileName = Path.Combine(_workingdir, buildOption.SubmitFileName);
+                File.WriteAllText(fileName, buildOption.Source, Encoding.UTF8);
+                var (resultType, percentage, extraInfo) = await CompareAsync(fileName, string.Empty, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption, true);
                 result.JudgePoints[0].ResultType = resultType;
                 result.JudgePoints[0].Score = percentage * judgeOption.AnswerPoint.Score;
                 result.JudgePoints[0].ExtraInfo = extraInfo;
@@ -204,11 +206,15 @@ namespace hjudgeCore
             return result;
         }
 
-        private async Task<(ResultCode Result, float Percentage, string ExtraInfo)> CompareAsync(string stdInputFile, string stdOutputFile, string outputFile, JudgeOption judgeOption, bool isAnswerJudge = false)
+        private async Task<(ResultCode Result, float Percentage, string ExtraInfo)> CompareAsync(string sourceFile, string stdInputFile, string stdOutputFile, string outputFile, JudgeOption judgeOption, bool isAnswerJudge = false)
         {
             if (judgeOption.SpecialJudgeOption != null)
             {
                 var argsBuilder = new StringBuilder();
+                if (judgeOption.SpecialJudgeOption.UseSourceFile)
+                {
+                    argsBuilder.Append($" \"{sourceFile}\"");
+                }
                 if (judgeOption.SpecialJudgeOption.UseOutputFile)
                 {
                     argsBuilder.Append($" \"{outputFile}\"");
@@ -243,7 +249,7 @@ namespace hjudgeCore
                     }
                     catch (Exception ex)
                     {
-                        return (ResultCode.Unknown_Error, 0, ex.Message);
+                        return (ResultCode.Special_Judge_Error, 0, ex.Message);
                     }
 
                     if (judge.WaitForExit(60 * 1000))
@@ -298,7 +304,7 @@ namespace hjudgeCore
                     {
                         return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
-                    await Task.Delay(50);
+                    await Task.Delay(100);
                 }
             } while (std == null);
 
@@ -319,7 +325,7 @@ namespace hjudgeCore
                         std?.Dispose();
                         return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
-                    await Task.Delay(50);
+                    await Task.Delay(100);
                 }
             } while (act == null);
 
@@ -374,7 +380,7 @@ namespace hjudgeCore
                     if (!isAnswerJudge)
                     {
                         result.ExtraInfo =
-                        $"Line {line}:\n expect: {stdline?.Substring(0, 64 < (stdline?.Length ?? 0) ? 64 : stdline?.Length ?? 0) ?? "<nothing>"}{((stdline?.Length ?? 0) > 64 ? "..." : string.Empty)}\n output: {actline?.Substring(0, 64 < (actline?.Length ?? 0) ? 64 : actline?.Length ?? 0) ?? "<nothing>"}{((actline?.Length ?? 0) > 64 ? "..." : string.Empty)}";
+                        $"Line {line}: \nexpect: {stdline?.Substring(0, 64 < (stdline?.Length ?? 0) ? 64 : stdline?.Length ?? 0) ?? "<nothing>"}{((stdline?.Length ?? 0) > 64 ? "..." : string.Empty)} \noutput: {actline?.Substring(0, 64 < (actline?.Length ?? 0) ? 64 : actline?.Length ?? 0) ?? "<nothing>"}{((actline?.Length ?? 0) > 64 ? "..." : string.Empty)}";
                     }
 
                     if ((stdline?.Replace(" ", string.Empty) ?? string.Empty) ==

@@ -82,6 +82,7 @@ namespace hjudgeWeb
                             .Replace("${file}", file)
                             .Replace("${outputfile}", outputfile)
                             .Replace("${name}", name);
+                        option.UseSourceFile = true;
                         option.UseOutputFile = true;
                         option.UseStdInputFile = true;
                         option.UseStdOutputFile = true;
@@ -271,6 +272,7 @@ namespace hjudgeWeb
                             ?.Replace("${file}", file)
                             ?.Replace("${outputfile}", outputfile)
                             ?.Replace("${name}", name) ?? string.Empty;
+                        option.UseSourceFile = true;
                         option.UseOutputFile = true;
                         option.UseStdInputFile = true;
                         option.UseStdOutputFile = true;
