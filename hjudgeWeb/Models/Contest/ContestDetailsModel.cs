@@ -1,4 +1,5 @@
-﻿using System;
+﻿using hjudgeWeb.Configurations;
+using System;
 
 namespace hjudgeWeb.Models.Contest
 {
@@ -18,5 +19,7 @@ namespace hjudgeWeb.Models.Contest
         public string UserName { get; set; }
         public string Password { get; set; }
         public bool Started => RawStartTime <= DateTime.Now;
+        public int SubmissionLimit { get; set; }
+        public ContestType Type { get; set; }
     }
 }

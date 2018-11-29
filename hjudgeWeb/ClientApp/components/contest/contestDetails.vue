@@ -44,6 +44,12 @@
                                     <p>{{contest.name}}</p>
                                 </v-flex>
                                 <v-flex xs4>
+                                    <strong>比赛类型</strong>
+                                </v-flex>
+                                <v-flex xs8>
+                                    <p>{{contest.type === 0 ? '一般计时赛' : contest.type === 1 ? '最后提交赛' : '罚时计时赛'}}</p>
+                                </v-flex>
+                                <v-flex xs4>
                                     <strong>开始时间</strong>
                                 </v-flex>
                                 <v-flex xs8>
@@ -60,6 +66,12 @@
                                 </v-flex>
                                 <v-flex xs8>
                                     <p>{{contest.problemCount}}</p>
+                                </v-flex>
+                                <v-flex xs4>
+                                    <strong>提交限制</strong>
+                                </v-flex>
+                                <v-flex xs8>
+                                    <p>{{contest.submissionLimit === 0 ? '无限' : contest.submissionLimit.toString()}} 次</p>
                                 </v-flex>
                                 <v-flex xs4>
                                     <strong>创建用户</strong>

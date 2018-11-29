@@ -128,6 +128,11 @@ namespace hjudgeWeb.Controllers
                 }
                 ret.Description = contest.Description;
                 ret.ProblemCount = db.ContestProblemConfig.Count(j => j.ContestId == contest.Id);
+
+                var config = JsonConvert.DeserializeObject<ContestConfiguration>(contest.Config ?? "{}");
+                ret.Type = config?.Type ?? ContestType.Generic;
+                ret.SubmissionLimit = config?.SubmissionLimit ?? 0;
+
                 return ret;
             }
         }
