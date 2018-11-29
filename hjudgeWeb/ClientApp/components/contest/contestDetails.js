@@ -80,20 +80,23 @@ export default {
                 if (this.page <= 0) this.page = 1;
             })
             .catch(() => this.pageCount = 0);
-        Get('/Contest/GetProblemList', this.param)
-            .then(res => res.json())
-            .then(data => {
-                this.problems = data;
-                this.loadingProblem = false;
-            })
-            .catch(() => {
-                this.showSnack('题目列表加载失败', 'error', 3000);
-                this.problems = [];
-                this.loadingProblem = false;
-            });
+        this.loadProblems();
     },
     watch: {
         page: function () {
+            this.loadProblems();
+        },
+        active: function () {
+            if (this.active === 3) {
+                this.$router.push('/Status/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + this.param.cid.toString() + '/0/1');
+            }
+            else if (this.active === 4) {
+                this.$router.push('/Rank/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + this.param.cid.toString());
+            }
+        }
+    },
+    methods: {
+        loadProblems: function () {
             this.loadingProblem = true;
             let param = { cid: this.param.cid, start: (this.page - 1) * 10, count: 10 };
             this.problems = [];
@@ -112,16 +115,6 @@ export default {
                     this.loadingProblem = false;
                 });
         },
-        active: function () {
-            if (this.active === 3) {
-                this.$router.push('/Status/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + this.param.cid.toString() + '/0/1');
-            }
-            else if (this.active === 4) {
-                this.$router.push('/Rank/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + this.param.cid.toString());
-            }
-        }
-    },
-    methods: {
         loadMath: function () {
             this.timer = setInterval(() => {
                 if (document.getElementById('details_content')) {
