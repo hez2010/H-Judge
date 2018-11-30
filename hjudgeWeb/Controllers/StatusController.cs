@@ -150,6 +150,11 @@ namespace hjudgeWeb.Controllers
                     {
                         list = db.Judge.OrderByDescending(i => i.Id).Where(i => i.ContestId == cid && i.GroupId == null);
                     }
+
+                    if (config?.AutoStopRank ?? false)
+                    {
+                        list = list.Where(i => i.JudgeTime.AddHours(1) < contest.EndTime);
+                    }
                 }
 
                 if (pid != 0)
