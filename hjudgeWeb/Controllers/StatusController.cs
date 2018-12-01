@@ -237,6 +237,14 @@ namespace hjudgeWeb.Controllers
                         judge.ResultType = -1;
                         await db.SaveChangesAsync();
                         JudgeQueue.JudgeIdQueue.Enqueue(judge.Id);
+                        try
+                        {
+                            JudgeQueue.QueueSemaphore.Release();
+                        }
+                        catch
+                        {
+                            //ignored
+                        }
                     }
                 }
             }

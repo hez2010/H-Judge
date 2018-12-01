@@ -307,6 +307,14 @@ namespace hjudgeWeb.Controllers
                 db.Judge.Add(submission);
                 await db.SaveChangesAsync();
                 JudgeQueue.JudgeIdQueue.Enqueue(submission.Id);
+                try
+                {
+                    JudgeQueue.QueueSemaphore.Release();
+                }
+                catch
+                {
+                    //ignored
+                }
 
                 return new SubmitReturnDataModel
                 {

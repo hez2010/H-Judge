@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace hjudgeWeb
@@ -282,12 +283,15 @@ namespace hjudgeWeb
             }
         }
 
+        public static Semaphore QueueSemaphore = new Semaphore(0, Environment.ProcessorCount);
+
         public static async Task JudgeThread()
         {
             ApplicationDbContext db = null;
             var random = new Random();
             while (!Environment.HasShutdownStarted)
             {
+                QueueSemaphore.WaitOne();
                 while (JudgeIdQueue.TryDequeue(out var judgeId))
                 {
                     if (db == null)
@@ -409,6 +413,9 @@ namespace hjudgeWeb
                     catch (Exception ex)
                     {
                         judge.ResultType = (int)ResultCode.Unknown_Error;
+                        judge.Result = "{}";
+                        judge.AdditionalInfo = ex.Message;
+                        judge.FullScore = 0;
                         Console.WriteLine("Judge Error!");
                         Console.WriteLine("----------------------------");
                         Console.WriteLine(ex.Message);
@@ -424,7 +431,6 @@ namespace hjudgeWeb
                     db.Dispose();
                     db = null;
                 }
-                await Task.Delay(1000);
             }
         }
 
