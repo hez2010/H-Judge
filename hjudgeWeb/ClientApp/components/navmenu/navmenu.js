@@ -41,7 +41,7 @@ export default {
                     this.showSnack('退出成功', 'success', 3000);
                 })
                 .catch(() => {
-                    this.showSnack('退出失败', 'success', 3000);
+                    this.showSnack('退出失败', 'error', 3000);
                 });
         },
         goback: function () {
