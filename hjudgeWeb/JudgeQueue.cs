@@ -283,17 +283,20 @@ namespace hjudgeWeb
             }
         }
 
-        public static Semaphore QueueSemaphore = new Semaphore(0, Environment.ProcessorCount);
+        public static SemaphoreSlim QueueSemaphore = new SemaphoreSlim(0, Environment.ProcessorCount);
 
-        public static async Task JudgeThread()
+        public static async Task JudgeThread(int threadId)
         {
             ApplicationDbContext db = null;
             var random = new Random();
             while (!Environment.HasShutdownStarted)
             {
-                QueueSemaphore.WaitOne();
+                Console.WriteLine($"** {DateTime.Now}: Thread {threadId} start waiting semaphore");
+                await QueueSemaphore.WaitAsync();
+                Console.WriteLine($"** {DateTime.Now}: Thread {threadId} wait semaphore ok");
                 while (JudgeIdQueue.TryDequeue(out var judgeId))
                 {
+                    Console.WriteLine($"** {DateTime.Now}: Judge {judgeId} started");
                     if (db == null)
                     {
                         db = new ApplicationDbContext(Program.DbContextOptionsBuilder.Options);

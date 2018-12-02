@@ -239,7 +239,10 @@ namespace hjudgeWeb.Controllers
                         JudgeQueue.JudgeIdQueue.Enqueue(judge.Id);
                         try
                         {
-                            JudgeQueue.QueueSemaphore.Release();
+                            if (JudgeQueue.QueueSemaphore.CurrentCount < Environment.ProcessorCount)
+                            {
+                                JudgeQueue.QueueSemaphore.Release();
+                            }
                         }
                         catch
                         {
