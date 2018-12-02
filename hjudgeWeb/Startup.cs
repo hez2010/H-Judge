@@ -48,10 +48,24 @@ namespace hjudgeWeb
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             //Identity
-            services.AddDefaultIdentity<UserInfo>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders()
-                .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
+            services.AddAuthentication(o =>
+            {
+                o.DefaultScheme = IdentityConstants.ApplicationScheme;
+                o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+                .AddIdentityCookies();
+
+            services.AddIdentityCore<UserInfo>(o =>
+            {
+                o.Stores.MaxLengthForKeys = 128;
+                o.User.RequireUniqueEmail = true;
+            })
+            .AddSignInManager()
+            .AddUserManager<UserManager<UserInfo>>()
+            .AddDefaultTokenProviders()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders()
+            .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
             //EF Core -- SqlServer
             services.AddEntityFrameworkSqlServer();
@@ -96,7 +110,7 @@ namespace hjudgeWeb
 
             //Accessibility for ./wwwroot
             app.UseStaticFiles();
-            
+
             app.UseAuthentication();
 
             //signalR routing

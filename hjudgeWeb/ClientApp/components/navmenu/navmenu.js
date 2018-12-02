@@ -34,9 +34,15 @@ export default {
     },
     methods: {
         logout: function () {
-            sessionStorage.clear();
             Post('/Account/Logout')
-                .then(() => this.getUserInfo());
+                .then(() => {
+                    sessionStorage.clear();
+                    this.getUserInfo();
+                    this.showSnack('退出成功', 'success', 3000);
+                })
+                .catch(() => {
+                    this.showSnack('退出失败', 'success', 3000);
+                });
         },
         goback: function () {
             this.$router.go(-1);

@@ -91,20 +91,31 @@ export default {
             Post('/Account/UpdateOtherInfo', otherInfo)
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.isSucceeded) this.showSnack(data.errorMessage, 'error', 3000);
+                    if (!data.isSucceeded) {
+                        this.showSnack(data.errorMessage, 'error', 3000);
+                        this.getUserInfo();
+                    }
                     else this.showSnack('修改成功', 'success', 3000);
                 })
-                .catch(() => this.showSnack('修改失败', 'error', 3000));
+                .catch(() => {
+                    this.showSnack('修改失败', 'error', 3000);
+                    this.getUserInfo();
+                });
         },
         updateName: function (name) {
             Post('/Account/UpdateName', { value: name })
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.isSucceeded)
+                    if (!data.isSucceeded) {
                         this.showSnack(data.errorMessage, 'error', 3000);
+                        this.getUserInfo();
+                    }
                     else this.showSnack('修改成功', 'success', 3000);
                 })
-                .catch(() => this.showSnack('修改失败', 'error', 3000));
+                .catch(() => {
+                    this.showSnack('修改失败', 'error', 3000);
+                    this.getUserInfo();
+                });
         },
         updateEmail: function (email) {
             if (this.$refs.form.validate()) {
@@ -115,10 +126,13 @@ export default {
                             this.showSnack(data.errorMessage, 'error', 3000);
                         else {
                             this.showSnack('修改成功', 'success', 3000);
-                            this.getUserInfo();
                         }
+                        this.getUserInfo();
                     })
-                    .catch(() => this.showSnack('修改失败', 'error', 3000));
+                    .catch(() => {
+                        this.showSnack('修改失败', 'error', 3000);
+                        this.getUserInfo();
+                    });
             }
         },
         updatePhoneNumber: function (phoneNumber) {
@@ -129,10 +143,13 @@ export default {
                         this.showSnack(data.errorMessage, 'error', 3000);
                     else {
                         this.showSnack('修改成功', 'success', 3000);
-                        this.getUserInfo();
                     }
+                    this.getUserInfo();
                 })
-                .catch(() => this.showSnack('修改失败', 'error', 3000));
+                .catch(() => {
+                    this.showSnack('修改失败', 'error', 3000);
+                    this.getUserInfo();
+                });
         },
         selectFile: function () {
             document.getElementById('avatar_file').click();
