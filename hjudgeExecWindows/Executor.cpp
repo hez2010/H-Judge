@@ -85,7 +85,7 @@ bool execute(const char* param, char* ret) {
 		JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION;
 	jobLimit.BasicLimitInformation.PerProcessUserTimeLimit.QuadPart = timeLimit * 10000;
 	jobLimit.ProcessMemoryLimit = static_cast<SIZE_T>(memoryLimit) << 10;
-	jobLimit.BasicLimitInformation.ActiveProcessLimit = 1;
+	jobLimit.BasicLimitInformation.ActiveProcessLimit = 2;
 	jobLimit.BasicLimitInformation.PriorityClass = NORMAL_PRIORITY_CLASS;
 	SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &jobLimit, sizeof jobLimit);
 
@@ -148,8 +148,7 @@ bool execute(const char* param, char* ret) {
 	if (!checked) goto Exit;
 
 	//Create process, and suspend the process at the very beginning
-	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE
-		 | CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
+	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE | CREATE_NO_WINDOW | CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
 		if (!isStdIO) {
 			if (CheckHandle(si.hStdInput))
 				CloseHandle(si.hStdInput);
