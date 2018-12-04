@@ -383,8 +383,9 @@ namespace hjudgeWeb
                             }
                             try
                             {
-                                var fortune = db.Users.Select(i => new { i.Id, i.Experience, i.Coins }).FirstOrDefault(i => i.Id == judge.UserId);
-                                if (fortune != null)
+                                var user = db.Users.FirstOrDefault(i => i.Id == judge.UserId);
+
+                                if (user != null)
                                 {
                                     long dExp = 0, dCoins = 0;
                                     switch (judge.ResultType)
@@ -401,15 +402,14 @@ namespace hjudgeWeb
                                             dExp = random.Next(10, 30);
                                             break;
                                     }
-                                    db.Database.ExecuteSqlCommand("Update AspNetUsers set Experience=@1, Coins=@2 where Id=@3",
-                                        new SqlParameter("@1", fortune.Experience + dExp),
-                                        new SqlParameter("@2", fortune.Coins + dCoins),
-                                        new SqlParameter("@3", judge.UserId));
+                                    user.Coins += dCoins;
+                                    user.Experience += dExp;
+                                    user.AcceptedCount++;
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"Failed to update fortune for user [{judge.UserId}]: {ex.Message}");
+                                Console.WriteLine($"Failed to update userinfo for user [{judge.UserId}]: {ex.Message}");
                             }
                         }
                     }

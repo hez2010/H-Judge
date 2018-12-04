@@ -299,6 +299,9 @@ namespace hjudgeWeb.Controllers
                     problem.SubmissionCount++;
                 }
 
+                user.SubmissionCount++;
+                await _userManager.UpdateAsync(user);
+
                 if (submit.Gid != 0)
                 {
                     submission.GroupId = submit.Gid;

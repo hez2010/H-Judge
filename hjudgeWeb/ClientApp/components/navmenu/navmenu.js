@@ -38,6 +38,7 @@ export default {
                 .then(() => {
                     sessionStorage.clear();
                     this.getUserInfo();
+                    this.$router.push('/');
                     this.showSnack('退出成功', 'success', 3000);
                 })
                 .catch(() => {
