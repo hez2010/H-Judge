@@ -298,14 +298,14 @@ namespace hjudgeCore
             {
                 try
                 {
-                    std = new StreamReader(stdOutputFile, Encoding.UTF8);
+                    std = new StreamReader(new FileStream(stdOutputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8);
                 }
                 catch (Exception ex)
                 {
                     std?.Dispose();
                     std = null;
                     retryTimes++;
-                    if (retryTimes > 10)
+                    if (retryTimes > 100)
                     {
                         return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
@@ -318,14 +318,14 @@ namespace hjudgeCore
             {
                 try
                 {
-                    act = new StreamReader(outputFile, Encoding.UTF8);
+                    act = new StreamReader(new FileStream(outputFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), Encoding.UTF8, true);
                 }
                 catch (Exception ex)
                 {
                     act?.Dispose();
                     act = null;
                     retryTimes++;
-                    if (retryTimes > 10)
+                    if (retryTimes > 100)
                     {
                         std?.Dispose();
                         return (ResultCode.Unknown_Error, 0, ex.Message);

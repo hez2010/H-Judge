@@ -130,8 +130,7 @@ bool execute(const char* param, char* ret) {
 		si.dwFlags = STARTF_USESTDHANDLES;
 		cmdInput = CreateFile(inputFile.c_str(), GENERIC_READ,
 			FILE_SHARE_READ |
-			FILE_SHARE_WRITE |
-			FILE_SHARE_DELETE,
+			FILE_SHARE_WRITE,
 			&sa, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		checked = CheckHandle(cmdInput);
@@ -139,8 +138,7 @@ bool execute(const char* param, char* ret) {
 
 		cmdOutput = CreateFile(outputFile.c_str(), GENERIC_WRITE | GENERIC_READ,
 			FILE_SHARE_READ |
-			FILE_SHARE_WRITE |
-			FILE_SHARE_DELETE,
+			FILE_SHARE_WRITE,
 			&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 		checked = CheckHandle(cmdOutput);
@@ -150,7 +148,8 @@ bool execute(const char* param, char* ret) {
 	if (!checked) goto Exit;
 
 	//Create process, and suspend the process at the very beginning
-	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
+	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE
+		 | CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
 		if (!isStdIO) {
 			if (CheckHandle(si.hStdInput))
 				CloseHandle(si.hStdInput);
