@@ -208,6 +208,11 @@ namespace hjudgeCore
 
         private async Task<(ResultCode Result, float Percentage, string ExtraInfo)> CompareAsync(string sourceFile, string stdInputFile, string stdOutputFile, string outputFile, JudgeOption judgeOption, bool isAnswerJudge = false)
         {
+            if (!File.Exists(outputFile))
+            {
+                return (ResultCode.Output_File_Error, 0, string.Empty);
+            }
+
             if (judgeOption.SpecialJudgeOption != null)
             {
                 var argsBuilder = new StringBuilder();
