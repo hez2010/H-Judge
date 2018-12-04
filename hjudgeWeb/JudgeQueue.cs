@@ -1,12 +1,10 @@
 ﻿using hjudgeCore;
 using hjudgeWeb.Configurations;
 using hjudgeWeb.Data;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,7 +17,7 @@ namespace hjudgeWeb
     {
         //Judge queue. A tuple (Judge Id, Whether being judged before)
         public static readonly ConcurrentQueue<int> JudgeIdQueue = new ConcurrentQueue<int>();
-        
+
         private static string AlphaNumberFilter(string input)
         {
             if (input == null)
