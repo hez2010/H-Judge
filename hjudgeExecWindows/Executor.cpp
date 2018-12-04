@@ -120,6 +120,8 @@ bool execute(const char* param, char* ret) {
 
 	//Initilize process info varibles
 	STARTUPINFO si = { sizeof STARTUPINFO };
+	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.wShowWindow = SW_HIDE;
 	SECURITY_ATTRIBUTES sa = { sizeof SECURITY_ATTRIBUTES, NULL, TRUE };
 	PROCESS_INFORMATION pi;
 
@@ -148,7 +150,7 @@ bool execute(const char* param, char* ret) {
 	if (!checked) goto Exit;
 
 	//Create process, and suspend the process at the very beginning
-	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE | CREATE_NO_WINDOW | CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
+	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW | CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
 		if (!isStdIO) {
 			if (CheckHandle(si.hStdInput))
 				CloseHandle(si.hStdInput);
