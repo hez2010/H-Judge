@@ -8,7 +8,7 @@ This is the official repository for [H::Judge](https://hjudge.com).
 - [Vuetify](https://vuetifyjs.com/)
 
 ## Backend
-- [.NET Core 2.1](https://www.microsoft.com/net)
+- [.NET Core 2.2](https://www.microsoft.com/net)
 
 ## Structure
 - ./hjudgeWeb:
