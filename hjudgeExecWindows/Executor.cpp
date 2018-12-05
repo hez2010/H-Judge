@@ -33,7 +33,8 @@ bool execute(const char* param, char* ret) {
 	Json::Value root;
 	JSONCPP_STRING errs;
 
-	std::string exec, args, inputFile, outputFile, workingdir;
+	std::string exec, args, inputFile, outputFile, workingdir, stdErrFile;
+	int activeProcessLimit;
 	long long timeLimit, memoryLimit;
 	bool isStdIO;
 
@@ -49,11 +50,13 @@ bool execute(const char* param, char* ret) {
 		exec = root["Exec"].asString(); //Executable path
 		args = root["Args"].asString(); //Execute arguments
 		workingdir = root["WorkingDir"].asString(); //Environment directory
+		stdErrFile = root["StdErrRedirectFile"].asString(); //Redirect standard error
 		inputFile = root["InputFile"].asString(); //Input file path
 		outputFile = root["OutputFile"].asString(); //Output file path
 		timeLimit = root["TimeLimit"].asInt64(); //Time limit
 		memoryLimit = root["MemoryLimit"].asInt64(); //Memory limit
 		isStdIO = root["IsStdIO"].asBool(); //Whether to use standard IO
+		activeProcessLimit = root["ActiveProcessLimit"].asInt(); //Control active process limit
 	}
 	else { //Parse failed
 		delete reader;
@@ -85,7 +88,7 @@ bool execute(const char* param, char* ret) {
 		JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION;
 	jobLimit.BasicLimitInformation.PerProcessUserTimeLimit.QuadPart = timeLimit * 10000;
 	jobLimit.ProcessMemoryLimit = static_cast<SIZE_T>(memoryLimit) << 10;
-	jobLimit.BasicLimitInformation.ActiveProcessLimit = 2;
+	jobLimit.BasicLimitInformation.ActiveProcessLimit = activeProcessLimit;
 	jobLimit.BasicLimitInformation.PriorityClass = NORMAL_PRIORITY_CLASS;
 	SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &jobLimit, sizeof jobLimit);
 
@@ -120,16 +123,15 @@ bool execute(const char* param, char* ret) {
 
 	//Initilize process info varibles
 	STARTUPINFO si = { sizeof STARTUPINFO };
-	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
 	SECURITY_ATTRIBUTES sa = { sizeof SECURITY_ATTRIBUTES, NULL, TRUE };
 	PROCESS_INFORMATION pi;
 
 	//Redirect standard input/output
-	HANDLE cmdInput = NULL, cmdOutput = NULL;
+	HANDLE cmdInput = NULL, cmdOutput = NULL, cmdError;
 
 	if (isStdIO) {
-		si.dwFlags = STARTF_USESTDHANDLES;
 		cmdInput = CreateFile(inputFile.c_str(), GENERIC_READ,
 			FILE_SHARE_READ |
 			FILE_SHARE_WRITE,
@@ -146,6 +148,12 @@ bool execute(const char* param, char* ret) {
 		checked = CheckHandle(cmdOutput);
 		if (checked) si.hStdOutput = cmdOutput;
 	}
+
+	cmdError = CreateFile(stdErrFile.c_str(), GENERIC_WRITE | GENERIC_READ,
+		FILE_SHARE_READ |
+		FILE_SHARE_WRITE,
+		&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (checked) si.hStdError = cmdError;
 
 	if (!checked) goto Exit;
 
@@ -241,6 +249,10 @@ bool execute(const char* param, char* ret) {
 
 		if (isStdIO) {
 			if (CheckHandle(cmdInput)) CloseHandle(cmdInput);
+			if (CheckHandle(cmdError)) {
+				FlushFileBuffers(cmdError);
+				CloseHandle(cmdError);
+			}
 			if (CheckHandle(cmdOutput)) {
 				FlushFileBuffers(cmdOutput);
 				CloseHandle(cmdOutput);
@@ -261,6 +273,10 @@ Exit: //If any operation failed then clean up and exit directly
 	result["ExtraInfo"] = "Failed to judge";
 	if (isStdIO) {
 		if (CheckHandle(cmdInput)) CloseHandle(cmdInput);
+		if (CheckHandle(cmdError)) {
+			FlushFileBuffers(cmdError);
+			CloseHandle(cmdError);
+		}
 		if (CheckHandle(cmdOutput)) {
 			FlushFileBuffers(cmdOutput);
 			CloseHandle(cmdOutput);

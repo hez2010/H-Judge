@@ -9,14 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace hjudgeWeb.Controllers
 {
-    [Consumes("application/json", "multipart/form-data")]
     [AutoValidateAntiforgeryToken]
     public class AccountController : Controller
     {
@@ -58,7 +56,7 @@ namespace hjudgeWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUserAvatar(string userId = null)
+        public async Task<IActionResult> GetUserAvatar(string userId)
         {
             var user = await (string.IsNullOrEmpty(userId) ? _userManager.GetUserAsync(User) : _userManager.FindByIdAsync(userId));
             if (user == null)
@@ -235,10 +233,10 @@ namespace hjudgeWeb.Controllers
         }
 
         [HttpGet]
-        public async Task<UserInfoModel> GetUserInfo(string userId = null)
+        public async Task<UserInfoModel> GetUserInfo(string userId)
         {
             var userInfo = new UserInfoModel { IsSignedIn = true };
-            if (userId == null)
+            if (string.IsNullOrEmpty(userId))
             {
                 if (!_signInManager.IsSignedIn(User))
                 {

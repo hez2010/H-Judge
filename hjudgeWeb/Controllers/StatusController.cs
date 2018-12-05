@@ -235,6 +235,9 @@ namespace hjudgeWeb.Controllers
                     if (ret.IsSucceeded)
                     {
                         judge.ResultType = -1;
+                        judge.Logs = null;
+                        judge.Result = null;
+                        judge.FullScore = 0;
                         await db.SaveChangesAsync();
                         JudgeQueue.JudgeIdQueue.Enqueue(judge.Id);
                         try

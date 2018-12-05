@@ -2,6 +2,13 @@
 
 namespace hjudgeCore
 {
+    public enum StdErrBehavior
+    {
+        Ignore,
+        TreatAsCompileError,
+        TreatAsRuntimeError
+    }
+
     public sealed class JudgeOption
     {
         public JudgeOption()
@@ -18,6 +25,8 @@ namespace hjudgeCore
         public SpecialJudgeOption SpecialJudgeOption { get; set; }
         public string InputFileName { get; set; }
         public string OutputFileName { get; set; }
-        public bool UseStdIO { get; set; }
+        public bool UseStdIO { get; set; } = true;
+        public StdErrBehavior StandardErrorBehavior { get; set; } = StdErrBehavior.Ignore;
+        public int ActiveProcessLimit { get; set; } = 1;
     }
 }

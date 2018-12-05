@@ -73,7 +73,9 @@ export default {
                 staticCheckReadStdOutput: true,
                 staticCheckReadStdError: true,
                 runExec: '',
-                runArgs: ''
+                runArgs: '',
+                standardErrorBehavior: 0,
+                activeProcessLimit: 1
             }]);
             this.$forceUpdate();
         },

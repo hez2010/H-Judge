@@ -133,6 +133,33 @@
                                     <v-text-field v-model="item.runArgs"
                                                   label="执行参数">
                                     </v-text-field>
+                                    <v-radio-group label="标准错误处理方式" v-model="item.standardErrorBehavior">
+                                        <v-layout>
+                                            <div>
+                                                <v-radio key="0"
+                                                         label="忽略"
+                                                         :value="0">
+                                                </v-radio>
+                                            </div>
+                                            <div>
+                                                <v-radio key="1"
+                                                         label="视为 Compile Error"
+                                                         :value="1">
+                                                </v-radio>
+                                            </div>
+                                            <div>
+                                                <v-radio key="2"
+                                                         label="视为 Runtime Error"
+                                                         :value="2">
+                                                </v-radio>
+                                            </div>
+                                        </v-layout>
+                                    </v-radio-group>
+                                    <v-text-field v-model="item.activeProcessLimit"
+                                                  label="活跃进程数限制 *"
+                                                  required
+                                                  :rules="requireRules">
+                                    </v-text-field>
                                 </v-tab-item>
                             </v-tabs>
                         </template>

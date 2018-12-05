@@ -11,6 +11,8 @@ module.exports = (env) => {
         resolve: { extensions: ['.js', '.jsx'] },
         entry: {
             vendor: [
+                'event-source-polyfill',
+                'isomorphic-fetch',
                 'vuetify/dist/vuetify.min.css',
                 'material-design-icons-iconfont/dist/material-design-icons.css',
                 'highlight.js/styles/github.css'
@@ -19,7 +21,7 @@ module.exports = (env) => {
         module: {
             rules: [
                 { test: /\.css$/, use: [{ loader: MiniCssExtractPlugin.loader }, isDevBuild ? 'css-loader' : 'css-loader?minimize'] },
-                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: [['@babel/preset-env', { targets: { ie: '11' } }]] } },
+                { test: /\.jsx?$/, include: /ClientApp/, loader: 'babel-loader', options: { presets: [['@babel/preset-env']] } },
                 { test: /\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot)(\?|$)/, use: 'url-loader?limit=100000' }
             ]
         },

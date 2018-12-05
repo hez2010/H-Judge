@@ -209,6 +209,9 @@ namespace hjudgeWeb
                             option.ReadStdError = lang.StaticCheckReadStdError;
                         });
                     }
+                    judgeOptionBuilder.SetStdErrBehavior(lang.StandardErrorBehavior);
+
+                    judgeOptionBuilder.SetActiveProcessLimit(lang.ActiveProcessLimit);
                 }
                 return (judgeOptionBuilder, buildOptionBuilder);
             }

@@ -1,4 +1,4 @@
-﻿import { Get } from '../../utilities/requestHelper';
+﻿import { Get, Post } from '../../utilities/requestHelper';
 import { setTitle } from '../../utilities/titleHelper';
 import { ensureLoading } from '../../utilities/scriptHelper';
 import { initializeObjects } from '../../utilities/initHelper';
@@ -114,6 +114,20 @@ export default {
                     this.problems = [];
                     this.loadingProblem = false;
                 });
+        },
+        deleteContest: function (id) {
+            if (confirm('确定要删除此比赛吗？')) {
+                Post('/Admin/DeleteContest', { id: id })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.isSucceeded) {
+                            this.showSnack('删除成功', 'success', 3000);
+                            this.$router.go(-1);
+                        }
+                        else this.showSnack(data.errorMessage, 'error', 3000);
+                    })
+                    .catch(() => this.showSnack('删除失败', 'error', 3000));
+            }
         },
         loadMath: function () {
             this.timer = setInterval(() => {

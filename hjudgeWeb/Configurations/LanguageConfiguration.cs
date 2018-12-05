@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using hjudgeCore;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace hjudgeWeb.Configurations
@@ -26,6 +27,8 @@ namespace hjudgeWeb.Configurations
         //Run option
         public string RunExec { get; set; }
         public string RunArgs { get; set; }
+        public int ActiveProcessLimit { get; set; }
+        public StdErrBehavior StandardErrorBehavior { get; set; } = StdErrBehavior.Ignore;
     }
 
     public class Languages

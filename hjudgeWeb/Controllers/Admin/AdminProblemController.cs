@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace hjudgeWeb.Controllers
 {
-    [Consumes("application/json", "multipart/form-data")]
     public partial class AdminController : Controller
     {
         public class ProblemIdModel : ResultModel

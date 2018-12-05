@@ -86,6 +86,21 @@
                                     <p>{{contest.status}}</p>
                                 </v-flex>
                             </v-layout>
+                            <v-layout v-if="user && user.privilege >= 1 && user.privilege <= 2">
+                                <v-spacer></v-spacer>
+                                <v-tooltip bottom>
+                                    <v-btn icon slot="activator" :to="{ path: '/Admin/Contest/' + contest.id }">
+                                        <v-icon color="primary">edit</v-icon>
+                                    </v-btn>
+                                    <span>编辑</span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <v-btn icon slot="activator" @click="deleteContest(contest.id)">
+                                        <v-icon color="red">delete</v-icon>
+                                    </v-btn>
+                                    <span>删除</span>
+                                </v-tooltip>
+                            </v-layout>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>

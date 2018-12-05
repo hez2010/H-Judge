@@ -5,6 +5,7 @@ using hjudgeWeb.Models.Admin;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -140,8 +141,9 @@ namespace hjudgeWeb.Controllers
                 {
                     contest.UserId = user.Id;
                     await db.Contest.AddAsync(contest);
+                    await db.SaveChangesAsync();
                 };
-                await db.SaveChangesAsync();
+
                 db.ContestRegister.RemoveRange(db.ContestRegister.Where(i => i.ContestId == contest.Id));
                 if (contest.SpecifyCompetitors)
                 {
@@ -162,23 +164,29 @@ namespace hjudgeWeb.Controllers
                     });
                     problemSet.RemoveAll(i => i == 0);
 
+                    var dict = new Dictionary<int, ContestProblemConfig>();
+
                     foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == contest.Id))
                     {
-                        if (!problemSet.Contains(i.ProblemId))
+                        if (problemSet.Contains(i.ProblemId))
                         {
-                            db.ContestProblemConfig.Remove(i);
+                            dict[i.ProblemId] = i;
                         }
+                        db.ContestProblemConfig.Remove(i);
                     }
+
                     foreach (var pid in problemSet)
                     {
-                        if (db.ContestProblemConfig.Any(i => i.ProblemId == pid && i.ContestId == contest.Id))
-                        {
-                            continue;
-                        }
-
                         if (db.Problem.Any(i => i.Id == pid))
                         {
-                            db.ContestProblemConfig.Add(new ContestProblemConfig { ProblemId = pid, ContestId = contest.Id, AcceptCount = 0, SubmissionCount = 0 });
+                            if (dict.ContainsKey(pid))
+                            {
+                                db.ContestProblemConfig.Add(dict[pid]);
+                            }
+                            else
+                            {
+                                db.ContestProblemConfig.Add(new ContestProblemConfig { ProblemId = pid, ContestId = contest.Id, AcceptCount = 0, SubmissionCount = 0 });
+                            }
                         }
                     }
                 }

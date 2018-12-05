@@ -60,5 +60,15 @@ namespace hjudgeCore
         {
             judgeOption.OutputFileName = outputFileName;
         }
+
+        public void SetStdErrBehavior(StdErrBehavior behavior)
+        {
+            judgeOption.StandardErrorBehavior = behavior;
+        }
+
+        public void SetActiveProcessLimit(int limit)
+        {
+            judgeOption.ActiveProcessLimit = limit;
+        }
     }
 }

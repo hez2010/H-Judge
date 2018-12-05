@@ -129,6 +129,20 @@ export default {
             let name = this.language.syntaxHighlight ? this.language.syntaxHighlight : 'plain_text';
             let langMode = window.ace.require('ace/mode/' + name).Mode;
             this.editor.session.setMode(new langMode());
+        },
+        deleteProblem: function (id) {
+            if (confirm('确定要删除此题目吗？')) {
+                Post('/Admin/DeleteProblem', { id: id })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.isSucceeded) {
+                            this.showSnack('删除成功', 'success', 3000);
+                            this.$router.go(-1);
+                        }
+                        else this.showSnack(data.errorMessage, 'error', 3000);
+                    })
+                    .catch(() => this.showSnack('删除失败', 'error', 3000));
+            }
         }
     },
     watch: {

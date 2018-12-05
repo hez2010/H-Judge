@@ -1,7 +1,6 @@
 using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Hubs;
-using hjudgeWeb.Middleware;
 using hjudgeWeb.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,6 +42,8 @@ namespace hjudgeWeb
                     "font/eof" });
             });
 
+            services.AddCors();
+
             //EF Core db context
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -53,7 +54,7 @@ namespace hjudgeWeb
                 o.DefaultScheme = IdentityConstants.ApplicationScheme;
                 o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             })
-                .AddIdentityCookies();
+            .AddIdentityCookies();
 
             services.AddIdentityCore<UserInfo>(o =>
             {
@@ -85,7 +86,7 @@ namespace hjudgeWeb
             {
                 options.Filters.AddService(typeof(AntiForgeryFilter));
             })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -89,6 +89,21 @@
                                     <p>{{problem.submissionCount === 0 ? 0 : Math.round(problem.acceptCount * 10000 / problem.submissionCount) / 100}} %</p>
                                 </v-flex>
                             </v-layout>
+                            <v-layout v-if="user && user.privilege >= 1 && user.privilege <= 2">
+                                <v-spacer></v-spacer>
+                                <v-tooltip bottom>
+                                    <v-btn icon slot="activator" :to="{ path: '/Admin/Problem/' + problem.id }">
+                                        <v-icon color="primary">edit</v-icon>
+                                    </v-btn>
+                                    <span>编辑</span>
+                                </v-tooltip>
+                                <v-tooltip bottom>
+                                    <v-btn icon slot="activator" @click="deleteProblem(problem.id)">
+                                        <v-icon color="red">delete</v-icon>
+                                    </v-btn>
+                                    <span>删除</span>
+                                </v-tooltip>
+                            </v-layout>
                         </v-container>
                     </v-card-text>
                 </v-tab-item>

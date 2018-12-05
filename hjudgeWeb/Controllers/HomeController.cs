@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
+﻿using hjudgeWeb.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace hjudgeWeb.Controllers
 {
@@ -14,8 +15,11 @@ namespace hjudgeWeb.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            ViewData["RequestId"] = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
-            return View();
+            return Json(new ResultModel
+            {
+                IsSucceeded = false,
+                ErrorMessage = $"Error. {Activity.Current?.Id ?? HttpContext.TraceIdentifier}"
+            });
         }
     }
 }

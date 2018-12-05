@@ -110,28 +110,30 @@
                             </v-layout>
                             <v-form v-model="valid_points" ref="points" lazy-validation>
                                 <template v-for="(item, index) in problem.config.points">
-                                    <v-layout :key="index">
-                                        <h4>数据点 #{{index + 1}}</h4>
-                                        <v-spacer></v-spacer>
-                                        <v-tooltip bottom>
-                                            <v-btn @click="removePoint(index)" icon slot="activator"><v-icon color="red">delete</v-icon></v-btn>
-                                            <span>删除</span>
-                                        </v-tooltip>
-                                    </v-layout>
-                                    <v-layout :key="index">
-                                        <v-text-field v-model="item.stdInFile" label="标准输入文件 *" :rules="requireRules" required>
-                                        </v-text-field>
-                                        <v-text-field v-model="item.stdOutFile" label="标准输出文件 *" :rules="requireRules" required>
-                                        </v-text-field>
-                                    </v-layout>
-                                    <v-layout :key="index">
-                                        <v-text-field v-model="item.timeLimit" label="时间限制 (ms) *" type="number" :rules="requireRules" required>
-                                        </v-text-field>
-                                        <v-text-field v-model="item.memoryLimit" label="内存限制 (kb) *" type="number" :rules="requireRules" required>
-                                        </v-text-field>
-                                        <v-text-field v-model="item.score" label="分数 *" type="number" :rules="requireRules" required>
-                                        </v-text-field>
-                                    </v-layout>
+                                    <div :key="'datapoint_' + index">
+                                        <v-layout>
+                                            <h4>数据点 #{{index + 1}}</h4>
+                                            <v-spacer></v-spacer>
+                                            <v-tooltip bottom>
+                                                <v-btn @click="removePoint(index)" icon slot="activator"><v-icon color="red">delete</v-icon></v-btn>
+                                                <span>删除</span>
+                                            </v-tooltip>
+                                        </v-layout>
+                                        <v-layout>
+                                            <v-text-field v-model="item.stdInFile" label="标准输入文件 *" :rules="requireRules" required>
+                                            </v-text-field>
+                                            <v-text-field v-model="item.stdOutFile" label="标准输出文件 *" :rules="requireRules" required>
+                                            </v-text-field>
+                                        </v-layout>
+                                        <v-layout>
+                                            <v-text-field v-model="item.timeLimit" label="时间限制 (ms) *" type="number" :rules="requireRules" required>
+                                            </v-text-field>
+                                            <v-text-field v-model="item.memoryLimit" label="内存限制 (kb) *" type="number" :rules="requireRules" required>
+                                            </v-text-field>
+                                            <v-text-field v-model="item.score" label="分数 *" type="number" :rules="requireRules" required>
+                                            </v-text-field>
+                                        </v-layout>
+                                    </div>
                                 </template>
                             </v-form>
                         </v-container>

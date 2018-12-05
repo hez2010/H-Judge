@@ -94,16 +94,21 @@ namespace hjudgeCore
                         {
                             throw new InvalidOperationException("Unable to find standard input file");
                         }
+                        var strErrFile = Path.Combine(_workingdir, $"stderr_{judgeOption.GuidStr}.dat");
+                        var inputFile = Path.Combine(_workingdir, judgeOption.InputFileName);
+                        var outputFile = Path.Combine(_workingdir, judgeOption.OutputFileName);
                         var param = new
                         {
                             judgeOption.RunOption.Exec,
                             judgeOption.RunOption.Args,
                             WorkingDir = _workingdir,
-                            InputFile = Path.Combine(_workingdir, judgeOption.InputFileName),
-                            OutputFile = Path.Combine(_workingdir, judgeOption.OutputFileName),
+                            StdErrRedirectFile = strErrFile,
+                            InputFile = inputFile,
+                            OutputFile = outputFile,
                             judgeOption.DataPoints[i].TimeLimit,
                             judgeOption.DataPoints[i].MemoryLimit,
-                            IsStdIO = judgeOption.UseStdIO
+                            IsStdIO = judgeOption.UseStdIO,
+                            judgeOption.ActiveProcessLimit
                         };
                         var ret = new StringBuilder(256);
                         if (Execute(JsonConvert.SerializeObject(param), ret))
@@ -116,17 +121,14 @@ namespace hjudgeCore
                         }
                         try
                         {
-                            File.Copy(judgeOption.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
+                            File.Copy(judgeOption.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.dat"), true);
                         }
                         catch
                         {
                             throw new InvalidOperationException("Unable to find standard output file");
                         }
-                        var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
-                            await CompareAsync(fileName, Path.Combine(_workingdir, judgeOption.InputFileName), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, judgeOption.OutputFileName), judgeOption)
-                            : (point.ResultType, 0, point.ExtraInfo);
-                        point.ExtraInfo = extraInfo;
-                        if (point.ResultType == ResultCode.Runtime_Error && point.ExitCode != 0)
+
+                        if (point.ResultType == ResultCode.Runtime_Error)
                         {
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                                 Enum.IsDefined(typeof(WindowsExceptionCode), (uint)point.ExitCode))
@@ -141,9 +143,48 @@ namespace hjudgeCore
                             {
                                 point.ExtraInfo = "UNKNOWN_EXCEPTION";
                             }
+                            point.Score = 0;
                         }
-                        point.ResultType = resultType;
-                        point.Score = percentage * judgeOption.DataPoints[i].Score;
+                        else
+                        {
+                            if (judgeOption.StandardErrorBehavior != StdErrBehavior.Ignore)
+                            {
+                                try
+                                {
+                                    var stderr = File.ReadAllText(strErrFile).Trim();
+
+                                    if (!string.IsNullOrWhiteSpace(stderr.Replace("\n", string.Empty).Replace("\r", string.Empty).Replace("\t", string.Empty).Trim()))
+                                    {
+                                        switch (judgeOption.StandardErrorBehavior)
+                                        {
+                                            case StdErrBehavior.TreatAsCompileError:
+                                                point.ResultType = ResultCode.Compile_Error;
+                                                point.ExtraInfo = stderr;
+                                                break;
+                                            case StdErrBehavior.TreatAsRuntimeError:
+                                                point.ResultType = ResultCode.Runtime_Error;
+                                                point.ExtraInfo = stderr;
+                                                break;
+                                        }
+                                        point.Score = 0;
+                                    }
+                                }
+                                catch
+                                {
+                                    //ignored
+                                }
+                            }
+
+                            if (point.ResultType == ResultCode.Accepted)
+                            {
+                                var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
+                                    await CompareAsync(fileName, inputFile, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.dat"), outputFile, judgeOption)
+                                    : (point.ResultType, 0, point.ExtraInfo);
+                                point.ExtraInfo = extraInfo;
+                                point.ResultType = resultType;
+                                point.Score = percentage * judgeOption.DataPoints[i].Score;
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -247,7 +288,7 @@ namespace hjudgeCore
                     }
                 })
                 {
-
+                    await Task.Delay(100);
                     try
                     {
                         judge.Start();
@@ -442,12 +483,20 @@ namespace hjudgeCore
 
                     if (checker.ReadStdOutput)
                     {
-                        output.AppendLine(await sta.StandardOutput.ReadToEndAsync());
+                        var temp = (await sta.StandardOutput.ReadToEndAsync()).Trim();
+                        if (!string.IsNullOrWhiteSpace(temp))
+                        {
+                            output.AppendLine(temp);
+                        }
                     }
 
                     if (checker.ReadStdError)
                     {
-                        output.AppendLine(await sta.StandardError.ReadToEndAsync());
+                        var temp = (await sta.StandardError.ReadToEndAsync()).Trim();
+                        if (!string.IsNullOrWhiteSpace(temp))
+                        {
+                            output.AppendLine(temp);
+                        }
                     }
 
                     var log = MatchProblem(output.ToString(), checker.ProblemMatcher)
@@ -508,12 +557,20 @@ namespace hjudgeCore
 
                     if (compiler.ReadStdOutput)
                     {
-                        output.AppendLine(await comp.StandardOutput.ReadToEndAsync());
+                        var temp = (await comp.StandardOutput.ReadToEndAsync()).Trim();
+                        if (!string.IsNullOrWhiteSpace(temp))
+                        {
+                            output.AppendLine(temp);
+                        }
                     }
 
                     if (compiler.ReadStdError)
                     {
-                        output.AppendLine(await comp.StandardError.ReadToEndAsync());
+                        var temp = (await comp.StandardError.ReadToEndAsync()).Trim();
+                        if (!string.IsNullOrWhiteSpace(temp))
+                        {
+                            output.AppendLine(temp);
+                        }
                     }
 
                     var log = MatchProblem(output.ToString(), compiler.ProblemMatcher)

@@ -16,6 +16,9 @@
 <body>
     @RenderBody()
 
+    <environment include="Development">
+        <script type="text/javascript" src="~/dist/vendor.js" asp-append-version="true"></script>
+    </environment>
     <environment exclude="Development">
         <script type="text/javascript" src="https://cdn.hjudge.com/hjudge/dist/vendor.js" asp-append-version="true" asp-fallback-src="~/dist/vendor.js"></script>
     </environment>
