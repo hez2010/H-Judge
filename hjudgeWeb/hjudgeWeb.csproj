@@ -44,18 +44,6 @@
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="AppData\Data\2\图像处理第5次作业 贺恩泽 17364025\source\WpfApp1\App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-    <None Update="AppData\Data\2\图像处理第5次作业 贺恩泽 17364025\source\WpfApp1\Hist.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-    <None Update="AppData\Data\2\图像处理第5次作业 贺恩泽 17364025\source\WpfApp1\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-  </ItemGroup>
-
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">
