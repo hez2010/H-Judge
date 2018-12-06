@@ -170,7 +170,13 @@ namespace hjudgeWeb.Controllers
                     {
                         if (problemSet.Contains(i.ProblemId))
                         {
-                            dict[i.ProblemId] = i;
+                            dict[i.ProblemId] = new ContestProblemConfig
+                            {
+                                ContestId = i.ContestId,
+                                AcceptCount = i.AcceptCount,
+                                ProblemId = i.ProblemId,
+                                SubmissionCount = i.SubmissionCount
+                            };
                         }
                         db.ContestProblemConfig.Remove(i);
                     }
