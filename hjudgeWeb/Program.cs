@@ -22,6 +22,12 @@ namespace hjudgeWeb
 
         public static async Task Main(string[] args)
         {
+            //set current directory
+            if (args.Length > 0)
+            {
+                Environment.CurrentDirectory = args[0];
+            }
+
             //Read system and language config from ./AppData/SystemConfig.json and ./AppData/LanguageConfig.json
             SystemConfiguration.Config = JsonConvert.DeserializeObject<SystemConfig>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "SystemConfig.json"), Encoding.UTF8));
             Languages.LanguageConfigurations = JsonConvert.DeserializeObject<List<LanguageConfiguration>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "AppData", "LanguageConfig.json"), Encoding.UTF8));
