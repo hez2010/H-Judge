@@ -23,7 +23,7 @@ export default {
             this.loadMessages().then(() => {
                 msgList.scrollTop = msgList.scrollHeight - msgList.clientHeight;
                 msgList.onscroll = () => {
-                    if (msgList.scrollTop <= 0) {
+                    if (msgList.scrollTop <= 100) {
                         if (this.chatLastload !== -1) {
                             this.loadMessages(this.chatLastload).then(cnt => {
                                 msgList.scrollTop += 157.7 * cnt;
@@ -41,6 +41,8 @@ export default {
     },
     methods: {
         loadMessages: function (id = 2147483647) {
+            if (this.msgLoading) return 0;
+            this.msgLoading = true;
             let param = this.loadParameters;
             param['startId'] = id;
             return Get(this.loadUrl, param)
