@@ -80,7 +80,7 @@ namespace hjudgeCore
                     if (!File.Exists(judgeOption.RunOption?.Exec))
                     {
                         point.ResultType = ResultCode.Compile_Error;
-                        point.ExtraInfo = "Cannot find compiled executable";
+                        point.ExtraInfo = "Cannot find compiled executable file";
                         result.JudgePoints.Add(point);
                         continue;
                     }
@@ -529,7 +529,7 @@ namespace hjudgeCore
             }
             catch
             {
-                return (false, "Can not find one of extra files");
+                return (false, "Cannot copy one of extra files");
             }
 
             using (var comp = new Process
