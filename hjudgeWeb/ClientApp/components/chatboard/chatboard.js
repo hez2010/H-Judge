@@ -9,7 +9,7 @@ export default {
         chatLastload: 2147483647,
         inputText: '',
         connection: null,
-        msgLoading: true,
+        msgLoading: false,
         inputRules: [
             v => !!v || '请输入发送内容'
         ],
@@ -17,22 +17,22 @@ export default {
         hubConnected: false,
         sending: false
     }),
-    mounted: function () {
+    mounted: async function () {
         let msgList = document.getElementById('msgList');
         if (msgList !== null) {
-            this.loadMessages().then(() => {
+            let p = await this.loadMessages();
+            if (p !== -1) {
                 msgList.scrollTop = msgList.scrollHeight - msgList.clientHeight;
-                msgList.onscroll = () => {
-                    if (msgList.scrollTop <= 100) {
+                msgList.onscroll = async () => {
+                    if (msgList.scrollTop <= 300) {
                         if (this.chatLastload !== -1) {
-                            this.loadMessages(this.chatLastload).then(cnt => {
-                                msgList.scrollTop += 157.7 * cnt;
-                            });
+                            let cnt = await this.loadMessages(this.chatLastload);
+                            if (cnt !== -1) msgList.scrollTop += 157.7 * cnt;
                         }
                     }
                 };
                 this.connection = this.buildSingalR();
-            });
+            }
         }
     },
     destroyed: function () {
@@ -40,39 +40,41 @@ export default {
             this.connection.stop();
     },
     methods: {
-        loadMessages: function (id = 2147483647) {
-            if (this.msgLoading) return 0;
+        loadMessages: async function (id = 2147483647) {
+            if (this.msgLoading) return -1;
             this.msgLoading = true;
             let param = this.loadParameters;
             param['startId'] = id;
-            return Get(this.loadUrl, param)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.isSucceeded) {
-                        let messages = data.chatMessages;
-                        for (var i in messages) {
-                            messages[i]['avatar'] = '/Account/GetUserAvatar?userId=' + messages[i]['userId'];
-                        }
-                        this.chats = messages.concat(this.chats);
-                        if (messages.length > 0) {
-                            this.chatLastload = messages[0].id;
-                        }
-                        else {
-                            this.chatLastload = -1;
-                        }
-                        this.msgLoading = false;
-                        return messages.length;
+
+            try {
+                let res = await Get(this.loadUrl, param);
+                let data = await res.json();
+                if (data.isSucceeded) {
+                    let messages = data.chatMessages;
+                    for (var i in messages) {
+                        messages[i]['avatar'] = '/Account/GetUserAvatar?userId=' + messages[i]['userId'];
+                    }
+                    this.chats = messages.concat(this.chats);
+                    if (messages.length > 0) {
+                        this.chatLastload = messages[0].id;
                     }
                     else {
-                        this.showSnack(data.errorMessage, 'error', 3000);
-                        this.msgLoading = false;
-                        return 0;
+                        this.chatLastload = -1;
                     }
-                })
-                .catch(() => {
-                    this.showSnack('消息加载失败', 'error', 3000);
                     this.msgLoading = false;
-                });
+                    return messages.length;
+                }
+                else {
+                    this.showSnack(data.errorMessage, 'error', 3000);
+                    this.msgLoading = false;
+                    return -1;
+                }
+            }
+            catch {
+                this.showSnack('消息加载失败', 'error', 3000);
+                this.msgLoading = false;
+                return -1;
+            }
         },
         sendMessage: function () {
             if (this.inputText && this.inputText.length <= 65536)

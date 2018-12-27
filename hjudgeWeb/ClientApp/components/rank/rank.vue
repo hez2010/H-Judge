@@ -3,6 +3,15 @@
         <v-card>
             <v-card-title primary-title>
                 <h2>比赛排名</h2>
+                <v-spacer></v-spacer>
+                <div>
+                    <v-tooltip bottom v-if="!loading && user.privilege >= 1 && user.privilege <= 3">
+                        <v-btn @click="rejudge($route.params.cid, $route.params.gid)" icon slot="activator">
+                            <v-icon color="primary">refresh</v-icon>
+                        </v-btn>
+                        <span>重新评测</span>
+                    </v-tooltip>
+                </div>
             </v-card-title>
             <v-card-text>
                 <v-container v-if="loading">

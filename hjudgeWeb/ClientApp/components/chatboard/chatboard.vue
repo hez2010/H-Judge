@@ -1,7 +1,7 @@
 ﻿<template>
     <div style="height: 100%">
         <v-list id="msgList" style="overflow: auto; height: calc(100% - 120px); position: relative;">
-            <v-layout justify-center align-center style="vertical-align: middle; height: 100%" v-if="msgLoading">
+            <v-layout justify-center align-center style="vertical-align: middle; height: 100%" v-if="msgLoading && chats.length == 0">
                 正在加载...
             </v-layout>
             <v-layout justify-center align-center style="vertical-align: middle; height: 100%" v-else-if="chats.length == 0">没有数据 :(</v-layout>

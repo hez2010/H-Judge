@@ -2,6 +2,7 @@
 using hjudgeWeb.Configurations;
 using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
+using hjudgeWeb.Models;
 using hjudgeWeb.Models.Contest;
 using hjudgeWeb.Models.Problem;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,54 @@ namespace hjudgeWeb.Controllers
         private bool HasAdminPrivilege(int privilege)
         {
             return privilege >= 1 && privilege <= 3;
+        }
+
+        public class RejudgeInputModel
+        {
+            public int Cid { get; set; }
+            public int Gid { get; set; }
+        }
+        [HttpPost]
+        public async Task<ResultModel> Rejudge([FromBody]RejudgeInputModel model)
+        {
+            var (user, privilege) = await GetUserPrivilegeAsync();
+            var ret = new ResultModel { IsSucceeded = true };
+            if (privilege < 1 || privilege > 3)
+            {
+                ret.IsSucceeded = false;
+                ret.ErrorMessage = "没有权限";
+            }
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                var submits = db.Judge.Where(i => i.ContestId == (model.Cid == 0 ? null : (int?)model.Cid) &&
+                    i.GroupId == (model.Gid == 0 ? null : (int?)model.Gid)).Select(i => i.Id);
+                var sql = $"update Judge set ResultType = -1, Logs = null, Result = null, FullScore = 0 where ";
+                sql += model.Cid == 0 ? "ContestId is null" : $"ContestId = {model.Cid}";
+                sql += " and ";
+                sql += model.Gid == 0 ? "GroupId is null" : $"GroupId = {model.Gid}";
+
+#pragma warning disable EF1000 // Possible SQL injection vulnerability.
+                await db.Database.ExecuteSqlCommandAsync(sql);
+#pragma warning restore EF1000 // Possible SQL injection vulnerability.
+
+                await db.SaveChangesAsync();
+                foreach (var i in submits)
+                {
+                    JudgeQueue.JudgeIdQueue.Enqueue(i);
+                    try
+                    {
+                        if (JudgeQueue.QueueSemaphore.CurrentCount < Environment.ProcessorCount)
+                        {
+                            JudgeQueue.QueueSemaphore.Release();
+                        }
+                    }
+                    catch
+                    {
+                        //ignored
+                    }
+                }
+            }
+            return ret;
         }
 
         [HttpGet]

@@ -52,6 +52,17 @@ namespace hjudgeWeb
                 foreach (var i in db.Judge.Where(i => i.ResultType == (int)ResultCode.Pending).Select(i => i.Id))
                 {
                     JudgeQueue.JudgeIdQueue.Enqueue(i);
+                    try
+                    {
+                        if (JudgeQueue.QueueSemaphore.CurrentCount < Environment.ProcessorCount)
+                        {
+                            JudgeQueue.QueueSemaphore.Release();
+                        }
+                    }
+                    catch
+                    {
+                        //ignored
+                    }
                 }
             }
 

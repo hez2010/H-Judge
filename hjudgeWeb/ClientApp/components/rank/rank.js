@@ -1,9 +1,9 @@
 ﻿import { setTitle } from '../../utilities/titleHelper';
-import { Get } from '../../utilities/requestHelper';
+import { Get, Post } from '../../utilities/requestHelper';
 import { initializeObjects } from '../../utilities/initHelper';
 
 export default {
-    props: ['showSnack'],
+    props: ['showSnack', 'user'],
     data: () => ({
         headers: [
             { text: '排名', value: 'rank' },
@@ -75,5 +75,20 @@ export default {
                 this.showSnack('加载失败', 'error', 3000);
                 this.loading = false;
             });
+    },
+    methods: {
+        rejudge: function (cid, gid) {
+            Post('/Contest/Rejudge', { cid: cid ? cid : 0, gid: gid ? gid : 0 })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.isSucceeded) {
+                        this.showSnack('请求已提交，请耐心等待评测完成', 'success', 3000);
+                    }
+                    else {
+                        this.showSnack(data.errorMessage, 'error', 3000);
+                    }
+                })
+                .catch(() => this.showSnack('请求失败', 'error', 3000));
+        }
     }
 };

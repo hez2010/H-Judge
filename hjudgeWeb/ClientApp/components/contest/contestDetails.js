@@ -40,8 +40,7 @@ export default {
                 cid: 0,
                 gid: 0
             },
-            problems: [],
-            timer: null
+            problems: []
         }, this);
 
         if (this.$route.params.cid) this.param.cid = parseInt(this.$route.params.cid);
@@ -87,7 +86,10 @@ export default {
             this.loadProblems();
         },
         active: function () {
-            if (this.active === 3) {
+            if (this.active === 1) {
+                if (window['MathJax']) this.loadMath();
+            }
+            else if (this.active === 3) {
                 this.$router.push('/Status/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + this.param.cid.toString() + '/0/1');
             }
             else if (this.active === 4) {
@@ -130,13 +132,11 @@ export default {
             }
         },
         loadMath: function () {
-            this.timer = setInterval(() => {
+            this.$nextTick(() => {
                 if (document.getElementById('details_content')) {
-                    clearInterval(this.timer);
                     window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
-                    this.timer = null;
                 }
-            }, 1000);
+            });
         },
         verify: function () {
             if (this.password === this.contest.password) {

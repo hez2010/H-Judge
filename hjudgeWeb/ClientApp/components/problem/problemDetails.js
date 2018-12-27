@@ -29,8 +29,6 @@ export default {
                 cid: 0,
                 gid: 0
             },
-            timer1: null,
-            timer2: null,
             editor: null
         }, this);
 
@@ -73,24 +71,20 @@ export default {
             this.editor.setTheme('ace/theme/' + theme);
         },
         loadEditor: function () {
-            this.timer1 = setInterval(() => {
+            this.$nextTick(() => {
                 if (document.getElementById('submit_content')) {
-                    clearInterval(this.timer1);
                     this.editor = window.ace.edit('submit_content');
                     if (this.isDarkTheme) ensureLoading('ace_theme_twilight', 'https://cdn.hjudge.com/hjudge/lib/ace/theme-twilight.js', () => this.loadTheme('twilight'));
                     else ensureLoading('ace_theme_github', 'https://cdn.hjudge.com/hjudge/lib/ace/theme-github.js', () => this.loadTheme('github'));
-                    this.timer1 = null;
                 }
-            }, 1000);
+            });
         },
         loadMath: function () {
-            this.timer2 = setInterval(() => {
+            this.$nextTick(() => {
                 if (document.getElementById('details_content')) {
-                    clearInterval(this.timer2);
                     window.MathJax.Hub.Queue(['Typeset', window.MathJax.Hub]);
-                    this.timer2 = null;
                 }
-            }, 1000);
+            });
         },
         submit: function () {
             if (this.$refs.form.validate() && this.editor) {
@@ -147,7 +141,10 @@ export default {
     },
     watch: {
         active: function () {
-            if (this.active === 3) {
+            if (this.active === 1) {
+                this.loadMath();
+            }
+            else if (this.active === 3) {
                 this.$router.push('/Status/' + (this.param.gid ? this.param.gid.toString() + '/' : '') + (this.param.cid ? this.param.cid.toString() + '/' : '') + this.param.pid.toString() + '/1');
             }
         },

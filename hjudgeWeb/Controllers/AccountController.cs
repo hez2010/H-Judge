@@ -21,6 +21,7 @@ namespace hjudgeWeb.Controllers
         private readonly SignInManager<UserInfo> _signInManager;
         private readonly UserManager<UserInfo> _userManager;
         private readonly DbContextOptions<ApplicationDbContext> _dbContextOptions;
+        //TODO: reimpl IEmailSender
         public readonly IEmailSender _emailSender;
 
         public AccountController(SignInManager<UserInfo> signInManager,

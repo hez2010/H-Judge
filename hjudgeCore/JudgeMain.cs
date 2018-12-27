@@ -77,7 +77,7 @@ namespace hjudgeCore
                 for (var i = 0; i < judgeOption.DataPoints.Count; i++)
                 {
                     var point = new JudgePoint();
-                    if (!File.Exists(judgeOption.RunOption.Exec))
+                    if (!File.Exists(judgeOption.RunOption?.Exec))
                     {
                         point.ResultType = ResultCode.Compile_Error;
                         point.ExtraInfo = "Cannot find compiled executable";
@@ -523,7 +523,15 @@ namespace hjudgeCore
 
         private async Task<(bool IsSucceeded, string Logs)> Compile(CompilerOption compiler, List<string> extra)
         {
-            extra?.ForEach(i => File.Copy(i, Path.Combine(_workingdir, Path.GetFileName(i)), true));
+            try
+            {
+                extra?.ForEach(i => File.Copy(i, Path.Combine(_workingdir, Path.GetFileName(i)), true));
+            }
+            catch
+            {
+                return (false, "Can not find one of extra files");
+            }
+
             using (var comp = new Process
             {
                 StartInfo = new ProcessStartInfo
