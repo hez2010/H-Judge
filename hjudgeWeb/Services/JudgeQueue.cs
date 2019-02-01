@@ -1,6 +1,8 @@
 ﻿using hjudgeCore;
 using hjudgeWeb.Configurations;
 using hjudgeWeb.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -11,12 +13,13 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace hjudgeWeb
+namespace hjudgeWeb.Services
 {
-    public class JudgeQueue
+    public class JudgeQueue : IHostedService
     {
         //Judge queue. A tuple (Judge Id, Whether being judged before)
         public static readonly ConcurrentQueue<int> JudgeIdQueue = new ConcurrentQueue<int>();
+        private readonly DbContextOptions<ApplicationDbContext> _dbContextOptions;
 
         private static string AlphaNumberFilter(string input)
         {
@@ -286,11 +289,13 @@ namespace hjudgeWeb
 
         public static SemaphoreSlim QueueSemaphore = new SemaphoreSlim(0, Environment.ProcessorCount);
 
-        public static async Task JudgeThread(int threadId)
+        private bool _canceled = false;
+
+        public async Task JudgeThread(int threadId)
         {
             ApplicationDbContext db = null;
             var random = new Random();
-            while (!Environment.HasShutdownStarted)
+            while (!_canceled)
             {
                 Console.WriteLine($"** {DateTime.Now}: Thread {threadId} start waiting semaphore");
                 await QueueSemaphore.WaitAsync();
@@ -300,7 +305,7 @@ namespace hjudgeWeb
                     Console.WriteLine($"** {DateTime.Now}: Judge {judgeId} started");
                     if (db == null)
                     {
-                        db = new ApplicationDbContext(Program.DbContextOptionsBuilder.Options);
+                        db = new ApplicationDbContext(_dbContextOptions);
                     }
 
                     //Get judge record
@@ -438,5 +443,54 @@ namespace hjudgeWeb
             }
         }
 
+        public JudgeQueue(IServiceProvider service, DbContextOptions<ApplicationDbContext> dbContextOptions)
+        {
+            _dbContextOptions = dbContextOptions;
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            using (var db = new ApplicationDbContext(_dbContextOptions))
+            {
+                //Modify all in-judging submission to Unknown Error
+                foreach (var i in db.Judge.Where(i => i.ResultType == (int)ResultCode.Judging))
+                {
+                    i.ResultType = (int)ResultCode.Unknown_Error;
+                }
+
+                await db.SaveChangesAsync();
+                
+                //Enqueue all in-pending submission to judge queue
+                foreach (var i in db.Judge.Where(i => i.ResultType == (int)ResultCode.Pending).Select(i => i.Id))
+                {
+                    JudgeIdQueue.Enqueue(i);
+                    try
+                    {
+                        if (QueueSemaphore.CurrentCount < Environment.ProcessorCount)
+                        {
+                            QueueSemaphore.Release();
+                        }
+                    }
+                    catch
+                    {
+                        //ignored
+                    }
+                }
+            }
+
+            //Judge queue thread
+            for (var i = 0; i < Environment.ProcessorCount; i++)
+            {
+                var li = i;
+                new Thread(async () => await JudgeThread(li)).Start();
+            }
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            JudgeIdQueue.Clear();
+            _canceled = true;
+            return Task.FromResult(true);
+        }
     }
 }

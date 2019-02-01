@@ -81,13 +81,17 @@ bool execute(const char* param, char* ret) {
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimit = { 0 };
 	jobLimit.BasicLimitInformation.LimitFlags =
 		JOB_OBJECT_LIMIT_PROCESS_TIME |
+		JOB_OBJECT_LIMIT_JOB_TIME |
 		JOB_OBJECT_LIMIT_PRIORITY_CLASS |
 		JOB_OBJECT_LIMIT_PROCESS_MEMORY |
+		JOB_OBJECT_LIMIT_JOB_MEMORY |
 		JOB_OBJECT_LIMIT_ACTIVE_PROCESS |
 		JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE |
 		JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION;
+	jobLimit.BasicLimitInformation.PerJobUserTimeLimit.QuadPart = timeLimit * 10000;
 	jobLimit.BasicLimitInformation.PerProcessUserTimeLimit.QuadPart = timeLimit * 10000;
 	jobLimit.ProcessMemoryLimit = static_cast<SIZE_T>(memoryLimit) << 10;
+	jobLimit.JobMemoryLimit = static_cast<SIZE_T>(memoryLimit) << 10;
 	jobLimit.BasicLimitInformation.ActiveProcessLimit = activeProcessLimit;
 	jobLimit.BasicLimitInformation.PriorityClass = NORMAL_PRIORITY_CLASS;
 	SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &jobLimit, sizeof jobLimit);

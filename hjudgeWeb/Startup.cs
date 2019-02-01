@@ -46,7 +46,11 @@ namespace hjudgeWeb
 
             //EF Core db context
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")),
+                ServiceLifetime.Scoped,
+                ServiceLifetime.Singleton);
+
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, JudgeQueue>();
 
             //Identity
             services.AddAuthentication(o =>
@@ -75,7 +79,7 @@ namespace hjudgeWeb
             services.AddTransient<IEmailSender, EmailSender>();
 
             //Register service for anti CSRF attack
-            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-Token");
+            services.AddAntiforgery(options => options.HeaderName = "XSRF-TOKEN");
             services.AddTransient<AntiForgeryFilter>();
 
             //Chat hub: signalR

@@ -5,6 +5,7 @@ using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Models;
 using hjudgeWeb.Models.Contest;
 using hjudgeWeb.Models.Problem;
+using hjudgeWeb.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

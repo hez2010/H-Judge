@@ -4,6 +4,7 @@ using hjudgeWeb.Data;
 using hjudgeWeb.Data.Identity;
 using hjudgeWeb.Models;
 using hjudgeWeb.Models.Status;
+using hjudgeWeb.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
