@@ -5,7 +5,7 @@ namespace hjudgeCore
 {
     public sealed class CodeJudgeOptionBuilder : JudgeOptionBuilder
     {
-        private JudgeOption judgeOption = new JudgeOption();
+        private readonly JudgeOption judgeOption = new JudgeOption();
 
         public override string GuidStr { get; } = Guid.NewGuid().ToString().Replace("-", string.Empty);
 

@@ -79,7 +79,7 @@ namespace hjudgeWeb
             services.AddTransient<IEmailSender, EmailSender>();
 
             //Register service for anti CSRF attack
-            services.AddAntiforgery(options => options.HeaderName = "XSRF-TOKEN");
+            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
             services.AddTransient<AntiForgeryFilter>();
 
             //Chat hub: signalR

@@ -6,7 +6,7 @@ namespace hjudgeWeb.Services
 {
     public class AntiForgeryFilter : ResultFilterAttribute
     {
-        private IAntiforgery antiforgery;
+        private readonly IAntiforgery antiforgery;
         public AntiForgeryFilter(IAntiforgery antiforgery)
         {
             this.antiforgery = antiforgery;

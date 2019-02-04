@@ -4,7 +4,7 @@ namespace hjudgeCore
 {
     public sealed class BuildOptionBuilder
     {
-        private BuildOption buildOption = new BuildOption();
+        private readonly BuildOption buildOption = new BuildOption();
 
         public void UseCompiler(Action<CompilerOption> option = null)
         {
