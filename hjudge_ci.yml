@@ -1,5 +1,5 @@
 pool:
-  vmImage: 'Hosted VS2017'
+  vmImage: 'hjudge-vm'
 
 variables:
   buildConfig: 'Release'
