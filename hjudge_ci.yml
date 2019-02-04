@@ -1,5 +1,5 @@
 pool:
-  vmImage: 'hjudge-vm'
+  vmImage: 'default'
 
 variables:
   buildConfig: 'Release'
