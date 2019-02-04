@@ -1,6 +1,3 @@
-pool:
-  vmImage: 'default'
-
 variables:
   buildConfig: 'Release'
 
