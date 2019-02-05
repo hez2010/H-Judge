@@ -1,7 +1,3 @@
-variables:
-  buildConfig: 'Release'
-
 steps:
 - script: |
-    dotnet build -c $(buildConfig) ./hjudgeWeb/hjudgeWeb.csproj
-    dotnet publish -c $(buildConfig) ./hjudgeWeb/hjudgeWeb.csproj
+    build.bat
