@@ -25,4 +25,4 @@ msbuild hjudgeExecWindows\hjudgeExecWindows.vcxproj /p:useEnv=true /p:Configurat
 
 dotnet publish hjudgeWeb\hjudgeWeb.csproj -c Release
 
-if exists C:\hjudgeDeploy\deploy.bat C:\hjudgeDeploy\deploy.bat
+if exist C:\hjudgeDeploy\deploy.bat C:\hjudgeDeploy\deploy.bat
