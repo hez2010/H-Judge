@@ -1,6 +1,3 @@
-pool:
-  vmImage: 'Hosted VS2017'
-
 variables:
   buildConfig: 'Release'
 
