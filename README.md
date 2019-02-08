@@ -25,7 +25,7 @@ This is the official repository for [H::Judge](https://hjudge.com).
 
 ## Build
 1. Build hjudgeExecWindows
-2. Build hjudgeWeb (It will automatically build hjudgeCore because hjudgeCore is a dependecy of hjudgeWeb): Using .NET Core SDK 2.1.400 or above
+2. Build hjudgeWeb (It will automatically build hjudgeCore because hjudgeCore is a dependecy of hjudgeWeb): Using .NET Core SDK 2.2.100 or above
     ```
     An example:
     dotnet publish -c Release
@@ -41,7 +41,7 @@ This is the official repository for [H::Judge](https://hjudge.com).
     ```
 3. Run hjudgeWeb.dll
     ```
-    cd ./hjudgeWeb/bin/netcoreapp2.1/Release/publish
+    cd ./hjudgeWeb/bin/netcoreapp2.2/Release/publish
     dotnet ./hjudgeWeb.dll
     ```
 
