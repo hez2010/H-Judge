@@ -27,7 +27,7 @@ namespace hjudgeWebHost
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp/build";
+                configuration.RootPath = "wwwroot/dist";
             });
         }
 
