@@ -1,4 +1,4 @@
-import * as React from "react";
+﻿import * as React from "react";
 import { Route, Switch } from 'react-router-dom';
 import Layout from './components/layout/layout';
 import 'semantic-ui-css/semantic.min.css';
@@ -6,32 +6,48 @@ import NotFound from './components/notfound/notfound';
 import About from './components/about/about';
 import Home, { PropsInterface } from './components/home/home';
 import { UserInfo } from './interfaces/userInfo'
+import { Post } from "./utils/requestHelper";
 
 interface AppState {
   userInfo: UserInfo
 }
 
 export default class App extends React.Component<{}, AppState> {
+  layoutRef: React.RefObject<Layout>;
+
   constructor(props: {}) {
     super(props);
+    this.layoutRef = React.createRef<Layout>();
     this.state = {
       userInfo: {
-        userName: 'test',
-        name: 'hhh',
-        userId: '12456',
-        email: 'gg',
-        isEmailConfirmed: true,
-        isPhoneNumberConfirmed: true,
-        privilege: 1,
-        phoneNumber: '12345678'
+        email: '',
+        isEmailConfirmed: false,
+        isPhoneNumberConfirmed: false,
+        name: '',
+        otherInfo: [],
+        phoneNumber: '',
+        privilege: 0,
+        userId: '',
+        userName: ''
       }
-    };
+    }
+
+    Post('/Account/GetUserInfo')
+      .then(response => response.json())
+      .then(data => this.setState({
+        userInfo: data
+      } as AppState))
+      .catch(err => {
+        if (this.layoutRef.current !== null)
+          this.layoutRef.current.openPortal('错误', '用户信息加载失败', 'red');
+        console.error(err);
+      });
   }
 
   render() {
     return (
       <div>
-        <Layout>
+        <Layout ref={this.layoutRef}>
           <Switch>
             <Route
               exact

@@ -1,8 +1,50 @@
 import * as React from "react";
 import { NavLink } from 'react-router-dom';
-import { Container, Menu, Icon } from 'semantic-ui-react';
+import { Container, Menu, Icon, TransitionablePortal, Segment, Header, SemanticCOLORS } from 'semantic-ui-react';
 
-export default class Layout extends React.Component {
+interface PortalState {
+  open: boolean,
+  header: string,
+  message: string,
+  color: SemanticCOLORS
+}
+
+interface LayoutState {
+  portal: PortalState
+
+}
+
+export default class Layout extends React.Component<{}, LayoutState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      portal: {
+        open: false,
+        header: '',
+        message: '',
+        color: 'black'
+      }
+    }
+  }
+  openPortal(header: string, message: string, color: string) {
+    if (this.state.portal.open) {
+      this.setState({
+        portal: {
+          open: false
+        }
+      } as LayoutState);
+    }
+    process.nextTick(() => {
+      this.setState({
+        portal: {
+          open: true,
+          header: header,
+          message: message,
+          color: color
+        }
+      } as LayoutState);
+    })
+  }
   render() {
     return (
       <div>
@@ -34,6 +76,12 @@ export default class Layout extends React.Component {
             </Menu.Item>
           </Container>
         </Menu>
+        <TransitionablePortal open={this.state.portal.open} onClose={() => this.setState({ portal: { open: false } } as LayoutState)} transition={{ animation: 'drop', duration: 500 }}>
+          <Segment style={{ bottom: '5em', position: 'fixed', right: '2em' }} color={this.state.portal.color} inverted>
+            <Header>{this.state.portal.header}</Header>
+            <p>{this.state.portal.message}</p>
+          </Segment>
+        </TransitionablePortal>
       </div>
     );
   }

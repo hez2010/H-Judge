@@ -1,9 +1,16 @@
+using hjudgeWebHost.Data;
+using hjudgeWebHost.Data.Identity;
+using hjudgeWebHost.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Linq;
 
 namespace hjudgeWebHost
 {
@@ -19,6 +26,47 @@ namespace hjudgeWebHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<BrotliCompressionProvider>();
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] {
+                    "image/svg+xml",
+                    "image/png",
+                    "font/woff",
+                    "font/woff2",
+                    "font/ttf",
+                    "font/eof" });
+            });
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+            .AddIdentityCookies();
+
+            services.AddIdentityCore<UserInfo>(options =>
+            {
+                options.Stores.MaxLengthForKeys = 128;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddSignInManager()
+            .AddUserManager<UserManager<UserInfo>>()
+            .AddDefaultTokenProviders()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders()
+            .AddErrorDescriber<IdentityErrorDescriber>();
+
+            services.AddEntityFrameworkSqlServer();
+
+            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+            services.AddTransient<AntiForgeryFilter>();
+
             services.AddMvc()
                 .AddNewtonsoftJson();
 
@@ -43,9 +91,13 @@ namespace hjudgeWebHost
                 app.UseHsts();
             }
 
+            app.UseResponseCompression();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

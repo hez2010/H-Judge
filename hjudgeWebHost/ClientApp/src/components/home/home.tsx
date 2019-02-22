@@ -11,7 +11,7 @@ export default class Home extends React.Component<PropsInterface> {
   render() {
     return (
       <div>
-        <Header as='h1'>主页</Header>
+        <Header as='h1'>欢迎来到 H::Judge</Header>
       </div>
     );
   }
