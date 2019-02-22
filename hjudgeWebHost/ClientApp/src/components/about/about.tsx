@@ -1,8 +1,8 @@
-﻿import React, { Component } from "react";
-import { Header, Container } from "semantic-ui-react";
+﻿import * as React from "react";
+import { Header, Container, Icon } from "semantic-ui-react";
 import { setTitle } from "../../utils/titleHelper";
 
-export default class About extends Component {
+export default class About extends React.Component {
   componentDidMount() {
     setTitle('关于');
   }
@@ -10,8 +10,6 @@ export default class About extends Component {
     return (
       <div>
         <Header as='h1'>关于 H::Judge</Header>
-        <Header as='h3' dividing>更新历程</Header>
-
       </div>
     );
   }

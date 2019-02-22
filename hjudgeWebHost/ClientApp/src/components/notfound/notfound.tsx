@@ -1,8 +1,8 @@
-﻿import React, { Component } from 'react';
+﻿import * as React from "react";
 import { Header } from 'semantic-ui-react';
 import { setTitle } from '../../utils/titleHelper';
 
-export default class NotFound extends Component {
+export default class NotFound extends React.Component {
   componentDidMount() {
     setTitle('错误');
   }

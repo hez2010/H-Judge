@@ -1,31 +1,22 @@
-import React, { Component } from 'react';
+import * as React from "react";
 import { NavLink } from 'react-router-dom';
-import {
-  Container,
-  Divider,
-  Dropdown,
-  Grid,
-  Header,
-  Image,
-  List,
-  Menu,
-  Segment,
-  Icon
-} from 'semantic-ui-react';
+import { Container, Menu, Icon } from 'semantic-ui-react';
 
-export default class Layout extends Component {
+export default class Layout extends React.Component {
   render() {
     return (
       <div>
-        <Menu fixed='top' borderless inverted color='blue' compact icon='labeled'>
+        <Menu fixed='top' borderless inverted color='blue' compact icon='labeled' style={{ overflowX: 'auto' }}>
           <Container>
-            <NavLink exact to='/' className='item'><Icon name='home'></Icon>主页</NavLink>
+            <NavLink exact to='/' className='item'><Icon name='h'></Icon>主页</NavLink>
             <NavLink to='/problem' className='item'><Icon name='code'></Icon>题库</NavLink>
             <NavLink to='/contest' className='item'><Icon name='pencil'></Icon>比赛</NavLink>
             <NavLink to='/group' className='item'><Icon name='users'></Icon>小组</NavLink>
             <NavLink to='/status' className='item'><Icon name='list'></Icon>状态</NavLink>
             <NavLink to='/rank' className='item'><Icon name='list ol'></Icon>排名</NavLink>
             <NavLink to='/message' className='item'><Icon name='paper plane'></Icon>消息</NavLink>
+            <NavLink to='/discussion' className='item'><Icon name='discussions'></Icon>讨论</NavLink>
+            <NavLink to='/article' className='item'><Icon name='book'></Icon>文章</NavLink>
             <NavLink to='/about' className='item'><Icon name='info circle'></Icon>关于</NavLink>
             <NavLink to='/login' className='right item'><Icon name='user circle'></Icon>登录</NavLink>
           </Container>
