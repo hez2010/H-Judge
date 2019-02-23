@@ -23,6 +23,6 @@ set "INCLUDE=%cd%\lib\jsoncpp\include\json;!INCLUDE!"
 
 msbuild hjudgeExecWindows\hjudgeExecWindows.vcxproj /p:useEnv=true /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=!platformtoolversion!
 
-dotnet publish hjudgeWeb\hjudgeWeb.csproj -c Release
+dotnet publish hjudgeWebHost\hjudgeWebHost.csproj -c Release
 
 if exist C:\hjudgeDeploy\deploy.bat C:\hjudgeDeploy\deploy.bat

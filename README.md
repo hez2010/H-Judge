@@ -4,20 +4,26 @@
 This is the official repository for [H::Judge](https://hjudge.com).
 
 ## Status
-| master | develop |
-| ------ | ------- |
-| [![Build Status](https://dev.azure.com/hez2010/H-Judge/_apis/build/status/H-Judge-CI?branchName=master)](https://dev.azure.com/hez2010/H-Judge/_build/latest?definitionId=5&branchName=master) | [![Build Status](https://dev.azure.com/hez2010/H-Judge/_apis/build/status/H-Judge-CI?branchName=develop)](https://dev.azure.com/hez2010/H-Judge/_build/latest?definitionId=5&branchName=develop) |
+| master |
+| ------ |
+| [![Build Status](https://dev.azure.com/hez2010/H-Judge/_apis/build/status/H-Judge-CI?branchName=master)](https://dev.azure.com/hez2010/H-Judge/_build/latest?definitionId=5&branchName=master) |
 
 ## Frontend
-- [Vue.js](https://vuejs.org/)
-- [Vuetify](https://vuetifyjs.com/)
+- [React](https://reactjs.org/)
+- [Semantic UI React](https://react.semantic-ui.com/)
 
 ## Backend
-- [.NET Core 2.2](https://www.microsoft.com/net)
+- [.NET Core 3.0](https://www.microsoft.com/net/)
+
+## Package Management Tools
+- [Yarn](https://yarnpkg.com/)
+- [Nuget](https://www.nuget.org/)
 
 ## Structure
-- ./hjudgeWeb:
+- ./hjudgeWebHost:
     > The web host for H::Judge using .NET Core.
+- ./hjudgeJudgeHost:
+	> The judge client for H::Judge using .NET Core
 - ./hjudgeCore:
     > The core module of H::Judge containing all the necessary configurations and methods for judging a submission.
 - ./hjudgeExecWindows:
@@ -25,30 +31,30 @@ This is the official repository for [H::Judge](https://hjudge.com).
 
 ## Build
 1. Build hjudgeExecWindows
-2. Build hjudgeWeb (It will automatically build hjudgeCore because hjudgeCore is a dependecy of hjudgeWeb): Using .NET Core SDK 2.2.100 or above
+2. Build hjudgeWebHost (It will automatically build hjudgeCore because hjudgeCore is a dependecy of hjudgeWebHost): Using .NET Core SDK 3.0.100 or above
     ```
     An example:
     dotnet publish -c Release
     ```
-3. Copy the output dll file generated in step 1 to the hjudgeWeb build output folder, and rename the dll to 'hjudgeExec.dll'.
+3. Copy the output dll file generated in step 1 to the hjudgeWebHost build output folder, and rename the dll to 'hjudgeExec.dll'.
 
 ## Run
-1. Setting your connection string to a SQL Server Database in ./hjudgeWeb/appsettings.json
+1. Setting your connection string to a SQL Server Database in ./hjudgeWebHost/appsettings.json
 2. Migrate and update database
     ```
-    cd ./hjudgeWeb
+    cd ./hjudgeWebHost
     dotnet ef database update
     ```
-3. Run hjudgeWeb.dll
+3. Run hjudgeWebHost.dll
     ```
-    cd ./hjudgeWeb/bin/netcoreapp2.2/Release/publish
-    dotnet ./hjudgeWeb.dll
+    cd ./hjudgeWebHost/bin/netcoreapp3.0/Release/publish
+    dotnet ./hjudgeWebHost.dll
     ```
 
 ## Debug
-1. Set environment variable 'ASPNETCORE_ENVIRONMENT' to 'Development'
+1. Export an environment variable 'ASPNETCORE_ENVIRONMENT' with 'Development'
 2. Start debugging
     ```
-    cd ./hjudgeWeb
+    cd ./hjudgeWebHost
     dotnet run
     ```

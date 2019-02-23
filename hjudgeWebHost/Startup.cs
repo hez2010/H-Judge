@@ -66,6 +66,7 @@ namespace hjudgeWebHost
 
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
             services.AddTransient<AntiForgeryFilter>();
+            services.AddTransient<EmailSender>();
 
             services.AddMvc()
                 .AddNewtonsoftJson();
