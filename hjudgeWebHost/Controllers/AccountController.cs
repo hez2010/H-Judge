@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data.Identity;
+﻿#nullable enable
+using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Models;
 using hjudgeWebHost.Models.Account;
@@ -65,7 +66,7 @@ namespace hjudgeWebHost.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> UserAvatar(string userId)
+        public async Task<IActionResult> UserAvatar(string? userId)
         {
             var user = await (string.IsNullOrEmpty(userId) ? UserManager.GetUserAsync(User) : UserManager.FindByIdAsync(userId));
             if (user == null)
@@ -117,7 +118,7 @@ namespace hjudgeWebHost.Controllers
 
         [HttpGet]
         [PrivilegeAuthentication.RequireSignedIn]
-        public async Task<UserInfoModel> UserInfo(string userId)
+        public async Task<UserInfoModel> UserInfo(string? userId)
         {
             var userInfoRet = new UserInfoModel
             {

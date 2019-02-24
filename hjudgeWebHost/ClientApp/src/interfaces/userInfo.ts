@@ -3,10 +3,11 @@
   userName: string,
   privilege: number,
   name: string,
+  signedIn: boolean,
   email: string,
   phoneNumber: string,
-  isEmailConfirmed: boolean,
-  isPhoneNumberConfirmed: boolean,
+  emailConfirmed: boolean,
+  phoneNumberConfirmed: boolean,
   otherInfo?: OtherInfo[]
 }
 

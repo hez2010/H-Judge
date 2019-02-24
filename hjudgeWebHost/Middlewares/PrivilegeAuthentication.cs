@@ -9,75 +9,84 @@ using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Middlewares
 {
-    public class PrivilegeAuthentication : Attribute, IAsyncActionFilter
+    public static class PrivilegeAuthentication
     {
-        //private static 
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+        public class RequireSignedInAttribute : Attribute, IAsyncActionFilter
         {
-            if (!(context.HttpContext.RequestServices.GetService(typeof(UserManager<UserInfo>)) is UserManager<UserInfo> userManager) ||
-                !(context.HttpContext.RequestServices.GetService(typeof(SignInManager<UserInfo>)) is SignInManager<UserInfo> signInManager))
-                throw new NullReferenceException("UserManager<UserInfo> or SignInManager<UserInfo> is null");
-
-            var attributes = context.ActionDescriptor.EndpointMetadata;
-
-            var userInfo = await userManager.GetUserAsync(context.HttpContext.User);
-
-            foreach (var attribute in attributes)
+            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (attribute is RequireSignedInAttribute)
-                {
-                    if (!signInManager.IsSignedIn(context.HttpContext.User) || userInfo == null)
-                    {
-                        context.Result = new JsonResult(new ResultModel
-                        {
-                            ErrorCode = 403,
-                            ErrorMessage = "User authentication failed",
-                            Succeeded = false
-                        });
-                        return;
-                    }
-                    continue;
-                }
-                if (attribute is RequireTeacherAttribute)
-                {
-                    if (!PrivilegeHelper.IsTeacher(userInfo?.Privilege ?? 0))
-                    {
-                        context.Result = new JsonResult(new ResultModel
-                        {
-                            ErrorCode = 403,
-                            ErrorMessage = "User authentication failed",
-                            Succeeded = false
-                        });
-                        return;
-                    }
-                    continue;
-                }
-                if (attribute is RequireAdminAttribute)
-                {
-                    if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0))
-                    {
-                        context.Result = new JsonResult(new ResultModel
-                        {
-                            ErrorCode = 403,
-                            ErrorMessage = "User authentication failed",
-                            Succeeded = false
-                        });
-                        return;
-                    }
-                    continue;
-                }
-            }
+                if (!(context.HttpContext.RequestServices.GetService(typeof(UserManager<UserInfo>)) is UserManager<UserInfo> userManager) ||
+                    !(context.HttpContext.RequestServices.GetService(typeof(SignInManager<UserInfo>)) is SignInManager<UserInfo> signInManager))
+                    throw new NullReferenceException("UserManager<UserInfo> or SignInManager<UserInfo> is null");
 
-            await next();
+                var userInfo = await userManager.GetUserAsync(context.HttpContext.User);
+
+                if (!signInManager.IsSignedIn(context.HttpContext.User) || userInfo == null)
+                {
+                    context.Result = new JsonResult(new ResultModel
+                    {
+                        ErrorCode = 403,
+                        ErrorMessage = "User authentication failed",
+                        Succeeded = false
+                    });
+                    return;
+                }
+
+                await next();
+            }
         }
 
         [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-        public class RequireSignedInAttribute : Attribute { }
+        public class RequireAdminAttribute : Attribute, IAsyncActionFilter
+        {
+            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+            {
+                if (!(context.HttpContext.RequestServices.GetService(typeof(UserManager<UserInfo>)) is UserManager<UserInfo> userManager) ||
+                    !(context.HttpContext.RequestServices.GetService(typeof(SignInManager<UserInfo>)) is SignInManager<UserInfo> signInManager))
+                    throw new NullReferenceException("UserManager<UserInfo> or SignInManager<UserInfo> is null");
+
+                var userInfo = await userManager.GetUserAsync(context.HttpContext.User);
+
+                if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0))
+                {
+                    context.Result = new JsonResult(new ResultModel
+                    {
+                        ErrorCode = 403,
+                        ErrorMessage = "User authentication failed",
+                        Succeeded = false
+                    });
+                    return;
+                }
+
+                await next();
+            }
+        }
 
         [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-        public class RequireAdminAttribute : Attribute { }
+        public class RequireTeacherAttribute : Attribute, IAsyncActionFilter
+        {
+            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+            {
+                if (!(context.HttpContext.RequestServices.GetService(typeof(UserManager<UserInfo>)) is UserManager<UserInfo> userManager) ||
+                    !(context.HttpContext.RequestServices.GetService(typeof(SignInManager<UserInfo>)) is SignInManager<UserInfo> signInManager))
+                    throw new NullReferenceException("UserManager<UserInfo> or SignInManager<UserInfo> is null");
 
-        [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-        public class RequireTeacherAttribute : Attribute { }
+                var userInfo = await userManager.GetUserAsync(context.HttpContext.User);
+
+                if (!PrivilegeHelper.IsTeacher(userInfo?.Privilege ?? 0))
+                {
+                    context.Result = new JsonResult(new ResultModel
+                    {
+                        ErrorCode = 403,
+                        ErrorMessage = "User authentication failed",
+                        Succeeded = false
+                    });
+                    return;
+                }
+
+                await next();
+            }
+        }
     }
 }

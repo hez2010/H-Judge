@@ -21,22 +21,27 @@ export default class App extends React.Component<{}, AppState> {
     this.state = {
       userInfo: {
         email: '',
-        isEmailConfirmed: false,
-        isPhoneNumberConfirmed: false,
+        emailConfirmed: false,
+        phoneNumberConfirmed: false,
         name: '',
         otherInfo: [],
         phoneNumber: '',
         privilege: 0,
         userId: '',
-        userName: ''
+        userName: '',
+        signedIn: false
       }
     }
 
     Get('/Account/UserInfo')
       .then(response => response.json())
-      .then(data => this.setState({
-        userInfo: data
-      } as AppState))
+      .then(data => {
+        this.setState({
+          userInfo: data
+        } as AppState);
+        if (this.layoutRef.current !== null)
+          this.layoutRef.current.openPortal('信息', JSON.stringify(data), 'black');
+      })
       .catch(err => {
         if (this.layoutRef.current !== null)
           this.layoutRef.current.openPortal('错误', '用户信息加载失败', 'red');
@@ -47,7 +52,7 @@ export default class App extends React.Component<{}, AppState> {
   render() {
     return (
       <div>
-        <Layout ref={this.layoutRef}>
+        <Layout ref={this.layoutRef} userInfo={this.state.userInfo}>
           <Switch>
             <Route
               exact
