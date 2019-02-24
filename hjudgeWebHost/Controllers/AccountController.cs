@@ -32,24 +32,21 @@ namespace hjudgeWebHost.Controllers
             if (avatar == null)
             {
                 result.Succeeded = false;
-                result.ErrorMessage = "文件无效";
-                result.ErrorCode = 600;
+                result.ErrorCode = ErrorDescription.FileBadFormat;
                 return result;
             }
 
             if (!avatar.ContentType.StartsWith("image/"))
             {
                 result.Succeeded = false;
-                result.ErrorMessage = "只能上传图片文件";
-                result.ErrorCode = 600;
+                result.ErrorCode = ErrorDescription.FileBadFormat;
                 return result;
             }
 
             if (avatar.Length > 1048576)
             {
                 result.Succeeded = false;
-                result.ErrorMessage = "图片文件大小不能超过 1 Mb";
-                result.ErrorCode = 600;
+                result.ErrorCode = ErrorDescription.FileSizeExceeded;
                 return result;
             }
 
@@ -95,7 +92,7 @@ namespace hjudgeWebHost.Controllers
                 if (!result.Succeeded)
                 {
                     ret.Succeeded = result.Succeeded;
-                    ret.ErrorCode = 600;
+                    ret.ErrorCode = ErrorDescription.GenericError;
                     if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
                     return ret;
                 }
@@ -106,7 +103,7 @@ namespace hjudgeWebHost.Controllers
                 if (!result.Succeeded)
                 {
                     ret.Succeeded = result.Succeeded;
-                    ret.ErrorCode = 600;
+                    ret.ErrorCode = ErrorDescription.GenericError;
                     if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
                     return ret;
                 }
@@ -117,7 +114,6 @@ namespace hjudgeWebHost.Controllers
         }
 
         [HttpGet]
-        [PrivilegeAuthentication.RequireSignedIn]
         public async Task<UserInfoModel> UserInfo(string? userId)
         {
             var userInfoRet = new UserInfoModel
@@ -128,8 +124,7 @@ namespace hjudgeWebHost.Controllers
             if (user == null)
             {
                 userInfoRet.Succeeded = false;
-                userInfoRet.ErrorCode = 404;
-                userInfoRet.ErrorMessage = "User not found";
+                userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
                 return userInfoRet;
             }
             userInfoRet.Name = user.Name;

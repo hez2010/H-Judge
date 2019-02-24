@@ -26,8 +26,7 @@ namespace hjudgeWebHost.Middlewares
                 {
                     context.Result = new JsonResult(new ResultModel
                     {
-                        ErrorCode = 403,
-                        ErrorMessage = "User authentication failed",
+                        ErrorCode = ErrorDescription.NotSignedIn,
                         Succeeded = false
                     });
                     return;
@@ -52,8 +51,7 @@ namespace hjudgeWebHost.Middlewares
                 {
                     context.Result = new JsonResult(new ResultModel
                     {
-                        ErrorCode = 403,
-                        ErrorMessage = "User authentication failed",
+                        ErrorCode = ErrorDescription.NoEnoughPrivilege,
                         Succeeded = false
                     });
                     return;
@@ -78,8 +76,7 @@ namespace hjudgeWebHost.Middlewares
                 {
                     context.Result = new JsonResult(new ResultModel
                     {
-                        ErrorCode = 403,
-                        ErrorMessage = "User authentication failed",
+                        ErrorCode = ErrorDescription.NoEnoughPrivilege,
                         Succeeded = false
                     });
                     return;
