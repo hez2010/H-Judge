@@ -6,7 +6,7 @@ import NotFound from './components/notfound/notfound';
 import About from './components/about/about';
 import Home, { PropsInterface } from './components/home/home';
 import { UserInfo } from './interfaces/userInfo'
-import { Post } from "./utils/requestHelper";
+import { Get } from "./utils/requestHelper";
 
 interface AppState {
   userInfo: UserInfo
@@ -32,7 +32,7 @@ export default class App extends React.Component<{}, AppState> {
       }
     }
 
-    Post('/Account/GetUserInfo')
+    Get('/Account/UserInfo')
       .then(response => response.json())
       .then(data => this.setState({
         userInfo: data
