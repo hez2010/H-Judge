@@ -54,13 +54,13 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
   render() {
     let accountOptions = this.props.userInfo.signedIn ? <Dropdown text='账户' floating>
       <Dropdown.Menu>
-        <Dropdown.Item icon='log out' text='门户' />
-        <Dropdown.Item icon='log out' text='退出' />
+        <Dropdown.Item icon='home' text='门户' />
+        <Dropdown.Item icon='sign out' text='退出' />
       </Dropdown.Menu>
     </Dropdown> : <Dropdown text='账户' floating>
         <Dropdown.Menu>
-          <Dropdown.Item icon='log out' text='登录' />
-          <Dropdown.Item icon='log out' text='注册' />
+          <Dropdown.Item icon='sign in' text='登录' />
+          <Dropdown.Item icon='signup' text='注册' />
         </Dropdown.Menu>
       </Dropdown>;
 
@@ -79,7 +79,7 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
             <NavLink to='/article' className='item'><Icon name='book'></Icon>文章</NavLink>
             <NavLink to='/about' className='item'><Icon name='info circle'></Icon>关于</NavLink>
             <Menu.Item position='right'>
-              <Icon name='user circle'></Icon>
+              <Icon name='user'></Icon>
               {accountOptions}
             </Menu.Item>
           </Container>
