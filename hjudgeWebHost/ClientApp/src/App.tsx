@@ -39,8 +39,7 @@ export default class App extends React.Component<{}, AppState> {
         this.setState({
           userInfo: data
         } as AppState);
-        if (this.layoutRef.current !== null)
-          this.layoutRef.current.openPortal('信息', JSON.stringify(data), 'black');
+        console.log(data);
       })
       .catch(err => {
         if (this.layoutRef.current !== null)
@@ -51,7 +50,7 @@ export default class App extends React.Component<{}, AppState> {
 
   render() {
     return (
-      <div>
+      <>
         <Layout ref={this.layoutRef} userInfo={this.state.userInfo}>
           <Switch>
             <Route
@@ -101,7 +100,7 @@ export default class App extends React.Component<{}, AppState> {
             </Route>
           </Switch>
         </Layout>
-      </div>
+      </>
     );
   }
 }

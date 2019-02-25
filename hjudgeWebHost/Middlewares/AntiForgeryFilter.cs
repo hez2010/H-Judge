@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
@@ -15,9 +16,9 @@ namespace hjudgeWebHost.Middlewares
         {
             this.antiforgery = antiforgery;
         }
-
-        public override void OnResultExecuting(ResultExecutingContext context)
+        public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
+            await next();
             //Send xsrf token on get requests
             if (context.HttpContext.Request.Method.ToLower() == "get")
             {

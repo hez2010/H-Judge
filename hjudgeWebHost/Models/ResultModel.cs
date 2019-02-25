@@ -6,13 +6,14 @@ namespace hjudgeWebHost.Models
     {
         private ErrorDescription errorCode;
 
-        public bool Succeeded { get; set; }
+        public bool Succeeded { get; set; } = true;
         public ErrorDescription ErrorCode
         {
             get => errorCode;
             set
             {
                 errorCode = value;
+                Succeeded = false;
                 ErrorMessage = value.GetDescription();
             }
         }

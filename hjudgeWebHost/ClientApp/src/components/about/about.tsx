@@ -8,9 +8,9 @@ export default class About extends React.Component {
   }
   render() {
     return (
-      <div>
+      <>
         <Header as='h1'>关于 H::Judge</Header>
-      </div>
+      </>
     );
   }
 }

@@ -2,6 +2,7 @@ import * as React from "react";
 import { NavLink } from 'react-router-dom';
 import { Container, Menu, Icon, TransitionablePortal, Segment, Header, SemanticCOLORS, Dropdown } from 'semantic-ui-react';
 import { UserInfo } from "../../interfaces/userInfo";
+import Login from "../account/login";
 
 interface PortalState {
   open: boolean,
@@ -12,7 +13,7 @@ interface PortalState {
 
 interface LayoutState {
   portal: PortalState
-
+  loginModalOpen: boolean
 }
 
 interface LayoutProps {
@@ -28,9 +29,14 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
         header: '',
         message: '',
         color: 'black'
-      }
+      },
+      loginModalOpen: false
     }
+    this.login = this.login.bind(this);
+    this.openPortal = this.openPortal.bind(this);
+    this.closeLoginModal = this.closeLoginModal.bind(this);
   }
+
   openPortal(header: string, message: string, color: string) {
     if (this.state.portal.open) {
       this.setState({
@@ -51,6 +57,18 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
     })
   }
 
+  login() {
+    this.setState({
+      loginModalOpen: true
+    } as LayoutState);
+  }
+
+  closeLoginModal(){
+    this.setState({
+      loginModalOpen: false
+    } as LayoutState);
+  }
+
   render() {
     let accountOptions = this.props.userInfo.signedIn ? <Dropdown text='账户' floating>
       <Dropdown.Menu>
@@ -59,13 +77,13 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
       </Dropdown.Menu>
     </Dropdown> : <Dropdown text='账户' floating>
         <Dropdown.Menu>
-          <Dropdown.Item icon='sign in' text='登录' />
+          <Dropdown.Item icon='sign in' text='登录' onClick={this.login} />
           <Dropdown.Item icon='signup' text='注册' />
         </Dropdown.Menu>
       </Dropdown>;
 
     return (
-      <div>
+      <>
         <Menu fixed='top' size='small' borderless inverted color='blue' compact icon='labeled'>
           <Container>
             <NavLink exact to='/' className='item'><Icon name='h'></Icon>主页</NavLink>
@@ -103,7 +121,8 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
             <p style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{this.state.portal.message}</p>
           </Segment>
         </TransitionablePortal>
-      </div>
+        <Login modalOpen={this.state.loginModalOpen} closeModal={this.closeLoginModal} />
+      </>
     );
   }
 }

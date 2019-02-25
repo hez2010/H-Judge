@@ -15,6 +15,10 @@ namespace hjudgeWebHost
         [Description("文件格式错误")]
         FileBadFormat = 5,
         [Description("文件大小超出限制")]
-        FileSizeExceeded = 6
+        FileSizeExceeded = 6,
+        [Description("参数不正确")]
+        ArgumentError = 7,
+        [Description("用户信息验证失败")]
+        AuthenticationFailed = 8
     }
 }

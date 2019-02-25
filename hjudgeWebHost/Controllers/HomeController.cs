@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : ControllerBase
     {
         public IActionResult Test()
         {
-            return Json("{test: 3}");
+            return new JsonResult("{test: 3}");
         }
     }
 }

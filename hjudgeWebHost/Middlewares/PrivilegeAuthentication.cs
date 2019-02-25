@@ -26,8 +26,7 @@ namespace hjudgeWebHost.Middlewares
                 {
                     context.Result = new JsonResult(new ResultModel
                     {
-                        ErrorCode = ErrorDescription.NotSignedIn,
-                        Succeeded = false
+                        ErrorCode = ErrorDescription.NotSignedIn
                     });
                     return;
                 }
@@ -51,8 +50,7 @@ namespace hjudgeWebHost.Middlewares
                 {
                     context.Result = new JsonResult(new ResultModel
                     {
-                        ErrorCode = ErrorDescription.NoEnoughPrivilege,
-                        Succeeded = false
+                        ErrorCode = ErrorDescription.NoEnoughPrivilege
                     });
                     return;
                 }
@@ -76,8 +74,7 @@ namespace hjudgeWebHost.Middlewares
                 {
                     context.Result = new JsonResult(new ResultModel
                     {
-                        ErrorCode = ErrorDescription.NoEnoughPrivilege,
-                        Succeeded = false
+                        ErrorCode = ErrorDescription.NoEnoughPrivilege
                     });
                     return;
                 }

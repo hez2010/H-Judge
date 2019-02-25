@@ -8,18 +8,56 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
-    public class AccountController : Controller
+    public class AccountController : ControllerBase
     {
         private readonly UserManager<UserInfo> UserManager;
-        public AccountController(UserManager<UserInfo> userManager)
+        private readonly SignInManager<UserInfo> SignInManager;
+        public AccountController(UserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager)
         {
             UserManager = userManager;
+            SignInManager = signInManager;
+        }
+
+        public class LoginModel
+        {
+            [Required]
+            public string UserName { get; set; } = string.Empty;
+            [Required]
+            public string Password { get; set; } = string.Empty;
+            public bool RememberMe { get; set; }
+        }
+        [HttpPost]
+        public async Task<ResultModel> Login([FromBody]LoginModel model)
+        {
+            var ret = new ResultModel();
+            if (TryValidateModel(model))
+            {
+                await SignInManager.SignOutAsync();
+                var result = await SignInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+                if (!result.Succeeded)
+                {
+                    ret.ErrorCode = ErrorDescription.AuthenticationFailed;
+                }
+            }
+            else
+            {
+                ret.ErrorCode = ErrorDescription.ArgumentError;
+            }
+            return ret;
+        }
+
+        [HttpPost]
+        public async Task<ResultModel> Logout()
+        {
+            await SignInManager.SignOutAsync();
+            return new ResultModel();
         }
 
         [HttpPost]
@@ -27,25 +65,22 @@ namespace hjudgeWebHost.Controllers
         public async Task<ResultModel> UserAvatar(IFormFile avatar)
         {
             var user = await UserManager.GetUserAsync(User);
-            var result = new ResultModel { Succeeded = true };
+            var result = new ResultModel();
 
             if (avatar == null)
             {
-                result.Succeeded = false;
                 result.ErrorCode = ErrorDescription.FileBadFormat;
                 return result;
             }
 
             if (!avatar.ContentType.StartsWith("image/"))
             {
-                result.Succeeded = false;
                 result.ErrorCode = ErrorDescription.FileBadFormat;
                 return result;
             }
 
             if (avatar.Length > 1048576)
             {
-                result.Succeeded = false;
                 result.ErrorCode = ErrorDescription.FileSizeExceeded;
                 return result;
             }
@@ -81,7 +116,7 @@ namespace hjudgeWebHost.Controllers
         [PrivilegeAuthentication.RequireSignedIn]
         public async Task<ResultModel> UserInfo([FromBody]UserInfoModel model)
         {
-            var ret = new ResultModel { Succeeded = true };
+            var ret = new ResultModel();
             var user = await UserManager.GetUserAsync(User);
 
             user.Name = model.Name;
@@ -91,7 +126,6 @@ namespace hjudgeWebHost.Controllers
                 var result = await UserManager.SetEmailAsync(user, model.Email);
                 if (!result.Succeeded)
                 {
-                    ret.Succeeded = result.Succeeded;
                     ret.ErrorCode = ErrorDescription.GenericError;
                     if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
                     return ret;
@@ -102,7 +136,6 @@ namespace hjudgeWebHost.Controllers
                 var result = await UserManager.SetPhoneNumberAsync(user, model.PhoneNumber);
                 if (!result.Succeeded)
                 {
-                    ret.Succeeded = result.Succeeded;
                     ret.ErrorCode = ErrorDescription.GenericError;
                     if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
                     return ret;
@@ -118,12 +151,12 @@ namespace hjudgeWebHost.Controllers
         {
             var userInfoRet = new UserInfoModel
             {
-                Succeeded = true
+                SignedIn = SignInManager.IsSignedIn(User)
             };
+
             var user = await (string.IsNullOrEmpty(userId) ? UserManager.GetUserAsync(User) : UserManager.FindByIdAsync(userId));
             if (user == null)
             {
-                userInfoRet.Succeeded = false;
                 userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
                 return userInfoRet;
             }
@@ -139,6 +172,7 @@ namespace hjudgeWebHost.Controllers
                 userInfoRet.Email = user.Email;
                 userInfoRet.PhoneNumber = user.PhoneNumber;
                 userInfoRet.OtherInfo = JsonConvert.DeserializeObject<OtherInfo[]>(user.OtherInfo);
+                //TODO: filled in otherinfo
             }
 
             return userInfoRet;

@@ -38,17 +38,15 @@ namespace hjudgeWebHost
                     "font/eof" });
             });
 
+            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+            services.AddScoped<AntiForgeryFilter>();
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            })
-            .AddIdentityCookies();
+            services.AddEntityFrameworkSqlServer();
 
             services.AddIdentityCore<UserInfo>(options =>
             {
@@ -62,14 +60,20 @@ namespace hjudgeWebHost
             .AddDefaultTokenProviders()
             .AddErrorDescriber<IdentityErrorDescriber>();
 
-            services.AddEntityFrameworkSqlServer();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+            .AddIdentityCookies();
 
-            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
-            services.AddTransient<AntiForgeryFilter>();
             services.AddTransient<EmailSender>();
 
-            services.AddMvc()
-                .AddNewtonsoftJson();
+            services.AddMvc(options =>
+            {
+                options.Filters.AddService(typeof(AntiForgeryFilter));
+            })
+            .AddNewtonsoftJson();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
