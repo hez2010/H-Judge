@@ -19,6 +19,10 @@ namespace hjudgeWebHost
         [Description("参数不正确")]
         ArgumentError = 7,
         [Description("用户信息验证失败")]
-        AuthenticationFailed = 8
+        AuthenticationFailed = 8,
+        [Description("资源不存在")]
+        ResourceNotFound = 404,
+        [Description("服务器内部异常")]
+        InteralServerException = 500
     }
 }

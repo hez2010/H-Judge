@@ -33,6 +33,11 @@ export default class App extends React.Component<{}, AppState> {
       }
     }
 
+    this.refreshUserInfo = this.refreshUserInfo.bind(this);
+    this.refreshUserInfo();
+  }
+
+  refreshUserInfo() {
     Get('/Account/UserInfo')
       .then(response => response.json())
       .then(data => {
@@ -51,7 +56,7 @@ export default class App extends React.Component<{}, AppState> {
   render() {
     return (
       <>
-        <Layout ref={this.layoutRef} userInfo={this.state.userInfo}>
+        <Layout ref={this.layoutRef} userInfo={this.state.userInfo} refreshUserInfo={this.refreshUserInfo}>
           <Switch>
             <Route
               exact

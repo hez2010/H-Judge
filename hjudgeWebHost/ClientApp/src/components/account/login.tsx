@@ -2,10 +2,13 @@ import * as React from 'react';
 import { Modal, Input, Button, Form, Label, Checkbox } from 'semantic-ui-react';
 import { SerializeForm } from '../../utils/formHelper';
 import { Post } from '../../utils/requestHelper';
+import { ResultModel } from '../../interfaces/resultModel';
 
 interface LoginProps {
   modalOpen: boolean,
-  closeModal: (() => void)
+  closeModal: (() => void),
+  refreshUserInfo: (() => void),
+  openPortal: ((header: string, message: string, color: string) => void)
 }
 
 export default class Login extends React.Component<LoginProps> {
@@ -19,7 +22,22 @@ export default class Login extends React.Component<LoginProps> {
     if (form.reportValidity()) {
       Post('/Account/Login', SerializeForm(form))
         .then(res => res.json())
-        .then(data => console.log(data));
+        .then(data => {
+          let result = data as ResultModel;
+          if (result.succeeded) {
+            this.props.refreshUserInfo();
+            this.props.closeModal();
+            this.props.openPortal('提示', '登录成功', 'green');
+          }
+          else {
+            this.props.closeModal();
+            this.props.openPortal('错误', `${result.errorMessage} (${result.errorCode})`, 'red');
+          }
+        })
+        .catch(err => {
+          this.props.openPortal('错误', '登录失败', 'red');
+          console.log(err);
+        })
     }
   }
 

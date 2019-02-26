@@ -17,7 +17,8 @@ interface LayoutState {
 }
 
 interface LayoutProps {
-  userInfo: UserInfo
+  userInfo: UserInfo,
+  refreshUserInfo: (() => void)
 }
 
 export default class Layout extends React.Component<LayoutProps, LayoutState> {
@@ -63,7 +64,7 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
     } as LayoutState);
   }
 
-  closeLoginModal(){
+  closeLoginModal() {
     this.setState({
       loginModalOpen: false
     } as LayoutState);
@@ -121,7 +122,7 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
             <p style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{this.state.portal.message}</p>
           </Segment>
         </TransitionablePortal>
-        <Login modalOpen={this.state.loginModalOpen} closeModal={this.closeLoginModal} />
+        <Login modalOpen={this.state.loginModalOpen} closeModal={this.closeLoginModal} refreshUserInfo={this.props.refreshUserInfo} openPortal={this.openPortal} />
       </>
     );
   }
