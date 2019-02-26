@@ -14,6 +14,8 @@ namespace hjudgeWebHost.Models.Account
         public bool EmailConfirmed { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public int Privilege { get; set; }
+        public long Coins { get; set; }
+        public long Experience { get; set; }
         public List<OtherInfoList> OtherInfo { get; set; }
     }
 }

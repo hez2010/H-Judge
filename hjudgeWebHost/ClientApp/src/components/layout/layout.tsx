@@ -1,70 +1,35 @@
 import * as React from "react";
 import { NavLink } from 'react-router-dom';
-import { Container, Menu, Icon, TransitionablePortal, Segment, Header, SemanticCOLORS, Dropdown, Divider } from 'semantic-ui-react';
+import { Container, Menu, Icon, SemanticCOLORS, Dropdown } from 'semantic-ui-react';
 import { UserInfo } from "../../interfaces/userInfo";
 import Login from "../account/login";
 import Register from "../account/register";
 import { Post } from "../../utils/requestHelper";
 import { ResultModel } from "../../interfaces/resultModel";
 
-interface PortalState {
-  open: boolean,
-  header: string,
-  message: string,
-  color: SemanticCOLORS
-}
-
 interface LayoutState {
-  portal: PortalState
   loginModalOpen: boolean,
   registerModalOpen: boolean
 }
 
 interface LayoutProps {
   userInfo: UserInfo,
-  refreshUserInfo: (() => void)
+  refreshUserInfo: (() => void),
+  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void)
 }
 
 export default class Layout extends React.Component<LayoutProps, LayoutState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      portal: {
-        open: false,
-        header: '',
-        message: '',
-        color: 'black'
-      },
       loginModalOpen: false,
       registerModalOpen: false
     }
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.register = this.register.bind(this);
-    this.openPortal = this.openPortal.bind(this);
     this.closeLoginModal = this.closeLoginModal.bind(this);
     this.closeRegisterModal = this.closeRegisterModal.bind(this);
-    this.closePortal = this.closePortal.bind(this);
-  }
-
-  openPortal(header: string, message: string, color: SemanticCOLORS) {
-    if (this.state.portal.open) {
-      this.setState({
-        portal: {
-          open: false
-        }
-      } as LayoutState);
-    }
-    process.nextTick(() => {
-      this.setState({
-        portal: {
-          open: true,
-          header: header,
-          message: message,
-          color: color
-        }
-      } as LayoutState);
-    })
   }
 
   login() {
@@ -83,15 +48,15 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
     Post('/Account/Logout').then(res => res.json()).then(data => {
       let result = data as ResultModel;
       if (result.succeeded) {
-        this.openPortal('提示', '退出成功', 'green');
+        this.props.openPortal('提示', '退出成功', 'green');
         this.props.refreshUserInfo();
       }
       else {
-        this.openPortal('错误', `退出失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+        this.props.openPortal('错误', `退出失败\n${result.errorMessage} (${result.errorCode})`, 'red');
       }
     })
       .catch(err => {
-        this.openPortal('错误', '退出失败', 'red');
+        this.props.openPortal('错误', '退出失败', 'red');
         console.log(err);
       })
   }
@@ -108,18 +73,13 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
     } as LayoutState);
   }
 
-  closePortal() {
-    this.setState({
-      portal: {
-        open: false
-      }
-    } as LayoutState);
-  }
-
   render() {
     let accountOptions = this.props.userInfo.signedIn ? <Dropdown text='账户' floating>
       <Dropdown.Menu>
-        <Dropdown.Item icon='home' text='门户' />
+        <NavLink to='/user' className='item' role='option'>
+          <i className='home icon' aria-hidden='true'></i>
+          <span className='text'>门户</span>
+        </NavLink>
         <Dropdown.Item icon='sign out' text='退出' onClick={this.logout} />
       </Dropdown.Menu>
     </Dropdown> : <Dropdown text='账户' floating>
@@ -149,7 +109,7 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
             </Menu.Item>
           </Container>
         </Menu>
-        <Container style={{ marginTop: '7em' }}>
+        <Container style={{ marginTop: '7em', marginBottom: '5em' }}>
           {this.props.children}
         </Container>
         <Menu fixed='bottom' inverted color='blue' borderless>
@@ -162,20 +122,8 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
             </Menu.Item>
           </Container>
         </Menu>
-        <Login modalOpen={this.state.loginModalOpen} closeModal={this.closeLoginModal} refreshUserInfo={this.props.refreshUserInfo} openPortal={this.openPortal} />
-        <Register modalOpen={this.state.registerModalOpen} closeModal={this.closeRegisterModal} refreshUserInfo={this.props.refreshUserInfo} openPortal={this.openPortal} />
-        <TransitionablePortal open={this.state.portal.open} onClose={this.closePortal} transition={{ animation: 'drop', duration: 500 }}>
-          <Segment style={{ bottom: '5em', position: 'fixed', right: '2em', zIndex: 1048576 }} color={this.state.portal.color} inverted>
-            <Header>
-              {this.state.portal.header}
-              <div style={{ display: 'inline', cursor: 'pointer', float: 'right' }} onClick={this.closePortal}>
-                <Icon name='close' size='small'></Icon>
-              </div>
-            </Header>
-            <Divider />
-            <p style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{this.state.portal.message}</p>
-          </Segment>
-        </TransitionablePortal>
+        <Login modalOpen={this.state.loginModalOpen} closeModal={this.closeLoginModal} refreshUserInfo={this.props.refreshUserInfo} openPortal={this.props.openPortal} />
+        <Register modalOpen={this.state.registerModalOpen} closeModal={this.closeRegisterModal} refreshUserInfo={this.props.refreshUserInfo} openPortal={this.props.openPortal} />
       </>
     );
   }

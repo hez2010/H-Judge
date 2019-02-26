@@ -67,7 +67,7 @@ namespace hjudgeWebHost.Controllers
             [EmailAddress]
             public string Email { get; set; } = string.Empty;
         }
-        
+
         public async Task<ResultModel> Register([FromBody]RegisterModel model)
         {
             var ret = new ResultModel();
@@ -206,13 +206,15 @@ namespace hjudgeWebHost.Controllers
             var user = await (string.IsNullOrEmpty(userId) ? UserManager.GetUserAsync(User) : UserManager.FindByIdAsync(userId));
             if (user == null)
             {
-                userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
+                if (!string.IsNullOrEmpty(userId)) userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
                 return userInfoRet;
             }
             userInfoRet.Name = user.Name;
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;
             userInfoRet.Privilege = user.Privilege;
+            userInfoRet.Coins = user.Coins;
+            userInfoRet.Experience = user.Experience;
 
             if (userInfoRet.SignedIn)
             {

@@ -10,7 +10,9 @@ export interface UserInfo extends ResultModel {
   phoneNumber: string,
   emailConfirmed: boolean,
   phoneNumberConfirmed: boolean,
-  otherInfo?: OtherInfo[]
+  experience: number,
+  coins: number,
+  otherInfo: OtherInfo[]
 }
 
 export interface OtherInfo {
