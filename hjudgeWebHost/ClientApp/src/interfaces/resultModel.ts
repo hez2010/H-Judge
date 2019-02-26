@@ -1,5 +1,5 @@
 export interface ResultModel {
-  succeeded: boolean,
-  errorCode: number,
-  errorMessage: string
+  succeeded?: boolean,
+  errorCode?: number,
+  errorMessage?: string
 }

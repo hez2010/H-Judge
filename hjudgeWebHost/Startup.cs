@@ -54,13 +54,14 @@ namespace hjudgeWebHost
             {
                 options.Stores.MaxLengthForKeys = 128;
                 options.User.RequireUniqueEmail = true;
+                options.Password.RequireNonAlphanumeric = false;
             })
             .AddSignInManager()
             .AddUserManager<UserManager<UserInfo>>()
             .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders()
-            .AddErrorDescriber<IdentityErrorDescriber>();
+            .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
             services.AddAuthentication(options =>
             {

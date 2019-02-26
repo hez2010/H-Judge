@@ -11,11 +11,6 @@ namespace hjudgeWebHost.Controllers
 {
     public class HomeController : ControllerBase
     {
-        public IActionResult Test()
-        {
-            return new JsonResult("{test: 3}");
-        }
-
         [AllowAnonymous]
         public IActionResult Error()
         {
@@ -23,7 +18,7 @@ namespace hjudgeWebHost.Controllers
             {
                 ErrorCode = ErrorDescription.InteralServerException
             };
-            ret.ErrorMessage += $" {(Activity.Current?.Id ?? HttpContext.TraceIdentifier)}";
+            ret.ErrorMessage += $" ({Activity.Current?.Id ?? HttpContext.TraceIdentifier})";
             return new JsonResult(ret);
         }
     }

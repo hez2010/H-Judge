@@ -53,6 +53,56 @@ namespace hjudgeWebHost.Controllers
             return ret;
         }
 
+        public class RegisterModel
+        {
+            [Required]
+            public string UserName { get; set; } = string.Empty;
+            [Required]
+            public string Name { get; set; } = string.Empty;
+            [Required]
+            [DataType(DataType.Password)]
+            public string Password { get; set; } = string.Empty;
+            [Required]
+            [DataType(DataType.Password)]
+            public string ConfirmPassword { get; set; } = string.Empty;
+            [Required]
+            [DataType(DataType.EmailAddress)]
+            public string Email { get; set; } = string.Empty;
+        }
+        public async Task<ResultModel> Register([FromBody]RegisterModel model)
+        {
+            var ret = new ResultModel();
+            if (TryValidateModel(model))
+            {
+                if (model.Password != model.ConfirmPassword)
+                {
+                    ret.ErrorCode = ErrorDescription.ArgumentError;
+                    ret.ErrorMessage = "两次输入的密码不一致";
+                    return ret;
+                }
+                await SignInManager.SignOutAsync();
+                var user = new UserInfo
+                {
+                    UserName = model.UserName,
+                    Name = model.Name,
+                    Email = model.Email,
+                    Privilege = 4
+                };
+                var result = await UserManager.CreateAsync(user, model.Password);
+                if (!result.Succeeded)
+                {
+                    ret.ErrorCode = ErrorDescription.ArgumentError;
+                    if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
+                }
+                else await SignInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+            }
+            else
+            {
+                ret.ErrorCode = ErrorDescription.ArgumentError;
+            }
+            return ret;
+        }
+
         [HttpPost]
         public async Task<ResultModel> Logout()
         {
@@ -171,8 +221,7 @@ namespace hjudgeWebHost.Controllers
                 userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
                 userInfoRet.Email = user.Email;
                 userInfoRet.PhoneNumber = user.PhoneNumber;
-                userInfoRet.OtherInfo = JsonConvert.DeserializeObject<OtherInfo[]>(user.OtherInfo);
-                //TODO: filled in otherinfo
+                userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(user.OtherInfo);
             }
 
             return userInfoRet;

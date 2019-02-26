@@ -1,5 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace hjudgeWebHost.Data.Identity
 {
@@ -12,23 +15,22 @@ namespace hjudgeWebHost.Data.Identity
             public string Value { get; set; }
         }
 
+        private static PropertyInfo[] properties = typeof(OtherUserInfo).GetProperties()
+                                                        .Where(i => i.IsDefined(typeof(ItemNameAttribute), false))
+                                                        .ToArray();
+
         public static List<OtherInfoList> GetOtherUserInfo(string rawInfo)
         {
-            var otherInfo = JsonConvert.DeserializeObject<OtherUserInfo>(rawInfo ?? string.Empty);
+            var otherInfo = JsonConvert.DeserializeObject<OtherUserInfo>(rawInfo ?? "{}");
             if (otherInfo == null) otherInfo = new OtherUserInfo();
-            var properties = typeof(OtherUserInfo).GetProperties();
             var otherInfoList = new List<OtherInfoList>();
+            
             foreach (var property in properties)
             {
-                if (!property.IsDefined(typeof(ItemNameAttribute), false))
-                {
-                    continue;
-                }
-
                 var attributes = property.GetCustomAttributes(false);
                 foreach (var attribute in attributes)
                 {
-                    if (attribute.GetType().Name == "ItemNameAttribute")
+                    if (attribute is ItemNameAttribute)
                     {
                         otherInfoList.Add(new OtherInfoList
                         {

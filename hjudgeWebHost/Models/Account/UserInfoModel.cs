@@ -1,11 +1,8 @@
-﻿namespace hjudgeWebHost.Models.Account
+﻿using System.Collections.Generic;
+using static hjudgeWebHost.Data.Identity.IdentityHelper;
+
+namespace hjudgeWebHost.Models.Account
 {
-    public class OtherInfo
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-        public string Description { get; set; }
-    }
     public class UserInfoModel : ResultModel
     {
         public bool SignedIn { get; set; }
@@ -17,6 +14,6 @@
         public bool EmailConfirmed { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public int Privilege { get; set; }
-        public OtherInfo[] OtherInfo { get; set; }
+        public List<OtherInfoList> OtherInfo { get; set; }
     }
 }

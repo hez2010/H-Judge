@@ -1,4 +1,6 @@
-﻿export interface UserInfo {
+﻿import { ResultModel } from "./resultModel";
+
+export interface UserInfo extends ResultModel {
   userId: string,
   userName: string,
   privilege: number,
@@ -13,7 +15,6 @@
 
 export interface OtherInfo {
   key: string,
-  description: string,
-  value: string,
-  canModify: boolean
+  name: string,
+  value: string
 }
