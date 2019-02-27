@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -168,27 +169,39 @@ namespace hjudgeWebHost.Controllers
             var ret = new ResultModel();
             var user = await UserManager.GetUserAsync(User);
 
-            user.Name = model.Name;
+            if (model.Name != null) user.Name = model.Name;
 
-            if (user.Email != model.Email)
+            if (model.Email != null && user.Email != model.Email)
             {
                 var result = await UserManager.SetEmailAsync(user, model.Email);
                 if (!result.Succeeded)
                 {
-                    ret.ErrorCode = ErrorDescription.GenericError;
+                    ret.ErrorCode = ErrorDescription.ArgumentError;
                     if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
                     return ret;
                 }
             }
-            if (user.PhoneNumber != model.PhoneNumber)
+            if (model.PhoneNumber != null && user.PhoneNumber != model.PhoneNumber)
             {
                 var result = await UserManager.SetPhoneNumberAsync(user, model.PhoneNumber);
                 if (!result.Succeeded)
                 {
-                    ret.ErrorCode = ErrorDescription.GenericError;
+                    ret.ErrorCode = ErrorDescription.ArgumentError;
                     if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
                     return ret;
                 }
+            }
+            if (model.OtherInfo != null)
+            {
+                var otherInfoJson = JObject.Parse(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
+                foreach (var info in model.OtherInfo)
+                {
+                    if (IdentityHelper.OtherInfoProperties.Any(i => i.Name == info.Key))
+                    {
+                        otherInfoJson[info.Key] = info.Value;
+                    }
+                }
+                user.OtherInfo = otherInfoJson.ToString();
             }
 
             await UserManager.UpdateAsync(user);

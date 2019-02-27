@@ -16,6 +16,6 @@ namespace hjudgeWebHost.Models.Account
         public int Privilege { get; set; }
         public long Coins { get; set; }
         public long Experience { get; set; }
-        public List<OtherInfoList> OtherInfo { get; set; }
+        public List<OtherUserInfoModel> OtherInfo { get; set; }
     }
 }

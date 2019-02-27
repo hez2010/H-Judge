@@ -8,31 +8,31 @@ namespace hjudgeWebHost.Data.Identity
 {
     public class IdentityHelper
     {
-        public class OtherInfoList
+        public class OtherUserInfoModel
         {
             public string Name { get; set; }
             public string Key { get; set; }
             public string Value { get; set; }
         }
 
-        private static PropertyInfo[] properties = typeof(OtherUserInfo).GetProperties()
+        public static readonly PropertyInfo[] OtherInfoProperties = typeof(OtherUserInfo).GetProperties()
                                                         .Where(i => i.IsDefined(typeof(ItemNameAttribute), false))
                                                         .ToArray();
 
-        public static List<OtherInfoList> GetOtherUserInfo(string rawInfo)
+        public static List<OtherUserInfoModel> GetOtherUserInfo(string rawInfo)
         {
             var otherInfo = JsonConvert.DeserializeObject<OtherUserInfo>(rawInfo ?? "{}");
             if (otherInfo == null) otherInfo = new OtherUserInfo();
-            var otherInfoList = new List<OtherInfoList>();
+            var otherInfoList = new List<OtherUserInfoModel>();
             
-            foreach (var property in properties)
+            foreach (var property in OtherInfoProperties)
             {
                 var attributes = property.GetCustomAttributes(false);
                 foreach (var attribute in attributes)
                 {
                     if (attribute is ItemNameAttribute)
                     {
-                        otherInfoList.Add(new OtherInfoList
+                        otherInfoList.Add(new OtherUserInfoModel
                         {
                             Key = property.Name,
                             Name = attribute.GetType().GetProperty("ItemName").GetValue(attribute)?.ToString(),
