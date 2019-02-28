@@ -1,5 +1,4 @@
-﻿#nullable enable
-using hjudgeWebHost.Data.Identity;
+﻿using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Models;
 using hjudgeWebHost.Models.Account;
