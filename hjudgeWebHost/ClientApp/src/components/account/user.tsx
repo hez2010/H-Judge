@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Item, Popup, Input, Divider, Header, Icon, Table, Label, Form, Placeholder, InputOnChangeData, SemanticCOLORS, Grid } from 'semantic-ui-react';
+import { Item, Popup, Input, Divider, Header, Icon, Table, Label, Form, Placeholder, SemanticCOLORS, Grid } from 'semantic-ui-react';
 import { UserInfo, OtherInfo } from '../../interfaces/userInfo';
 import { setTitle } from '../../utils/titleHelper';
 import { Post } from '../../utils/requestHelper';
@@ -16,6 +16,7 @@ export default class User extends React.Component<UserProps> {
     super(props);
     this.confirmEmail = this.confirmEmail.bind(this);
     this.confirmPhoneNumber = this.confirmPhoneNumber.bind(this);
+    this.changeAvatar = this.changeAvatar.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -23,25 +24,39 @@ export default class User extends React.Component<UserProps> {
     setTitle('门户');
   }
 
-  confirmEmail() {
+  confirmEmail(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    let element = event.target as HTMLButtonElement;
+    element.disabled = true;
     this.props.openPortal('提示', '此功能正在开发中，敬请期待', 'blue');
+    element.disabled = false;
   }
 
-  confirmPhoneNumber() {
+  confirmPhoneNumber(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    let element = event.target as HTMLButtonElement;
+    element.disabled = true;
     this.props.openPortal('提示', '此功能正在开发中，敬请期待', 'blue');
+    element.disabled = false;
+  }
+
+  changeAvatar(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    let element = event.target as HTMLButtonElement;
+    element.disabled = true;
+    this.props.openPortal('提示', '此功能正在开发中，敬请期待', 'blue');
+    element.disabled = false;
   }
 
   handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    let element = event.target as HTMLInputElement;
     let info: any = {};
-    switch (event.target.name) {
+    switch (element.name) {
       case 'name':
       case 'email':
       case 'phoneNumber':
-        info[event.target.name] = event.target.value;
+        info[element.name] = element.value;
         break;
       default:
         let otherInfo: OtherInfo[] = [];
-        otherInfo.push({ key: event.target.name, value: event.target.value, name: '' });
+        otherInfo.push({ key: element.name, value: element.value, name: '' });
         info.otherInfo = otherInfo;
         break;
     }
@@ -70,7 +85,7 @@ export default class User extends React.Component<UserProps> {
           <div>
             <Popup
               position='bottom center'
-              trigger={<Item.Image size='small' src={`/Account/UserAvatar?userId=${this.props.userInfo.userId}`} circular style={{ cursor: 'pointer' }} onClick={() => alert('hh')} />}
+              trigger={<Item.Image size='small' src={`/Account/UserAvatar?userId=${this.props.userInfo.userId}`} circular style={{ cursor: 'pointer' }} onClick={this.changeAvatar} />}
               content='点击更换头像'
             />
           </div>

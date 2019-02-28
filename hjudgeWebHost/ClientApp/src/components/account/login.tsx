@@ -17,9 +17,11 @@ export default class Login extends React.Component<LoginProps> {
     this.login = this.login.bind(this);
   }
 
-  login() {
+  login(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    let element = event.target as HTMLButtonElement;
     let form = document.getElementById('loginForm') as HTMLFormElement;
     if (form.reportValidity()) {
+      element.disabled = true;
       Post('/Account/Login', SerializeForm(form))
         .then(res => res.json())
         .then(data => {
@@ -32,9 +34,11 @@ export default class Login extends React.Component<LoginProps> {
           else {
             this.props.openPortal('错误', `${result.errorMessage} (${result.errorCode})`, 'red');
           }
+          element.disabled = false;
         })
         .catch(err => {
           this.props.openPortal('错误', '登录失败', 'red');
+          element.disabled = false;
           console.log(err);
         })
     }

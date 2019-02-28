@@ -17,9 +17,11 @@ export default class Register extends React.Component<RegisterProps> {
     this.register = this.register.bind(this);
   }
 
-  register() {
+  register(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    let element = event.target as HTMLButtonElement;
     let form = document.getElementById('registerForm') as HTMLFormElement;
     if (form.reportValidity()) {
+      element.disabled = true;
       Post('/Account/Register', SerializeForm(form))
         .then(res => res.json())
         .then(data => {
@@ -32,9 +34,11 @@ export default class Register extends React.Component<RegisterProps> {
           else {
             this.props.openPortal('错误', `${result.errorMessage} (${result.errorCode})`, 'red');
           }
+          element.disabled = false;
         })
         .catch(err => {
           this.props.openPortal('错误', '注册失败', 'red');
+          element.disabled = false;
           console.log(err);
         })
     }
