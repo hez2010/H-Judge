@@ -2,7 +2,7 @@
 {
     public class ProblemMatcher
     {
-        public string MatchPatterns { get; set; }
-        public string DisplayFormat { get; set; }
+        public string MatchPatterns { get; set; } = string.Empty;
+        public string DisplayFormat { get; set; } = string.Empty;
     }
 }

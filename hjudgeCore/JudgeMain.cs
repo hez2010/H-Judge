@@ -13,12 +13,12 @@ namespace hjudgeCore
 {
     public class JudgeMain
     {
-        private string _workingdir;
+        private string _workingdir = string.Empty;
 
         [DllImport("./hjudgeExec.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "#1", CharSet = CharSet.Ansi)]
         static extern bool Execute(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
 
-        public JudgeMain(string environments = null)
+        public JudgeMain(string environments = "")
         {
             if (!string.IsNullOrEmpty(environments))
             {
@@ -314,7 +314,7 @@ namespace hjudgeCore
 
                     if (judge.ExitCode != 0)
                     {
-                        return (ResultCode.Special_Judge_Error, 0, null);
+                        return (ResultCode.Special_Judge_Error, 0, string.Empty);
                     }
 
                     try
@@ -328,12 +328,12 @@ namespace hjudgeCore
                     }
                     catch
                     {
-                        return (ResultCode.Special_Judge_Error, 0, null);
+                        return (ResultCode.Special_Judge_Error, 0, string.Empty);
                     }
                 }
             }
 
-            StreamReader std = null, act = null;
+            StreamReader? std = null, act = null;
             var retryTimes = 0;
             do
             {
@@ -383,7 +383,7 @@ namespace hjudgeCore
 
             while (!act.EndOfStream || !std.EndOfStream)
             {
-                string actline = null, stdline = null;
+                string? actline = null, stdline = null;
                 if (!std.EndOfStream)
                 {
                     stdline = std.ReadLine();
@@ -512,7 +512,7 @@ namespace hjudgeCore
                         /* ignored */
                     }
 
-                    return sta.ExitCode == 0 ? log : null;
+                    return sta.ExitCode == 0 ? log : string.Empty;
                 }
                 catch (Exception ex)
                 {
@@ -607,7 +607,7 @@ namespace hjudgeCore
             }
         }
 
-        public static string MatchProblem(string input, ProblemMatcher matcher)
+        public static string MatchProblem(string input, ProblemMatcher? matcher)
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(matcher?.MatchPatterns))
             {

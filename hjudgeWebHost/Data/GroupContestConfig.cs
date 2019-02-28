@@ -6,7 +6,7 @@
         public int GroupId { get; set; }
         public int ContestId { get; set; }
 
-        public Contest Contest { get; set; }
-        public Group Group { get; set; }
+        public Contest? Contest { get; set; }
+        public Group? Group { get; set; }
     }
 }

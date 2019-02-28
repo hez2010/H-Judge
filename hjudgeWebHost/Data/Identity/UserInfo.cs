@@ -7,19 +7,19 @@ namespace hjudgeWebHost.Data.Identity
     public class OtherUserInfo
     {
         [ItemName("学号")]
-        public string SchoolNumber { get; set; }
+        public string SchoolNumber { get; set; } = string.Empty;
 
         [ItemName("学院")]
-        public string Institute { get; set; }
+        public string Institute { get; set; } = string.Empty;
 
         [ItemName("专业")]
-        public string Major { get; set; }
+        public string Major { get; set; } = string.Empty;
 
         [ItemName("年级")]
         public int Grade { get; set; }
 
         [ItemName("个性签名")]
-        public string Signature { get; set; }
+        public string Signature { get; set; } = string.Empty;
     }
 
     public class ItemNameAttribute : Attribute
@@ -29,7 +29,7 @@ namespace hjudgeWebHost.Data.Identity
             ItemName = v;
         }
 
-        public string ItemName { get; }
+        public string ItemName { get; } = string.Empty;
     }
 
     public class UserInfo : IdentityUser
@@ -50,7 +50,7 @@ namespace hjudgeWebHost.Data.Identity
         }
 
         [PersonalData]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public long Coins { get; set; }
         public long Experience { get; set; }
 
@@ -58,8 +58,8 @@ namespace hjudgeWebHost.Data.Identity
         /// 1 管理员 2 教师 3 助教 4 学生/选手 5 黑名单
         /// </summary>
         public int Privilege { get; set; }
-        public byte[] Avatar { get; set; }
-        public string OtherInfo { get; set; }
+        public byte[] Avatar { get; set; } = new byte[0];
+        public string OtherInfo { get; set; } = string.Empty;
         /// <summary>
         /// 上次登录时间
         /// </summary>

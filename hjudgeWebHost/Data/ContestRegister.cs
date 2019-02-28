@@ -6,9 +6,9 @@ namespace hjudgeWebHost.Data
     {
         public int Id { get; set; }
         public int ContestId { get; set; }
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         
-        public UserInfo UserInfo { get; set; }
-        public Contest Contest { get; set; }
+        public UserInfo? UserInfo { get; set; }
+        public Contest? Contest { get; set; }
     }
 }

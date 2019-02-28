@@ -15,7 +15,7 @@ namespace hjudgeCore
             return judgeOption;
         }
 
-        public override void UseComparingOption(Action<ComparingOption> option = null)
+        public override void UseComparingOption(Action<ComparingOption>? option = null)
         {
             var comparingOption = new ComparingOption();
             option?.Invoke(comparingOption);
@@ -27,7 +27,7 @@ namespace hjudgeCore
             judgeOption.ExtraFiles = extraFiles;
         }
 
-        public override void UseSpecialJudge(Action<SpecialJudgeOption> option = null)
+        public override void UseSpecialJudge(Action<SpecialJudgeOption>? option = null)
         {
             var specialJudgeOption = new SpecialJudgeOption();
             option?.Invoke(specialJudgeOption);

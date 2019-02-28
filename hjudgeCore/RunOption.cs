@@ -2,7 +2,7 @@
 {
     public sealed class RunOption
     {
-        public string Exec { get; set; }
-        public string Args { get; set; }
+        public string Exec { get; set; } = string.Empty;
+        public string Args { get; set; } = string.Empty;
     }
 }

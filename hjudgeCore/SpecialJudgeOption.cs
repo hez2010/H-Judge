@@ -2,15 +2,10 @@
 {
     public class SpecialJudgeOption
     {
-        public SpecialJudgeOption()
-        {
-            UseSourceFile = UseStdInputFile = UseStdOutputFile = UseOutputFile = true;
-        }
-
-        public string Exec { get; set; }
-        public bool UseSourceFile { get; set; }
-        public bool UseStdInputFile { get; set; }
-        public bool UseStdOutputFile { get; set; }
-        public bool UseOutputFile { get; set; }
+        public string Exec { get; set; } = string.Empty;
+        public bool UseSourceFile { get; set; } = true;
+        public bool UseStdInputFile { get; set; } = true;
+        public bool UseStdOutputFile { get; set; } = true;
+        public bool UseOutputFile { get; set; } = true;
     }
 }

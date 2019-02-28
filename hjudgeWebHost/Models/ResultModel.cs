@@ -17,6 +17,6 @@ namespace hjudgeWebHost.Models
                 ErrorMessage = value.GetDescription();
             }
         }
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
     }
 }

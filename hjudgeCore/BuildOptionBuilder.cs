@@ -6,14 +6,14 @@ namespace hjudgeCore
     {
         private readonly BuildOption buildOption = new BuildOption();
 
-        public void UseCompiler(Action<CompilerOption> option = null)
+        public void UseCompiler(Action<CompilerOption>? option = null)
         {
             var compilerOption = new CompilerOption();
             option?.Invoke(compilerOption);
             buildOption.CompilerOption = compilerOption;
         }
 
-        public void UseStaticCheck(Action<StaticCheckOption> option = null)
+        public void UseStaticCheck(Action<StaticCheckOption>? option = null)
         {
             var staticCheckOption = new StaticCheckOption();
             option?.Invoke(staticCheckOption);

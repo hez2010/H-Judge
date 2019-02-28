@@ -11,20 +11,15 @@ namespace hjudgeCore
 
     public sealed class JudgeOption
     {
-        public JudgeOption()
-        {
-            DataPoints = new List<DataPoint>();
-        }
-
-        public string GuidStr { get; set; }
-        public ComparingOption ComparingOption { get; set; }
-        public RunOption RunOption { get; set; }
-        public List<DataPoint> DataPoints { get; set; }
-        public AnswerPoint AnswerPoint { get; set; }
-        public List<string> ExtraFiles { get; set; }
-        public SpecialJudgeOption SpecialJudgeOption { get; set; }
-        public string InputFileName { get; set; }
-        public string OutputFileName { get; set; }
+        public string GuidStr { get; set; } = string.Empty;
+        public ComparingOption ComparingOption { get; set; } = new ComparingOption();
+        public RunOption RunOption { get; set; } = new RunOption();
+        public List<DataPoint> DataPoints { get; set; } = new List<DataPoint>();
+        public AnswerPoint AnswerPoint { get; set; } = new AnswerPoint();
+        public List<string> ExtraFiles { get; set; } = new List<string>();
+        public SpecialJudgeOption? SpecialJudgeOption { get; set; }
+        public string InputFileName { get; set; } = string.Empty;
+        public string OutputFileName { get; set; } = string.Empty;
         public bool UseStdIO { get; set; } = true;
         public StdErrBehavior StandardErrorBehavior { get; set; } = StdErrBehavior.Ignore;
         public int ActiveProcessLimit { get; set; } = 1;

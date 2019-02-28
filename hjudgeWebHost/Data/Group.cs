@@ -17,14 +17,14 @@ namespace hjudgeWebHost.Data
         }
 
         public int Id { get; set; }
-        public string UserId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public DateTime CreationTime { get; set; }
         public bool IsPrivate { get; set; }
-        public string AdditionalInfo { get; set; }
+        public string AdditionalInfo { get; set; } = string.Empty;
 
-        public UserInfo UserInfo { get; set; }
+        public UserInfo? UserInfo { get; set; }
 
         public ICollection<GroupContestConfig> GroupContestConfig { get; set; }
         public ICollection<GroupJoin> GroupJoin { get; set; }

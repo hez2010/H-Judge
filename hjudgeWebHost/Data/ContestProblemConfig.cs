@@ -8,7 +8,7 @@
         public int AcceptCount { get; set; }
         public int SubmissionCount { get; set; }
 
-        public Contest Contest { get; set; }
-        public Problem Problem { get; set; }
+        public Contest? Contest { get; set; }
+        public Problem? Problem { get; set; }
     }
 }

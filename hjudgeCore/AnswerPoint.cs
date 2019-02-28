@@ -4,13 +4,8 @@ namespace hjudgeCore
 {
     public class AnswerPoint : ICloneable
     {
-        public AnswerPoint()
-        {
-            Score = 0;
-        }
-
-        public string AnswerFile { get; set; }
-        public float Score { get; set; }
+        public string AnswerFile { get; set; } = string.Empty;
+        public float Score { get; set; } = 0;
 
         public object Clone()
         {

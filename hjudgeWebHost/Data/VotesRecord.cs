@@ -9,15 +9,15 @@ namespace hjudgeWebHost.Data
         public int? ProblemId { get; set; }
         public int? ContestId { get; set; }
         public int? GroupId { get; set; }
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public DateTime VoteTime { get; set; }
         public int VoteType { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
 
-        public UserInfo UserInfo { get; set; }
-        public Problem Problem { get; set; }
-        public Contest Contest { get; set; }
-        public Group Group { get; set; }
+        public UserInfo? UserInfo { get; set; }
+        public Problem? Problem { get; set; }
+        public Contest? Contest { get; set; }
+        public Group? Group { get; set; }
     }
 }
