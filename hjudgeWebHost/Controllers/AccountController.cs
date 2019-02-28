@@ -168,9 +168,9 @@ namespace hjudgeWebHost.Controllers
             var ret = new ResultModel();
             var user = await UserManager.GetUserAsync(User);
 
-            if (model.Name != null) user.Name = model.Name;
+            if (!string.IsNullOrEmpty(model.Name)) user.Name = model.Name;
 
-            if (model.Email != null && user.Email != model.Email)
+            if (!string.IsNullOrEmpty(model.Email) && user.Email != model.Email)
             {
                 var result = await UserManager.SetEmailAsync(user, model.Email);
                 if (!result.Succeeded)

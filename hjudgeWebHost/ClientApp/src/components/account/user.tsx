@@ -67,6 +67,7 @@ export default class User extends React.Component<UserProps> {
         let result = data as ResultModel;
         if (result.succeeded) {
           this.props.openPortal('提示', '信息更新成功', 'green');
+          this.props.refreshUserInfo();
         }
         else {
           this.props.openPortal('错误', `信息更新失败\n${result.errorMessage} (${result.errorCode})`, 'red');
