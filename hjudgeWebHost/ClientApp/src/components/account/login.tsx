@@ -62,7 +62,7 @@ export default class Login extends React.Component<LoginProps> {
               <Form.Field>
                 <Checkbox name='rememberMe' label='记住登录状态'></Checkbox>
               </Form.Field>
-              <Button onClick={this.login} color='blue'>登录</Button>
+              <Button onClick={this.login} primary>登录</Button>
             </Form>
           </Modal.Content>
         </Modal>

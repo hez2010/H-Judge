@@ -72,7 +72,7 @@ export default class Register extends React.Component<RegisterProps> {
                 <Input id='confirmPassword' name='confirmPassword' error required type='password'></Input>
               </Form.Field>
               
-              <Button onClick={this.register} color='blue'>注册</Button>
+              <Button onClick={this.register} primary>注册</Button>
             </Form>
           </Modal.Content>
         </Modal>

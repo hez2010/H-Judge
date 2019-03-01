@@ -9,6 +9,7 @@ import { UserInfo } from './interfaces/userInfo'
 import { Get } from "./utils/requestHelper";
 import User from "./components/account/user";
 import { TransitionablePortal, Header, Segment, Divider, SemanticCOLORS, Icon } from "semantic-ui-react";
+import Problem from "./components/problem/problem";
 
 interface PortalState {
   open: boolean,
@@ -25,7 +26,7 @@ interface AppState {
 export default class App extends React.Component<{}, AppState> {
   constructor(props: {}) {
     super(props);
-    
+
     this.state = {
       portal: {
         open: false,
@@ -101,44 +102,44 @@ export default class App extends React.Component<{}, AppState> {
   render() {
     return (
       <>
-        <Layout openPortal={this.openPortal} userInfo={this.state.userInfo} refreshUserInfo={this.refreshUserInfo}>
+        <Layout {...this.props} openPortal={this.openPortal} userInfo={this.state.userInfo} refreshUserInfo={this.refreshUserInfo}>
           <Switch>
             <Route
               exact
               path='/'
-              render={(props) => <Home {...props} userInfo={this.state.userInfo} />}>
+              render={props => <Home {...props} userInfo={this.state.userInfo} />}>
             </Route>
             <Route
-              path='/problem'
-              render={() => { return <p>problem</p>; }}>
+              path='/problem/:page?'
+              render={props => <Problem {...props} openPortal={this.openPortal}></Problem>}>
             </Route>
             <Route
               path='/contest'
-              render={() => { return <p>contest</p>; }}>
+              render={props => <p {...props}>contest</p>}>
             </Route>
             <Route
               path='/group'
-              render={() => { return <p>group</p>; }}>
+              render={props => <p {...props}>group</p>}>
             </Route>
             <Route
               path='/message'
-              render={() => { return <p>message</p>; }}>
+              render={props => <p {...props}>message</p>}>
             </Route>
             <Route
               path='/status'
-              render={() => { return <p>status</p>; }}>
+              render={props => <p {...props}>status</p>}>
             </Route>
             <Route
               path='/rank'
-              render={() => { return <p>rank</p>; }}>
+              render={props => <p {...props}>rank</p>}>
             </Route>
             <Route
               path='/discussion'
-              render={() => { return <p>discussion</p>; }}>
+              render={props => <p {...props}>discussion</p>}>
             </Route>
             <Route
               path='/article'
-              render={() => { return <p>article</p>; }}>
+              render={props => <p {...props}>article</p>}>
             </Route>
             <Route
               exact
@@ -147,7 +148,7 @@ export default class App extends React.Component<{}, AppState> {
             </Route>
             <Route
               path='/user'
-              render={() => <User userInfo={this.state.userInfo} openPortal={this.openPortal} refreshUserInfo={this.refreshUserInfo} />}>
+              render={props => <User {...props} userInfo={this.state.userInfo} openPortal={this.openPortal} refreshUserInfo={this.refreshUserInfo} />}>
             </Route>
             <Route
               component={NotFound}>

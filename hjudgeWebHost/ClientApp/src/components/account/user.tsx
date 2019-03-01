@@ -116,11 +116,11 @@ export default class User extends React.Component<UserProps> {
                         </Table.Row>
                         <Table.Row>
                           <Table.Cell textAlign='center' width={4}>邮箱</Table.Cell>
-                          <Table.Cell><Input name='email' onBlur={this.handleChange} fluid defaultValue={this.props.userInfo.email} type='email' action={this.props.userInfo.emailConfirmed ? null : { color: 'blue', content: '验证', onClick: this.confirmEmail }} /></Table.Cell>
+                          <Table.Cell><Input name='email' onBlur={this.handleChange} fluid defaultValue={this.props.userInfo.email} type='email' action={this.props.userInfo.emailConfirmed ? null : { primary: true, content: '验证', onClick: this.confirmEmail }} /></Table.Cell>
                         </Table.Row>
                         <Table.Row>
                           <Table.Cell textAlign='center' width={4}>手机</Table.Cell>
-                          <Table.Cell><Input name='phoneNumber' onBlur={this.handleChange} fluid defaultValue={this.props.userInfo.phoneNumber} action={this.props.userInfo.phoneNumberConfirmed ? null : { color: 'blue', content: '验证', onClick: this.confirmPhoneNumber }} /></Table.Cell>
+                          <Table.Cell><Input name='phoneNumber' onBlur={this.handleChange} fluid defaultValue={this.props.userInfo.phoneNumber} action={this.props.userInfo.phoneNumberConfirmed ? null : { primary: true, content: '验证', onClick: this.confirmPhoneNumber }} /></Table.Cell>
                         </Table.Row>
                       </Table.Body>
                     </Table>
