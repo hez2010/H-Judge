@@ -1,7 +1,6 @@
 trigger:
 - master
 - develop
-
 steps:
 - script: |
     build.bat
