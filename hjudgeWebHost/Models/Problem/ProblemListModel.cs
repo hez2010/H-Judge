@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace hjudgeWebHost.Models
+namespace hjudgeWebHost.Models.Problem
 {
     public class ProblemListModel : ResultModel
     {
@@ -13,6 +13,8 @@ namespace hjudgeWebHost.Models
             public int Status { get; set; }
             public int AcceptCount { get; set; }
             public int SubmissionCount { get; set; }
+            public int Upvote { get; set; }
+            public int Downvote { get; set; }
         }
         public List<ProblemListItemModel> Problems { get; set; } = new List<ProblemListItemModel>();
         public int TotalCount { get; set; }

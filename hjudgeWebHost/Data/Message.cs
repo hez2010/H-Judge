@@ -27,8 +27,10 @@ namespace hjudgeWebHost.Data
         public int Status { get; set; }
         public int ReplyId { get; set; }
 
-        public UserInfo? UserInfo { get; set; }
-        public MessageContent? MessageContent { get; set; }
+#nullable disable
+        public UserInfo UserInfo { get; set; }
+        public MessageContent MessageContent { get; set; }
+#nullable enable
         public ICollection<MessageContent> MessageContents { get; set; }
     }
 }

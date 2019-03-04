@@ -109,7 +109,7 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
             </Menu.Item>
           </Container>
         </Menu>
-        <Container style={{ marginTop: '7em', marginBottom: '5em' }}>
+        <Container style={{ paddingTop: '7em', paddingBottom: '5em' }}>
           {this.props.children}
         </Container>
         <Menu fixed='bottom' inverted color='blue' borderless>

@@ -10,7 +10,9 @@ namespace hjudgeWebHost.Data
         public int GroupId { get; set; }
         public DateTime JoinTime { get; set; }
 
-        public UserInfo? UserInfo { get; set; }
-        public Group? Group { get; set; }
+#nullable disable
+        public UserInfo UserInfo { get; set; }
+        public Group Group { get; set; }
+#nullable enable
     }
 }

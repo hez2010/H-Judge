@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
 import { match } from 'react-router';
-import { Button, Pagination, PaginationProps, Table, Form, Label, Input, Select, Placeholder, SemanticCOLORS } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Label, Input, Select, SemanticCOLORS } from 'semantic-ui-react';
 import { History, Location } from 'history';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
@@ -11,7 +11,9 @@ interface ProblemProps {
   match: match<any>,
   history: History<any>,
   location: Location<any>,
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void)
+  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void),
+  contestId?: number,
+  groupId?: number
 }
 
 interface ProblemListItemModel {
@@ -51,7 +53,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   }
 
   fetchProblemList(requireTotalCount: boolean, page: number) {
-    if (page.toString() !== this.props.match.params.page)
+    if (!this.props.contestId && page.toString() !== this.props.match.params.page)
       this.props.history.replace(`/problem/${page}`);
     let form = document.getElementById('filterForm') as HTMLFormElement;
     let req: any = {};
@@ -61,6 +63,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
     req.start = (page - 1) * 10;
     req.count = 10;
     req.requireTotalCount = requireTotalCount;
+    req.contestId = this.props.contestId;
+    req.groupId = this.props.groupId;
 
     Post('/Problem/ProblemList', req)
       .then(res => res.json())

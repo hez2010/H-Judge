@@ -1,4 +1,4 @@
-using hjudgeWebHost.Data;
+﻿using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using Microsoft.AspNetCore.Builder;
@@ -50,6 +50,13 @@ namespace hjudgeWebHost
 
             services.AddEntityFrameworkSqlServer();
 
+            services.AddAuthentication(o => 
+            {
+                o.DefaultScheme = IdentityConstants.ApplicationScheme;
+                o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            })
+            .AddIdentityCookies();
+
             services.AddIdentityCore<UserInfo>(options =>
             {
                 options.Stores.MaxLengthForKeys = 128;
@@ -62,15 +69,6 @@ namespace hjudgeWebHost
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            })
-            .AddIdentityCookies();
-
-            services.AddTransient<EmailSender>();
 
             services.AddMvc(options =>
             {
@@ -103,7 +101,6 @@ namespace hjudgeWebHost
 
             app.UseResponseCompression();
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 

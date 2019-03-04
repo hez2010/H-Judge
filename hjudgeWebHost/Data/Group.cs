@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data.Identity;
+﻿#nullable disable
+using hjudgeWebHost.Data.Identity;
 using System;
 using System.Collections.Generic;
 
@@ -24,7 +25,7 @@ namespace hjudgeWebHost.Data
         public bool IsPrivate { get; set; }
         public string AdditionalInfo { get; set; } = string.Empty;
 
-        public UserInfo? UserInfo { get; set; }
+        public UserInfo UserInfo { get; set; }
 
         public ICollection<GroupContestConfig> GroupContestConfig { get; set; }
         public ICollection<GroupJoin> GroupJoin { get; set; }

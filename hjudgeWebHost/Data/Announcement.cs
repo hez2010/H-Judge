@@ -13,7 +13,9 @@ namespace hjudgeWebHost.Data
         public bool Hidden { get; set; }
         public int? GroupId { get; set; }
 
-        public UserInfo? UserInfo { get; set; }
-        public Group? Group { get; set; }
+#nullable disable
+        public UserInfo UserInfo { get; set; }
+        public Group Group { get; set; }
+#nullable enable
     }
 }

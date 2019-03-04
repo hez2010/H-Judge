@@ -23,9 +23,11 @@ namespace hjudgeWebHost.Data
         public bool IsPublic { get; set; }
         public int JudgeCount { get; set; }
 
-        public UserInfo? UserInfo { get; set; }
-        public Contest? Contest { get; set; }
-        public Group? Group { get; set; }
-        public Problem? Problem { get; set; }
+#nullable disable
+        public UserInfo UserInfo { get; set; }
+        public Contest Contest { get; set; }
+        public Group Group { get; set; }
+        public Problem Problem { get; set; }
+#nullable enable
     }
 }

@@ -29,8 +29,9 @@ namespace hjudgeWebHost.Data
         public string AdditionalInfo { get; set; } = string.Empty;
         public int Upvote { get; set; }
         public int Downvote { get; set; }
-
-        public UserInfo? UserInfo { get; set; }
+#nullable disable
+        public UserInfo UserInfo { get; set; }
+#nullable enable
 
         public ICollection<ContestProblemConfig> ContestProblemConfig { get; set; }
         public ICollection<ContestRegister> ContestRegister { get; set; }
