@@ -4,7 +4,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace hjudgeWebHost.Middlewares
+namespace hjudgeWebHost.Services
 {
     public enum EmailType
     {

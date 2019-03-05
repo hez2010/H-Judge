@@ -234,11 +234,6 @@ namespace hjudgeWebHost.Data
                     .HasForeignKey(d => d.ContestId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(d => d.Group)
-                    .WithMany(p => p.VotesRecord)
-                    .HasForeignKey(d => d.GroupId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
                 entity.HasOne(d => d.UserInfo)
                     .WithMany(p => p.VotesRecord)
                     .HasForeignKey(d => d.UserId)

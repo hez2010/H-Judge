@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace hjudgeWebHost.Models.Contest
+{
+    public class ContestListModel : ResultModel
+    {
+        public class ContestListItemModel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public DateTime StartTime { get; set; }
+            public DateTime EndTime { get; set; }
+            public bool Hidden { get; set; }
+            public int Status { get; set; }
+            public int Upvote { get; set; }
+            public int Downvote { get; set; }
+        }
+        public List<ContestListItemModel> Contests { get; set; } = new List<ContestListItemModel>();
+        public int TotalCount { get; set; }
+    }
+}

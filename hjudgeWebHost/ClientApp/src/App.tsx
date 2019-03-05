@@ -4,12 +4,13 @@ import Layout from './components/layout/layout';
 import 'semantic-ui-css/semantic.min.css';
 import NotFound from './components/notfound/notfound';
 import About from './components/about/about';
-import Home, { PropsInterface } from './components/home/home';
+import Home from './components/home/home';
 import { UserInfo } from './interfaces/userInfo'
 import { Get } from "./utils/requestHelper";
 import User from "./components/account/user";
 import { TransitionablePortal, Header, Segment, Divider, SemanticCOLORS, Icon } from "semantic-ui-react";
 import Problem from "./components/problem/problem";
+import Contest from "./components/contest/contest";
 
 interface PortalState {
   open: boolean,
@@ -114,8 +115,8 @@ export default class App extends React.Component<{}, AppState> {
               render={props => <Problem {...props} openPortal={this.openPortal}></Problem>}>
             </Route>
             <Route
-              path='/contest'
-              render={props => <p {...props}>contest</p>}>
+              path='/contest/:page?'
+              render={props => <Contest {...props} openPortal={this.openPortal}></Contest>}>
             </Route>
             <Route
               path='/group'

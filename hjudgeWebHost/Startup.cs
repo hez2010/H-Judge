@@ -1,7 +1,9 @@
 ﻿using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
+using hjudgeWebHost.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -10,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +44,11 @@ namespace hjudgeWebHost
             });
 
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
-            services.AddScoped<AntiForgeryFilter>();
+
+            services.AddTransient<AntiForgeryFilter>();
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IProblemService, ProblemService>();
+            services.AddTransient<IContestService, ContestService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -50,7 +57,7 @@ namespace hjudgeWebHost
 
             services.AddEntityFrameworkSqlServer();
 
-            services.AddAuthentication(o => 
+            services.AddAuthentication(o =>
             {
                 o.DefaultScheme = IdentityConstants.ApplicationScheme;
                 o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
@@ -97,7 +104,12 @@ namespace hjudgeWebHost
                 app.UseHsts();
             }
 
-            app.UseStatusCodePages("application/json", "{{succeeded: false, errorCode: {0}, errorMessage: '请求失败'}}");
+            app.UseStatusCodePages(new Func<StatusCodeContext, Task>(async context =>
+            {
+                context.HttpContext.Response.ContentType = "application/json";
+                await context.HttpContext.Response.Body.WriteAsync(
+                    Encoding.UTF8.GetBytes($"{{succeeded: false, errorCode: {context.HttpContext.Response.StatusCode}, errorMessage: '请求失败'}}"));
+            }));
 
             app.UseResponseCompression();
 
@@ -111,7 +123,7 @@ namespace hjudgeWebHost
                 routes.MapRoute(
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");
-                    
+
                 routes.MapSpaFallbackRoute(
                     name: "spa-fallback",
                     defaults: new { controller = "Home", action = "Index" });

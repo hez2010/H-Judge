@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using hjudgeCore;
 using hjudgeWebHost.Models.Problem;
 using Newtonsoft.Json.Linq;
+using hjudgeWebHost.Services;
 
 namespace hjudgeWebHost.Controllers
 {
@@ -19,10 +20,12 @@ namespace hjudgeWebHost.Controllers
     {
         private readonly DbContextOptions<ApplicationDbContext> DbOptions;
         private readonly UserManager<UserInfo> UserManager;
-        public ProblemController(DbContextOptions<ApplicationDbContext> dbOptions, UserManager<UserInfo> userManager)
+        private readonly IProblemService ProblemService;
+        public ProblemController(DbContextOptions<ApplicationDbContext> dbOptions, UserManager<UserInfo> userManager, IProblemService problemService)
         {
             DbOptions = dbOptions;
             UserManager = userManager;
+            ProblemService = problemService;
         }
         public class ProblemListQueryModel
         {
@@ -45,17 +48,40 @@ namespace hjudgeWebHost.Controllers
         {
             var user = await UserManager.GetUserAsync(User);
             using var db = new ApplicationDbContext(DbOptions);
-            var ret = new ProblemListModel();
-            IQueryable<Problem> problems = db.Problem;
-            IQueryable<ContestProblemConfig> contestConfigs = db.ContestProblemConfig;
+
+            var (_, problems) = model switch
+            {
+                { ContestId: 0, GroupId: 0 } => ProblemService.QueryProblem(db),
+                { GroupId: 0 } => ProblemService.QueryProblem(model.ContestId, db),
+                { } => ProblemService.QueryProblem(model.ContestId, model.GroupId, db)
+            };
+
+            var ret = new ProblemListModel
+            {
+                ErrorCode = ErrorDescription.ResourceNotFound
+            };
+
+            var contest = await db.Contest.FirstOrDefaultAsync(i => i.Id == model.ContestId);
+            if (model.ContestId != 0 && contest == null) return ret;
+
+            var group = await db.Group.FirstOrDefaultAsync(i => i.Id == model.GroupId);
             if (model.GroupId != 0)
             {
-                var groups = db.GroupContestConfig.Where(i => i.GroupId == model.GroupId);
-                contestConfigs = contestConfigs.Where(i => groups.Any(j => j.ContestId == i.ContestId));
+                if (group == null) return ret;
+                if (!db.GroupContestConfig.Any(i => i.GroupId == model.GroupId && i.ContestId == model.ContestId)) return ret;
             }
-            if (model.ContestId != 0)
+
+            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
-                problems = contestConfigs.Include(i => i.Problem).Where(i => i.ContestId == model.ContestId).Select(i => i.Problem);
+                if (model.GroupId != 0 && group.IsPrivate)
+                {
+                    if (user == null ||
+                        !db.GroupJoin.Any(i => i.GroupId == model.GroupId && i.UserId == user.Id))
+                        return ret;
+                }
+
+                if (model.ContestId == 0) problems = problems.Where(i => !i.Hidden);
+                else if (contest.Hidden) return ret;
             }
 
             if (model.Filter.Id != 0)
@@ -70,7 +96,6 @@ namespace hjudgeWebHost.Controllers
             IQueryable<Judge> judges = db.Judge;
             judges = model.ContestId != 0 ? judges.Where(i => i.ContestId == model.ContestId) : judges.Where(i => i.ContestId == null);
             judges = model.GroupId != 0 ? judges.Where(i => i.GroupId == model.GroupId) : judges.Where(i => i.GroupId == null);
-
 
             if (model.Filter.Status.Length < 3)
             {
@@ -91,10 +116,7 @@ namespace hjudgeWebHost.Controllers
                     }
                 }
             }
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege ?? 0))
-            {
-                problems = problems.Where(i => !i.Hidden);
-            }
+
             ret.Problems = await problems.OrderBy(i => i.Id).Skip(model.Start).Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
             {
                 Id = i.Id,
@@ -102,14 +124,17 @@ namespace hjudgeWebHost.Controllers
                 Level = i.Level,
                 AcceptCount = i.AcceptCount,
                 SubmissionCount = i.SubmissionCount,
+                Hidden = i.Hidden,
                 Upvote = i.Upvote,
                 Downvote = i.Downvote
             }).ToListAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await problems.CountAsync();
+
             if (model.ContestId != 0)
             {
                 foreach (var problem in ret.Problems)
                 {
-                    var data = await contestConfigs.Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id).Select(i => new { i.AcceptCount, i.SubmissionCount }).FirstOrDefaultAsync();
+                    var data = await db.ContestProblemConfig.Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id).Select(i => new { i.AcceptCount, i.SubmissionCount }).FirstOrDefaultAsync();
                     if (data != null)
                     {
                         problem.AcceptCount = data.AcceptCount;
@@ -117,8 +142,7 @@ namespace hjudgeWebHost.Controllers
                     }
                 }
             }
-            if (model.RequireTotalCount)
-                ret.TotalCount = await problems.CountAsync();
+
             if (user != null)
             {
                 foreach (var problem in ret.Problems)
@@ -133,6 +157,8 @@ namespace hjudgeWebHost.Controllers
                     }
                 }
             }
+
+            ret.Succeeded = true;
             return ret;
         }
 
