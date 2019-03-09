@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\hjudgeCore\hjudgeCore.csproj" />
+    <ProjectReference Include="..\..\hjudgeCore\src\hjudgeCore.csproj" />
   </ItemGroup>
 
 </Project>
