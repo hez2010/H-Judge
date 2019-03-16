@@ -68,6 +68,7 @@ namespace hjudgeWebHost.Controllers
             public string Email { get; set; } = string.Empty;
         }
 
+        [HttpPost]
         public async Task<ResultModel> Register([FromBody]RegisterModel model)
         {
             var ret = new ResultModel();

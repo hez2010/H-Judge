@@ -96,7 +96,9 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   }
 
   gotoDetails(index: number) {
-
+    if (!this.props.contestId) this.props.history.push(`/details/problem/${index}`);
+    else if (!this.props.groupId) this.props.history.push(`/details/problem/${this.props.contestId}/${index}`);
+    else this.props.history.push(`/details/problem/${this.props.groupId}/${this.props.contestId}/${index}`);
   }
 
   renderProblemList() {
@@ -115,7 +117,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         <Table.Body>
           {
             this.state.problemList.problems.map((v, i) =>
-              <Table.Row key={i} warning={v.hidden} onClick={() => this.gotoDetails(i)}>
+              <Table.Row key={i} warning={v.hidden} onClick={() => this.gotoDetails(v.id)} style={{ cursor: 'pointer' }}>
                 <Table.Cell>{v.id}</Table.Cell>
                 <Table.Cell>{v.name}</Table.Cell>
                 <Table.Cell>{v.level}</Table.Cell>

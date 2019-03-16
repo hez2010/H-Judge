@@ -97,7 +97,8 @@ export default class Contest extends React.Component<ContestProps, ContestState>
   }
 
   gotoDetails(index: number) {
-
+    if (!this.props.groupId) this.props.history.push(`/details/contest/${index}`);
+    else this.props.history.push(`/details/contest/${this.props.groupId}/${index}`);
   }
 
   renderContestList() {
@@ -115,7 +116,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
         <Table.Body>
           {
             this.state.contestList.contests.map((v, i) =>
-              <Table.Row key={i} warning={v.hidden} onClick={() => this.gotoDetails(i)}>
+              <Table.Row key={i} warning={v.hidden} className={v.status === 1 ? 'success' : ''} onClick={() => this.gotoDetails(v.id)} style={{ cursor: 'pointer' }}>
                 <Table.Cell>{v.id}</Table.Cell>
                 <Table.Cell>{v.name}</Table.Cell>
                 <Table.Cell>{v.status === 0 ? '未开始' : v.status === 1 ? '进行中' : '已结束'}</Table.Cell>
