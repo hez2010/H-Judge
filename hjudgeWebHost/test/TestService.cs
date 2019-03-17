@@ -1,3 +1,4 @@
+using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Services;
@@ -29,12 +30,12 @@ namespace hjudgeWebHostTest
         {
             var services = new ServiceCollection();
 
-            services.AddDbContext<TestDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlite("Data Source=test.db");
+                options.UseInMemoryDatabase("test");
             }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
 
-            services.AddEntityFrameworkSqlite();
+            services.AddEntityFrameworkInMemoryDatabase();
 
             services.AddAuthentication(o =>
             {
@@ -56,7 +57,7 @@ namespace hjudgeWebHostTest
             })
             .AddSignInManager<SignInManager<UserInfo>>()
             .AddUserManager<UserManager<UserInfo>>()
-            .AddEntityFrameworkStores<TestDbContext>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
             services.AddMvc().AddNewtonsoftJson();
