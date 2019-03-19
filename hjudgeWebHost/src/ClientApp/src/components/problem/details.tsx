@@ -6,7 +6,11 @@ import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { setTitle } from '../../utils/titleHelper';
 import { NavLink } from 'react-router-dom';
-import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
+import 'katex/dist/katex.min.css';
+import md from 'markdown-it';
+import mk from '../../extensions/markdown-it-math';
+import hljs from '../../extensions/markdown-it-code';
 
 interface ProblemDetailsProps {
   match: match<any>,
@@ -126,8 +130,11 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
+    if (!this.state.problem.succeeded) return placeHolder;
 
-    return !this.state.problem.succeeded ? placeHolder : <>
+    let markdown = new md({ html: true }).use(mk, { throwOnError: false }).use(hljs);
+
+    return <>
       <Item>
         <Item.Content>
           <Item.Header as='h2'>
@@ -138,7 +145,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           </Item.Header>
 
           <Item.Description>
-            <div dangerouslySetInnerHTML={{ __html: this.state.problem.description }}></div>
+            <div dangerouslySetInnerHTML={{ __html: markdown.render(this.state.problem.description) }}></div>
           </Item.Description>
           <Item.Extra>
 

@@ -10,6 +10,7 @@ using hjudgeCore;
 using hjudgeWebHost.Models.Problem;
 using hjudgeWebHost.Services;
 using System.Text;
+using hjudgeWebHost.Configurations;
 
 namespace hjudgeWebHost.Controllers
 {
@@ -160,11 +161,6 @@ namespace hjudgeWebHost.Controllers
             return ret;
         }
 
-        internal class Config
-        {
-            public string[]? Languages { get; set; }
-        }
-
         public class ProblemQueryModel
         {
             public int ProblemId { get; set; }
@@ -253,8 +249,8 @@ namespace hjudgeWebHost.Controllers
             ret.Upvote = problem.Upvote;
             ret.Downvote = problem.Downvote;
 
-            var config = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<Config>(Encoding.UTF8.GetBytes(problem.Config).AsSpan());
-            if (config.Languages != null)
+            var config = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<ProblemConfig>(Encoding.UTF8.GetBytes(problem.Config).AsSpan());
+            if (config?.Languages != null)
             {
                 ret.Languages = config.Languages.ToString().Split(';', StringSplitOptions.RemoveEmptyEntries);
             }
