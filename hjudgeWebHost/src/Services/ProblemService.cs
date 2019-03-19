@@ -1,48 +1,90 @@
 ﻿using hjudgeWebHost.Data;
+using hjudgeWebHost.Data.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Services
 {
     public interface IProblemService
     {
-        (ApplicationDbContext DbContext, IQueryable<Problem> Problems) QueryProblem(ApplicationDbContext? dbContext = null);
-        (ApplicationDbContext DbContext, IQueryable<Problem> Problems) QueryProblem(int contestId, ApplicationDbContext? dbContext = null);
-        (ApplicationDbContext DbContext, IQueryable<Problem> Problems) QueryProblem(int contestId, int groupId, ApplicationDbContext? dbContext = null);
+        Task<IQueryable<Problem>> QueryProblemAsync(string? userId, ApplicationDbContext dbContext);
+        Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, ApplicationDbContext dbContext);
+        Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, int groupId, ApplicationDbContext dbContext);
     }
     public class ProblemService : IProblemService
     {
-        private readonly DbContextOptions<ApplicationDbContext> DbOptions;
-        public ProblemService(DbContextOptions<ApplicationDbContext> dbOptions)
+        private readonly UserManager<UserInfo> userManager;
+
+        public ProblemService(UserManager<UserInfo> userManager)
         {
-            DbOptions = dbOptions;
+            this.userManager = userManager;
         }
 
-        public (ApplicationDbContext DbContext, IQueryable<Problem> Problems) QueryProblem(ApplicationDbContext? dbContext = null)
+        public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, ApplicationDbContext dbContext)
         {
-            var db = dbContext ?? new ApplicationDbContext(DbOptions);
-            return (db, db.Problem);
+            var user = await userManager.FindByIdAsync(userId);
+
+            IQueryable<Problem> problems = dbContext.Problem;
+
+            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            {
+                problems = problems.Where(i => !i.Hidden);
+            }
+
+            return problems;
         }
 
-        public (ApplicationDbContext DbContext, IQueryable<Problem> Problems) QueryProblem(int contestId, ApplicationDbContext? dbContext = null)
+        public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, ApplicationDbContext dbContext)
         {
-            var db = dbContext ?? new ApplicationDbContext(DbOptions);
-            return (db, db.Problem
-                    .Where(i => db.ContestProblemConfig
-                        .Any(j => j.ContestId == contestId &&
-                            i.Id == j.ProblemId)));
+            var user = await userManager.FindByIdAsync(userId);
+
+            var contest = await dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId);
+            if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
+
+            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            {
+                if (contest.Hidden) throw new InvalidOperationException("") { HResult = (int)ErrorDescription.NoEnoughPrivilege };
+            }
+
+            IQueryable<Problem> problems = dbContext.ContestProblemConfig
+                                                .Include(i => i.Problem)
+                                                .Where(i => i.ContestId == contestId)
+                                                .Select(i => i.Problem);
+
+            return problems;
         }
 
-        public (ApplicationDbContext DbContext, IQueryable<Problem> Problems) QueryProblem(int contestId, int groupId, ApplicationDbContext? dbContext = null)
+        public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, int groupId, ApplicationDbContext dbContext)
         {
-            var db = dbContext ?? new ApplicationDbContext(DbOptions);
-            return (db, db.Problem
-                    .Where(i => db.ContestProblemConfig
-                        .Any(j => j.ContestId == contestId &&
-                            i.Id == j.ProblemId &&
-                            db.GroupContestConfig
-                                .Any(k => k.GroupId == groupId &&
-                                    k.ContestId == j.ContestId))));
+            var user = await userManager.FindByIdAsync(userId);
+
+            var contest = await dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId);
+            if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
+
+            var group = await dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId);
+            if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
+
+            if (!dbContext.GroupContestConfig.Any(i => i.GroupId == groupId && i.ContestId == contestId))
+                throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
+
+            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            {
+                if (contest.Hidden) throw new InvalidOperationException("") { HResult = (int)ErrorDescription.NoEnoughPrivilege };
+
+                // user was not in this private group
+                if (group.IsPrivate && !dbContext.GroupJoin.Any(i => i.GroupId == groupId && i.UserId == userId))
+                    throw new InvalidOperationException("未参加此小组") { HResult = (int)ErrorDescription.AuthenticationFailed };
+            }
+
+            IQueryable<Problem> problems = dbContext.ContestProblemConfig
+                                                .Include(i => i.Problem)
+                                                .Where(i => i.ContestId == contestId)
+                                                .Select(i => i.Problem);
+
+            return problems;
         }
     }
 }

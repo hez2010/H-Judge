@@ -11,6 +11,7 @@ import User from "./components/account/user";
 import { TransitionablePortal, Header, Segment, Divider, SemanticCOLORS, Icon } from "semantic-ui-react";
 import Problem from "./components/problem/problem";
 import Contest from "./components/contest/contest";
+import ProblemDetails from "./components/problem/details";
 
 interface PortalState {
   open: boolean,
@@ -113,6 +114,10 @@ export default class App extends React.Component<{}, AppState> {
             <Route
               path='/problem/:page?'
               render={props => <Problem {...props} openPortal={this.openPortal}></Problem>}>
+            </Route>
+            <Route
+              path='/details/problem/:problemId/:contestId?/:groupId?'
+              render={props => <ProblemDetails {...props} openPortal={this.openPortal}></ProblemDetails>}>
             </Route>
             <Route
               path='/contest/:page?'

@@ -2,28 +2,44 @@ using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SpanJson.AspNetCore.Formatter;
 using System;
 
 namespace hjudgeWebHostTest
 {
-    public class MyHttpContextAccessor : IHttpContextAccessor
-    {
-        public MyHttpContextAccessor()
-        {
-            HttpContext = new DefaultHttpContext();
-        }
-        public HttpContext HttpContext { get; set; }
-    }
     public class TestService
     {
         public IServiceProvider Provider { get; set; }
+        public RequestDelegate RequestDelegate { get; set; }
         public TestService()
         {
             Provider = InitService();
+            RequestDelegate = InitApp(Provider);
+        }
+
+        private RequestDelegate InitApp(IServiceProvider provider)
+        {
+            var app = new ApplicationBuilder(provider);
+
+            app.UseAuthentication();
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller}/{action=Index}/{id?}");
+
+                routes.MapSpaFallbackRoute(
+                    name: "spa-fallback",
+                    defaults: new { controller = "Home", action = "Index" });
+            });
+            return app.Build();
         }
 
         private IServiceProvider InitService()
@@ -60,7 +76,7 @@ namespace hjudgeWebHostTest
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
-            services.AddMvc().AddNewtonsoftJson();
+            services.AddMvc().AddSpanJson();
 
             return services.BuildServiceProvider();
         }

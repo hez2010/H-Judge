@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SpanJson.AspNetCore.Formatter;
 using System;
 using System.Linq;
 using System.Text;
@@ -49,6 +50,7 @@ namespace hjudgeWebHost
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IProblemService, ProblemService>();
             services.AddTransient<IContestService, ContestService>();
+            services.AddTransient<IJudgeService, JudgeService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -56,6 +58,12 @@ namespace hjudgeWebHost
             }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
 
             services.AddEntityFrameworkSqlServer();
+
+            services.AddDistributedRedisCache(options=>
+            {
+                options.Configuration = Configuration["Redis:Configuration"];
+                options.InstanceName = Configuration["Redis:InstanceName"];
+            });
 
             services.AddAuthentication(o =>
             {
@@ -78,8 +86,7 @@ namespace hjudgeWebHost
             services.AddMvc(options =>
             {
                 options.Filters.AddService(typeof(AntiForgeryFilter));
-            })
-            .AddNewtonsoftJson();
+            }).AddSpanJson();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

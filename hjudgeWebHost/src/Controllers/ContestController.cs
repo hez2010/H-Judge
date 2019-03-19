@@ -13,14 +13,14 @@ namespace hjudgeWebHost.Controllers
 {
     public class ContestController : ControllerBase
     {
-        private readonly DbContextOptions<ApplicationDbContext> DbOptions;
-        private readonly UserManager<UserInfo> UserManager;
-        private readonly IContestService ContestService;
+        private readonly DbContextOptions<ApplicationDbContext> dbOptions;
+        private readonly UserManager<UserInfo> userManager;
+        private readonly IContestService contestService;
         public ContestController(DbContextOptions<ApplicationDbContext> dbOptions, UserManager<UserInfo> userManager, IContestService contestService)
         {
-            DbOptions = dbOptions;
-            UserManager = userManager;
-            ContestService = contestService;
+            this.dbOptions = dbOptions;
+            this.userManager = userManager;
+            this.contestService = contestService;
         }
 
         public class ContestListQueryModel
@@ -41,14 +41,8 @@ namespace hjudgeWebHost.Controllers
         [HttpPost]
         public async Task<ContestListModel> ContestList([FromBody]ContestListQueryModel model)
         {
-            var user = await UserManager.GetUserAsync(User);
-            using var db = new ApplicationDbContext(DbOptions);
-
-            var (_, contests) = model.GroupId switch
-            {
-                0 => ContestService.QueryContest(db),
-                _ => ContestService.QueryContest(model.GroupId, db)
-            };
+            var userId = userManager.GetUserId(User);
+            using var db = new ApplicationDbContext(dbOptions);
 
             var ret = new ContestListModel
             {
@@ -56,21 +50,24 @@ namespace hjudgeWebHost.Controllers
                 ErrorCode = ErrorDescription.ResourceNotFound
             };
 
-            var group = await db.Group.FirstOrDefaultAsync(i => i.Id == model.GroupId);
-            if (model.GroupId != 0 && group == null) return ret;
+            IQueryable<Contest> contests;
 
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            try
             {
-                if (model.GroupId != 0 && group.IsPrivate)
+                contests = await (model.GroupId switch
                 {
-                    if (user == null ||
-                        !db.GroupJoin
-                            .Any(i => i.GroupId == model.GroupId &&
-                                i.UserId == user.Id))
-                        return ret;
+                    0 => contestService.QueryContestAsync(userId, db),
+                    _ => contestService.QueryContestAsync(userId, model.GroupId, db)
+                });
+            }
+            catch (Exception ex)
+            {
+                ret.ErrorCode = (ErrorDescription)ex.HResult;
+                if (!string.IsNullOrEmpty(ex.Message))
+                {
+                    ret.ErrorMessage = ex.Message;
                 }
-
-                if (model.GroupId == 0) contests = contests.Where(i => !i.Hidden);
+                return ret;
             }
 
             if (model.Filter.Id != 0)
@@ -85,20 +82,17 @@ namespace hjudgeWebHost.Controllers
 
             if (model.Filter.Status.Length < 3)
             {
-                if (user != null)
+                foreach (var status in new[] { 0, 1, 2 })
                 {
-                    foreach (var status in new[] { 0, 1, 2 })
+                    if (!model.Filter.Status.Contains(status))
                     {
-                        if (!model.Filter.Status.Contains(status))
+                        contests = status switch
                         {
-                            contests = status switch
-                            {
-                                0 => contests.Where(i => !(now < i.StartTime)),
-                                1 => contests.Where(i => !(i.StartTime >= now && i.EndTime <= now)),
-                                2 => contests.Where(i => !(now > i.EndTime)),
-                                _ => contests
-                            };
-                        }
+                            0 => contests.Where(i => !(now < i.StartTime)),
+                            1 => contests.Where(i => !(i.StartTime >= now && i.EndTime <= now)),
+                            2 => contests.Where(i => !(now > i.EndTime)),
+                            _ => contests
+                        };
                     }
                 }
             }
@@ -113,6 +107,7 @@ namespace hjudgeWebHost.Controllers
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
             }).ToListAsync();
+
             if (model.RequireTotalCount) ret.TotalCount = await contests.CountAsync();
 
             foreach (var contest in ret.Contests)
