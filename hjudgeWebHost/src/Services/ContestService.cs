@@ -16,15 +16,17 @@ namespace hjudgeWebHost.Services
     public class ContestService : IContestService
     {
         private readonly UserManager<UserInfo> userManager;
+        private readonly ICacheService cacheService;
 
-        public ContestService(UserManager<UserInfo> userManager)
+        public ContestService(UserManager<UserInfo> userManager, ICacheService cacheService)
         {
             this.userManager = userManager;
+            this.cacheService = cacheService;
         }
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId, ApplicationDbContext dbContext)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
 
             IQueryable<Contest> contests = dbContext.Contest;
 
@@ -37,8 +39,9 @@ namespace hjudgeWebHost.Services
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId, ApplicationDbContext dbContext)
         {
-            var user = await userManager.FindByIdAsync(userId);
-            var group = await dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId);
+            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
+
+            var group = await cacheService.GetObjectAndSetAsync($"group_{groupId}", () => dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId));
             if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))

@@ -2,6 +2,7 @@
 using hjudgeWebHost.Data.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,15 +18,17 @@ namespace hjudgeWebHost.Services
     public class ProblemService : IProblemService
     {
         private readonly UserManager<UserInfo> userManager;
+        private readonly ICacheService cacheService;
 
-        public ProblemService(UserManager<UserInfo> userManager)
+        public ProblemService(UserManager<UserInfo> userManager, ICacheService cacheService)
         {
             this.userManager = userManager;
+            this.cacheService = cacheService;
         }
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, ApplicationDbContext dbContext)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
 
             IQueryable<Problem> problems = dbContext.Problem;
 
@@ -39,9 +42,9 @@ namespace hjudgeWebHost.Services
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, ApplicationDbContext dbContext)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
 
-            var contest = await dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId);
+            var contest = await cacheService.GetObjectAndSetAsync($"contest_{contestId}", () => dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId));
             if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
@@ -59,12 +62,12 @@ namespace hjudgeWebHost.Services
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, int groupId, ApplicationDbContext dbContext)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
 
-            var contest = await dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId);
+            var contest = await cacheService.GetObjectAndSetAsync($"contest_{contestId}", () => dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId));
             if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
 
-            var group = await dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId);
+            var group = await cacheService.GetObjectAndSetAsync($"group_{groupId}", () => dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId));
             if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
 
             if (!dbContext.GroupContestConfig.Any(i => i.GroupId == groupId && i.ContestId == contestId))
