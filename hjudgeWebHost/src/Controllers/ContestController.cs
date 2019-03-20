@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data;
+﻿using hjudgeWebHost.Configurations;
+using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Models.Contest;
 using hjudgeWebHost.Services;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Controllers
@@ -44,11 +46,7 @@ namespace hjudgeWebHost.Controllers
             var userId = userManager.GetUserId(User);
             using var db = new ApplicationDbContext(dbOptions);
 
-            var ret = new ContestListModel
-            {
-                Succeeded = false,
-                ErrorCode = ErrorDescription.ResourceNotFound
-            };
+            var ret = new ContestListModel();
 
             IQueryable<Contest> contests;
 
@@ -116,7 +114,59 @@ namespace hjudgeWebHost.Controllers
                     now > contest.EndTime ? 2 : 1;
             }
 
-            ret.Succeeded = true;
+            return ret;
+        }
+
+        public class ContestQueryModel
+        {
+            public int ContestId { get; set; }
+            public int GroupId { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<ContestModel> ContestDetails([FromBody]ContestQueryModel model)
+        {
+            var userId = userManager.GetUserId(User);
+
+            using var db = new ApplicationDbContext(dbOptions);
+
+            var ret = new ContestModel();
+
+            IQueryable<Contest> contests;
+
+            try
+            {
+                contests = await (model switch
+                {
+                    { GroupId: 0 } => contestService.QueryContestAsync(userId, db),
+                    { } => contestService.QueryContestAsync(userId, model.GroupId, db)
+                });
+            }
+            catch (Exception ex)
+            {
+                ret.ErrorCode = (ErrorDescription)ex.HResult;
+                if (!string.IsNullOrEmpty(ex.Message))
+                {
+                    ret.ErrorMessage = ex.Message;
+                }
+                return ret;
+            }
+
+            var contest = await contests.Include(i => i.UserInfo).FirstOrDefaultAsync(i => i.Id == model.ContestId);
+
+            ret.Description = contest.Description;
+            ret.Downvote = contest.Downvote;
+            ret.EndTime = contest.EndTime;
+            ret.Hidden = contest.Hidden;
+            ret.Id = contest.Id;
+            ret.Name = contest.Name;
+            ret.Password = contest.Password;
+            ret.StartTime = contest.StartTime;
+            ret.Upvote = contest.Upvote;
+            ret.UserId = contest.UserId;
+            ret.UserName = contest.UserInfo.UserName;
+            ret.Config = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<ContestConfig>(Encoding.UTF8.GetBytes(contest.Config));
+
             return ret;
         }
     }

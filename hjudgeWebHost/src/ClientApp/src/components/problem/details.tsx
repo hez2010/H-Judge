@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { match } from 'react-router';
 import { History, Location } from 'history';
-import { SemanticCOLORS, Item, Placeholder, Portal, Segment, Header, Card, Popup } from 'semantic-ui-react';
+import { SemanticCOLORS, Item, Placeholder, Popup } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { setTitle } from '../../utils/titleHelper';
@@ -11,6 +11,10 @@ import 'katex/dist/katex.min.css';
 import md from 'markdown-it';
 import mk from '../../extensions/markdown-it-math';
 import hljs from '../../extensions/markdown-it-code';
+import AceEditor from 'react-ace';
+import brace from 'brace';
+import 'brace/mode/c_cpp';
+import 'brace/theme/github';
 
 interface ProblemDetailsProps {
   match: match<any>,
@@ -73,7 +77,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
   }
 
   fetchDetail(problemId: number, contestId: number, groupId: number) {
-    Post('/Problem/ProblemDetail', {
+    Post('/Problem/ProblemDetails', {
       problemId: problemId,
       contestId: contestId,
       groupId: groupId
@@ -134,6 +138,15 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
     let markdown = new md({ html: true }).use(mk, { throwOnError: false }).use(hljs);
 
+    let submitModal = <>
+      <AceEditor
+        mode='c_cpp'
+        theme='github'
+        width='100%'
+        editorProps={{ $enableMultiselect: true, $enableBlockSelect: true, $blockScrolling: true, $blockSelectEnabled: true }}
+      />
+    </>;
+
     return <>
       <Item>
         <Item.Content>
@@ -152,6 +165,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           </Item.Extra>
         </Item.Content>
       </Item>
+      {submitModal}
     </>;
   }
 }

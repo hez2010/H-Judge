@@ -53,10 +53,7 @@ namespace hjudgeWebHost.Controllers
             var userId = userManager.GetUserId(User);
             using var db = new ApplicationDbContext(dbOptions);
 
-            var ret = new ProblemListModel
-            {
-                ErrorCode = ErrorDescription.ResourceNotFound
-            };
+            var ret = new ProblemListModel();
 
             IQueryable<Problem> problems;
 
@@ -157,7 +154,6 @@ namespace hjudgeWebHost.Controllers
                 }
             }
 
-            ret.Succeeded = true;
             return ret;
         }
 
@@ -169,7 +165,7 @@ namespace hjudgeWebHost.Controllers
         }
 
         [HttpPost]
-        public async Task<ProblemModel> ProblemDetail([FromBody]ProblemQueryModel model)
+        public async Task<ProblemModel> ProblemDetails([FromBody]ProblemQueryModel model)
         {
             var userId = userManager.GetUserId(User);
 
@@ -252,7 +248,7 @@ namespace hjudgeWebHost.Controllers
             var config = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<ProblemConfig>(Encoding.UTF8.GetBytes(problem.Config).AsSpan());
             if (config?.Languages != null)
             {
-                ret.Languages = config.Languages.ToString().Split(';', StringSplitOptions.RemoveEmptyEntries);
+                ret.Languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
             }
 
             return ret;
