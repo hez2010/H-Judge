@@ -11,6 +11,7 @@ using hjudgeWebHost.Models.Problem;
 using hjudgeWebHost.Services;
 using System.Text;
 using hjudgeWebHost.Configurations;
+using System.Collections.Generic;
 
 namespace hjudgeWebHost.Controllers
 {
@@ -21,13 +22,15 @@ namespace hjudgeWebHost.Controllers
         private readonly UserManager<UserInfo> userManager;
         private readonly IProblemService problemService;
         private readonly IJudgeService judgeService;
+        private readonly ILanguageService languageService;
 
-        public ProblemController(DbContextOptions<ApplicationDbContext> dbOptions, UserManager<UserInfo> userManager, IProblemService problemService, IJudgeService judgeService)
+        public ProblemController(DbContextOptions<ApplicationDbContext> dbOptions, UserManager<UserInfo> userManager, IProblemService problemService, IJudgeService judgeService, ILanguageService languageService)
         {
             this.dbOptions = dbOptions;
             this.userManager = userManager;
             this.problemService = problemService;
             this.judgeService = judgeService;
+            this.languageService = languageService;
         }
         public class ProblemListQueryModel
         {
@@ -85,12 +88,12 @@ namespace hjudgeWebHost.Controllers
                 problems = problems.Where(i => i.Name.Contains(model.Filter.Name));
             }
 
-            var judges = await judgeService.QueryJudgesAsync(
+            var judges = (await judgeService.QueryJudgesAsync(
                 userId,
                 model.GroupId == 0 ? null : (int?)model.GroupId,
                 model.ContestId == 0 ? null : (int?)model.ContestId,
                 null,
-                db);
+                db));
 
             if (model.Filter.Status.Length < 3)
             {
@@ -102,9 +105,9 @@ namespace hjudgeWebHost.Controllers
                         {
                             problems = status switch
                             {
-                                0 => problems.Where(i => judges.Any(j => j.UserId == userId && j.ProblemId == i.Id)),
-                                1 => problems.Where(i => !judges.Any(j => j.UserId == userId && j.ProblemId == i.Id && j.ResultType != (int)ResultCode.Accepted)),
-                                2 => problems.Where(i => !judges.Any(j => j.UserId == userId && j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted)),
+                                0 => problems.Where(i => judges.Any(j => j.ProblemId == i.Id)),
+                                1 => problems.Where(i => !judges.Any(j => j.ProblemId == i.Id && j.ResultType != (int)ResultCode.Accepted)),
+                                2 => problems.Where(i => !judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted)),
                                 _ => problems
                             };
                         }
@@ -143,10 +146,10 @@ namespace hjudgeWebHost.Controllers
             {
                 foreach (var problem in ret.Problems)
                 {
-                    if (judges.Any(i => i.UserId == userId && i.ProblemId == problem.Id))
+                    if (judges.Any(i => i.ProblemId == problem.Id))
                     {
                         problem.Status = 1;
-                        if (judges.Any(i => i.UserId == userId && i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted))
+                        if (judges.Any(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted))
                         {
                             problem.Status = 2;
                         }
@@ -155,6 +158,23 @@ namespace hjudgeWebHost.Controllers
             }
 
             return ret;
+        }
+
+        private IEnumerable<LanguageModel> GenerateLanguageConfig(IEnumerable<LanguageConfig> langConfig, string[]? languages)
+        {
+            foreach (var i in langConfig)
+            {
+                if (languages == null || languages.Length == 0 || languages.Contains(i.Name))
+                {
+                    yield return new LanguageModel
+                    {
+                        Name = i.Name,
+                        Information = i.Information,
+                        SyntaxHighlight = i.SyntaxHighlight
+                    };
+                }
+            }
+            yield break;
         }
 
         public class ProblemQueryModel
@@ -195,14 +215,17 @@ namespace hjudgeWebHost.Controllers
 
             var problem = await problems.Include(i => i.UserInfo).FirstOrDefaultAsync(i => i.Id == model.ProblemId);
 
-            IQueryable<Judge> judges = db.Judge;
-            judges = model.ContestId != 0 ? judges.Where(i => i.ContestId == model.ContestId) : judges.Where(i => i.ContestId == null);
-            judges = model.GroupId != 0 ? judges.Where(i => i.GroupId == model.GroupId) : judges.Where(i => i.GroupId == null);
+            var judges = (await judgeService.QueryJudgesAsync(
+                userId,
+                model.GroupId == 0 ? null : (int?)model.GroupId,
+                model.ContestId == 0 ? null : (int?)model.ContestId,
+                null,
+                db));
 
-            if (judges.Any(i => i.UserId == userId && i.ProblemId == problem.Id))
+            if (judges.Any(i => i.ProblemId == problem.Id))
             {
                 ret.Status = 1;
-                if (judges.Any(i => i.UserId == userId && i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted))
+                if (judges.Any(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted))
                 {
                     ret.Status = 2;
                 }
@@ -223,10 +246,10 @@ namespace hjudgeWebHost.Controllers
 
             if (!string.IsNullOrEmpty(userId))
             {
-                if (judges.Any(i => i.UserId == userId && i.ProblemId == problem.Id))
+                if (judges.Any(i => i.ProblemId == problem.Id))
                 {
                     ret.Status = 1;
-                    if (judges.Any(i => i.UserId == userId && i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted))
+                    if (judges.Any(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted))
                     {
                         ret.Status = 2;
                     }
@@ -246,10 +269,11 @@ namespace hjudgeWebHost.Controllers
             ret.Downvote = problem.Downvote;
 
             var config = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<ProblemConfig>(Encoding.UTF8.GetBytes(problem.Config).AsSpan());
-            if (config?.Languages != null)
-            {
-                ret.Languages = config.Languages.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
-            }
+
+            var langConfig = await languageService.GetLanguageConfigAsync();
+            var langs = config?.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            ret.Languages = GenerateLanguageConfig(langConfig, langs).ToArray();
 
             return ret;
         }

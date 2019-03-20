@@ -154,12 +154,12 @@ export default class Contest extends React.Component<ContestProps, ContestState>
       {this.renderContestList()}
       <div style={{ textAlign: 'center' }}>
         <Pagination
-          activePage={this.props.match.params.page}
+          activePage={this.state.contestList.totalCount === 0 ? 0 : this.props.match.params.page}
           onPageChange={(_event, data) => this.fetchContestList(false, data.activePage as number)}
           size='small'
           siblingRange={3}
           boundaryRange={1}
-          totalPages={Math.floor(this.state.contestList.totalCount / 10) + (this.state.contestList.totalCount % 10 === 0 ? 0 : 1)}
+          totalPages={this.state.contestList.totalCount === 0 ? 0 : Math.floor(this.state.contestList.totalCount / 10) + (this.state.contestList.totalCount % 10 === 0 ? 0 : 1)}
           firstItem={null}
           lastItem={null}
         />

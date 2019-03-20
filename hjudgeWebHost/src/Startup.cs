@@ -52,6 +52,7 @@ namespace hjudgeWebHost
             services.AddTransient<IContestService, ContestService>();
             services.AddTransient<IJudgeService, JudgeService>();
             services.AddTransient<ICacheService, CacheService>();
+            services.AddSingleton<ILanguageService, LocalLanguageService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {

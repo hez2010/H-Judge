@@ -10,6 +10,10 @@ namespace hjudgeWebHost.Extensions
         {
             var type = val.GetType();
             var memberInfo = type.GetMember(val.ToString());
+            if (memberInfo.Length == 0)
+            {
+                return val.ToString();
+            }
             var attributes = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
             if (attributes == null)
             {

@@ -2,7 +2,7 @@
 
 namespace hjudgeCore
 {
-    public enum StdErrBehavior
+    public enum StdErrBehavior : int
     {
         Ignore,
         TreatAsCompileError,

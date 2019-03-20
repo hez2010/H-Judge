@@ -13,12 +13,20 @@ namespace hjudgeWebHost.Services
     {
         public Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId, ApplicationDbContext dbContext)
         {
-            return Task.FromResult(dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId));
+            return Task.FromResult(problemId switch
+            {
+                null => dbContext.Judge.Where(i => i.GroupId == null && i.ContestId == null),
+                _ => dbContext.Judge.Where(i => i.GroupId == null && i.ContestId == null && i.ProblemId == problemId)
+            });
         }
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId, ApplicationDbContext dbContext)
         {
-            return Task.FromResult(dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId));
+            return Task.FromResult(problemId switch
+            {
+                null => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId),
+                _ => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId)
+            });
         }
     }
 }

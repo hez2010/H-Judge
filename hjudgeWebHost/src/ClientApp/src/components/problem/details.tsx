@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { match } from 'react-router';
 import { History, Location } from 'history';
-import { SemanticCOLORS, Item, Placeholder, Popup } from 'semantic-ui-react';
+import { SemanticCOLORS, Item, Placeholder, Popup, Dropdown, Label, Header, Button } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { setTitle } from '../../utils/titleHelper';
@@ -11,10 +11,8 @@ import 'katex/dist/katex.min.css';
 import md from 'markdown-it';
 import mk from '../../extensions/markdown-it-math';
 import hljs from '../../extensions/markdown-it-code';
-import AceEditor from 'react-ace';
-import brace from 'brace';
-import 'brace/mode/c_cpp';
-import 'brace/theme/github';
+import { ensureLoading } from '../../utils/scriptLoader';
+import { nextTick } from 'q';
 
 interface ProblemDetailsProps {
   match: match<any>,
@@ -24,7 +22,9 @@ interface ProblemDetailsProps {
 }
 
 interface ProblemDetailsState {
-  problem: ProblemModel
+  problem: ProblemModel,
+  languageChoice: number,
+  editorLoaded: boolean
 }
 
 interface ProblemModel extends ResultModel {
@@ -38,7 +38,7 @@ interface ProblemModel extends ResultModel {
   type: number,
   acceptCount: number,
   submissionCount: number,
-  languages: string[],
+  languages: { name: string, information: string, syntaxHighlight: string }[],
   status: number,
   hidden: boolean,
   upvote: number,
@@ -51,6 +51,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
     this.fetchDetail = this.fetchDetail.bind(this);
     this.renderProblemInfo = this.renderProblemInfo.bind(this);
+    this.loadEditor = this.loadEditor.bind(this);
 
     this.state = {
       problem: {
@@ -72,7 +73,9 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         upvote: 0,
         userId: "",
         userName: ""
-      }
+      },
+      languageChoice: 0,
+      editorLoaded: false
     };
   }
 
@@ -91,24 +94,27 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
             problem: result
           } as ProblemDetailsState);
           setTitle(result.name);
+          let lang = 'plain_text';
+          if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
+          nextTick(() => this.loadEditor(lang));
         }
         else {
           this.props.openPortal('错误', `题目信息加载失败\n${result.errorMessage} (${result.errorCode})`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目信息加载失败', 'red');
-        console.log(err);
+        this.props.openPortal('错误', '题目信息加载失败', 'red'),
+          console.log(err);
       });
   }
 
   componentDidMount() {
-    setTitle('题目详情');
-    this.fetchDetail(
-      this.props.match.params.problemId ? parseInt(this.props.match.params.problemId) : 0,
-      this.props.match.params.contestId ? parseInt(this.props.match.params.contestId) : 0,
-      this.props.match.params.groupId ? parseInt(this.props.match.params.groupId) : 0,
-    );
+    setTitle('题目详情'),
+      this.fetchDetail(
+        this.props.match.params.problemId ? parseInt(this.props.match.params.problemId) : 0,
+        this.props.match.params.contestId ? parseInt(this.props.match.params.contestId) : 0,
+        this.props.match.params.groupId ? parseInt(this.props.match.params.groupId) : 0,
+      );
   }
 
   renderProblemInfo() {
@@ -125,6 +131,18 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     </div>;
   }
 
+  loadEditor(lang: string) {
+    ensureLoading('ace', '/lib/ace/ace.js', () => {
+      this.setState({ editorLoaded: true } as ProblemDetailsState);
+      nextTick(() => {
+        let w = window as any;
+        let editor = w.ace.edit('code-editor');
+        editor.setTheme('ace/theme/tomorrow');
+        editor.session.setMode(`ace/mode/${lang}`);
+      });
+    });
+  }
+
   render() {
     let placeHolder = <Placeholder>
       <Placeholder.Paragraph>
@@ -138,13 +156,44 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
     let markdown = new md({ html: true }).use(mk, { throwOnError: false }).use(hljs);
 
+    let langOptions = this.state.problem.languages.map((v, i) => {
+      return {
+        key: i,
+        value: i,
+        text: v.name,
+        information: v.information,
+        highlight: v.syntaxHighlight
+      }
+    });
+    const { languageChoice } = this.state;
+
     let submitModal = <>
-      <AceEditor
-        mode='c_cpp'
-        theme='github'
-        width='100%'
-        editorProps={{ $enableMultiselect: true, $enableBlockSelect: true, $blockScrolling: true, $blockSelectEnabled: true }}
-      />
+      {this.state.editorLoaded ? <>
+        <Header as='h2'>提交</Header>
+        <div>
+          <Dropdown
+            placeholder='代码语言'
+            fluid
+            search
+            selection
+            options={langOptions}
+            value={languageChoice}
+            onChange={(_, { value }) => {
+              this.setState({ languageChoice: value } as ProblemDetailsState);
+              let lang = langOptions[value as number] ? langOptions[value as number].highlight : 'plain_text';
+              let w = window as any;
+              w.ace.edit('code-editor').session.setMode(`ace/mode/${lang}`);
+            }}
+          />
+          <Label pointing>{langOptions[languageChoice] ? langOptions[languageChoice].information : '请选择语言'}</Label>
+        </div>
+        <br />
+        <div id='code-editor' style={{ width: '100%', height: '30em' }}></div>
+        <br />
+        <div style={{ textAlign: 'right' }}>
+          <Button primary>提交</Button>
+        </div>
+      </> : placeHolder}
     </>;
 
     return <>
@@ -155,6 +204,9 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
               <Popup.Header>题目信息</Popup.Header>
               <Popup.Content>{this.renderProblemInfo()}</Popup.Content>
             </Popup>
+            <div style={{ float: 'right' }}>
+              <Button>状态</Button>
+            </div>
           </Item.Header>
 
           <Item.Description>

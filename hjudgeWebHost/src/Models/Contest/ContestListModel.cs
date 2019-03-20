@@ -16,7 +16,7 @@ namespace hjudgeWebHost.Models.Contest
             public int Upvote { get; set; }
             public int Downvote { get; set; }
         }
-        public List<ContestListItemModel> Contests { get; set; } = new List<ContestListItemModel>();
+        public List<ContestListItemModel>? Contests { get; set; }
         public int TotalCount { get; set; }
     }
 }

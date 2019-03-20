@@ -16,7 +16,7 @@ namespace hjudgeWebHost.Models.Problem
             public int Upvote { get; set; }
             public int Downvote { get; set; }
         }
-        public List<ProblemListItemModel> Problems { get; set; } = new List<ProblemListItemModel>();
+        public List<ProblemListItemModel>? Problems { get; set; }
         public int TotalCount { get; set; }
     }
 }
