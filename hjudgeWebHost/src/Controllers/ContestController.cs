@@ -16,13 +16,20 @@ namespace hjudgeWebHost.Controllers
     public class ContestController : ControllerBase
     {
         private readonly DbContextOptions<ApplicationDbContext> dbOptions;
-        private readonly UserManager<UserInfo> userManager;
+        private readonly CachedUserManager<UserInfo> userManager;
         private readonly IContestService contestService;
-        public ContestController(DbContextOptions<ApplicationDbContext> dbOptions, UserManager<UserInfo> userManager, IContestService contestService)
+        private readonly ICacheService cacheService;
+
+        public ContestController(
+            DbContextOptions<ApplicationDbContext> dbOptions,
+            CachedUserManager<UserInfo> userManager,
+            IContestService contestService,
+            ICacheService cacheService)
         {
             this.dbOptions = dbOptions;
             this.userManager = userManager;
             this.contestService = contestService;
+            this.cacheService = cacheService;
         }
 
         public class ContestListQueryModel
@@ -154,6 +161,7 @@ namespace hjudgeWebHost.Controllers
 
             var contest = await contests.Include(i => i.UserInfo).FirstOrDefaultAsync(i => i.Id == model.ContestId);
 
+            var user = await cacheService.GetObjectAndSetAsync($"user_{contest.UserId}", () => userManager.FindByIdAsync(contest.UserId));
             ret.Description = contest.Description;
             ret.Downvote = contest.Downvote;
             ret.EndTime = contest.EndTime;

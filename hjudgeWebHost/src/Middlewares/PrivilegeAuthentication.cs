@@ -1,5 +1,6 @@
 ﻿using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Models;
+using hjudgeWebHost.Services;
 using hjudgeWebHost.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +17,9 @@ namespace hjudgeWebHost.Middlewares
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (!(context.HttpContext.RequestServices.GetService(typeof(UserManager<UserInfo>)) is UserManager<UserInfo> userManager) ||
+                if (!(context.HttpContext.RequestServices.GetService(typeof(CachedUserManager<UserInfo>)) is CachedUserManager<UserInfo> userManager) ||
                     !(context.HttpContext.RequestServices.GetService(typeof(SignInManager<UserInfo>)) is SignInManager<UserInfo> signInManager))
-                    throw new NullReferenceException("UserManager<UserInfo> or SignInManager<UserInfo> is null");
+                    throw new NullReferenceException("UserManager or SignInManager is null");
 
                 var userInfo = await userManager.GetUserAsync(context.HttpContext.User);
 
@@ -40,9 +41,8 @@ namespace hjudgeWebHost.Middlewares
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (!(context.HttpContext.RequestServices.GetService(typeof(UserManager<UserInfo>)) is UserManager<UserInfo> userManager) ||
-                    !(context.HttpContext.RequestServices.GetService(typeof(SignInManager<UserInfo>)) is SignInManager<UserInfo> signInManager))
-                    throw new NullReferenceException("UserManager<UserInfo> or SignInManager<UserInfo> is null");
+                if (!(context.HttpContext.RequestServices.GetService(typeof(CachedUserManager<UserInfo>)) is CachedUserManager<UserInfo> userManager))
+                    throw new NullReferenceException("UserManager is null");
 
                 var userInfo = await userManager.GetUserAsync(context.HttpContext.User);
 
@@ -64,9 +64,8 @@ namespace hjudgeWebHost.Middlewares
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (!(context.HttpContext.RequestServices.GetService(typeof(UserManager<UserInfo>)) is UserManager<UserInfo> userManager) ||
-                    !(context.HttpContext.RequestServices.GetService(typeof(SignInManager<UserInfo>)) is SignInManager<UserInfo> signInManager))
-                    throw new NullReferenceException("UserManager<UserInfo> or SignInManager<UserInfo> is null");
+                if (!(context.HttpContext.RequestServices.GetService(typeof(CachedUserManager<UserInfo>)) is CachedUserManager<UserInfo> userManager))
+                    throw new NullReferenceException("UserManager is null");
 
                 var userInfo = await userManager.GetUserAsync(context.HttpContext.User);
 

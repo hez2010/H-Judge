@@ -1,8 +1,6 @@
 ﻿using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,16 +12,30 @@ namespace hjudgeWebHost.Services
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId, ApplicationDbContext dbContext);
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, ApplicationDbContext dbContext);
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, int groupId, ApplicationDbContext dbContext);
+        Task<Problem> GetProblemAsync(int problemId, ApplicationDbContext dbContext);
+        Task CreateProblemAsync(Problem problem);
+        Task<bool> UpdateProblemAsync(Problem problem);
+        Task RemoveProblemAsync(int problemId);
     }
     public class ProblemService : IProblemService
     {
-        private readonly UserManager<UserInfo> userManager;
+        private readonly CachedUserManager<UserInfo> userManager;
         private readonly ICacheService cacheService;
 
-        public ProblemService(UserManager<UserInfo> userManager, ICacheService cacheService)
+        public ProblemService(CachedUserManager<UserInfo> userManager, ICacheService cacheService)
         {
             this.userManager = userManager;
             this.cacheService = cacheService;
+        }
+
+        public Task CreateProblemAsync(Problem problem)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Problem> GetProblemAsync(int problemId, ApplicationDbContext dbContext)
+        {
+            return cacheService.GetObjectAndSetAsync($"problem_{problemId}", () => dbContext.Problem.FirstOrDefaultAsync(i => i.Id == problemId));
         }
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, ApplicationDbContext dbContext)
@@ -88,6 +100,16 @@ namespace hjudgeWebHost.Services
                                                 .Select(i => i.Problem);
 
             return problems;
+        }
+
+        public Task RemoveProblemAsync(int problemId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateProblemAsync(Problem problem)
+        {
+            throw new NotImplementedException();
         }
     }
 }

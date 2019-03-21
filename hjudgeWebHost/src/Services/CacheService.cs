@@ -6,9 +6,11 @@ namespace hjudgeWebHost.Services
 {
     public interface ICacheService
     {
-        Task<T?> GetObjectAsync<T>(string key) where T : class;
-        Task SetObjectAsync<T>(string key, T obj) where T : class;
-        Task<T> GetObjectAndSetAsync<T>(string key, Func<Task<T>> func) where T : class;
+        Task<(bool Succeeded, T Result)> GetObjectAsync<T>(string key);
+        Task SetObjectAsync<T>(string key, T obj);
+        Task<T> GetObjectAndSetAsync<T>(string key, Func<Task<T>> func);
+        Task RemoveObjectAsync(string key);
+        Task RefreshObjectAsync<T>(string key);
     }
     public class CacheService : ICacheService
     {
@@ -19,10 +21,10 @@ namespace hjudgeWebHost.Services
             this.distributedCache = distributedCache;
         }
 
-        public async Task<T> GetObjectAndSetAsync<T>(string key, Func<Task<T>> func) where T : class
+        public async Task<T> GetObjectAndSetAsync<T>(string key, Func<Task<T>> func)
         {
-            var result = await GetObjectAsync<T>(key);
-            if (result == null)
+            var (succeeded, result) = await GetObjectAsync<T>(key);
+            if (!succeeded)
             {
                 result = await func();
                 if (result != null)
@@ -33,17 +35,28 @@ namespace hjudgeWebHost.Services
             return result;
         }
 
-        public async Task<T?> GetObjectAsync<T>(string key) where T : class
+        public async Task<(bool Succeeded, T Result)> GetObjectAsync<T>(string key)
         {
             var v = await distributedCache.GetAsync(key);
-            if (v == null) return null;
-            return SpanJson.JsonSerializer.Generic.Utf8.Deserialize<T>(v);
+#nullable disable
+            if (v == null) return (false, default);
+#nullable enable
+            return (true, SpanJson.JsonSerializer.Generic.Utf8.Deserialize<T>(v));
         }
 
-        public Task SetObjectAsync<T>(string key, T obj) where T : class
+        public Task RefreshObjectAsync<T>(string key)
         {
-            return distributedCache.SetAsync(key, SpanJson.JsonSerializer.Generic.Utf8.Serialize(obj));
+            return distributedCache.RefreshAsync(key);
         }
 
+        public Task RemoveObjectAsync(string key)
+        {
+            return distributedCache.RemoveAsync(key);
+        }
+
+        public Task SetObjectAsync<T>(string key, T obj)
+        {
+            return distributedCache.SetAsync(key, SpanJson.JsonSerializer.Generic.Utf8.Serialize(obj), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
+        }
     }
 }

@@ -19,18 +19,26 @@ namespace hjudgeWebHost.Controllers
     public class ProblemController : ControllerBase
     {
         private readonly DbContextOptions<ApplicationDbContext> dbOptions;
-        private readonly UserManager<UserInfo> userManager;
+        private readonly CachedUserManager<UserInfo> userManager;
         private readonly IProblemService problemService;
         private readonly IJudgeService judgeService;
         private readonly ILanguageService languageService;
+        private readonly ICacheService cacheService;
 
-        public ProblemController(DbContextOptions<ApplicationDbContext> dbOptions, UserManager<UserInfo> userManager, IProblemService problemService, IJudgeService judgeService, ILanguageService languageService)
+        public ProblemController(
+            DbContextOptions<ApplicationDbContext> dbOptions,
+            CachedUserManager<UserInfo> userManager,
+            IProblemService problemService,
+            IJudgeService judgeService,
+            ILanguageService languageService,
+            ICacheService cacheService)
         {
             this.dbOptions = dbOptions;
             this.userManager = userManager;
             this.problemService = problemService;
             this.judgeService = judgeService;
             this.languageService = languageService;
+            this.cacheService = cacheService;
         }
         public class ProblemListQueryModel
         {
@@ -57,6 +65,13 @@ namespace hjudgeWebHost.Controllers
             using var db = new ApplicationDbContext(dbOptions);
 
             var ret = new ProblemListModel();
+
+            var judges = await judgeService.QueryJudgesAsync(
+                userId,
+                model.GroupId == 0 ? null : (int?)model.GroupId,
+                model.ContestId == 0 ? null : (int?)model.ContestId,
+                null,
+                db);
 
             IQueryable<Problem> problems;
 
@@ -87,13 +102,6 @@ namespace hjudgeWebHost.Controllers
             {
                 problems = problems.Where(i => i.Name.Contains(model.Filter.Name));
             }
-
-            var judges = (await judgeService.QueryJudgesAsync(
-                userId,
-                model.GroupId == 0 ? null : (int?)model.GroupId,
-                model.ContestId == 0 ? null : (int?)model.ContestId,
-                null,
-                db));
 
             if (model.Filter.Status.Length < 3)
             {
@@ -213,14 +221,23 @@ namespace hjudgeWebHost.Controllers
                 return ret;
             }
 
-            var problem = await problems.Include(i => i.UserInfo).FirstOrDefaultAsync(i => i.Id == model.ProblemId);
+            Problem? problem = default;
+            if (await problems.AnyAsync(i => i.Id == model.ProblemId))
+            {
+                problem = await problemService.GetProblemAsync(model.ProblemId, db);
+            }
+            if (problem == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
 
-            var judges = (await judgeService.QueryJudgesAsync(
+            var judges = await judgeService.QueryJudgesAsync(
                 userId,
                 model.GroupId == 0 ? null : (int?)model.GroupId,
                 model.ContestId == 0 ? null : (int?)model.ContestId,
                 null,
-                db));
+                db);
 
             if (judges.Any(i => i.ProblemId == problem.Id))
             {
@@ -256,12 +273,13 @@ namespace hjudgeWebHost.Controllers
                 }
             }
 
+            var user = await cacheService.GetObjectAndSetAsync($"user_{problem.UserId}", () => userManager.FindByIdAsync(problem.UserId));
             ret.Name = problem.Name;
             ret.Hidden = problem.Hidden;
             ret.Level = problem.Level;
             ret.Type = problem.Type;
             ret.UserId = problem.UserId;
-            ret.UserName = problem.UserInfo.UserName;
+            ret.UserName = user?.UserName;
             ret.Id = problem.Id;
             ret.Description = problem.Description;
             ret.CreationTime = problem.CreationTime;

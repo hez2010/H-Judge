@@ -81,7 +81,7 @@ namespace hjudgeWebHost
                 options.Password.RequireNonAlphanumeric = false;
             })
             .AddSignInManager<SignInManager<UserInfo>>()
-            .AddUserManager<UserManager<UserInfo>>()
+            .AddUserManager<CachedUserManager<UserInfo>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 

@@ -2,6 +2,7 @@
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Models;
 using hjudgeWebHost.Models.Account;
+using hjudgeWebHost.Services;
 using hjudgeWebHost.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,12 +18,12 @@ namespace hjudgeWebHost.Controllers
     [AutoValidateAntiforgeryToken]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<UserInfo> UserManager;
-        private readonly SignInManager<UserInfo> SignInManager;
-        public AccountController(UserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager)
+        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly SignInManager<UserInfo> signInManager;
+        public AccountController(CachedUserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager)
         {
-            UserManager = userManager;
-            SignInManager = signInManager;
+            this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         public class LoginModel
@@ -39,8 +40,8 @@ namespace hjudgeWebHost.Controllers
             var ret = new ResultModel();
             if (TryValidateModel(model))
             {
-                await SignInManager.SignOutAsync();
-                var result = await SignInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+                await signInManager.SignOutAsync();
+                var result = await signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
                 if (!result.Succeeded)
                 {
                     ret.ErrorCode = ErrorDescription.AuthenticationFailed;
@@ -80,7 +81,7 @@ namespace hjudgeWebHost.Controllers
                     ret.ErrorMessage = "两次输入的密码不一致";
                     return ret;
                 }
-                await SignInManager.SignOutAsync();
+                await signInManager.SignOutAsync();
                 var user = new UserInfo
                 {
                     UserName = model.UserName,
@@ -88,13 +89,13 @@ namespace hjudgeWebHost.Controllers
                     Email = model.Email,
                     Privilege = 4
                 };
-                var result = await UserManager.CreateAsync(user, model.Password);
+                var result = await userManager.CreateAsync(user, model.Password);
                 if (!result.Succeeded)
                 {
                     ret.ErrorCode = ErrorDescription.ArgumentError;
                     if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
                 }
-                else await SignInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+                else await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
             }
             else
             {
@@ -106,7 +107,7 @@ namespace hjudgeWebHost.Controllers
         [HttpPost]
         public async Task<ResultModel> Logout()
         {
-            await SignInManager.SignOutAsync();
+            await signInManager.SignOutAsync();
             return new ResultModel();
         }
 
@@ -114,7 +115,7 @@ namespace hjudgeWebHost.Controllers
         [PrivilegeAuthentication.RequireSignedIn]
         public async Task<ResultModel> UserAvatar(IFormFile avatar)
         {
-            var user = await UserManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);
             var result = new ResultModel();
 
             if (avatar == null)
@@ -142,7 +143,7 @@ namespace hjudgeWebHost.Controllers
             var buffer = new byte[stream.Length];
             await stream.ReadAsync(buffer);
             user.Avatar = buffer;
-            await UserManager.UpdateAsync(user);
+            await userManager.UpdateAsync(user);
 
             return result;
         }
@@ -150,7 +151,7 @@ namespace hjudgeWebHost.Controllers
         [HttpGet]
         public async Task<IActionResult> UserAvatar(string? userId)
         {
-            var user = await (string.IsNullOrEmpty(userId) ? UserManager.GetUserAsync(User) : UserManager.FindByIdAsync(userId));
+            var user = await (string.IsNullOrEmpty(userId) ? userManager.GetUserAsync(User) : userManager.FindByIdAsync(userId));
             if (user == null)
             {
                 return NotFound();
@@ -167,13 +168,13 @@ namespace hjudgeWebHost.Controllers
         public async Task<ResultModel> UserInfo([FromBody]UserInfoModel model)
         {
             var ret = new ResultModel();
-            var user = await UserManager.GetUserAsync(User);
+            var user = await userManager.GetUserAsync(User);
 
             if (!string.IsNullOrEmpty(model.Name)) user.Name = model.Name;
 
             if (!string.IsNullOrEmpty(model.Email) && user.Email != model.Email)
             {
-                var result = await UserManager.SetEmailAsync(user, model.Email);
+                var result = await userManager.SetEmailAsync(user, model.Email);
                 if (!result.Succeeded)
                 {
                     ret.ErrorCode = ErrorDescription.ArgumentError;
@@ -183,7 +184,7 @@ namespace hjudgeWebHost.Controllers
             }
             if (model.PhoneNumber != null && user.PhoneNumber != model.PhoneNumber)
             {
-                var result = await UserManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+                var result = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
                 if (!result.Succeeded)
                 {
                     ret.ErrorCode = ErrorDescription.ArgumentError;
@@ -204,7 +205,7 @@ namespace hjudgeWebHost.Controllers
                 user.OtherInfo = otherInfoJson.ToString();
             }
 
-            await UserManager.UpdateAsync(user);
+            await userManager.UpdateAsync(user);
             return ret;
         }
 
@@ -213,10 +214,10 @@ namespace hjudgeWebHost.Controllers
         {
             var userInfoRet = new UserInfoModel
             {
-                SignedIn = SignInManager.IsSignedIn(User)
+                SignedIn = signInManager.IsSignedIn(User)
             };
 
-            var user = await (string.IsNullOrEmpty(userId) ? UserManager.GetUserAsync(User) : UserManager.FindByIdAsync(userId));
+            var user = await (string.IsNullOrEmpty(userId) ? userManager.GetUserAsync(User) : userManager.FindByIdAsync(userId));
             if (user == null)
             {
                 if (!string.IsNullOrEmpty(userId)) userInfoRet.ErrorCode = ErrorDescription.UserNotExist;

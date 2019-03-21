@@ -1,6 +1,5 @@
 ﻿using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -12,16 +11,30 @@ namespace hjudgeWebHost.Services
     {
         Task<IQueryable<Contest>> QueryContestAsync(string? userId, ApplicationDbContext dbContext);
         Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId, ApplicationDbContext dbContext);
+        Task<Contest> GetContestAsync(int contestId, ApplicationDbContext dbContext);
+        Task CreateContestAsync(Contest contest);
+        Task<bool> UpdateContestAsync(Contest contest);
+        Task RemoveContestAsync(int contestId);
     }
     public class ContestService : IContestService
     {
-        private readonly UserManager<UserInfo> userManager;
+        private readonly CachedUserManager<UserInfo> userManager;
         private readonly ICacheService cacheService;
 
-        public ContestService(UserManager<UserInfo> userManager, ICacheService cacheService)
+        public ContestService(CachedUserManager<UserInfo> userManager, ICacheService cacheService)
         {
             this.userManager = userManager;
             this.cacheService = cacheService;
+        }
+
+        public Task CreateContestAsync(Contest contest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Contest> GetContestAsync(int contestId, ApplicationDbContext dbContext)
+        {
+            return cacheService.GetObjectAndSetAsync($"contest_{contestId}", () => dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId));
         }
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId, ApplicationDbContext dbContext)
@@ -56,6 +69,16 @@ namespace hjudgeWebHost.Services
             IQueryable<Contest> contests = dbContext.GroupContestConfig.Include(i => i.Contest).Where(i => i.GroupId == groupId).Select(i => i.Contest);
 
             return contests;
+        }
+
+        public Task RemoveContestAsync(int contestId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateContestAsync(Contest contest)
+        {
+            throw new NotImplementedException();
         }
     }
 }
