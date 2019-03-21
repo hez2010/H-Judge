@@ -13,9 +13,9 @@ namespace hjudgeWebHost.Services
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, ApplicationDbContext dbContext);
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, int groupId, ApplicationDbContext dbContext);
         Task<Problem> GetProblemAsync(int problemId, ApplicationDbContext dbContext);
-        Task CreateProblemAsync(Problem problem);
-        Task<bool> UpdateProblemAsync(Problem problem);
-        Task RemoveProblemAsync(int problemId);
+        Task<int> CreateProblemAsync(Problem problem, ApplicationDbContext dbContext);
+        Task UpdateProblemAsync(Problem problem, ApplicationDbContext dbContext);
+        Task RemoveProblemAsync(int problemId, ApplicationDbContext dbContext);
     }
     public class ProblemService : IProblemService
     {
@@ -28,9 +28,11 @@ namespace hjudgeWebHost.Services
             this.cacheService = cacheService;
         }
 
-        public Task CreateProblemAsync(Problem problem)
+        public async Task<int> CreateProblemAsync(Problem problem, ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            await dbContext.Problem.AddAsync(problem);
+            await dbContext.SaveChangesAsync();
+            return problem.Id;
         }
 
         public Task<Problem> GetProblemAsync(int problemId, ApplicationDbContext dbContext)
@@ -102,14 +104,17 @@ namespace hjudgeWebHost.Services
             return problems;
         }
 
-        public Task RemoveProblemAsync(int problemId)
+        public async Task RemoveProblemAsync(int problemId, ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            var problem = await GetProblemAsync(problemId, dbContext);
+            dbContext.Problem.Remove(problem);
+            await dbContext.SaveChangesAsync();
         }
 
-        public Task<bool> UpdateProblemAsync(Problem problem)
+        public async Task UpdateProblemAsync(Problem problem, ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            dbContext.Problem.Update(problem);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

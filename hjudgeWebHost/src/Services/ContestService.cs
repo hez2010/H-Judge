@@ -12,9 +12,9 @@ namespace hjudgeWebHost.Services
         Task<IQueryable<Contest>> QueryContestAsync(string? userId, ApplicationDbContext dbContext);
         Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId, ApplicationDbContext dbContext);
         Task<Contest> GetContestAsync(int contestId, ApplicationDbContext dbContext);
-        Task CreateContestAsync(Contest contest);
-        Task<bool> UpdateContestAsync(Contest contest);
-        Task RemoveContestAsync(int contestId);
+        Task<int> CreateContestAsync(Contest contest, ApplicationDbContext dbContext);
+        Task UpdateContestAsync(Contest contest, ApplicationDbContext dbContext);
+        Task RemoveContestAsync(int contestId, ApplicationDbContext dbContext);
     }
     public class ContestService : IContestService
     {
@@ -27,9 +27,11 @@ namespace hjudgeWebHost.Services
             this.cacheService = cacheService;
         }
 
-        public Task CreateContestAsync(Contest contest)
+        public async Task<int> CreateContestAsync(Contest contest, ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            await dbContext.Contest.AddAsync(contest);
+            await dbContext.SaveChangesAsync();
+            return contest.Id;
         }
 
         public Task<Contest> GetContestAsync(int contestId, ApplicationDbContext dbContext)
@@ -71,14 +73,17 @@ namespace hjudgeWebHost.Services
             return contests;
         }
 
-        public Task RemoveContestAsync(int contestId)
+        public async Task RemoveContestAsync(int contestId, ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            var contest = await GetContestAsync(contestId, dbContext);
+            dbContext.Contest.Remove(contest);
+            await dbContext.SaveChangesAsync();
         }
 
-        public Task<bool> UpdateContestAsync(Contest contest)
+        public async Task UpdateContestAsync(Contest contest, ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            dbContext.Contest.Update(contest);
+            await dbContext.SaveChangesAsync();
         }
     }
 }
