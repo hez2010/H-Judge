@@ -70,6 +70,17 @@ namespace SpanJson.AspNetCore.Formatter
         {
         }
     }
+    public class ConfigDefaultResolver<TSymbol> : ResolverBase<TSymbol, ConfigDefaultResolver<TSymbol>> where TSymbol : struct
+    {
+        public ConfigDefaultResolver() : base(new SpanJsonOptions
+        {
+            NullOption = NullOptions.IncludeNulls,
+            NamingConvention = NamingConventions.OriginalCase,
+            EnumOption = EnumOptions.Integer
+        })
+        {
+        }
+    }
     /// <summary>
     /// Extensions to use SpanJson in UTF8 mode as the default serializer
     /// </summary>

@@ -21,7 +21,7 @@ namespace hjudgeWebHost.Services
         public LocalLanguageService()
         {
             fileName = "./AppData/LanguageConfig.json";
-            languageConfigs = File.ReadAllBytes(fileName).DeserializeJson<List<LanguageConfig>>();
+            languageConfigs = File.ReadAllBytes(fileName).DeserializeJson<List<LanguageConfig>>(false);
         }
 
         public async Task<bool> AddLanguageConfigAsync(LanguageConfig config)
@@ -29,7 +29,7 @@ namespace hjudgeWebHost.Services
             if (languageConfigs.Any(i => i.Name == config.Name)) return false;
 
             languageConfigs.Add(config);
-            await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson());
+            await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson(false));
             return true;
         }
 
@@ -45,7 +45,7 @@ namespace hjudgeWebHost.Services
 
             if (languageConfigs.Remove(lang))
             {
-                await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson());
+                await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson(false));
                 return true;
             }
             return false;
@@ -59,7 +59,7 @@ namespace hjudgeWebHost.Services
             if (languageConfigs.Remove(lang))
             {
                 languageConfigs.Add(config);
-                await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson());
+                await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson(false));
                 return true;
             }
             return false;

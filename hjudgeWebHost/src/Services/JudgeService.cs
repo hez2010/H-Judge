@@ -8,9 +8,14 @@ namespace hjudgeWebHost.Services
     {
         Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId, ApplicationDbContext dbContext);
         Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId, ApplicationDbContext dbContext);
+        Task QueueJudgeAsync(Judge judge);
     }
     public class JudgeService : IJudgeService
     {
+        public JudgeService()
+        {
+
+        }
         public Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId, ApplicationDbContext dbContext)
         {
             return Task.FromResult(problemId switch
@@ -27,6 +32,11 @@ namespace hjudgeWebHost.Services
                 null => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId),
                 _ => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId)
             });
+        }
+
+        public Task QueueJudgeAsync(Judge judge)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

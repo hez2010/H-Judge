@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudgeFileHost", "hjudgeFil
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudgeJudgeHost", "hjudgeJudgeHost\src\hjudgeJudgeHost.csproj", "{38FB721B-31EB-4AEF-BEF5-7A9D0716E1C4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudgeRpcInterface", "hjudgeRpcInterface\src\hjudgeRpcInterface.csproj", "{8DA38A53-0847-413E-A1CB-A70334F3DA22}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudgeWebHost", "hjudgeWebHost\src\hjudgeWebHost.csproj", "{81808D4A-55C0-465C-84F4-5054C65BCE55}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudgeWebHostTest", "hjudgeWebHost\test\hjudgeWebHostTest.csproj", "{F932D2BF-51CC-424B-97F5-06E75539C314}"
@@ -73,18 +71,6 @@ Global
 		{38FB721B-31EB-4AEF-BEF5-7A9D0716E1C4}.Release|x64.Build.0 = Release|Any CPU
 		{38FB721B-31EB-4AEF-BEF5-7A9D0716E1C4}.Release|x86.ActiveCfg = Release|Any CPU
 		{38FB721B-31EB-4AEF-BEF5-7A9D0716E1C4}.Release|x86.Build.0 = Release|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Debug|x64.Build.0 = Debug|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Debug|x86.Build.0 = Debug|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Release|x64.ActiveCfg = Release|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Release|x64.Build.0 = Release|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Release|x86.ActiveCfg = Release|Any CPU
-		{8DA38A53-0847-413E-A1CB-A70334F3DA22}.Release|x86.Build.0 = Release|Any CPU
 		{81808D4A-55C0-465C-84F4-5054C65BCE55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{81808D4A-55C0-465C-84F4-5054C65BCE55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81808D4A-55C0-465C-84F4-5054C65BCE55}.Debug|x64.ActiveCfg = Debug|Any CPU

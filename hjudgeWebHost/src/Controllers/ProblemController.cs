@@ -285,7 +285,7 @@ namespace hjudgeWebHost.Controllers
             ret.Upvote = problem.Upvote;
             ret.Downvote = problem.Downvote;
 
-            var config = problem.Config.DeserializeJsonString<ProblemConfig>();
+            var config = problem.Config.DeserializeJson<ProblemConfig>(false);
 
             var langConfig = await languageService.GetLanguageConfigAsync();
             var langs = config?.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);

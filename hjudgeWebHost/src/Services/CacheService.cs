@@ -42,7 +42,7 @@ namespace hjudgeWebHost.Services
 #nullable disable
             if (v == null) return (false, default);
 #nullable enable
-            return (true, v.DeserializeJson<T>());
+            return (true, v.DeserializeJson<T>(false));
         }
 
         public Task RefreshObjectAsync<T>(string key)
@@ -57,7 +57,7 @@ namespace hjudgeWebHost.Services
 
         public Task SetObjectAsync<T>(string key, T obj)
         {
-            return distributedCache.SetAsync(key, obj.SerializeJson(), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
+            return distributedCache.SetAsync(key, obj.SerializeJson(false), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
         }
     }
 }

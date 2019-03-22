@@ -172,7 +172,7 @@ namespace hjudgeWebHost.Controllers
             ret.Upvote = contest.Upvote;
             ret.UserId = contest.UserId;
             ret.UserName = contest.UserInfo.UserName;
-            ret.Config = contest.Config.DeserializeJsonString<ContestConfig>();
+            ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
 
             return ret;
         }
