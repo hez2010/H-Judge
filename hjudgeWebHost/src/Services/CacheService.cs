@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using hjudgeWebHost.Utils;
+using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Threading.Tasks;
 
@@ -41,7 +42,7 @@ namespace hjudgeWebHost.Services
 #nullable disable
             if (v == null) return (false, default);
 #nullable enable
-            return (true, SpanJson.JsonSerializer.Generic.Utf8.Deserialize<T>(v));
+            return (true, v.DeserializeJson<T>());
         }
 
         public Task RefreshObjectAsync<T>(string key)
@@ -56,7 +57,7 @@ namespace hjudgeWebHost.Services
 
         public Task SetObjectAsync<T>(string key, T obj)
         {
-            return distributedCache.SetAsync(key, SpanJson.JsonSerializer.Generic.Utf8.Serialize(obj), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
+            return distributedCache.SetAsync(key, obj.SerializeJson(), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
         }
     }
 }

@@ -3,15 +3,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using hjudgeCore;
 using hjudgeWebHost.Models.Problem;
 using hjudgeWebHost.Services;
-using System.Text;
 using hjudgeWebHost.Configurations;
 using System.Collections.Generic;
+using hjudgeWebHost.Utils;
 
 namespace hjudgeWebHost.Controllers
 {
@@ -286,7 +285,7 @@ namespace hjudgeWebHost.Controllers
             ret.Upvote = problem.Upvote;
             ret.Downvote = problem.Downvote;
 
-            var config = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<ProblemConfig>(Encoding.UTF8.GetBytes(problem.Config).AsSpan());
+            var config = problem.Config.DeserializeJsonString<ProblemConfig>();
 
             var langConfig = await languageService.GetLanguageConfigAsync();
             var langs = config?.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);

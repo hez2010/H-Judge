@@ -3,12 +3,11 @@ using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Models.Contest;
 using hjudgeWebHost.Services;
-using Microsoft.AspNetCore.Identity;
+using hjudgeWebHost.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Controllers
@@ -173,7 +172,7 @@ namespace hjudgeWebHost.Controllers
             ret.Upvote = contest.Upvote;
             ret.UserId = contest.UserId;
             ret.UserName = contest.UserInfo.UserName;
-            ret.Config = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<ContestConfig>(Encoding.UTF8.GetBytes(contest.Config));
+            ret.Config = contest.Config.DeserializeJsonString<ContestConfig>();
 
             return ret;
         }
