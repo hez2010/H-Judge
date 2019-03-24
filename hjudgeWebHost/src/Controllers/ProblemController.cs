@@ -17,27 +17,27 @@ namespace hjudgeWebHost.Controllers
     [AutoValidateAntiforgeryToken]
     public class ProblemController : ControllerBase
     {
-        private readonly DbContextOptions<ApplicationDbContext> dbOptions;
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IProblemService problemService;
         private readonly IJudgeService judgeService;
         private readonly ILanguageService languageService;
         private readonly ICacheService cacheService;
+        private readonly ApplicationDbContext dbContext;
 
         public ProblemController(
-            DbContextOptions<ApplicationDbContext> dbOptions,
             CachedUserManager<UserInfo> userManager,
             IProblemService problemService,
             IJudgeService judgeService,
             ILanguageService languageService,
-            ICacheService cacheService)
+            ICacheService cacheService,
+            ApplicationDbContext dbContext)
         {
-            this.dbOptions = dbOptions;
             this.userManager = userManager;
             this.problemService = problemService;
             this.judgeService = judgeService;
             this.languageService = languageService;
             this.cacheService = cacheService;
+            this.dbContext = dbContext;
         }
         public class ProblemListQueryModel
         {
@@ -61,7 +61,6 @@ namespace hjudgeWebHost.Controllers
         public async Task<ProblemListModel> ProblemList([FromBody]ProblemListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
-            using var db = new ApplicationDbContext(dbOptions);
 
             var ret = new ProblemListModel();
 
@@ -69,8 +68,7 @@ namespace hjudgeWebHost.Controllers
                 userId,
                 model.GroupId == 0 ? null : (int?)model.GroupId,
                 model.ContestId == 0 ? null : (int?)model.ContestId,
-                null,
-                db);
+                null);
 
             IQueryable<Problem> problems;
 
@@ -78,9 +76,9 @@ namespace hjudgeWebHost.Controllers
             {
                 problems = await (model switch
                 {
-                    { ContestId: 0, GroupId: 0 } => problemService.QueryProblemAsync(userId, db),
-                    { GroupId: 0 } => problemService.QueryProblemAsync(userId, model.ContestId, db),
-                    { } => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId, db)
+                    { ContestId: 0, GroupId: 0 } => problemService.QueryProblemAsync(userId),
+                    { GroupId: 0 } => problemService.QueryProblemAsync(userId, model.ContestId),
+                    { } => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId)
                 });
             }
             catch (Exception ex)
@@ -140,7 +138,7 @@ namespace hjudgeWebHost.Controllers
             {
                 foreach (var problem in ret.Problems)
                 {
-                    var data = await db.ContestProblemConfig.Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id).Select(i => new { i.AcceptCount, i.SubmissionCount }).FirstOrDefaultAsync();
+                    var data = await dbContext.ContestProblemConfig.Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id).Select(i => new { i.AcceptCount, i.SubmissionCount }).FirstOrDefaultAsync();
                     if (data != null)
                     {
                         problem.AcceptCount = data.AcceptCount;
@@ -195,9 +193,6 @@ namespace hjudgeWebHost.Controllers
         public async Task<ProblemModel> ProblemDetails([FromBody]ProblemQueryModel model)
         {
             var userId = userManager.GetUserId(User);
-
-            using var db = new ApplicationDbContext(dbOptions);
-
             var ret = new ProblemModel();
 
             IQueryable<Problem> problems;
@@ -205,9 +200,9 @@ namespace hjudgeWebHost.Controllers
             {
                 problems = await (model switch
                 {
-                    { ContestId: 0, GroupId: 0 } => problemService.QueryProblemAsync(userId, db),
-                    { GroupId: 0 } => problemService.QueryProblemAsync(userId, model.ContestId, db),
-                    { } => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId, db)
+                    { ContestId: 0, GroupId: 0 } => problemService.QueryProblemAsync(userId),
+                    { GroupId: 0 } => problemService.QueryProblemAsync(userId, model.ContestId),
+                    { } => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId)
                 });
             }
             catch (Exception ex)
@@ -223,7 +218,7 @@ namespace hjudgeWebHost.Controllers
             Problem? problem = default;
             if (await problems.AnyAsync(i => i.Id == model.ProblemId))
             {
-                problem = await problemService.GetProblemAsync(model.ProblemId, db);
+                problem = await problemService.GetProblemAsync(model.ProblemId);
             }
             if (problem == null)
             {
@@ -235,8 +230,7 @@ namespace hjudgeWebHost.Controllers
                 userId,
                 model.GroupId == 0 ? null : (int?)model.GroupId,
                 model.ContestId == 0 ? null : (int?)model.ContestId,
-                null,
-                db);
+                null);
 
             if (judges.Any(i => i.ProblemId == problem.Id))
             {
@@ -252,7 +246,7 @@ namespace hjudgeWebHost.Controllers
 
             if (model.ContestId != 0)
             {
-                var data = await db.ContestProblemConfig.Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id).Select(i => new { i.AcceptCount, i.SubmissionCount }).FirstOrDefaultAsync();
+                var data = await dbContext.ContestProblemConfig.Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id).Select(i => new { i.AcceptCount, i.SubmissionCount }).FirstOrDefaultAsync();
                 if (data != null)
                 {
                     ret.AcceptCount = data.AcceptCount;

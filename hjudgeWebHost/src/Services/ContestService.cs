@@ -9,37 +9,39 @@ namespace hjudgeWebHost.Services
 {
     public interface IContestService
     {
-        Task<IQueryable<Contest>> QueryContestAsync(string? userId, ApplicationDbContext dbContext);
-        Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId, ApplicationDbContext dbContext);
-        Task<Contest> GetContestAsync(int contestId, ApplicationDbContext dbContext);
-        Task<int> CreateContestAsync(Contest contest, ApplicationDbContext dbContext);
-        Task UpdateContestAsync(Contest contest, ApplicationDbContext dbContext);
-        Task RemoveContestAsync(int contestId, ApplicationDbContext dbContext);
+        Task<IQueryable<Contest>> QueryContestAsync(string? userId);
+        Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId);
+        Task<Contest> GetContestAsync(int contestId);
+        Task<int> CreateContestAsync(Contest contest);
+        Task UpdateContestAsync(Contest contest);
+        Task RemoveContestAsync(int contestId);
     }
     public class ContestService : IContestService
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly ICacheService cacheService;
+        private readonly ApplicationDbContext dbContext;
 
-        public ContestService(CachedUserManager<UserInfo> userManager, ICacheService cacheService)
+        public ContestService(CachedUserManager<UserInfo> userManager, ICacheService cacheService, ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
             this.cacheService = cacheService;
+            this.dbContext = dbContext;
         }
 
-        public async Task<int> CreateContestAsync(Contest contest, ApplicationDbContext dbContext)
+        public async Task<int> CreateContestAsync(Contest contest)
         {
             await dbContext.Contest.AddAsync(contest);
             await dbContext.SaveChangesAsync();
             return contest.Id;
         }
 
-        public Task<Contest> GetContestAsync(int contestId, ApplicationDbContext dbContext)
+        public Task<Contest> GetContestAsync(int contestId)
         {
             return cacheService.GetObjectAndSetAsync($"contest_{contestId}", () => dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId));
         }
 
-        public async Task<IQueryable<Contest>> QueryContestAsync(string? userId, ApplicationDbContext dbContext)
+        public async Task<IQueryable<Contest>> QueryContestAsync(string? userId)
         {
             var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
 
@@ -52,7 +54,7 @@ namespace hjudgeWebHost.Services
             return contests;
         }
 
-        public async Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId, ApplicationDbContext dbContext)
+        public async Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId)
         {
             var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
 
@@ -73,14 +75,14 @@ namespace hjudgeWebHost.Services
             return contests;
         }
 
-        public async Task RemoveContestAsync(int contestId, ApplicationDbContext dbContext)
+        public async Task RemoveContestAsync(int contestId)
         {
-            var contest = await GetContestAsync(contestId, dbContext);
+            var contest = await GetContestAsync(contestId);
             dbContext.Contest.Remove(contest);
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateContestAsync(Contest contest, ApplicationDbContext dbContext)
+        public async Task UpdateContestAsync(Contest contest)
         {
             dbContext.Contest.Update(contest);
             await dbContext.SaveChangesAsync();

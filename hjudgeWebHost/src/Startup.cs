@@ -57,7 +57,7 @@ namespace hjudgeWebHost
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-            }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
+            });
 
             services.AddEntityFrameworkSqlServer();
 

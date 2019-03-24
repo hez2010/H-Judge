@@ -14,21 +14,21 @@ namespace hjudgeWebHost.Controllers
 {
     public class ContestController : ControllerBase
     {
-        private readonly DbContextOptions<ApplicationDbContext> dbOptions;
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IContestService contestService;
         private readonly ICacheService cacheService;
+        private readonly ApplicationDbContext dbContext;
 
         public ContestController(
-            DbContextOptions<ApplicationDbContext> dbOptions,
             CachedUserManager<UserInfo> userManager,
             IContestService contestService,
-            ICacheService cacheService)
+            ICacheService cacheService,
+            ApplicationDbContext dbContext)
         {
-            this.dbOptions = dbOptions;
             this.userManager = userManager;
             this.contestService = contestService;
             this.cacheService = cacheService;
+            this.dbContext = dbContext;
         }
 
         public class ContestListQueryModel
@@ -50,7 +50,6 @@ namespace hjudgeWebHost.Controllers
         public async Task<ContestListModel> ContestList([FromBody]ContestListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
-            using var db = new ApplicationDbContext(dbOptions);
 
             var ret = new ContestListModel();
 
@@ -60,8 +59,8 @@ namespace hjudgeWebHost.Controllers
             {
                 contests = await (model.GroupId switch
                 {
-                    0 => contestService.QueryContestAsync(userId, db),
-                    _ => contestService.QueryContestAsync(userId, model.GroupId, db)
+                    0 => contestService.QueryContestAsync(userId),
+                    _ => contestService.QueryContestAsync(userId, model.GroupId)
                 });
             }
             catch (Exception ex)
@@ -134,8 +133,6 @@ namespace hjudgeWebHost.Controllers
         {
             var userId = userManager.GetUserId(User);
 
-            using var db = new ApplicationDbContext(dbOptions);
-
             var ret = new ContestModel();
 
             IQueryable<Contest> contests;
@@ -144,8 +141,8 @@ namespace hjudgeWebHost.Controllers
             {
                 contests = await (model switch
                 {
-                    { GroupId: 0 } => contestService.QueryContestAsync(userId, db),
-                    { } => contestService.QueryContestAsync(userId, model.GroupId, db)
+                    { GroupId: 0 } => contestService.QueryContestAsync(userId),
+                    { } => contestService.QueryContestAsync(userId, model.GroupId)
                 });
             }
             catch (Exception ex)
