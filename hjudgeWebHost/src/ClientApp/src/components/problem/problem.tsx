@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
 import { match } from 'react-router';
-import { Button, Pagination, Table, Form, Label, Input, Select, SemanticCOLORS } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Label, Input, Select, SemanticCOLORS, Placeholder } from 'semantic-ui-react';
 import { History, Location } from 'history';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
@@ -132,6 +132,15 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   }
 
   render() {
+    let placeHolder = <Placeholder>
+      <Placeholder.Paragraph>
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+      </Placeholder.Paragraph>
+    </Placeholder>;
+
     return <>
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
@@ -154,6 +163,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         </Form.Group>
       </Form>
       {this.renderProblemList()}
+      {this.state.problemList.succeeded ? null : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.problemList.totalCount === 0 ? 0 : this.props.match.params.page}
