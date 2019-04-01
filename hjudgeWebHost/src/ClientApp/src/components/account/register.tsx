@@ -19,7 +19,7 @@ export default class Register extends React.Component<RegisterProps> {
 
   register(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     let element = event.target as HTMLButtonElement;
-    let form = document.getElementById('registerForm') as HTMLFormElement;
+    let form = document.querySelector('#registerForm') as HTMLFormElement;
     if (form.reportValidity()) {
       element.disabled = true;
       Post('/Account/Register', SerializeForm(form))

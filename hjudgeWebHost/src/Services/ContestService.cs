@@ -2,6 +2,7 @@
 using hjudgeWebHost.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@ namespace hjudgeWebHost.Services
         Task<int> CreateContestAsync(Contest contest);
         Task UpdateContestAsync(Contest contest);
         Task RemoveContestAsync(int contestId);
+        Task UpdateContestProblemsAsync(int contestId, IEnumerable<int> problems);
     }
     public class ContestService : IContestService
     {
@@ -33,6 +35,7 @@ namespace hjudgeWebHost.Services
         {
             await dbContext.Contest.AddAsync(contest);
             await dbContext.SaveChangesAsync();
+            await cacheService.SetObjectAsync($"contest_{contest.Id}", contest);
             return contest.Id;
         }
 
@@ -80,11 +83,40 @@ namespace hjudgeWebHost.Services
             var contest = await GetContestAsync(contestId);
             dbContext.Contest.Remove(contest);
             await dbContext.SaveChangesAsync();
+            await cacheService.RemoveObjectAsync($"contest_{contestId}");
         }
 
         public async Task UpdateContestAsync(Contest contest)
         {
             dbContext.Contest.Update(contest);
+            await dbContext.SaveChangesAsync();
+            await cacheService.RemoveObjectAsync($"contest_{contest.Id}");
+            await cacheService.SetObjectAsync($"contest_{contest.Id}", contest);
+        }
+
+        public async Task UpdateContestProblemsAsync(int contestId, IEnumerable<int> problems)
+        {
+            var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId).ToListAsync();
+            dbContext.ContestProblemConfig.RemoveRange(oldProblems);
+            var dict = oldProblems.ToDictionary(i => i.ProblemId);
+            foreach(var i in problems)
+            {
+                if (dict.ContainsKey(i))
+                {
+                    dict[i].Id = 0;
+                    dbContext.ContestProblemConfig.Add(dict[i]);
+                }
+                else
+                {
+                    dbContext.ContestProblemConfig.Add(new ContestProblemConfig
+                    {
+                        ProblemId = i,
+                        ContestId = contestId,
+                        AcceptCount = 0,
+                        SubmissionCount = 0
+                    });
+                }
+            }
             await dbContext.SaveChangesAsync();
         }
     }

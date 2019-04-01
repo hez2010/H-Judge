@@ -56,7 +56,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   fetchProblemList(requireTotalCount: boolean, page: number) {
     if (!this.props.contestId && page.toString() !== this.props.match.params.page)
       this.props.history.replace(`/problem/${page}`);
-    let form = document.getElementById('filterForm') as HTMLFormElement;
+    let form = document.querySelector('#filterForm') as HTMLFormElement;
     let req: any = {};
     req.filter = SerializeForm(form);
     if (!req.filter.id) req.filter.id = 0;

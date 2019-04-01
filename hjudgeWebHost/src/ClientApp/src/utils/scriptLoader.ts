@@ -1,5 +1,5 @@
 ﻿export function ensureLoading(name: string, src: string, callback: any) {
-  if (document.getElementById('script_loaded_' + name)) { if (callback) callback(); }
+  if (document.querySelector('#script_loaded_' + name)) { if (callback) callback(); }
   else {
     let script = document.createElement('script');
     script.id = 'script_loaded_' + name;

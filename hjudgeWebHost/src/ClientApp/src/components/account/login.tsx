@@ -19,7 +19,7 @@ export default class Login extends React.Component<LoginProps> {
 
   login(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     let element = event.target as HTMLButtonElement;
-    let form = document.getElementById('loginForm') as HTMLFormElement;
+    let form = document.querySelector('#loginForm') as HTMLFormElement;
     if (form.reportValidity()) {
       element.disabled = true;
       Post('/Account/Login', SerializeForm(form))
@@ -42,6 +42,7 @@ export default class Login extends React.Component<LoginProps> {
           console.log(err);
         })
     }
+    
   }
 
   render() {
@@ -53,7 +54,7 @@ export default class Login extends React.Component<LoginProps> {
             <Form id='loginForm'>
               <Form.Field required>
                 <Label>用户名</Label>
-                <Input name='username' required></Input>
+                <Input name='userName' required></Input>
               </Form.Field>
               <Form.Field required>
                 <Label>密码</Label>

@@ -53,7 +53,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
 
   fetchContestList(requireTotalCount: boolean, page: number) {
     this.props.history.replace(`/contest/${page}`);
-    let form = document.getElementById('filterForm') as HTMLFormElement;
+    let form = document.querySelector('#filterForm') as HTMLFormElement;
     let req: any = {};
     req.filter = SerializeForm(form);
     if (!req.filter.id) req.filter.id = 0;

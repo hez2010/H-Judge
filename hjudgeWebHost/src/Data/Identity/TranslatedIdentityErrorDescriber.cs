@@ -99,7 +99,7 @@ namespace hjudgeWebHost.Data.Identity
             return new IdentityError
             {
                 Code = nameof(PasswordMismatch),
-                Description = "密码不匹配"
+                Description = "密码输入错误"
             };
         }
 
