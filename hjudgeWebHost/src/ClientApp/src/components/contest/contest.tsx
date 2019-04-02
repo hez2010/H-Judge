@@ -6,13 +6,16 @@ import { History, Location } from 'history';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
+import { UserInfo } from '../../interfaces/userInfo';
+import { isTeacher } from '../../utils/privilegeHelper';
 
 interface ContestProps {
   match: match<any>,
   history: History<any>,
   location: Location<any>,
   openPortal: ((header: string, message: string, color: SemanticCOLORS) => void),
-  groupId?: number
+  groupId?: number,
+  userInfo: UserInfo
 }
 
 interface ContestListItemModel {
@@ -41,6 +44,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     this.renderContestList = this.renderContestList.bind(this);
     this.fetchContestList = this.fetchContestList.bind(this);
     this.gotoDetails = this.gotoDetails.bind(this);
+    this.editContest = this.editContest.bind(this);
 
     this.state = {
       contestList: {
@@ -101,6 +105,10 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     else this.props.history.push(`/details/contest/${this.props.groupId}/${index}`);
   }
 
+  editContest(id: number) {
+    this.props.history.push(`/edit/contest/${id}`);
+  }
+
   renderContestList() {
     return <>
       <Table color='blue' selectable>
@@ -111,6 +119,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
             <Table.HeaderCell>状态</Table.HeaderCell>
             <Table.HeaderCell>开始时间</Table.HeaderCell>
             <Table.HeaderCell>结束时间</Table.HeaderCell>
+            {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -122,6 +131,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
                 <Table.Cell>{v.status === 0 ? '未开始' : v.status === 1 ? '进行中' : '已结束'}</Table.Cell>
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button primary>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -155,8 +165,11 @@ export default class Contest extends React.Component<ContestProps, ContestState>
             <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ContestState) }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未开始', value: 0 }, { text: '进行中', value: 1 }, { text: '已结束', value: 2 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
-            <Label>筛选操作</Label>
-            <Button fluid primary onClick={() => this.fetchContestList(true, 1)}>确定</Button>
+            <Label>比赛操作</Label>
+            <Button.Group fluid>
+              <Button primary onClick={() => this.fetchContestList(true, 1)}>筛选</Button>
+              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editContest(0)}>添加</Button> : null}
+            </Button.Group>
           </Form.Field>
         </Form.Group>
       </Form>

@@ -51,6 +51,7 @@ namespace hjudgeWebHost
             services.AddTransient<IProblemService, ProblemService>();
             services.AddTransient<IContestService, ContestService>();
             services.AddTransient<IJudgeService, JudgeService>();
+            services.AddTransient<IGroupService, GroupService>();
             services.AddTransient<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 

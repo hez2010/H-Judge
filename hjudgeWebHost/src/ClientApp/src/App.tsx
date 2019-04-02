@@ -48,7 +48,8 @@ export default class App extends React.Component<{}, AppState> {
         userName: '',
         signedIn: false,
         experience: 0,
-        coins: 0
+        coins: 0,
+        succeeded: false
       }
     }
 
@@ -113,15 +114,15 @@ export default class App extends React.Component<{}, AppState> {
             </Route>
             <Route
               path='/problem/:page?'
-              render={props => <Problem {...props} openPortal={this.openPortal}></Problem>}>
+              render={props => <Problem {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></Problem>}>
             </Route>
             <Route
               path='/details/problem/:problemId/:contestId?/:groupId?'
-              render={props => <ProblemDetails {...props} openPortal={this.openPortal}></ProblemDetails>}>
+              render={props => <ProblemDetails {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></ProblemDetails>}>
             </Route>
             <Route
               path='/contest/:page?'
-              render={props => <Contest {...props} openPortal={this.openPortal}></Contest>}>
+              render={props => <Contest {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></Contest>}>
             </Route>
             <Route
               path='/group'

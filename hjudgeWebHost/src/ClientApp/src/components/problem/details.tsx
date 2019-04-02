@@ -13,12 +13,15 @@ import mk from '../../extensions/markdown-it-math';
 import hljs from '../../extensions/markdown-it-code';
 import { ensureLoading } from '../../utils/scriptLoader';
 import { nextTick } from 'q';
+import { UserInfo } from '../../interfaces/userInfo';
+import { isTeacher } from '../../utils/privilegeHelper';
 
 interface ProblemDetailsProps {
   match: match<any>,
   history: History<any>,
   location: Location<any>,
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void)
+  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void),
+  userInfo: UserInfo
 }
 
 interface ProblemDetailsState {
@@ -52,6 +55,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     this.fetchDetail = this.fetchDetail.bind(this);
     this.renderProblemInfo = this.renderProblemInfo.bind(this);
     this.loadEditor = this.loadEditor.bind(this);
+    this.editProblem = this.editProblem.bind(this);
 
     this.state = {
       problem: {
@@ -143,6 +147,10 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     });
   }
 
+  editProblem(id: number) {
+    this.props.history.push(`/edit/problem/${id}`);
+  }
+
   render() {
     let placeHolder = <Placeholder>
       <Placeholder.Paragraph>
@@ -205,7 +213,10 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
               <Popup.Content>{this.renderProblemInfo()}</Popup.Content>
             </Popup>
             <div style={{ float: 'right' }}>
-              <Button>状态</Button>
+              <Button.Group>
+                <Button>状态</Button>
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(this.state.problem.id)}>编辑</Button> : null}
+              </Button.Group>
             </div>
           </Item.Header>
 

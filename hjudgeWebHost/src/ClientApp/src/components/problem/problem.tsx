@@ -6,6 +6,8 @@ import { History, Location } from 'history';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
+import { UserInfo } from '../../interfaces/userInfo';
+import { isTeacher } from '../../utils/privilegeHelper';
 
 interface ProblemProps {
   match: match<any>,
@@ -13,7 +15,8 @@ interface ProblemProps {
   location: Location<any>,
   openPortal: ((header: string, message: string, color: SemanticCOLORS) => void),
   contestId?: number,
-  groupId?: number
+  groupId?: number,
+  userInfo: UserInfo
 }
 
 interface ProblemListItemModel {
@@ -43,6 +46,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
     this.renderProblemList = this.renderProblemList.bind(this);
     this.fetchProblemList = this.fetchProblemList.bind(this);
     this.gotoDetails = this.gotoDetails.bind(this);
+    this.editProblem = this.editProblem.bind(this);
 
     this.state = {
       problemList: {
@@ -101,6 +105,10 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
     else this.props.history.push(`/details/problem/${this.props.groupId}/${this.props.contestId}/${index}`);
   }
 
+  editProblem(id: number) {
+    this.props.history.push(`/edit/problem/${id}`);
+  }
+
   renderProblemList() {
     return <>
       <Table color='blue' selectable>
@@ -112,6 +120,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
             <Table.HeaderCell>状态</Table.HeaderCell>
             <Table.HeaderCell>通过量/提交量</Table.HeaderCell>
             <Table.HeaderCell>通过率</Table.HeaderCell>
+            {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -120,10 +129,11 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
               <Table.Row key={i} warning={v.hidden} onClick={() => this.gotoDetails(v.id)} style={{ cursor: 'pointer' }}>
                 <Table.Cell>{v.id}</Table.Cell>
                 <Table.Cell>{v.name}</Table.Cell>
-                <Table.Cell>{v.level}</Table.Cell>
+                <Table.Cell>⭐×{v.level}</Table.Cell>
                 <Table.Cell>{v.status === 0 ? '未尝试' : v.status === 1 ? '已尝试' : '已通过'}</Table.Cell>
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button primary>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -157,8 +167,11 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
             <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ProblemState) }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未尝试', value: 0 }, { text: '已尝试', value: 1 }, { text: '已通过', value: 2 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
-            <Label>筛选操作</Label>
-            <Button fluid primary onClick={() => this.fetchProblemList(true, 1)}>确定</Button>
+            <Label>题目操作</Label>
+            <Button.Group fluid>
+              <Button primary onClick={() => this.fetchProblemList(true, 1)}>筛选</Button>
+              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(0)}>添加</Button> : null}
+            </Button.Group>
           </Form.Field>
         </Form.Group>
       </Form>
