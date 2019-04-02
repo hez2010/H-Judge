@@ -16,18 +16,24 @@ namespace hjudgeWebHost.Services
         Task<int> CreateContestAsync(Contest contest);
         Task UpdateContestAsync(Contest contest);
         Task RemoveContestAsync(int contestId);
-        Task UpdateContestProblemsAsync(int contestId, IEnumerable<int> problems);
+        Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems);
+        Task<IQueryable<ContestProblemConfig>> QueryContestProblemAsync(int contestId);
     }
     public class ContestService : IContestService
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly ICacheService cacheService;
+        private readonly IGroupService groupService;
         private readonly ApplicationDbContext dbContext;
 
-        public ContestService(CachedUserManager<UserInfo> userManager, ICacheService cacheService, ApplicationDbContext dbContext)
+        public ContestService(CachedUserManager<UserInfo> userManager,
+            ICacheService cacheService,
+            IGroupService groupService,
+            ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
             this.cacheService = cacheService;
+            this.groupService = groupService;
             this.dbContext = dbContext;
         }
 
@@ -46,22 +52,22 @@ namespace hjudgeWebHost.Services
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId)
         {
-            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
+            var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Contest> contests = dbContext.Contest;
+            IQueryable<Contest> contests = dbContext.Contest.Include(i => i.ContestRegister);
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
-                contests = contests.Where(i => !i.Hidden);
+                contests = contests.Where(i => !i.Hidden || (i.SpecifyCompetitors && i.ContestRegister.Any(j => j.ContestId == i.Id && j.UserId == userId)));
             }
             return contests;
         }
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId)
         {
-            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
+            var user = await userManager.FindByIdAsync(userId);
 
-            var group = await cacheService.GetObjectAndSetAsync($"group_{groupId}", () => dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId));
+            var group = await groupService.GetGroupAsync(groupId);
             if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
@@ -73,9 +79,16 @@ namespace hjudgeWebHost.Services
                 }
             }
 
-            IQueryable<Contest> contests = dbContext.GroupContestConfig.Include(i => i.Contest).Where(i => i.GroupId == groupId).Select(i => i.Contest);
+            IQueryable<Contest> contests = dbContext.GroupContestConfig
+                .Include(i => i.Contest).Where(i => i.GroupId == groupId).Select(i => i.Contest);
 
             return contests;
+        }
+
+        public Task<IQueryable<ContestProblemConfig>> QueryContestProblemAsync(int contestId)
+        {
+            return Task.FromResult(dbContext.ContestProblemConfig
+                .Include(i => i.Problem).Where(i => i.ContestId == contestId));
         }
 
         public async Task RemoveContestAsync(int contestId)
@@ -94,12 +107,12 @@ namespace hjudgeWebHost.Services
             await cacheService.SetObjectAsync($"contest_{contest.Id}", contest);
         }
 
-        public async Task UpdateContestProblemsAsync(int contestId, IEnumerable<int> problems)
+        public async Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems)
         {
             var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId).ToListAsync();
             dbContext.ContestProblemConfig.RemoveRange(oldProblems);
             var dict = oldProblems.ToDictionary(i => i.ProblemId);
-            foreach(var i in problems)
+            foreach (var i in problems)
             {
                 if (dict.ContainsKey(i))
                 {

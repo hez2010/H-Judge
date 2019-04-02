@@ -22,18 +22,28 @@ namespace hjudgeWebHost.Services
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly ICacheService cacheService;
         private readonly ApplicationDbContext dbContext;
+        private readonly IContestService contestService;
+        private readonly IGroupService groupService;
 
-        public ProblemService(CachedUserManager<UserInfo> userManager, ICacheService cacheService, ApplicationDbContext dbContext)
+        public ProblemService(
+            CachedUserManager<UserInfo> userManager,
+            ICacheService cacheService,
+            ApplicationDbContext dbContext,
+            IContestService contestService,
+            IGroupService groupService)
         {
             this.userManager = userManager;
             this.cacheService = cacheService;
             this.dbContext = dbContext;
+            this.contestService = contestService;
+            this.groupService = groupService;
         }
 
         public async Task<int> CreateProblemAsync(Problem problem)
         {
             await dbContext.Problem.AddAsync(problem);
             await dbContext.SaveChangesAsync();
+            await cacheService.SetObjectAsync($"problem_{problem.Id}", problem);
             return problem.Id;
         }
 
@@ -44,7 +54,7 @@ namespace hjudgeWebHost.Services
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId)
         {
-            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
+            var user = await userManager.FindByIdAsync(userId);
 
             IQueryable<Problem> problems = dbContext.Problem;
 
@@ -58,9 +68,9 @@ namespace hjudgeWebHost.Services
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId)
         {
-            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
+            var user = await userManager.FindByIdAsync(userId);
 
-            var contest = await cacheService.GetObjectAndSetAsync($"contest_{contestId}", () => dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId));
+            var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
@@ -78,12 +88,12 @@ namespace hjudgeWebHost.Services
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, int groupId)
         {
-            var user = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => userManager.FindByIdAsync(userId));
+            var user = await userManager.FindByIdAsync(userId);
 
-            var contest = await cacheService.GetObjectAndSetAsync($"contest_{contestId}", () => dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId));
+            var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
 
-            var group = await cacheService.GetObjectAndSetAsync($"group_{groupId}", () => dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId));
+            var group = await groupService.GetGroupAsync(groupId);
             if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
 
             if (!dbContext.GroupContestConfig.Any(i => i.GroupId == groupId && i.ContestId == contestId))
@@ -111,12 +121,15 @@ namespace hjudgeWebHost.Services
             var problem = await GetProblemAsync(problemId);
             dbContext.Problem.Remove(problem);
             await dbContext.SaveChangesAsync();
+            await cacheService.RemoveObjectAsync($"problem_{problemId}");
         }
 
         public async Task UpdateProblemAsync(Problem problem)
         {
             dbContext.Problem.Update(problem);
             await dbContext.SaveChangesAsync();
+            await cacheService.RemoveObjectAsync($"problem_{problem.Id}");
+            await cacheService.SetObjectAsync($"problem_{problem.Id}", problem);
         }
     }
 }

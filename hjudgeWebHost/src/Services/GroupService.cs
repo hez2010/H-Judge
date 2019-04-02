@@ -1,4 +1,5 @@
 ﻿using hjudgeWebHost.Data;
+using hjudgeWebHost.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,23 +10,25 @@ namespace hjudgeWebHost.Services
 {
     public interface IGroupService
     {
-        Task<IQueryable<Group>> QueryGroupAsync();
-        Task<IQueryable<Group>> QueryGroupAsync(string userId);
+        Task<IQueryable<Group>> QueryGroupAsync(string? userId);
         Task<Group> GetGroupAsync(int groupId);
         Task<int> CreateGroupAsync(Group group);
         Task UpdateGroupAsync(Group group);
         Task RemoveGroupAsync(int groupId);
-        Task UpdateGroupContestsAsync(int groupId, IEnumerable<int> contests);
+        Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests);
+        Task<IQueryable<GroupContestConfig>> QueryGroupContestAsync(int groupId);
     }
     public class GroupService : IGroupService
     {
         private readonly ApplicationDbContext dbContext;
         private readonly ICacheService cacheService;
+        private readonly CachedUserManager<UserInfo> userManager;
 
-        public GroupService(ApplicationDbContext dbContext, ICacheService cacheService)
+        public GroupService(ApplicationDbContext dbContext, ICacheService cacheService, CachedUserManager<UserInfo> userManager)
         {
             this.dbContext = dbContext;
             this.cacheService = cacheService;
+            this.userManager = userManager;
         }
         public async Task<int> CreateGroupAsync(Group group)
         {
@@ -40,14 +43,25 @@ namespace hjudgeWebHost.Services
             return cacheService.GetObjectAndSetAsync($"group_{groupId}", () => dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId));
         }
 
-        public Task<IQueryable<Group>> QueryGroupAsync()
+        public async Task<IQueryable<Group>> QueryGroupAsync(string? userId)
         {
-            throw new NotImplementedException();
+            var user = await userManager.FindByIdAsync(userId);
+
+            IQueryable<Group> groups = dbContext.Group.Include(i => i.GroupJoin);
+
+            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            {
+                groups = groups.Where(i => (i.IsPrivate && i.GroupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)) || !i.IsPrivate);
+            }
+
+            return groups;
         }
 
-        public Task<IQueryable<Group>> QueryGroupAsync(string userId)
+        public Task<IQueryable<GroupContestConfig>> QueryGroupContestAsync(int groupId)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(dbContext.GroupContestConfig
+                .Include(i => i.Group)
+                .Where(i => i.GroupId == groupId));
         }
 
         public async Task RemoveGroupAsync(int groupId)
@@ -66,7 +80,7 @@ namespace hjudgeWebHost.Services
             await cacheService.SetObjectAsync($"group_{group.Id}", group);
         }
 
-        public async Task UpdateGroupContestsAsync(int groupId, IEnumerable<int> contests)
+        public async Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests)
         {
             var oldContests = await dbContext.GroupContestConfig.Where(i => i.GroupId == groupId).ToListAsync();
             dbContext.GroupContestConfig.RemoveRange(oldContests);
