@@ -55,6 +55,16 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
       },
       statusFilter: [0, 1, 2]
     };
+
+    this.idRecord = new Map<number, number>();
+  }
+
+  private idRecord: Map<number, number>;
+
+  componentWillUpdate(nextProps: any, nextState: any) {
+    if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
+      this.idRecord.clear();
+    }
   }
 
   fetchProblemList(requireTotalCount: boolean, page: number) {
@@ -70,6 +80,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
     req.requireTotalCount = requireTotalCount;
     req.contestId = this.props.contestId;
     req.groupId = this.props.groupId;
+    if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
     Post('/Problem/ProblemList', req)
       .then(res => res.json())
@@ -78,6 +89,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         if (result.succeeded) {
           let countBackup = this.state.problemList.totalCount;
           if (!requireTotalCount) result.totalCount = countBackup;
+          this.idRecord.set(page + 1, result.problems[result.problems.length - 1].id);
           this.setState({
             problemList: result
           } as ProblemState);
@@ -156,15 +168,15 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         <Form.Group widths={'equal'}>
           <Form.Field width={6}>
             <Label>题目编号</Label>
-            <Input fluid name='id' type='number'></Input>
+            <Input fluid name='id' type='number' onChange={() => { this.idRecord.clear(); }}></Input>
           </Form.Field>
           <Form.Field>
             <Label>题目名称</Label>
-            <Input fluid name='name'></Input>
+            <Input fluid name='name' onChange={() => { this.idRecord.clear(); }}></Input>
           </Form.Field>
           <Form.Field>
             <Label>题目状态</Label>
-            <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ProblemState) }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未尝试', value: 0 }, { text: '已尝试', value: 1 }, { text: '已通过', value: 2 }]}></Select>
+            <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ProblemState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未尝试', value: 0 }, { text: '已尝试', value: 1 }, { text: '已通过', value: 2 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
             <Label>题目操作</Label>

@@ -48,6 +48,7 @@ namespace hjudgeWebHost.Controllers
                 public int[] Status { get; set; } = new[] { 0, 1, 2 };
             }
             public int Start { get; set; }
+            public int StartId { get; set; }
             public int Count { get; set; }
             public bool RequireTotalCount { get; set; }
             public int ContestId { get; set; }
@@ -120,46 +121,43 @@ namespace hjudgeWebHost.Controllers
                 }
             }
 
-            ret.Problems = await problems.OrderBy(i => i.Id).Skip(model.Start).Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
-            {
-                Id = i.Id,
-                Name = i.Name,
-                Level = i.Level,
-                AcceptCount = i.AcceptCount,
-                SubmissionCount = i.SubmissionCount,
-                Hidden = i.Hidden,
-                Upvote = i.Upvote,
-                Downvote = i.Downvote
-            }).ToListAsync();
-
             if (model.RequireTotalCount) ret.TotalCount = await problems.CountAsync();
+
+            problems = problems.OrderBy(i => i.Id);
+            if (model.StartId == 0) problems = problems.Skip(model.Start);
+            else problems = problems.Where(i => i.Id >= model.StartId);
 
             if (model.ContestId != 0)
             {
-                foreach (var problem in ret.Problems)
+                ret.Problems = await problems.Include(i => i.ContestProblemConfig).Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
                 {
-                    var data = await dbContext.ContestProblemConfig.Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id).Select(i => new { i.AcceptCount, i.SubmissionCount }).FirstOrDefaultAsync();
-                    if (data != null)
-                    {
-                        problem.AcceptCount = data.AcceptCount;
-                        problem.SubmissionCount = data.SubmissionCount;
-                    }
-                }
+                    Id = i.Id,
+                    Name = i.Name,
+                    Level = i.Level,
+                    AcceptCount = i.ContestProblemConfig.FirstOrDefault(j => j.ContestId == model.ContestId && j.ProblemId == i.Id).AcceptCount,
+                    SubmissionCount = i.ContestProblemConfig.FirstOrDefault(j => j.ContestId == model.ContestId && j.ProblemId == i.Id).SubmissionCount,
+                    Hidden = i.Hidden,
+                    Upvote = i.Upvote,
+                    Downvote = i.Downvote,
+                    Status = judges.Any(j => j.ProblemId == i.Id) ?
+                        (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
+                }).ToListAsync();
             }
-
-            if (!string.IsNullOrEmpty(userId))
+            else
             {
-                foreach (var problem in ret.Problems)
+                ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
                 {
-                    if (judges.Any(i => i.ProblemId == problem.Id))
-                    {
-                        problem.Status = 1;
-                        if (judges.Any(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted))
-                        {
-                            problem.Status = 2;
-                        }
-                    }
-                }
+                    Id = i.Id,
+                    Name = i.Name,
+                    Level = i.Level,
+                    AcceptCount = i.AcceptCount,
+                    SubmissionCount = i.SubmissionCount,
+                    Hidden = i.Hidden,
+                    Upvote = i.Upvote,
+                    Downvote = i.Downvote,
+                    Status = judges.Any(j => j.ProblemId == i.Id) ?
+                        (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
+                }).ToListAsync();
             }
 
             return ret;

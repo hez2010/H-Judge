@@ -22,7 +22,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
-    <PackageReference Include="SpanJson" Version="2.0.7" />
+    <PackageReference Include="SpanJson" Version="2.0.8" />
   </ItemGroup>
 
   <ItemGroup>

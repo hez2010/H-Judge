@@ -53,6 +53,15 @@ export default class Contest extends React.Component<ContestProps, ContestState>
       },
       statusFilter: [0, 1, 2]
     };
+
+    this.idRecord = new Map<number, number>();
+  }
+  private idRecord: Map<number, number>;
+
+  componentWillUpdate(nextProps: any, nextState: any) {
+    if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
+      this.idRecord.clear();
+    }
   }
 
   fetchContestList(requireTotalCount: boolean, page: number) {
@@ -66,6 +75,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     req.count = 10;
     req.requireTotalCount = requireTotalCount;
     req.groupId = this.props.groupId;
+    if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
     Post('/Contest/ContestList', req)
       .then(res => res.json())
@@ -78,6 +88,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
             result.contests[c].startTime = new Date(result.contests[c].startTime.toString());
             result.contests[c].endTime = new Date(result.contests[c].endTime.toString());
           }
+          this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
           this.setState({
             contestList: result
           } as ContestState);
@@ -154,15 +165,15 @@ export default class Contest extends React.Component<ContestProps, ContestState>
         <Form.Group widths={'equal'}>
           <Form.Field width={6}>
             <Label>比赛编号</Label>
-            <Input fluid name='id' type='number'></Input>
+            <Input fluid name='id' type='number' onChange={() => { this.idRecord.clear(); }}></Input>
           </Form.Field>
           <Form.Field>
             <Label>比赛名称</Label>
-            <Input fluid name='name'></Input>
+            <Input fluid name='name' onChange={() => { this.idRecord.clear(); }}></Input>
           </Form.Field>
           <Form.Field>
             <Label>比赛状态</Label>
-            <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ContestState) }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未开始', value: 0 }, { text: '进行中', value: 1 }, { text: '已结束', value: 2 }]}></Select>
+            <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ContestState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未开始', value: 0 }, { text: '进行中', value: 1 }, { text: '已结束', value: 2 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
             <Label>比赛操作</Label>

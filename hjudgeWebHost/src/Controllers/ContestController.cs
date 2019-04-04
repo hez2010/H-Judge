@@ -17,18 +17,15 @@ namespace hjudgeWebHost.Controllers
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IContestService contestService;
         private readonly ICacheService cacheService;
-        private readonly ApplicationDbContext dbContext;
 
         public ContestController(
             CachedUserManager<UserInfo> userManager,
             IContestService contestService,
-            ICacheService cacheService,
-            ApplicationDbContext dbContext)
+            ICacheService cacheService)
         {
             this.userManager = userManager;
             this.contestService = contestService;
             this.cacheService = cacheService;
-            this.dbContext = dbContext;
         }
 
         public class ContestListQueryModel
@@ -40,6 +37,7 @@ namespace hjudgeWebHost.Controllers
                 public int[] Status { get; set; } = new[] { 0, 1, 2 };
             }
             public int Start { get; set; }
+            public int StartId { get; set; }
             public int Count { get; set; }
             public bool RequireTotalCount { get; set; }
             public int GroupId { get; set; }
@@ -100,6 +98,13 @@ namespace hjudgeWebHost.Controllers
                 }
             }
 
+            if (model.RequireTotalCount) ret.TotalCount = await contests.CountAsync();
+
+            contests = contests.OrderByDescending(i => i.Id);
+
+            if (model.StartId == 0) contests = contests.Skip(model.Start);
+            else contests = contests.Where(i => i.Id <= model.StartId);
+
             ret.Contests = await contests.OrderByDescending(i => i.Id).Skip(model.Start).Take(model.Count).Select(i => new ContestListModel.ContestListItemModel
             {
                 Id = i.Id,
@@ -108,16 +113,10 @@ namespace hjudgeWebHost.Controllers
                 Hidden = i.Hidden,
                 Name = i.Name,
                 StartTime = i.StartTime,
-                Upvote = i.Upvote
+                Upvote = i.Upvote,
+                Status = now < i.StartTime ? 0 :
+                    now > i.EndTime ? 2 : 1
             }).ToListAsync();
-
-            if (model.RequireTotalCount) ret.TotalCount = await contests.CountAsync();
-
-            foreach (var contest in ret.Contests)
-            {
-                contest.Status = now < contest.StartTime ? 0 :
-                    now > contest.EndTime ? 2 : 1;
-            }
 
             return ret;
         }
