@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.6.0-preview3.19128.7" />
+    <DotNetCliToolReference Include="dotnet-sourcelink" Version="2.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Formatters\BclFormatter.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BclFormatter.cs</LastGenOutput>
+    </None>
+    <None Update="Formatters\Dynamic\SpanJsonDynamicString.Operators.tt">
+      <LastGenOutput>SpanJsonDynamicString.Operators.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="Formatters\Dynamic\SpanJsonDynamicNumber.Operators.tt">
+      <LastGenOutput>SpanJsonDynamicNumber.Operators.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="JsonWriter.PrimitiveWrappers.tt">
+      <LastGenOutput>JsonWriter.PrimitiveWrappers.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="JsonReader.PrimitiveWrappers.tt">
+      <LastGenOutput>JsonReader.PrimitiveWrappers.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="JsonWriter.Utf8.WriteVerbatimIntegers.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>JsonWriter.Utf8.WriteVerbatimIntegers.cs</LastGenOutput>
+    </None>
+    <Compile Update="Formatters\BclFormatter.cs">
+      <DependentUpon>BclFormatter.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Formatters\Dynamic\SpanJsonDynamicString.Operators.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SpanJsonDynamicString.Operators.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Formatters\Dynamic\SpanJsonDynamicNumber.Operators.cs">
+      <DependentUpon>SpanJsonDynamicNumber.Operators.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="JsonReader.PrimitiveWrappers.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>JsonReader.PrimitiveWrappers.tt</DependentUpon>
+    </Compile>
+    <Compile Update="JsonWriter.Utf8.WriteVerbatimIntegers.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>JsonWriter.Utf8.WriteVerbatimIntegers.tt</DependentUpon>
+    </Compile>
+    <Compile Update="JsonWriter.PrimitiveWrappers.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>JsonWriter.PrimitiveWrappers.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

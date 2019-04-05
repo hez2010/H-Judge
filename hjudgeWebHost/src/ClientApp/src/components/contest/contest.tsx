@@ -88,7 +88,9 @@ export default class Contest extends React.Component<ContestProps, ContestState>
             result.contests[c].startTime = new Date(result.contests[c].startTime.toString());
             result.contests[c].endTime = new Date(result.contests[c].endTime.toString());
           }
-          this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
+
+          if (result.contests.length > 0)
+            this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
           this.setState({
             contestList: result
           } as ContestState);
@@ -185,7 +187,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
         </Form.Group>
       </Form>
       {this.renderContestList()}
-      {this.state.contestList.succeeded ? null : placeHolder}
+      {this.state.contestList.succeeded ? (this.state.contestList.contests.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.contestList.totalCount === 0 ? 0 : this.props.match.params.page}

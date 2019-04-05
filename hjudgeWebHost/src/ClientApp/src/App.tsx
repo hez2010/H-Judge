@@ -12,6 +12,7 @@ import { TransitionablePortal, Header, Segment, Divider, SemanticCOLORS, Icon } 
 import Problem from "./components/problem/problem";
 import Contest from "./components/contest/contest";
 import ProblemDetails from "./components/problem/details";
+import Group from "./components/group/group";
 
 interface PortalState {
   open: boolean,
@@ -125,8 +126,8 @@ export default class App extends React.Component<{}, AppState> {
               render={props => <Contest {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></Contest>}>
             </Route>
             <Route
-              path='/group'
-              render={props => <p {...props}>group</p>}>
+              path='/group/:page?'
+              render={props => <Group {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></Group>}>
             </Route>
             <Route
               path='/message'

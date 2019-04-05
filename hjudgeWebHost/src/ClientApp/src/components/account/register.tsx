@@ -53,7 +53,7 @@ export default class Register extends React.Component<RegisterProps> {
             <Form id='registerForm'>
               <Form.Field required>
                 <Label>用户名</Label>
-                <Input name='username' required></Input>
+                <Input name='userName' required></Input>
               </Form.Field>
               <Form.Field required>
                 <Label>邮箱</Label>

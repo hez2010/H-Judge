@@ -58,6 +58,10 @@ namespace hjudgeWebHost
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.EnableDetailedErrors(true);
+                options.EnableSensitiveDataLogging(true);
+                options.EnableServiceProviderCaching(true);
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
             services.AddEntityFrameworkSqlServer();

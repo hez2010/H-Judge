@@ -59,7 +59,7 @@ namespace hjudgeWebHost.Data.Identity
         /// </summary>
         public int Privilege { get; set; }
         public byte[] Avatar { get; set; } = new byte[0];
-        public string OtherInfo { get; set; } = string.Empty;
+        public string? OtherInfo { get; set; }
         /// <summary>
         /// 上次登录时间
         /// </summary>

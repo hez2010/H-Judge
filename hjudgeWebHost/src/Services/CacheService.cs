@@ -11,7 +11,7 @@ namespace hjudgeWebHost.Services
         Task SetObjectAsync<T>(string key, T obj);
         Task<T> GetObjectAndSetAsync<T>(string key, Func<Task<T>> func);
         Task RemoveObjectAsync(string key);
-        Task RefreshObjectAsync<T>(string key);
+        Task RefreshObjectAsync(string key);
     }
     public class CacheService : ICacheService
     {
@@ -38,14 +38,26 @@ namespace hjudgeWebHost.Services
 
         public async Task<(bool Succeeded, T Result)> GetObjectAsync<T>(string key)
         {
-            var v = await distributedCache.GetAsync(key);
+            try
+            {
+                var v = await distributedCache.GetAsync(key);
+
+                if (v == null)
 #nullable disable
-            if (v == null) return (false, default);
+                    return (false, default);
 #nullable enable
-            return (true, v.DeserializeJson<T>(false));
+                return (true, v.DeserializeJson<T>(false));
+            }
+            catch
+            {
+#nullable disable
+                await RemoveObjectAsync(key);
+                return (false, default);
+#nullable enable
+            }
         }
 
-        public Task RefreshObjectAsync<T>(string key)
+        public Task RefreshObjectAsync(string key)
         {
             return distributedCache.RefreshAsync(key);
         }

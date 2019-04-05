@@ -89,7 +89,9 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         if (result.succeeded) {
           let countBackup = this.state.problemList.totalCount;
           if (!requireTotalCount) result.totalCount = countBackup;
-          this.idRecord.set(page + 1, result.problems[result.problems.length - 1].id);
+
+          if (result.problems.length > 0)
+            this.idRecord.set(page + 1, result.problems[result.problems.length - 1].id);
           this.setState({
             problemList: result
           } as ProblemState);
@@ -188,7 +190,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         </Form.Group>
       </Form>
       {this.renderProblemList()}
-      {this.state.problemList.succeeded ? null : placeHolder}
+      {this.state.problemList.succeeded ? (this.state.problemList.problems.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.problemList.totalCount === 0 ? 0 : this.props.match.params.page}

@@ -104,23 +104,11 @@ namespace hjudgeWebHost.Services
             await cacheService.RemoveObjectAsync($"user_{userId}");
             await base.UpdateNormalizedUserNameAsync(user);
         }
-        protected override async Task<IdentityResult> UpdatePasswordHash(TUser user, string newPassword, bool validatePassword)
-        {
-            var userId = await GetUserIdAsync(user);
-            await cacheService.RemoveObjectAsync($"user_{userId}");
-            return await base.UpdatePasswordHash(user, newPassword, validatePassword);
-        }
         public override async Task<IdentityResult> UpdateSecurityStampAsync(TUser user)
         {
             var userId = await GetUserIdAsync(user);
             await cacheService.RemoveObjectAsync($"user_{userId}");
             return await base.UpdateSecurityStampAsync(user);
-        }
-        protected override async Task<IdentityResult> UpdateUserAsync(TUser user)
-        {
-            var userId = await GetUserIdAsync(user);
-            await cacheService.RemoveObjectAsync($"user_{userId}");
-            return await base.UpdateUserAsync(user);
         }
         public override async Task<IdentityResult> RemovePasswordAsync(TUser user)
         {
@@ -136,7 +124,37 @@ namespace hjudgeWebHost.Services
         }
         public override Task<TUser> FindByIdAsync(string? userId)
         {
-            return cacheService.GetObjectAndSetAsync($"user_{userId}", async () => await base.FindByIdAsync(userId));
+            return cacheService.GetObjectAndSetAsync($"user_{userId}", () => base.FindByIdAsync(userId));
+        }
+        public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token)
+        {
+            var userId = await GetUserIdAsync(user);
+            await cacheService.RemoveObjectAsync($"user_{userId}");
+            return await base.ChangeEmailAsync(user, newEmail, token);
+        }
+        public override async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword)
+        {
+            var userId = await GetUserIdAsync(user);
+            await cacheService.RemoveObjectAsync($"user_{userId}");
+            return await base.ChangePasswordAsync(user, currentPassword, newPassword);
+        }
+        public override async Task<IdentityResult> ChangePhoneNumberAsync(TUser user, string phoneNumber, string token)
+        {
+            var userId = await GetUserIdAsync(user);
+            await cacheService.RemoveObjectAsync($"user_{userId}");
+            return await base.ChangePhoneNumberAsync(user, phoneNumber, token);
+        }
+        public override async Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword)
+        {
+            var userId = await GetUserIdAsync(user);
+            await cacheService.RemoveObjectAsync($"user_{userId}");
+            return await base.ResetPasswordAsync(user, token, newPassword);
+        }
+        public override async Task<IdentityResult> ConfirmEmailAsync(TUser user, string token)
+        {
+            var userId = await GetUserIdAsync(user);
+            await cacheService.RemoveObjectAsync($"user_{userId}");
+            return await base.ConfirmEmailAsync(user, token);
         }
     }
 }

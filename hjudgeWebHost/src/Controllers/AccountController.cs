@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -156,7 +157,7 @@ namespace hjudgeWebHost.Controllers
             {
                 return NotFound();
             }
-            if (user.Avatar == null || user.Avatar.Length == 0)
+            if (user.Avatar.Length == 0)
             {
                 return File(ImageScaler.ScaleImage(Properties.Resource.DefaultAvatar, 128, 128), "image/png");
             }
@@ -194,7 +195,7 @@ namespace hjudgeWebHost.Controllers
             }
             if (model.OtherInfo != null)
             {
-                var otherInfoJson = JObject.Parse(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
+               var otherInfoJson = (string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo).DeserializeJson<IDictionary<string, string>>();
                 foreach (var info in model.OtherInfo)
                 {
                     if (IdentityHelper.OtherInfoProperties.Any(i => i.Name == info.Key))
@@ -202,7 +203,7 @@ namespace hjudgeWebHost.Controllers
                         otherInfoJson[info.Key] = info.Value;
                     }
                 }
-                user.OtherInfo = otherInfoJson.ToString();
+                user.OtherInfo = otherInfoJson.SerializeJsonAsString();
             }
 
             await userManager.UpdateAsync(user);
@@ -216,8 +217,8 @@ namespace hjudgeWebHost.Controllers
             {
                 SignedIn = signInManager.IsSignedIn(User)
             };
-
-            var user = await (string.IsNullOrEmpty(userId) ? userManager.GetUserAsync(User) : userManager.FindByIdAsync(userId));
+            if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 if (!string.IsNullOrEmpty(userId)) userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
@@ -236,7 +237,7 @@ namespace hjudgeWebHost.Controllers
                 userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
                 userInfoRet.Email = user.Email;
                 userInfoRet.PhoneNumber = user.PhoneNumber;
-                userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(user.OtherInfo);
+                userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
             }
 
             return userInfoRet;
