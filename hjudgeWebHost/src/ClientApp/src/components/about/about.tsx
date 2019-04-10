@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
-import { Header, Container, Icon, Item, Label, Divider } from "semantic-ui-react";
+import { Header, Icon, Item, Label, Divider } from "semantic-ui-react";
 import { setTitle } from "../../utils/titleHelper";
 
 interface AboutState {

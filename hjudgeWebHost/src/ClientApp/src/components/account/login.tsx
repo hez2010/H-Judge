@@ -3,12 +3,11 @@ import { Modal, Input, Button, Form, Label, Checkbox, SemanticCOLORS } from 'sem
 import { SerializeForm } from '../../utils/formHelper';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
+import { CommonProps } from '../../interfaces/commonProps';
 
-interface LoginProps {
+interface LoginProps extends CommonProps {
   modalOpen: boolean,
-  closeModal: (() => void),
-  refreshUserInfo: (() => void),
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void)
+  closeModal: (() => void)
 }
 
 export default class Login extends React.Component<LoginProps> {

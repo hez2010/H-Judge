@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { Modal, Input, Button, Form, Label, SemanticCOLORS } from 'semantic-ui-react';
+import { Modal, Input, Button, Form, Label } from 'semantic-ui-react';
 import { SerializeForm } from '../../utils/formHelper';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
+import { CommonProps } from '../../interfaces/commonProps';
 
-interface RegisterProps {
+interface RegisterProps extends CommonProps {
   modalOpen: boolean,
-  closeModal: (() => void),
-  refreshUserInfo: (() => void),
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void)
+  closeModal: (() => void)
 }
 
 export default class Register extends React.Component<RegisterProps> {

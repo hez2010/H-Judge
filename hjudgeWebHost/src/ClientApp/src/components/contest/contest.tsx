@@ -1,21 +1,14 @@
 ﻿import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { match } from 'react-router';
-import { Button, Pagination, Table, Form, Label, Input, Select, SemanticCOLORS, Placeholder } from 'semantic-ui-react';
-import { History, Location } from 'history';
+import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
-import { UserInfo } from '../../interfaces/userInfo';
 import { isTeacher } from '../../utils/privilegeHelper';
+import { CommonProps } from '../../interfaces/commonProps';
 
-interface ContestProps {
-  match: match<any>,
-  history: History<any>,
-  location: Location<any>,
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void),
-  groupId?: number,
-  userInfo: UserInfo
+interface ContestProps extends CommonProps {
+  groupId?: number
 }
 
 interface ContestListItemModel {

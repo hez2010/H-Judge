@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data.Identity;
+﻿using hjudgeWebHost.Data;
+using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Models;
 using hjudgeWebHost.Models.Account;
@@ -7,8 +8,7 @@ using hjudgeWebHost.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -21,10 +21,13 @@ namespace hjudgeWebHost.Controllers
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly SignInManager<UserInfo> signInManager;
-        public AccountController(CachedUserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager)
+        private readonly ApplicationDbContext dbContext;
+
+        public AccountController(CachedUserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager, ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.dbContext = dbContext;
         }
 
         public class LoginModel

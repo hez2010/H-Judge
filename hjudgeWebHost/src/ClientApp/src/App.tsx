@@ -13,6 +13,7 @@ import Problem from "./components/problem/problem";
 import Contest from "./components/contest/contest";
 import ProblemDetails from "./components/problem/details";
 import Group from "./components/group/group";
+import { CommonProps } from "./interfaces/commonProps";
 
 interface PortalState {
   open: boolean,
@@ -26,8 +27,8 @@ interface AppState {
   portal: PortalState
 }
 
-export default class App extends React.Component<{}, AppState> {
-  constructor(props: {}) {
+export default class App extends React.Component<any, AppState> {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -104,50 +105,56 @@ export default class App extends React.Component<{}, AppState> {
   }
 
   render() {
+    let commonProps = {
+      openPortal: this.openPortal,
+      refreshUserInfo: this.refreshUserInfo,
+      userInfo: this.state.userInfo
+    } as CommonProps;
+
     return (
       <>
-        <Layout {...this.props} openPortal={this.openPortal} userInfo={this.state.userInfo} refreshUserInfo={this.refreshUserInfo}>
+        <Layout {...commonProps}>
           <Switch>
             <Route
               exact
               path='/'
-              render={props => <Home {...props} userInfo={this.state.userInfo} />}>
+              render={props => <Home {...Object.assign(commonProps, props)} />}>
             </Route>
             <Route
               path='/problem/:page?'
-              render={props => <Problem {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></Problem>}>
+              render={props => <Problem {...Object.assign(commonProps, props)}></Problem>}>
             </Route>
             <Route
               path='/details/problem/:problemId/:contestId?/:groupId?'
-              render={props => <ProblemDetails {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></ProblemDetails>}>
+              render={props => <ProblemDetails {...Object.assign(commonProps, props)}></ProblemDetails>}>
             </Route>
             <Route
               path='/contest/:page?'
-              render={props => <Contest {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></Contest>}>
+              render={props => <Contest {...Object.assign(commonProps, props)}></Contest>}>
             </Route>
             <Route
               path='/group/:page?'
-              render={props => <Group {...props} userInfo={this.state.userInfo} openPortal={this.openPortal}></Group>}>
+              render={props => <Group {...Object.assign(commonProps, props)}></Group>}>
             </Route>
             <Route
               path='/message'
-              render={props => <p {...props}>message</p>}>
+              render={props => <p {...Object.assign(commonProps, props)}>message</p>}>
             </Route>
             <Route
               path='/status'
-              render={props => <p {...props}>status</p>}>
+              render={props => <p {...Object.assign(commonProps, props)}>status</p>}>
             </Route>
             <Route
               path='/rank'
-              render={props => <p {...props}>rank</p>}>
+              render={props => <p {...Object.assign(commonProps, props)}>rank</p>}>
             </Route>
             <Route
               path='/discussion'
-              render={props => <p {...props}>discussion</p>}>
+              render={props => <p {...Object.assign(commonProps, props)}>discussion</p>}>
             </Route>
             <Route
               path='/article'
-              render={props => <p {...props}>article</p>}>
+              render={props => <p {...Object.assign(commonProps, props)}>article</p>}>
             </Route>
             <Route
               exact
@@ -156,7 +163,7 @@ export default class App extends React.Component<{}, AppState> {
             </Route>
             <Route
               path='/user'
-              render={props => <User {...props} userInfo={this.state.userInfo} openPortal={this.openPortal} refreshUserInfo={this.refreshUserInfo} />}>
+              render={props => <User {...Object.assign(commonProps, props)} />}>
             </Route>
             <Route
               component={NotFound}>

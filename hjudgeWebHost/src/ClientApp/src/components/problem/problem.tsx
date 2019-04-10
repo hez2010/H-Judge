@@ -1,22 +1,16 @@
 import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { match } from 'react-router';
-import { Button, Pagination, Table, Form, Label, Input, Select, SemanticCOLORS, Placeholder } from 'semantic-ui-react';
-import { History, Location } from 'history';
+import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { UserInfo } from '../../interfaces/userInfo';
 import { isTeacher } from '../../utils/privilegeHelper';
+import { CommonProps } from '../../interfaces/commonProps';
 
-interface ProblemProps {
-  match: match<any>,
-  history: History<any>,
-  location: Location<any>,
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void),
+interface ProblemProps extends CommonProps {
   contestId?: number,
-  groupId?: number,
-  userInfo: UserInfo
+  groupId?: number
 }
 
 interface ProblemListItemModel {
@@ -42,7 +36,6 @@ interface ProblemState {
 export default class Problem extends React.Component<ProblemProps, ProblemState> {
   constructor(props: ProblemProps) {
     super(props);
-
     this.renderProblemList = this.renderProblemList.bind(this);
     this.fetchProblemList = this.fetchProblemList.bind(this);
     this.gotoDetails = this.gotoDetails.bind(this);
@@ -68,6 +61,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   }
 
   fetchProblemList(requireTotalCount: boolean, page: number) {
+    console.log(this.props);
     if (!this.props.contestId && page.toString() !== this.props.match.params.page)
       this.props.history.replace(`/problem/${page}`);
     let form = document.querySelector('#filterForm') as HTMLFormElement;

@@ -31,6 +31,14 @@ namespace hjudgeWebHost.Middlewares
                     });
                     return;
                 }
+                if (userInfo.Privilege == 5)
+                {
+                    context.Result = new JsonResult(new ResultModel
+                    {
+                        ErrorCode = ErrorDescription.AuthenticationFailed
+                    });
+                    return;
+                }
 
                 await next();
             }

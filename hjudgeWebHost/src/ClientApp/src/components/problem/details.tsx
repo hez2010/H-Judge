@@ -1,7 +1,5 @@
 ﻿import * as React from 'react';
-import { match } from 'react-router';
-import { History, Location } from 'history';
-import { SemanticCOLORS, Item, Placeholder, Popup, Dropdown, Label, Header, Button } from 'semantic-ui-react';
+import { Item, Placeholder, Popup, Dropdown, Label, Header, Button } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { setTitle } from '../../utils/titleHelper';
@@ -13,16 +11,10 @@ import mk from '../../extensions/markdown-it-math';
 import hljs from '../../extensions/markdown-it-code';
 import { ensureLoading } from '../../utils/scriptLoader';
 import { nextTick } from 'q';
-import { UserInfo } from '../../interfaces/userInfo';
 import { isTeacher } from '../../utils/privilegeHelper';
+import { CommonProps } from '../../interfaces/commonProps';
 
-interface ProblemDetailsProps {
-  match: match<any>,
-  history: History<any>,
-  location: Location<any>,
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void),
-  userInfo: UserInfo
-}
+interface ProblemDetailsProps extends CommonProps { }
 
 interface ProblemDetailsState {
   problem: ProblemModel,

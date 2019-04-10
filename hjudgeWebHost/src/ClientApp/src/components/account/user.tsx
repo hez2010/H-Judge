@@ -1,15 +1,12 @@
 import * as React from 'react';
-import { Item, Popup, Input, Divider, Header, Icon, Table, Label, Form, Placeholder, SemanticCOLORS, Grid } from 'semantic-ui-react';
-import { UserInfo, OtherInfo } from '../../interfaces/userInfo';
+import { Item, Popup, Input, Divider, Header, Icon, Table, Label, Form, Placeholder, Grid } from 'semantic-ui-react';
+import { OtherInfo } from '../../interfaces/userInfo';
 import { setTitle } from '../../utils/titleHelper';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
+import { CommonProps } from '../../interfaces/commonProps';
 
-interface UserProps {
-  userInfo: UserInfo,
-  refreshUserInfo: (() => void),
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void)
-}
+interface UserProps extends CommonProps {}
 
 export default class User extends React.Component<UserProps> {
   constructor(props: UserProps) {

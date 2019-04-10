@@ -2,9 +2,6 @@ using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Builder.Internal;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,57 +10,38 @@ using System;
 
 namespace hjudgeWebHostTest
 {
-    public class TestService
+    public static class TestService
     {
-        public IServiceProvider Provider { get; set; }
-        public RequestDelegate RequestDelegate { get; set; }
-        public TestService()
-        {
-            Provider = InitService();
-            RequestDelegate = InitApp(Provider);
-        }
-
-        private RequestDelegate InitApp(IServiceProvider provider)
-        {
-            var app = new ApplicationBuilder(provider);
-
-            app.UseAuthentication();
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
-
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
-            });
-            return app.Build();
-        }
-
-        private IServiceProvider InitService()
+        public static IServiceProvider Provider = InitService();
+        private static IServiceProvider InitService()
         {
             var services = new ServiceCollection();
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseInMemoryDatabase("test");
-            }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
+                options.EnableDetailedErrors(true);
+                options.EnableSensitiveDataLogging(true);
+                options.EnableServiceProviderCaching(true);
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            });
 
             services.AddEntityFrameworkInMemoryDatabase();
 
-            services.AddAuthentication(o =>
+            services.AddDistributedRedisCache(options =>
             {
-                o.DefaultScheme = IdentityConstants.ApplicationScheme;
-                o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            })
-            .AddIdentityCookies();
+                options.Configuration = "127.0.0.1";
+                options.InstanceName = "hjudge";
+            });
 
             services.AddTransient<AntiForgeryFilter>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IProblemService, ProblemService>();
             services.AddTransient<IContestService, ContestService>();
+            services.AddTransient<IJudgeService, JudgeService>();
+            services.AddTransient<IGroupService, GroupService>();
+            services.AddTransient<ICacheService, CacheService>();
+            services.AddSingleton<ILanguageService, LocalLanguageService>();
 
             services.AddIdentityCore<UserInfo>(options =>
             {
@@ -72,7 +50,7 @@ namespace hjudgeWebHostTest
                 options.Password.RequireNonAlphanumeric = false;
             })
             .AddSignInManager<SignInManager<UserInfo>>()
-            .AddUserManager<UserManager<UserInfo>>()
+            .AddUserManager<CachedUserManager<UserInfo>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 

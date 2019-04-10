@@ -1,22 +1,18 @@
 import * as React from "react";
 import { NavLink } from 'react-router-dom';
-import { Container, Menu, Icon, SemanticCOLORS, Dropdown } from 'semantic-ui-react';
-import { UserInfo } from "../../interfaces/userInfo";
+import { Container, Menu, Icon, Dropdown } from 'semantic-ui-react';
 import Login from "../account/login";
 import Register from "../account/register";
 import { Post } from "../../utils/requestHelper";
 import { ResultModel } from "../../interfaces/resultModel";
+import { CommonProps } from '../../interfaces/commonProps';
 
 interface LayoutState {
   loginModalOpen: boolean,
   registerModalOpen: boolean
 }
 
-interface LayoutProps {
-  userInfo: UserInfo,
-  refreshUserInfo: (() => void),
-  openPortal: ((header: string, message: string, color: SemanticCOLORS) => void)
-}
+interface LayoutProps extends CommonProps { }
 
 export default class Layout extends React.Component<LayoutProps, LayoutState> {
   constructor(props: any) {
@@ -122,8 +118,8 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
             </Menu.Item>
           </Container>
         </Menu>
-        <Login modalOpen={this.state.loginModalOpen} closeModal={this.closeLoginModal} refreshUserInfo={this.props.refreshUserInfo} openPortal={this.props.openPortal} />
-        <Register modalOpen={this.state.registerModalOpen} closeModal={this.closeRegisterModal} refreshUserInfo={this.props.refreshUserInfo} openPortal={this.props.openPortal} />
+        <Login {...this.props} modalOpen={this.state.loginModalOpen} closeModal={this.closeLoginModal} />
+        <Register {...this.props} modalOpen={this.state.registerModalOpen} closeModal={this.closeRegisterModal} />
       </>
     );
   }
