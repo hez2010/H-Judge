@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Services
@@ -155,6 +156,13 @@ namespace hjudgeWebHost.Services
             var userId = await GetUserIdAsync(user);
             await cacheService.RemoveObjectAsync($"user_{userId}");
             return await base.ConfirmEmailAsync(user, token);
+        }
+
+        public override async Task<TUser> GetUserAsync(ClaimsPrincipal principal)
+        {
+            var userId = GetUserId(principal);
+            var userInfo = await cacheService.GetObjectAndSetAsync($"user_{userId}", () => base.GetUserAsync(principal));
+            return userInfo;
         }
     }
 }

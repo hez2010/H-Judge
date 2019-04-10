@@ -21,13 +21,12 @@ namespace hjudgeWebHost.Controllers
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly SignInManager<UserInfo> signInManager;
-        private readonly ApplicationDbContext dbContext;
 
         public AccountController(CachedUserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager, ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            this.dbContext = dbContext;
+            dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         public class LoginModel
@@ -119,7 +118,8 @@ namespace hjudgeWebHost.Controllers
         [PrivilegeAuthentication.RequireSignedIn]
         public async Task<ResultModel> UserAvatar(IFormFile avatar)
         {
-            var user = await userManager.GetUserAsync(User);
+            var userId = userManager.GetUserId(User);
+            var user = await userManager.FindByIdAsync(userId);
             var result = new ResultModel();
 
             if (avatar == null)
@@ -155,7 +155,8 @@ namespace hjudgeWebHost.Controllers
         [HttpGet]
         public async Task<IActionResult> UserAvatar(string? userId)
         {
-            var user = await (string.IsNullOrEmpty(userId) ? userManager.GetUserAsync(User) : userManager.FindByIdAsync(userId));
+            if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return NotFound();
@@ -172,7 +173,8 @@ namespace hjudgeWebHost.Controllers
         public async Task<ResultModel> UserInfo([FromBody]UserInfoModel model)
         {
             var ret = new ResultModel();
-            var user = await userManager.GetUserAsync(User);
+            var userId = userManager.GetUserId(User);
+            var user = await userManager.FindByIdAsync(userId);
 
             if (!string.IsNullOrEmpty(model.Name)) user.Name = model.Name;
 
@@ -198,7 +200,7 @@ namespace hjudgeWebHost.Controllers
             }
             if (model.OtherInfo != null)
             {
-               var otherInfoJson = (string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo).DeserializeJson<IDictionary<string, string>>();
+                var otherInfoJson = (string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo).DeserializeJson<IDictionary<string, string>>();
                 foreach (var info in model.OtherInfo)
                 {
                     if (IdentityHelper.OtherInfoProperties.Any(i => i.Name == info.Key))
@@ -210,6 +212,7 @@ namespace hjudgeWebHost.Controllers
             }
 
             await userManager.UpdateAsync(user);
+
             return ret;
         }
 
