@@ -4,7 +4,6 @@ import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder } fr
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
-import { UserInfo } from '../../interfaces/userInfo';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 

@@ -149,7 +149,8 @@ export default function math_plugin(md: any, options: any) {
 
     try {
       return katex.renderToString(latex, options);
-    } catch (error) {
+    }
+    catch (error) {
       if (options.throwOnError) {
         console.log(error);
       }
@@ -167,7 +168,8 @@ export default function math_plugin(md: any, options: any) {
 
     try {
       return "<p>" + katex.renderToString(latex, options) + "</p>";
-    } catch (error) {
+    }
+    catch (error) {
       if (options.throwOnError) {
         console.log(error);
       }

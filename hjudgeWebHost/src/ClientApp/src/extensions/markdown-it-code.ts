@@ -7,17 +7,17 @@ const maybe = (f: any) => {
   } catch (e) {
     return false
   }
-}
+};
 
 // Highlight with given language.
 const highlight = (code: string, lang: string) =>
-  maybe(() => hljs.highlight(lang, code, true).value) || ''
+  maybe(() => hljs.highlight(lang, code, true).value) || '';
 
 // Highlight with given language or automatically.
 const highlightAuto = (code: string, lang: string) =>
   lang
     ? highlight(code, lang)
-    : maybe(() => hljs.highlightAuto(code).value) || ''
+    : maybe(() => hljs.highlightAuto(code).value) || '';
 
 // Wrap a render function to add `hljs` class to code blocks.
 const wrap = (render: Function, thisArg: any) => function (...args: any) {
@@ -44,4 +44,4 @@ export default function highlightjs(md: markdownit, opts?: Option) {
 highlightjs.defaults = {
   auto: true,
   code: true
-}
+};
