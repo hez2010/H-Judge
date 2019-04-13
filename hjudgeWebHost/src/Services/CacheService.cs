@@ -38,14 +38,14 @@ namespace hjudgeWebHost.Services
 
         public async Task<(bool Succeeded, T Result)> GetObjectAsync<T>(string key)
         {
+            var v = await distributedCache.GetAsync(key);
+            if (v == null)
+#nullable disable
+                return (false, default);
+#nullable enable
+
             try
             {
-                var v = await distributedCache.GetAsync(key);
-
-                if (v == null)
-#nullable disable
-                    return (false, default);
-#nullable enable
                 return (true, v.DeserializeJson<T>(false));
             }
             catch
@@ -69,7 +69,14 @@ namespace hjudgeWebHost.Services
 
         public Task SetObjectAsync<T>(string key, T obj)
         {
-            return distributedCache.SetAsync(key, obj.SerializeJson(false), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
+            try
+            {
+                return distributedCache.SetAsync(key, obj.SerializeJson(false), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
+            }
+            catch
+            {
+                return Task.CompletedTask;
+            }
         }
     }
 }

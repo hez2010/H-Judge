@@ -52,6 +52,8 @@ export default class Group extends React.Component<GroupProps, GroupState> {
   componentWillUpdate(nextProps: any, nextState: any) {
     if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
       this.idRecord.clear();
+      if (!this.props.match.params.page) this.fetchGroupList(true, 1);
+      else this.fetchGroupList(true, this.props.match.params.page);
     }
   }
 
@@ -95,9 +97,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
 
   componentDidMount() {
     setTitle('小组');
-    if (!this.props.match.params.page) {
-      this.fetchGroupList(true, 1);
-    }
+    if (!this.props.match.params.page) this.fetchGroupList(true, 1);
     else this.fetchGroupList(true, this.props.match.params.page);
   }
 

@@ -20,12 +20,11 @@ const highlightAuto = (code: string, lang: string) =>
     : maybe(() => hljs.highlightAuto(code).value) || ''
 
 // Wrap a render function to add `hljs` class to code blocks.
-const wrap = (render: Function) =>
-  function (...args: any[]) {
-    return render.apply(args)
-      .replace('<code class="', '<code class="hljs ')
-      .replace('<code>', '<code class="hljs">')
-  }
+const wrap = (render: Function, thisArg: any) => function (...args: any) {
+  return render.apply(thisArg, args)
+    .replace(/\<code class="/g, '<code class="hljs ')
+    .replace(/\<code>/g, '<code class="hljs">');
+}
 interface Option {
   auto: boolean, code: boolean
 }
@@ -35,10 +34,10 @@ export default function highlightjs(md: markdownit, opts?: Option) {
   }
 
   md.set({ highlight: opts.auto ? highlightAuto : highlight });
-  md.renderer.rules.fence = wrap(md.renderer.rules.fence)
+  md.renderer.rules.fence = wrap(md.renderer.rules.fence, md)
 
   if (opts.code) {
-    md.renderer.rules.code_block = wrap(md.renderer.rules.code_block)
+    md.renderer.rules.code_block = wrap(md.renderer.rules.code_block, md);
   }
 }
 

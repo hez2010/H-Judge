@@ -54,6 +54,8 @@ export default class Contest extends React.Component<ContestProps, ContestState>
   componentWillUpdate(nextProps: any, nextState: any) {
     if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
       this.idRecord.clear();
+      if (!this.props.match.params.page) this.fetchContestList(true, 1);
+      else this.fetchContestList(true, this.props.match.params.page);
     }
   }
 
@@ -100,9 +102,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
 
   componentDidMount() {
     setTitle('比赛');
-    if (!this.props.match.params.page) {
-      this.fetchContestList(true, 1);
-    }
+    if (!this.props.match.params.page) this.fetchContestList(true, 1);
     else this.fetchContestList(true, this.props.match.params.page);
   }
 

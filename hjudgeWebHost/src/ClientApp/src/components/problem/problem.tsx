@@ -57,11 +57,12 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   componentWillUpdate(nextProps: any, nextState: any) {
     if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
       this.idRecord.clear();
+      if (!this.props.match.params.page) this.fetchProblemList(true, 1);
+      else this.fetchProblemList(true, this.props.match.params.page);
     }
   }
 
   fetchProblemList(requireTotalCount: boolean, page: number) {
-    console.log(this.props);
     if (!this.props.contestId && page.toString() !== this.props.match.params.page)
       this.props.history.replace(`/problem/${page}`);
     let form = document.querySelector('#filterForm') as HTMLFormElement;

@@ -21,7 +21,6 @@ namespace hjudgeWebHost.Controllers
         private readonly IProblemService problemService;
         private readonly IJudgeService judgeService;
         private readonly ILanguageService languageService;
-        private readonly ICacheService cacheService;
         private readonly ApplicationDbContext dbContext;
 
         public ProblemController(
@@ -29,14 +28,12 @@ namespace hjudgeWebHost.Controllers
             IProblemService problemService,
             IJudgeService judgeService,
             ILanguageService languageService,
-            ICacheService cacheService,
             ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
             this.problemService = problemService;
             this.judgeService = judgeService;
             this.languageService = languageService;
-            this.cacheService = cacheService;
             this.dbContext = dbContext;
         }
         public class ProblemListQueryModel
@@ -264,7 +261,7 @@ namespace hjudgeWebHost.Controllers
                 }
             }
 
-            var user = await cacheService.GetObjectAndSetAsync($"user_{problem.UserId}", () => userManager.FindByIdAsync(problem.UserId));
+            var user = await userManager.FindByIdAsync(problem.UserId);
             ret.Name = problem.Name;
             ret.Hidden = problem.Hidden;
             ret.Level = problem.Level;

@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+    <PackageReference Include="SpanJson" Version="2.0.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +34,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\hjudgeCore\src\hjudgeCore.csproj" />
-    <ProjectReference Include="..\..\SpanJson\SpanJson.csproj" />
   </ItemGroup>
 
   <ItemGroup>

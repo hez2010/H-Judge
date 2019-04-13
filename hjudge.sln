@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudgeWebHost", "hjudgeWebH
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudgeWebHostTest", "hjudgeWebHost\test\hjudgeWebHostTest.csproj", "{F932D2BF-51CC-424B-97F5-06E75539C314}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpanJson", "SpanJson\SpanJson.csproj", "{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,18 +95,6 @@ Global
 		{F932D2BF-51CC-424B-97F5-06E75539C314}.Release|x64.Build.0 = Release|Any CPU
 		{F932D2BF-51CC-424B-97F5-06E75539C314}.Release|x86.ActiveCfg = Release|Any CPU
 		{F932D2BF-51CC-424B-97F5-06E75539C314}.Release|x86.Build.0 = Release|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Debug|x64.Build.0 = Debug|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Debug|x86.Build.0 = Debug|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Release|x64.ActiveCfg = Release|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Release|x64.Build.0 = Release|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Release|x86.ActiveCfg = Release|Any CPU
-		{C98AB1D5-2770-4902-B9AD-D7FDD4C18D35}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
