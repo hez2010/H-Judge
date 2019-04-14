@@ -3,9 +3,10 @@ import markdownit from 'markdown-it';
 
 const maybe = (f: any) => {
   try {
-    return f()
-  } catch (e) {
-    return false
+    return f();
+  }
+  catch (e) {
+    return false;
   }
 };
 
@@ -34,7 +35,7 @@ export default function highlightjs(md: markdownit, opts?: Option) {
   }
 
   md.set({ highlight: opts.auto ? highlightAuto : highlight });
-  md.renderer.rules.fence = wrap(md.renderer.rules.fence, md)
+  md.renderer.rules.fence = wrap(md.renderer.rules.fence, md);
 
   if (opts.code) {
     md.renderer.rules.code_block = wrap(md.renderer.rules.code_block, md);
