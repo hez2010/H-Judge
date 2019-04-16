@@ -12,7 +12,7 @@ namespace hjudgeWebHost.Controllers
         {
             var ret = new ResultModel
             {
-                ErrorCode = ErrorDescription.InteralServerException
+                ErrorCode = (ErrorDescription)HttpContext.Response.StatusCode
             };
             ret.ErrorMessage += $" ({Activity.Current?.Id ?? HttpContext.TraceIdentifier})";
             return new JsonResult(ret);

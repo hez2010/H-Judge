@@ -9,17 +9,16 @@ import 'katex/dist/katex.min.css';
 import md from 'markdown-it';
 import mk from '../../extensions/markdown-it-math';
 import hljs from '../../extensions/markdown-it-code';
-import { ensureLoading } from '../../utils/scriptLoader';
-import { nextTick } from 'q';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
+import CodeEditor from '../editor/code-editor';
 
 interface ProblemDetailsProps extends CommonProps { }
 
 interface ProblemDetailsState {
   problem: ProblemModel,
   languageChoice: number,
-  editorLoaded: boolean
+  languageTitle: string
 }
 
 interface ProblemModel extends ResultModel {
@@ -46,7 +45,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
     this.fetchDetail = this.fetchDetail.bind(this);
     this.renderProblemInfo = this.renderProblemInfo.bind(this);
-    this.loadEditor = this.loadEditor.bind(this);
     this.editProblem = this.editProblem.bind(this);
 
     this.state = {
@@ -71,9 +69,11 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         userName: ""
       },
       languageChoice: 0,
-      editorLoaded: false
+      languageTitle: ''
     };
   }
+
+  private editor: React.Ref<CodeEditor> = React.createRef();
 
   fetchDetail(problemId: number, contestId: number, groupId: number) {
     Post('/Problem/ProblemDetails', {
@@ -86,13 +86,13 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         let result = data as ProblemModel;
         if (result.succeeded) {
           result.creationTime = new Date(result.creationTime.toString());
-          this.setState({
-            problem: result
-          } as ProblemDetailsState);
-          setTitle(result.name);
           let lang = 'plain_text';
           if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
-          nextTick(() => this.loadEditor(lang));
+          this.setState({
+            problem: result,
+            languageTitle: lang
+          } as ProblemDetailsState);
+          setTitle(result.name);
         }
         else {
           this.props.openPortal('错误', `题目信息加载失败\n${result.errorMessage} (${result.errorCode})`, 'red');
@@ -127,18 +127,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     </div>;
   }
 
-  loadEditor(lang: string) {
-    ensureLoading('ace', '/lib/ace/ace.js', () => {
-      this.setState({ editorLoaded: true } as ProblemDetailsState);
-      nextTick(() => {
-        let w = window as any;
-        let editor = w.ace.edit('code-editor');
-        editor.setTheme('ace/theme/tomorrow');
-        editor.session.setMode(`ace/mode/${lang}`);
-      });
-    });
-  }
-
   editProblem(id: number) {
     this.props.history.push(`/edit/problem/${id}`);
   }
@@ -168,32 +156,30 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     const { languageChoice } = this.state;
 
     let submitModal = <>
-      {this.state.editorLoaded ? <>
-        <Header as='h2'>提交</Header>
-        <div>
-          <Dropdown
-            placeholder='代码语言'
-            fluid
-            search
-            selection
-            options={langOptions}
-            value={languageChoice}
-            onChange={(_, { value }) => {
-              this.setState({ languageChoice: value } as ProblemDetailsState);
-              let lang = langOptions[value as number] ? langOptions[value as number].highlight : 'plain_text';
-              let w = window as any;
-              w.ace.edit('code-editor').session.setMode(`ace/mode/${lang}`);
-            }}
-          />
-          <Label pointing>{langOptions[languageChoice] ? langOptions[languageChoice].information : '请选择语言'}</Label>
-        </div>
-        <br />
-        <div id='code-editor' style={{ width: '100%', height: '30em' }}></div>
-        <br />
-        <div style={{ textAlign: 'right' }}>
-          <Button primary>提交</Button>
-        </div>
-      </> : placeHolder}
+      <Header as='h2'>提交</Header>
+      <div>
+        <Dropdown
+          placeholder='代码语言'
+          fluid
+          search
+          selection
+          options={langOptions}
+          value={languageChoice}
+          onChange={(_, { value }) => {
+            let lang = langOptions[value as number] ? langOptions[value as number].highlight : 'plain_text';
+            this.setState({ languageChoice: value, languageTitle: lang } as ProblemDetailsState);
+          }}
+        />
+        <Label pointing>{langOptions[languageChoice] ? langOptions[languageChoice].information : '请选择语言'}</Label>
+      </div>
+      <br />
+      <div style={{ width: '100%', height: '30em' }}>
+        <CodeEditor ref={this.editor} onChange={(e: any) => console.log(e)} language={this.state.languageTitle}></CodeEditor>
+      </div>
+      <br />
+      <div style={{ textAlign: 'right' }}>
+        <Button primary>提交</Button>
+      </div>
     </>;
 
     return <>

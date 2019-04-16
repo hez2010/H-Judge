@@ -31,7 +31,7 @@
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\hjudgeCore\src\hjudgeCore.csproj" />
   </ItemGroup>
@@ -39,7 +39,7 @@
   <ItemGroup>
     <Resource Include="Resources\avatar.png" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Compile Update="Properties\Resource.Designer.cs">
       <DesignTime>True</DesignTime>

@@ -7,10 +7,11 @@
     "@types/jest": "24.0.11",
     "@types/katex": "^0.10.1",
     "@types/markdown-it": "^0.0.7",
-    "@types/node": "11.12.2",
-    "@types/react": "16.8.10",
-    "@types/react-dom": "16.8.3",
-    "@types/react-router-dom": "^4.3.1",
+    "@types/node": "11.13.4",
+    "@types/react": "16.8.13",
+    "@types/react-dom": "16.8.4",
+    "@types/react-router-dom": "^4.3.2",
+    "cra-append-sw": "^2.6.1",
     "highlight.js": "^9.15.6",
     "katex": "^0.10.1",
     "markdown-it": "^8.4.2",
@@ -21,11 +22,11 @@
     "rimraf": "^2.6.3",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.86.0",
-    "typescript": "3.4.1"
+    "typescript": "3.4.3"
   },
   "scripts": {
-    "start": "rimraf ./build && react-scripts start",
-    "build": "react-scripts build",
+    "start": "rimraf ./build && react-scripts start && cra-append-sw --mode dev ./sw-config.js",
+    "build": "react-scripts build && cra-append-sw ./sw-config.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -35,7 +36,7 @@
   "browserslist": [
     ">0.2%",
     "not dead",
-    "not ie <= 11",
+    "not ie < 11",
     "not op_mini all"
   ]
 }
