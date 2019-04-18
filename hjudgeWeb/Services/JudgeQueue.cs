@@ -2,6 +2,7 @@
 using hjudgeWeb.Configurations;
 using hjudgeWeb.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
@@ -20,6 +21,7 @@ namespace hjudgeWeb.Services
         //Judge queue. A tuple (Judge Id, Whether being judged before)
         public static readonly ConcurrentQueue<int> JudgeIdQueue = new ConcurrentQueue<int>();
         private readonly DbContextOptions<ApplicationDbContext> _dbContextOptions;
+        private readonly int additionalJudgeThread;
 
         private static string AlphaNumberFilter(string input)
         {
@@ -287,7 +289,7 @@ namespace hjudgeWeb.Services
             }
         }
 
-        public static SemaphoreSlim QueueSemaphore = new SemaphoreSlim(0, Environment.ProcessorCount);
+        public static SemaphoreSlim QueueSemaphore;
 
         private bool _canceled = false;
 
@@ -443,9 +445,11 @@ namespace hjudgeWeb.Services
             }
         }
 
-        public JudgeQueue(IServiceProvider service, DbContextOptions<ApplicationDbContext> dbContextOptions)
+        public JudgeQueue(IServiceProvider service, DbContextOptions<ApplicationDbContext> dbContextOptions, IConfiguration configuration)
         {
             _dbContextOptions = dbContextOptions;
+            if (int.TryParse(configuration["AdditionalJudgeThread"], out var result)) additionalJudgeThread = result;
+            QueueSemaphore = new SemaphoreSlim(0, Environment.ProcessorCount + additionalJudgeThread);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -466,7 +470,7 @@ namespace hjudgeWeb.Services
                     JudgeIdQueue.Enqueue(i);
                     try
                     {
-                        if (QueueSemaphore.CurrentCount < Environment.ProcessorCount)
+                        if (QueueSemaphore.CurrentCount < Environment.ProcessorCount + additionalJudgeThread)
                         {
                             QueueSemaphore.Release();
                         }
@@ -479,7 +483,7 @@ namespace hjudgeWeb.Services
             }
 
             //Judge queue thread
-            for (var i = 0; i < Environment.ProcessorCount; i++)
+            for (var i = 0; i < Environment.ProcessorCount + additionalJudgeThread; i++)
             {
                 var li = i;
                 new Thread(async () => await JudgeThread(li)).Start();
