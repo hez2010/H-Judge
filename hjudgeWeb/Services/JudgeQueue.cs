@@ -21,7 +21,7 @@ namespace hjudgeWeb.Services
         //Judge queue. A tuple (Judge Id, Whether being judged before)
         public static readonly ConcurrentQueue<int> JudgeIdQueue = new ConcurrentQueue<int>();
         private readonly DbContextOptions<ApplicationDbContext> _dbContextOptions;
-        private readonly int additionalJudgeThread;
+        public static int JudgeThreadCount;
 
         private static string AlphaNumberFilter(string input)
         {
@@ -448,8 +448,9 @@ namespace hjudgeWeb.Services
         public JudgeQueue(IServiceProvider service, DbContextOptions<ApplicationDbContext> dbContextOptions, IConfiguration configuration)
         {
             _dbContextOptions = dbContextOptions;
-            if (int.TryParse(configuration["AdditionalJudgeThread"], out var result)) additionalJudgeThread = result;
-            QueueSemaphore = new SemaphoreSlim(0, Environment.ProcessorCount + additionalJudgeThread);
+            if (int.TryParse(configuration["JudgeThread"], out var result)) JudgeThreadCount = result;
+            else JudgeThreadCount = Environment.ProcessorCount;
+            QueueSemaphore = new SemaphoreSlim(0, JudgeThreadCount);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -470,7 +471,7 @@ namespace hjudgeWeb.Services
                     JudgeIdQueue.Enqueue(i);
                     try
                     {
-                        if (QueueSemaphore.CurrentCount < Environment.ProcessorCount + additionalJudgeThread)
+                        if (QueueSemaphore.CurrentCount < JudgeThreadCount)
                         {
                             QueueSemaphore.Release();
                         }
@@ -483,7 +484,7 @@ namespace hjudgeWeb.Services
             }
 
             //Judge queue thread
-            for (var i = 0; i < Environment.ProcessorCount + additionalJudgeThread; i++)
+            for (var i = 0; i < JudgeThreadCount; i++)
             {
                 var li = i;
                 new Thread(async () => await JudgeThread(li)).Start();
