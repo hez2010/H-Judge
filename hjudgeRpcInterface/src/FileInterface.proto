@@ -2,7 +2,6 @@
 
 service FileInterface {
     rpc GetFiles (FileRequest) returns (stream FileResponse) {};
-    rpc SaveFiles ()
 }
 
 message FileRequest {

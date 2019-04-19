@@ -32,7 +32,6 @@ namespace hjudgeJudgeHost
             var message = Encoding.UTF8.GetString(body);
             var judgeInfo = JsonConvert.DeserializeObject<JudgeInfo>(message);
 
-
         }
     }
 }
