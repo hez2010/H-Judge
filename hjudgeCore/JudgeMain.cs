@@ -151,7 +151,9 @@ namespace hjudgeCore
                             {
                                 try
                                 {
-                                    var stderr = File.ReadAllText(strErrFile).Trim();
+                                    var stderr = File.ReadAllText(strErrFile).Trim()
+                                                    .Replace(_workingdir, "...")
+                                                    .Replace(_workingdir.Replace("/", "\\"), "...");;
 
                                     if (!string.IsNullOrWhiteSpace(stderr.Replace("\n", string.Empty).Replace("\r", string.Empty).Replace("\t", string.Empty).Trim()))
                                     {

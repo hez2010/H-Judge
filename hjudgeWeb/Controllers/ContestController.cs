@@ -67,6 +67,9 @@ namespace hjudgeWeb.Controllers
                 ret.IsSucceeded = false;
                 ret.ErrorMessage = "没有权限";
             }
+            ret.IsSucceeded = false;
+            ret.ErrorMessage = "此功能已被管理员暂时关闭";
+            return ret;
             using (var db = new ApplicationDbContext(_dbContextOptions))
             {
                 var submits = db.Judge.Where(i => i.ContestId == (model.Cid == 0 ? null : (int?)model.Cid) &&
@@ -86,7 +89,7 @@ namespace hjudgeWeb.Controllers
                     JudgeQueue.JudgeIdQueue.Enqueue(i);
                     try
                     {
-                        if (JudgeQueue.QueueSemaphore.CurrentCount < Environment.ProcessorCount)
+                        if (JudgeQueue.QueueSemaphore.CurrentCount < JudgeQueue.JudgeThreadCount)
                         {
                             JudgeQueue.QueueSemaphore.Release();
                         }
