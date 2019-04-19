@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
-    <PackageReference Include="SpanJson" Version="2.0.7" />
+    <PackageReference Include="SpanJson" Version="2.0.9" />
   </ItemGroup>
 
   <ItemGroup>

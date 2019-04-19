@@ -94,7 +94,7 @@ namespace hjudgeWebHost
 
             services.AddMvc(options =>
             {
-                options.Filters.AddService(typeof(AntiForgeryFilter));
+                options.Filters.AddService<AntiForgeryFilter>();
             }).AddSpanJson();
 
             // In production, the React files will be served from this directory
@@ -130,17 +130,16 @@ namespace hjudgeWebHost
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
+            app.UseRouting();
+
             app.UseAuthentication();
+            app.UseAuthorization();
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
-
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
             app.UseSpa(spa =>
