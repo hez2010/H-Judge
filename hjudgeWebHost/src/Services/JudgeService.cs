@@ -1,4 +1,5 @@
 ﻿using hjudgeWebHost.Data;
+using hjudgeWebHost.Utils;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,11 +17,18 @@ namespace hjudgeWebHost.Services
     {
         private readonly ApplicationDbContext dbContext;
         private readonly ICacheService cacheService;
+        private readonly IProblemService problemService;
+        private readonly ILanguageService languageService;
 
-        public JudgeService(ApplicationDbContext dbContext, ICacheService cacheService)
+        public JudgeService(ApplicationDbContext dbContext,
+            ICacheService cacheService,
+            IProblemService problemService,
+            ILanguageService languageService)
         {
             this.dbContext = dbContext;
             this.cacheService = cacheService;
+            this.problemService = problemService;
+            this.languageService = languageService;
         }
 
         public Task<Judge> GetJudgeAsync(int judgeId)
@@ -46,9 +54,12 @@ namespace hjudgeWebHost.Services
             });
         }
 
-        public Task QueueJudgeAsync(Judge judge)
+        public async Task QueueJudgeAsync(Judge judge)
         {
-            throw new System.NotImplementedException();
+            var (judgeOptionBuilder, buildOptionBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, await languageService.GetLanguageConfigAsync());
+            var (judgeConfig, buildConfig) = (judgeOptionBuilder.Build(), buildOptionBuilder.Build());
+
+
         }
     }
 }

@@ -7,35 +7,82 @@ using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Services
 {
-    public class RabbitService
+    public interface IRabbitService
     {
+        void BasicPublish(string exchangeName);
+    }
+    public class RabbitService : IDisposable, IRabbitService
+    {
+        private readonly IConnection connection;
+        private readonly IModel channel;
+        private readonly RabbitOptions config;
         public RabbitService(IOptions<RabbitOptions> options)
         {
-            var config = options.Value;
+            config = options.Value;
             var factory = new ConnectionFactory
             {
                 HostName = config.HostName,
-                Port = config.Port
+                Port = config.Port,
+                UserName = config.UserName,
+                Password = config.Password,
+                VirtualHost = config.VirtualHost
             };
-            var connection = factory.CreateConnection();
-            var channel = connection.CreateModel();
-            channel.QueueDeclare(
-                queue: config.Queue,
-                durable: config.Durable,
-                exclusive: config.Exclusive,
-                autoDelete: config.AutoDelete,
-                arguments: config.Arguments);
+            connection = factory.CreateConnection();
+            channel = connection.CreateModel();
+
+            if (config.ExchangeOptions != null)
+            {
+                channel.ExchangeDeclare(
+                    exchange: config.ExchangeOptions.Name,
+                    durable: config.ExchangeOptions.Durable,
+                    autoDelete: config.ExchangeOptions.AutoDelete,
+                    arguments: config.ExchangeOptions.Arguments,
+                    type: config.ExchangeOptions.Type);
+            }
+
+            if (config.QueueOptions != null)
+            {
+                channel.QueueDeclare(
+                    queue: config.QueueOptions.Name,
+                    durable: config.QueueOptions.Durable,
+                    exclusive: config.QueueOptions.Exclusive,
+                    autoDelete: config.QueueOptions.AutoDelete,
+                    arguments: config.QueueOptions.Arguments);
+            }
+
+            if (config.ExchangeOptions != null && config.QueueOptions != null)
+            {
+                channel.QueueBind(config.QueueOptions.Name, config.ExchangeOptions.Name, config.RoutingKey);
+            }
+        }
+
+        public void Dispose()
+        {
+            channel.Close();
+            connection.Close();
+            channel.Dispose();
+            connection.Dispose();
         }
     }
 
     public class RabbitOptions
     {
+        public class ModelOptions
+        {
+            public string Name { get; set; } = string.Empty;
+            public string Type { get; set; } = ExchangeType.Direct;
+            public bool Durable { get; set; } = true;
+            public bool Exclusive { get; set; } = false;
+            public bool AutoDelete { get; set; } = false;
+            public IDictionary<string, object>? Arguments { get; set; }
+        }
         public string HostName { get; set; } = string.Empty;
-        public int Port { get; set; }
-        public string Queue { get; set; } = string.Empty;
-        public bool Durable { get; set; }
-        public bool Exclusive { get; set; }
-        public bool AutoDelete { get; set; }
-        public IDictionary<string, object>? Arguments { get; set; }
+        public int Port { get; set; } = 5672;
+        public ModelOptions? ExchangeOptions { get; set; }
+        public ModelOptions? QueueOptions { get; set; }
+        public string RoutingKey { get; set; } = string.Empty;
+        public string UserName { get; set; } = "guest";
+        public string Password { get; set; } = "guest";
+        public string VirtualHost { get; set; } = "/";
     }
 }

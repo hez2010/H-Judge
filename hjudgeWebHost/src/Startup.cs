@@ -1,7 +1,6 @@
 ﻿using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
-using hjudgeWebHost.Models;
 using hjudgeWebHost.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
