@@ -5,3 +5,6 @@ trigger:
 steps:
 - script: |
     build.bat
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
