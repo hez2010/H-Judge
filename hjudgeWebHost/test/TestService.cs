@@ -26,18 +26,12 @@ namespace hjudgeWebHostTest
 
             services.AddEntityFrameworkInMemoryDatabase();
 
-            services.AddDistributedRedisCache(options =>
-            {
-                options.Configuration = "127.0.0.1";
-                options.InstanceName = "hjudge";
-            });
-
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IProblemService, ProblemService>();
             services.AddTransient<IContestService, ContestService>();
             services.AddTransient<IJudgeService, JudgeService>();
             services.AddTransient<IGroupService, GroupService>();
-            services.AddTransient<ICacheService, CacheService>();
+            services.AddTransient<ICacheService, FakeCacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
             services.AddIdentityCore<UserInfo>(options =>
