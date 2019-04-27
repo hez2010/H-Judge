@@ -1,6 +1,7 @@
 ﻿using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace hjudgeWebHost.Services
         Task RemoveGroupAsync(int groupId);
         Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests);
         Task<IQueryable<GroupContestConfig>> QueryGroupContestAsync(int groupId);
+        Task OptInGroup(string userId, int groupId);
+        Task OptOutGroup(string userId, int groupId);
     }
     public class GroupService : IGroupService
     {
@@ -40,6 +43,39 @@ namespace hjudgeWebHost.Services
         public Task<Group> GetGroupAsync(int groupId)
         {
             return cacheService.GetObjectAndSetAsync($"group_{groupId}", () => dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId));
+        }
+
+        public async Task OptInGroup(string userId, int groupId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            var group = await GetGroupAsync(groupId);
+            if (user != null && group != null)
+            {
+                if (!await dbContext.GroupJoin.AnyAsync(i => i.GroupId == groupId && i.UserId == userId))
+                {
+                    await dbContext.GroupJoin.AddAsync(new GroupJoin
+                    {
+                        GroupId = groupId,
+                        UserId = userId,
+                        JoinTime = DateTime.Now
+                    });
+                    await dbContext.SaveChangesAsync();
+                }
+            }
+        }
+        public async Task OptOutGroup(string userId, int groupId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            var group = await GetGroupAsync(groupId);
+            if (user != null && group != null)
+            {
+                var info = await dbContext.GroupJoin.FirstOrDefaultAsync(i => i.GroupId == groupId && i.UserId == userId);
+                if (info != null)
+                {
+                    dbContext.GroupJoin.Remove(info);
+                    await dbContext.SaveChangesAsync();
+                }
+            }
         }
 
         public async Task<IQueryable<Group>> QueryGroupAsync(string? userId)

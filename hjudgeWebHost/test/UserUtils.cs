@@ -1,7 +1,5 @@
 ﻿using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Services;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,8 +8,10 @@ namespace hjudgeWebHostTest
     public class UserUtils
     {
         private static readonly CachedUserManager<UserInfo> userManager = TestService.Provider.GetService(typeof(CachedUserManager<UserInfo>)) as CachedUserManager<UserInfo>;
+        private static bool inited;
         public static async Task InitUsers()
         {
+            if (inited) return;
             await userManager.CreateAsync(new UserInfo
             {
                 UserName = "admin",
@@ -47,26 +47,32 @@ namespace hjudgeWebHostTest
                 Name = "black",
                 Privilege = 5
             });
+            inited = true;
         }
 
-        public static UserInfo GetAdmin()
+        public static async Task<UserInfo> GetAdmin()
         {
+            await InitUsers();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 1);
         }
-        public static UserInfo GetTeacher()
+        public static async Task<UserInfo> GetTeacher()
         {
+            await InitUsers();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 2);
         }
-        public static UserInfo GetTa()
+        public static async Task<UserInfo> GetTa()
         {
+            await InitUsers();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 3);
         }
-        public static UserInfo GetStudent()
+        public static async Task<UserInfo> GetStudent()
         {
+            await InitUsers();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 4);
         }
-        public static UserInfo GetBlack()
+        public static async Task<UserInfo> GetBlack()
         {
+            await InitUsers();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 1);
         }
     }

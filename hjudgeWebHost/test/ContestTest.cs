@@ -1,15 +1,16 @@
 ﻿using hjudgeWebHost.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace hjudgeWebHostTest
 {
     [TestClass]
-    public class ProblemTest
+    public class ContestTest
     {
-        private readonly IProblemService service = TestService.Provider.GetService(typeof(IProblemService)) as IProblemService;
+        private readonly IContestService service = TestService.Provider.GetService(typeof(IContestService)) as IContestService;
 
         [TestMethod]
         public async Task ModifyAsync()
@@ -17,27 +18,27 @@ namespace hjudgeWebHostTest
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
-            var problem = new hjudgeWebHost.Data.Problem
+            var contest = new hjudgeWebHost.Data.Contest
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
             };
-            var id = await service.CreateProblemAsync(problem);
+            var id = await service.CreateContestAsync(contest);
             Assert.AreNotEqual(0, id);
 
-            var studentResult = await service.QueryProblemAsync(stuId);
-            Assert.IsTrue(studentResult.Any(i => i.Id == id && i.Name == problem.Name));
+            var studentResult = await service.QueryContestAsync(stuId);
+            Assert.IsTrue(studentResult.Any(i => i.Id == id && i.Name == contest.Name));
 
             var newName = Guid.NewGuid().ToString();
-            problem.Name = newName;
-            await service.UpdateProblemAsync(problem);
+            contest.Name = newName;
+            await service.UpdateContestAsync(contest);
 
-            studentResult = await service.QueryProblemAsync(stuId);
-            Assert.IsTrue(studentResult.Any(i => i.Id == id && i.Name == problem.Name));
+            studentResult = await service.QueryContestAsync(stuId);
+            Assert.IsTrue(studentResult.Any(i => i.Id == id && i.Name == contest.Name));
 
-            await service.RemoveProblemAsync(id);
+            await service.RemoveContestAsync(id);
 
-            studentResult = await service.QueryProblemAsync(stuId);
+            studentResult = await service.QueryContestAsync(stuId);
             Assert.IsFalse(studentResult.Any(i => i.Id == id));
         }
 
@@ -47,21 +48,21 @@ namespace hjudgeWebHostTest
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
-            var pubId = await service.CreateProblemAsync(new hjudgeWebHost.Data.Problem
+            var pubId = await service.CreateContestAsync(new hjudgeWebHost.Data.Contest
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
             });
 
-            var priId = await service.CreateProblemAsync(new hjudgeWebHost.Data.Problem
+            var priId = await service.CreateContestAsync(new hjudgeWebHost.Data.Contest
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId,
                 Hidden = true
             });
 
-            var adminResult = await service.QueryProblemAsync(adminId);
-            var strdentResult = await service.QueryProblemAsync(stuId);
+            var adminResult = await service.QueryContestAsync(adminId);
+            var strdentResult = await service.QueryContestAsync(stuId);
 
             Assert.IsTrue(adminResult.Any(i => i.Id == priId));
             Assert.IsTrue(adminResult.Any(i => i.Id == pubId));

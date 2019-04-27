@@ -1,6 +1,5 @@
 using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
-using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +22,6 @@ namespace hjudgeWebHostTest
                 options.EnableDetailedErrors(true);
                 options.EnableSensitiveDataLogging(true);
                 options.EnableServiceProviderCaching(true);
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
             services.AddEntityFrameworkInMemoryDatabase();
@@ -34,7 +32,6 @@ namespace hjudgeWebHostTest
                 options.InstanceName = "hjudge";
             });
 
-            services.AddTransient<AntiForgeryFilter>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IProblemService, ProblemService>();
             services.AddTransient<IContestService, ContestService>();
