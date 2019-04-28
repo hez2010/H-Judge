@@ -119,7 +119,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
 
   renderProblemList() {
     return <>
-      <Table color='blue' selectable>
+      <Table color='black' selectable>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>编号</Table.HeaderCell>
@@ -141,7 +141,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
                 <Table.Cell>{v.status === 0 ? '未尝试' : v.status === 1 ? '已尝试' : '已通过'}</Table.Cell>
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button primary>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -178,7 +178,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
             <Label>题目操作</Label>
             <Button.Group fluid>
               <Button primary onClick={() => this.fetchProblemList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(0)}>添加</Button> : null}
+              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>

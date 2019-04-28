@@ -117,7 +117,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
 
   renderContestList() {
     return <>
-      <Table color='blue' selectable>
+      <Table color='black' selectable>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>编号</Table.HeaderCell>
@@ -137,7 +137,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
                 <Table.Cell>{v.status === 0 ? '未开始' : v.status === 1 ? '进行中' : '已结束'}</Table.Cell>
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button primary>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -174,7 +174,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
             <Label>比赛操作</Label>
             <Button.Group fluid>
               <Button primary onClick={() => this.fetchContestList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editContest(0)}>添加</Button> : null}
+              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button secondary onClick={() => this.editContest(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>

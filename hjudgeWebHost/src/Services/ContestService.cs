@@ -17,7 +17,6 @@ namespace hjudgeWebHost.Services
         Task UpdateContestAsync(Contest contest);
         Task RemoveContestAsync(int contestId);
         Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems);
-        Task<IQueryable<ContestProblemConfig>> QueryContestProblemAsync(int contestId);
     }
     public class ContestService : IContestService
     {
@@ -85,12 +84,6 @@ namespace hjudgeWebHost.Services
             return contests;
         }
 
-        public Task<IQueryable<ContestProblemConfig>> QueryContestProblemAsync(int contestId)
-        {
-            return Task.FromResult(dbContext.ContestProblemConfig
-                .Include(i => i.Problem).Where(i => i.ContestId == contestId));
-        }
-
         public async Task RemoveContestAsync(int contestId)
         {
             var contest = await GetContestAsync(contestId);
@@ -112,7 +105,7 @@ namespace hjudgeWebHost.Services
             var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId).ToListAsync();
             dbContext.ContestProblemConfig.RemoveRange(oldProblems);
             var dict = oldProblems.ToDictionary(i => i.ProblemId);
-            foreach (var i in problems)
+            foreach (var i in problems.Distinct())
             {
                 if (dict.ContainsKey(i))
                 {

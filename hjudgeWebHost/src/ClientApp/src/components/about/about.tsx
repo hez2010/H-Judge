@@ -142,11 +142,6 @@ export default class About extends React.Component<{}, AboutState> {
         <Header as='h1'>H::Judge</Header>
         <p>这是你从未上过的船新 H::Judge</p>
         <div>
-          <Label>开发者</Label> <a target='_blank' href='https://hez2010.com'>hez2010</a>
-          <Label>Email</Label> <a target='_blank' href='mailto:hez2010@outlook.com'>hez2010@outlook.com</a>
-          <Label>GitHub</Label> <a target='_blank' href='https://github.com/hez2010/H-Judge'>hez2010/H-Judge</a>
-        </div>
-        <div>
           <Divider horizontal>
             <Header as='h4'>
               <Icon name='tag'></Icon> 更新日志

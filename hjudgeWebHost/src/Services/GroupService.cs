@@ -16,7 +16,6 @@ namespace hjudgeWebHost.Services
         Task UpdateGroupAsync(Group group);
         Task RemoveGroupAsync(int groupId);
         Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests);
-        Task<IQueryable<GroupContestConfig>> QueryGroupContestAsync(int groupId);
         Task OptInGroup(string userId, int groupId);
         Task OptOutGroup(string userId, int groupId);
     }
@@ -92,13 +91,6 @@ namespace hjudgeWebHost.Services
             return groups;
         }
 
-        public Task<IQueryable<GroupContestConfig>> QueryGroupContestAsync(int groupId)
-        {
-            return Task.FromResult(dbContext.GroupContestConfig
-                .Include(i => i.Group)
-                .Where(i => i.GroupId == groupId));
-        }
-
         public async Task RemoveGroupAsync(int groupId)
         {
             var group = await GetGroupAsync(groupId);
@@ -120,7 +112,7 @@ namespace hjudgeWebHost.Services
             var oldContests = await dbContext.GroupContestConfig.Where(i => i.GroupId == groupId).ToListAsync();
             dbContext.GroupContestConfig.RemoveRange(oldContests);
             var dict = oldContests.ToDictionary(i => i.ContestId);
-            foreach (var i in contests)
+            foreach (var i in contests.Distinct())
             {
                 if (dict.ContainsKey(i))
                 {

@@ -112,7 +112,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
 
   renderGroupList() {
     return <>
-      <Table color='blue' selectable>
+      <Table color='black' selectable>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>编号</Table.HeaderCell>
@@ -132,7 +132,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
                 <Table.Cell>{v.userName}</Table.Cell>
                 <Table.Cell>{v.creationTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.isPrivate ? '公开' : '私有'}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button primary>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -165,7 +165,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
             <Label>小组操作</Label>
             <Button.Group fluid>
               <Button primary onClick={() => this.fetchGroupList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editGroup(0)}>添加</Button> : null}
+              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button secondary onClick={() => this.editGroup(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>
