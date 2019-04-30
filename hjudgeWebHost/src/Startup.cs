@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RabbitMQ.Client.Events;
 using SpanJson.AspNetCore.Formatter;
 using System;
 using System.Linq;
@@ -55,6 +56,47 @@ namespace hjudgeWebHost
             services.AddTransient<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
+            var factory = new MessageQueueFactory(
+                new MessageQueueFactory.HostOptions
+                {
+                    HostName = Configuration["MessageQueue:HostName"],
+                    Port = int.Parse(Configuration["MessageQueue:Port"]),
+                    UserName = Configuration["MessageQueue:UserName"],
+                    Password = Configuration["MessageQueue:Password"]
+                });
+
+            var cnt = 0;
+            while (Configuration.GetSection($"MessageQueue:Producers:{cnt}").Exists())
+            {
+                factory.CreateProducer(new MessageQueueFactory.ProducerOptions
+                {
+                    Queue = Configuration[$"MessageQueue:Producers:{cnt}:Queue"],
+                    Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
+                    RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"],
+                    Durable = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Durable"]),
+                    AutoDelete = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:AutoDelete"]),
+                    Exclusive = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Exclusive"]),
+                });
+                ++cnt;
+            }
+
+            cnt = 0;
+            while (Configuration.GetSection($"MessageQueue:Consumers:{cnt}").Exists())
+            {
+                factory.CreateConsumer(new MessageQueueFactory.ConsumerOptions
+                {
+                    Queue = Configuration[$"MessageQueue:Consumers:{cnt}:Queue"],
+                    RoutingKey = Configuration[$"MessageQueue:Consumers:{cnt}:RoutingKey"],
+                    Durable = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Durable"]),
+                    AutoAck = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:AutoAck"]),
+                    Exclusive = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Exclusive"])
+                });
+                ++cnt;
+            }
+
+            services.AddSingleton<IMessageQueueService, MessageQueueService>()
+                .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = factory);
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -67,7 +109,7 @@ namespace hjudgeWebHost
 
             services.AddEntityFrameworkSqlServer();
 
-            services.AddDistributedRedisCache(options=>
+            services.AddDistributedRedisCache(options =>
             {
                 options.Configuration = Configuration["Redis:Configuration"];
                 options.InstanceName = Configuration["Redis:InstanceName"];

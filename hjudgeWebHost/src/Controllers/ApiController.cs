@@ -2,43 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using hjudgeCore;
+using hjudgeWebHost.Models;
+using hjudgeWebHost.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace hjudgeWebHost.Controllers
 {
     [Route("api/[controller]")]
-    public class ApiController : ControllerBase
+    [ApiController]
+    public class JudgeReportController : ControllerBase
     {
-        // GET: api/<controller>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IJudgeService judgeService;
+
+        public JudgeReportController(IJudgeService judgeService)
         {
-            return new string[] { "value1", "value2" };
+            this.judgeService = judgeService;
         }
 
-        // GET api/<controller>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task<ResultModel> ReportResult([FromBody]JudgeResult result)
         {
-        }
-
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var ret = new ResultModel();
+            
         }
     }
 }
