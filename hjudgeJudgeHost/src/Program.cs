@@ -11,18 +11,20 @@ namespace hjudgeJudgeHost
     {
         static void Main(string[] args)
         {
+            var semaphore = new SemaphoreSlim(0, 1);
             var factory = new ConnectionFactory
             {
                 HostName = "localhost"
             };
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
-            channel.QueueDeclare(queue: "JudgeQueue", durable: true);
+            channel.QueueDeclare(queue: "JudgeReport", durable: true, exclusive: false, autoDelete: false);
+            channel.ExchangeDeclare("JudgeReport_Exchange", "direct", true, false);
 
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += Consumer_Received;
-            channel.BasicConsume(queue: "JudgeQueue", autoAck: true, consumer: consumer);
-            var semaphore = new SemaphoreSlim(0, 1);
+            channel.QueueBind("JudgeReport", "JudgeReport_Exchange", "H::Judge_JudgeReport");
+            var props = channel.CreateBasicProperties();
+            props.ContentType = "plain/text";
+            channel.BasicPublish("JudgeReport_Exchange", "H::Judge_JudgeReport", props, Encoding.UTF8.GetBytes("test"));
             semaphore.Wait();
         }
 

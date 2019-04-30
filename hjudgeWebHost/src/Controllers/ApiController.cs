@@ -11,20 +11,14 @@ namespace hjudgeWebHost.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class JudgeReportController : ControllerBase
+    public class ApiController : ControllerBase
     {
         private readonly IJudgeService judgeService;
 
-        public JudgeReportController(IJudgeService judgeService)
+        public ApiController(IJudgeService judgeService)
         {
             this.judgeService = judgeService;
         }
 
-        [HttpPost]
-        public async Task<ResultModel> ReportResult([FromBody]JudgeResult result)
-        {
-            var ret = new ResultModel();
-            
-        }
     }
 }

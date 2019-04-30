@@ -22,7 +22,6 @@ export default class CodeEditor extends React.Component<CodeEditorProps, CodeEdi
   constructor(props: CodeEditorProps) {
     super(props);
     this.loadEditor = this.loadEditor.bind(this);
-    this.loadEditor(this.props.language);
 
     this.state = {
       editorLoaded: false
@@ -38,29 +37,38 @@ export default class CodeEditor extends React.Component<CodeEditorProps, CodeEdi
 
   private uuid: string = this.uuidv4();
   private editor: any = null;
+  private initLang: string = 'plain_text';
 
   public getInstance() {
     return this.editor;
   }
 
   loadEditor(lang: string) {
+    this.initLang = lang;
     ensureLoading('ace', '/lib/ace/ace.js', () => {
       this.setState({ editorLoaded: true } as CodeEditorState);
-      nextTick(() => {
-        let w = window as any;
-        this.editor = w.ace.edit(`code-editor-${this.uuid}`);
-        if (this.props.onBlur) this.editor.on('blur', this.props.onBlur);
-        if (this.props.onChange) this.editor.on('change', this.props.onChange);
-        if (this.props.onChangeSelectionStyle) this.editor.on('changeSelectionStyle', this.props.onChangeSelectionStyle);
-        if (this.props.onChangeSession) this.editor.on('changeSession', this.props.onChangeSession);
-        if (this.props.onCopy) this.editor.on('copy', this.props.onCopy);
-        if (this.props.onFocus) this.editor.on('focus', this.props.onFocus);
-        if (this.props.onPaste) this.editor.on('paste', this.props.onPaste);
-        
-        this.editor.setTheme('ace/theme/tomorrow');
-        this.editor.session.setMode(`ace/mode/${lang}`);
-      });
     });
+  }
+
+  componentDidMount() {
+    this.loadEditor(this.props.language);
+  }
+
+  componentDidUpdate(prevProps: CodeEditorProps, prevState: CodeEditorState) {
+    if (!prevState.editorLoaded && this.state.editorLoaded && document.querySelector(`#code-editor-${this.uuid}`)) {
+      let w = window as any;
+      this.editor = w.ace.edit(`code-editor-${this.uuid}`);
+      if (this.props.onBlur) this.editor.on('blur', this.props.onBlur);
+      if (this.props.onChange) this.editor.on('change', this.props.onChange);
+      if (this.props.onChangeSelectionStyle) this.editor.on('changeSelectionStyle', this.props.onChangeSelectionStyle);
+      if (this.props.onChangeSession) this.editor.on('changeSession', this.props.onChangeSession);
+      if (this.props.onCopy) this.editor.on('copy', this.props.onCopy);
+      if (this.props.onFocus) this.editor.on('focus', this.props.onFocus);
+      if (this.props.onPaste) this.editor.on('paste', this.props.onPaste);
+
+      this.editor.setTheme('ace/theme/tomorrow');
+      this.editor.session.setMode(`ace/mode/${this.initLang}`);
+    }
   }
 
   componentWillUpdate(nextProps: CodeEditorProps, nextState: CodeEditorState) {

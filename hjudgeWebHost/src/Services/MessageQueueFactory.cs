@@ -8,7 +8,7 @@ namespace hjudgeWebHost.Services
     public class MessageQueueFactory : IDisposable
     {
         private readonly ConcurrentDictionary<string, (IConnection Connection, IModel Model, ProducerOptions Options)> producers = new ConcurrentDictionary<string, (IConnection, IModel, ProducerOptions)>();
-        private readonly ConcurrentBag<(IConnection Connection, IModel Model, ConsumerOptions Options)> consumers = new ConcurrentBag<(IConnection, IModel, ConsumerOptions)>();
+        private readonly ConcurrentBag<(IConnection Connection, AsyncEventingBasicConsumer Consumer, ConsumerOptions Options)> consumers = new ConcurrentBag<(IConnection, AsyncEventingBasicConsumer, ConsumerOptions)>();
 
         private readonly ConnectionFactory factory;
 
@@ -28,7 +28,8 @@ namespace hjudgeWebHost.Services
                 Port = options.Port,
                 UserName = options.UserName,
                 Password = options.Password,
-                VirtualHost = "/"
+                VirtualHost = "/",
+                DispatchConsumersAsync = true
             };
         }
 
@@ -38,8 +39,8 @@ namespace hjudgeWebHost.Services
             public bool Durable { get; set; } = true;
             public bool Exclusive { get; set; } = false;
             public bool AutoDelete { get; set; } = false;
-            public string Exchange { get; set; } = string.Empty;
-            public string RoutingKey { get; set; } = string.Empty;
+            public string Exchange => Queue + "_Exchange";
+            public string RoutingKey => "H::Judge_" + Queue;
         }
 
         public void CreateProducer(ProducerOptions options)
@@ -48,7 +49,6 @@ namespace hjudgeWebHost.Services
 
             var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
-            producers.TryAdd(options.Queue, (connection, channel, options));
 
             channel.QueueDeclare(
                 queue: options.Queue,
@@ -63,6 +63,8 @@ namespace hjudgeWebHost.Services
                 type: ExchangeType.Direct);
 
             channel.QueueBind(options.Queue, options.Exchange, options.RoutingKey);
+
+            producers.TryAdd(options.Queue, (connection, channel, options));
         }
 
         public (IModel Channel, ProducerOptions Options) GetProducer(string queue)
@@ -74,10 +76,11 @@ namespace hjudgeWebHost.Services
         public class ConsumerOptions
         {
             public string Queue { get; set; } = string.Empty;
+            public string Exchange => Queue + "_Exchange";
             public bool Durable { get; set; } = true;
             public bool AutoAck { get; set; } = false;
             public bool Exclusive { get; set; } = false;
-            public string RoutingKey { get; set; } = string.Empty;
+            public string RoutingKey => "H::Judge_" + Queue;
             public AsyncEventHandler<BasicDeliverEventArgs>? OnReceived { get; set; }
             public AsyncEventHandler<ConsumerEventArgs>? OnRegistered { get; set; }
             public AsyncEventHandler<ConsumerEventArgs>? OnCancelled { get; set; }
@@ -89,7 +92,20 @@ namespace hjudgeWebHost.Services
         {
             var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
-            consumers.Add((connection, channel, options));
+
+            channel.QueueDeclare(
+                queue: options.Queue,
+                durable: options.Durable,
+                exclusive: options.Exclusive,
+                autoDelete: false);
+
+            channel.ExchangeDeclare(
+                exchange: options.Exchange,
+                durable: options.Durable,
+                autoDelete: false,
+                type: ExchangeType.Direct);
+
+            channel.QueueBind(options.Queue, options.Exchange, options.RoutingKey);
 
             var consumer = new AsyncEventingBasicConsumer(channel);
 
@@ -100,19 +116,21 @@ namespace hjudgeWebHost.Services
             if (options.OnCancelled != null) consumer.ConsumerCancelled += options.OnCancelled;
 
             channel.BasicConsume(consumer, options.Queue, options.AutoAck, Guid.NewGuid().ToString(), false, options.Exclusive);
+
+            consumers.Add((connection, consumer, options));
         }
 
         public void Dispose()
         {
             while (consumers.TryTake(out var c))
             {
-                c.Model.Close();
+                c.Consumer.Model.Close();
                 c.Connection.Close();
-                c.Model.Dispose();
+                c.Consumer.Model.Dispose();
                 c.Connection.Dispose();
             }
 
-            foreach(var p in producers)
+            foreach (var p in producers)
             {
                 p.Value.Model.Close();
                 p.Value.Connection.Close();
