@@ -3,13 +3,14 @@ trigger:
 - develop
 
 steps:
+- script: |
+    dotnet restore
 - task: VSBuild@1
   inputs:
     solution: '**\*.sln'
     msbuildArgs: '/m'
     platform: 'x64'
     configuration: 'Release'
-    restoreNugetPackages: true
     msbuildArchitecture: 'x64'
 - task: DotNetCoreCLI@2
   inputs:
