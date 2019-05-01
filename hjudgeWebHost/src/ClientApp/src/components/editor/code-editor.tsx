@@ -1,6 +1,5 @@
 ﻿import * as React from 'react';
 import { ensureLoading } from '../../utils/scriptLoader';
-import { nextTick } from 'q';
 import { Placeholder } from 'semantic-ui-react';
 
 interface CodeEditorState {

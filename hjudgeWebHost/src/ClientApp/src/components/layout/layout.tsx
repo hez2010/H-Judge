@@ -24,7 +24,7 @@ interface DesktopContainerState {
 }
 
 class DesktopContainer extends React.Component<ContainerProps, DesktopContainerState> {
-  constructor(props: any) {
+  constructor(props: ContainerProps) {
     super(props);
 
     this.state = {
@@ -104,7 +104,7 @@ interface ContainerProps {
 }
 
 class MobileContainer extends React.Component<ContainerProps, MobileContainerState> {
-  constructor(props: any) {
+  constructor(props: ContainerProps) {
     super(props);
 
     this.state = {
@@ -207,7 +207,7 @@ const ResponsiveContainer = ({ children, account }: ResponsiveContainerProps) =>
 )
 
 export default class Layout extends React.Component<LayoutProps, LayoutState> {
-  constructor(props: any) {
+  constructor(props: LayoutProps) {
     super(props);
     this.state = {
       loginModalOpen: false,

@@ -11,7 +11,7 @@ interface RegisterProps extends CommonProps {
 }
 
 export default class Register extends React.Component<RegisterProps> {
-  constructor(props: any) {
+  constructor(props: RegisterProps) {
     super(props);
     this.register = this.register.bind(this);
   }

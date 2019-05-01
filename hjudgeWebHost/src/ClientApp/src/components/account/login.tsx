@@ -11,7 +11,7 @@ interface LoginProps extends CommonProps {
 }
 
 export default class Login extends React.Component<LoginProps> {
-  constructor(props: any) {
+  constructor(props: LoginProps) {
     super(props);
     this.login = this.login.bind(this);
   }
