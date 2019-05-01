@@ -23,42 +23,42 @@ namespace hjudgeWebHost.Utils
             return re.Matches(input)?.Cast<object>()?.Aggregate(string.Empty, (current, t) => current + t);
         }
 
-        public static async Task<(JudgeOptionBuilder JudgeOptionBuilder, BuildOptionBuilder BuildOptionBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, IEnumerable<LanguageConfig> languageConfig)
+        public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, IEnumerable<LanguageConfig> languageConfig)
         {
             var problem = await problemService.GetProblemAsync(judge.ProblemId);
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
-            var buildOptionBuilder = new BuildOptionBuilder();
+            var buildOptionsBuilder = new BuildOptionsBuilder();
             if (problem.Type == 1)
             {
-                var judgeOptionBuilder = new CodeJudgeOptionBuilder();
+                var judgeOptionsBuilder = new CodeJudgeOptionsBuilder();
                 var ext = languageConfig.FirstOrDefault(i => i.Name == judge.Language)?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim();
-                buildOptionBuilder.AddExtensionName(ext);
+                buildOptionsBuilder.UseExtensionName(ext);
 
                 var datadir = $"${{datadir:{problem.Id}}}";
-                var workingdir = $"{{workingdir:{judgeOptionBuilder.GuidStr}}}";
-                var file = $"{workingdir}/{judgeOptionBuilder.GuidStr}{ext}";
-                var outputfile = $"{workingdir}/{judgeOptionBuilder.GuidStr}.exe";
+                var workingdir = $"{{workingdir:{judgeOptionsBuilder.GuidStr}}}";
+                var file = $"{workingdir}/{judgeOptionsBuilder.GuidStr}{ext}";
+                var outputfile = $"{workingdir}/{judgeOptionsBuilder.GuidStr}.exe";
                 var name = AlphaNumberFilter(problem.Name);
 
                 if (string.IsNullOrWhiteSpace(problemConfig.SubmitFileName))
                 {
-                    buildOptionBuilder.UseCustomSubmitFileName(judgeOptionBuilder.GuidStr);
+                    buildOptionsBuilder.UseCustomSubmitFileName(judgeOptionsBuilder.GuidStr);
                 }
                 else
                 {
-                    buildOptionBuilder.UseCustomSubmitFileName(problemConfig.SubmitFileName);
+                    buildOptionsBuilder.UseCustomSubmitFileName(problemConfig.SubmitFileName);
                     file = $"{workingdir}/{problemConfig.SubmitFileName}{ext}";
                 }
 
-                judgeOptionBuilder.UseComparingOption(option =>
+                judgeOptionsBuilder.UseComparingOptions(options =>
                 {
-                    option.IgnoreLineTailWhiteSpaces = problemConfig.ComparingOptions.IgnoreLineTailWhiteSpaces;
-                    option.IgnoreTextTailLineFeeds = problemConfig.ComparingOptions.IgnoreTextTailLineFeeds;
+                    options.IgnoreLineTailWhiteSpaces = problemConfig.ComparingOptions.IgnoreLineTailWhiteSpaces;
+                    options.IgnoreTextTailLineFeeds = problemConfig.ComparingOptions.IgnoreTextTailLineFeeds;
                 });
 
                 if (problemConfig.ExtraFiles.Count != 0)
                 {
-                    judgeOptionBuilder.UseExtraFiles(problemConfig.ExtraFiles.Select(
+                    judgeOptionsBuilder.UseExtraFiles(problemConfig.ExtraFiles.Select(
                         i => i
                             .Replace("${datadir}", datadir)
                             .Replace("${workingdir}", workingdir)
@@ -70,24 +70,24 @@ namespace hjudgeWebHost.Utils
 
                 if (!string.IsNullOrWhiteSpace(problemConfig.SpecialJudge))
                 {
-                    judgeOptionBuilder.UseSpecialJudge(option =>
+                    judgeOptionsBuilder.UseSpecialJudge(options =>
                     {
-                        option.Exec = problemConfig.SpecialJudge
+                        options.Exec = problemConfig.SpecialJudge
                             .Replace("${datadir}", datadir)
                             .Replace("${workingdir}", workingdir)
                             .Replace("${file}", file)
                             .Replace("${outputfile}", outputfile)
                             .Replace("${name}", name);
-                        option.UseSourceFile = true;
-                        option.UseOutputFile = true;
-                        option.UseStdInputFile = true;
-                        option.UseStdOutputFile = true;
+                        options.UseSourceFile = true;
+                        options.UseOutputFile = true;
+                        options.UseStdInputFile = true;
+                        options.UseStdOutputFile = true;
                     });
                 }
 
                 foreach (var point in problemConfig.Points)
                 {
-                    judgeOptionBuilder.AddDataPoint(new DataPoint
+                    judgeOptionsBuilder.AddDataPoint(new DataPoint
                     {
                         MemoryLimit = point.MemoryLimit,
                         Score = point.Score,
@@ -106,11 +106,11 @@ namespace hjudgeWebHost.Utils
                                 ?.Replace("${name}", name) ?? string.Empty
                     });
                 }
-                judgeOptionBuilder.SetInputFileName((string.IsNullOrWhiteSpace(problemConfig.InputFileName) ? null : problemConfig.InputFileName)?.Replace("${name}", name) ?? $"test_{judgeOptionBuilder.GuidStr}.in");
-                judgeOptionBuilder.SetOutputFileName((string.IsNullOrWhiteSpace(problemConfig.OutputFileName) ? null : problemConfig.OutputFileName)?.Replace("${name}", name) ?? $"test_{judgeOptionBuilder.GuidStr}.out");
+                judgeOptionsBuilder.UseInputFileName((string.IsNullOrWhiteSpace(problemConfig.InputFileName) ? null : problemConfig.InputFileName)?.Replace("${name}", name) ?? $"test_{judgeOptionsBuilder.GuidStr}.in");
+                judgeOptionsBuilder.UseOutputFileName((string.IsNullOrWhiteSpace(problemConfig.OutputFileName) ? null : problemConfig.OutputFileName)?.Replace("${name}", name) ?? $"test_{judgeOptionsBuilder.GuidStr}.out");
                 if (problemConfig.UseStdIO)
                 {
-                    judgeOptionBuilder.UseStdIO();
+                    judgeOptionsBuilder.UseStdIO();
                 }
 
                 if (languageConfig.Any(i => i.Name == judge.Language))
@@ -123,15 +123,15 @@ namespace hjudgeWebHost.Utils
                     }
                     if (!string.IsNullOrWhiteSpace(lang.RunExec))
                     {
-                        judgeOptionBuilder.SetRunOption(option =>
+                        judgeOptionsBuilder.UseRunOptions(options =>
                         {
-                            option.Exec = (string.IsNullOrWhiteSpace(lang.RunExec) ? null : lang.RunExec)
+                            options.Exec = (string.IsNullOrWhiteSpace(lang.RunExec) ? null : lang.RunExec)
                                     ?.Replace("${datadir}", datadir)
                                     ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
-                            option.Args = (string.IsNullOrWhiteSpace(lang.RunArgs) ? null : lang.RunArgs)
+                            options.Args = (string.IsNullOrWhiteSpace(lang.RunArgs) ? null : lang.RunArgs)
                                     ?.Replace("${datadir}", datadir)
                                     ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
@@ -141,9 +141,9 @@ namespace hjudgeWebHost.Utils
                     }
                     if (!string.IsNullOrWhiteSpace(lang.CompilerExec))
                     {
-                        buildOptionBuilder.UseCompiler(option =>
+                        buildOptionsBuilder.UseCompiler(options =>
                         {
-                            option.Args = (string.IsNullOrWhiteSpace(args) ? null : args)
+                            options.Args = (string.IsNullOrWhiteSpace(args) ? null : args)
                                     ?.Replace("${datadir}", datadir)
                                     ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
@@ -156,38 +156,38 @@ namespace hjudgeWebHost.Utils
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
-                            option.Exec = (string.IsNullOrWhiteSpace(lang.CompilerExec) ? null : lang.CompilerExec)
+                            options.Exec = (string.IsNullOrWhiteSpace(lang.CompilerExec) ? null : lang.CompilerExec)
                                     ?.Replace("${datadir}", datadir)
                                     ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
-                            option.OutputFile = outputfile;
+                            options.OutputFile = outputfile;
 
                             if (!string.IsNullOrWhiteSpace(lang.CompilerProblemMatcher))
                             {
-                                option.ProblemMatcher = new ProblemMatcher
+                                options.ProblemMatcher = new ProblemMatcher
                                 {
                                     MatchPatterns = lang.CompilerProblemMatcher,
                                     DisplayFormat = lang.CompilerDisplayFormat
                                 };
                             }
-                            option.ReadStdOutput = lang.CompilerReadStdOutput;
-                            option.ReadStdError = lang.CompilerReadStdError;
+                            options.ReadStdOutput = lang.CompilerReadStdOutput;
+                            options.ReadStdError = lang.CompilerReadStdError;
                         });
                     }
                     if (!string.IsNullOrWhiteSpace(lang.StaticCheckExec))
                     {
-                        buildOptionBuilder.UseStaticCheck(option =>
+                        buildOptionsBuilder.UseStaticCheck(options =>
                         {
-                            option.Args = (string.IsNullOrWhiteSpace(lang.StaticCheckArgs) ? null : lang.StaticCheckArgs)
+                            options.Args = (string.IsNullOrWhiteSpace(lang.StaticCheckArgs) ? null : lang.StaticCheckArgs)
                                     ?.Replace("${datadir}", datadir)
                                     ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
 
-                            option.Exec = (string.IsNullOrWhiteSpace(lang.StaticCheckExec) ? null : lang.StaticCheckExec)
+                            options.Exec = (string.IsNullOrWhiteSpace(lang.StaticCheckExec) ? null : lang.StaticCheckExec)
                                     ?.Replace("${datadir}", datadir)
                                     ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
@@ -196,49 +196,49 @@ namespace hjudgeWebHost.Utils
 
                             if (!string.IsNullOrWhiteSpace(lang.StaticCheckProblemMatcher))
                             {
-                                option.ProblemMatcher = new ProblemMatcher
+                                options.ProblemMatcher = new ProblemMatcher
                                 {
                                     MatchPatterns = lang.StaticCheckProblemMatcher,
                                     DisplayFormat = lang.StaticCheckDisplayFormat
                                 };
                             }
-                            option.ReadStdOutput = lang.StaticCheckReadStdOutput;
-                            option.ReadStdError = lang.StaticCheckReadStdError;
+                            options.ReadStdOutput = lang.StaticCheckReadStdOutput;
+                            options.ReadStdError = lang.StaticCheckReadStdError;
                         });
                     }
-                    judgeOptionBuilder.SetStdErrBehavior(lang.StandardErrorBehavior);
+                    judgeOptionsBuilder.UseStdErrBehavior(lang.StandardErrorBehavior);
 
-                    judgeOptionBuilder.SetActiveProcessLimit(lang.ActiveProcessLimit);
+                    judgeOptionsBuilder.UseActiveProcessLimit(lang.ActiveProcessLimit);
                 }
-                return (judgeOptionBuilder, buildOptionBuilder);
+                return (judgeOptionsBuilder, buildOptionsBuilder);
             }
             else
             {
-                var judgeOptionBuilder = new AnswerJudgeOptionBuilder();
+                var judgeOptionsBuilder = new AnswerJudgeOptionsBuilder();
                 var datadir = $"${{datadir:{problem.Id}}}";
-                var workingdir = $"{{workingdir:{judgeOptionBuilder.GuidStr}}}";
-                var file = $"{workingdir}/{judgeOptionBuilder.GuidStr}";
+                var workingdir = $"{{workingdir:{judgeOptionsBuilder.GuidStr}}}";
+                var file = $"{workingdir}/{judgeOptionsBuilder.GuidStr}";
                 var name = AlphaNumberFilter(problem.Name);
 
                 if (string.IsNullOrWhiteSpace(problemConfig.SubmitFileName))
                 {
-                    buildOptionBuilder.UseCustomSubmitFileName(judgeOptionBuilder.GuidStr);
+                    buildOptionsBuilder.UseCustomSubmitFileName(judgeOptionsBuilder.GuidStr);
                 }
                 else
                 {
-                    buildOptionBuilder.UseCustomSubmitFileName(problemConfig.SubmitFileName);
+                    buildOptionsBuilder.UseCustomSubmitFileName(problemConfig.SubmitFileName);
                     file = $"{workingdir}/{problemConfig.SubmitFileName}";
                 }
 
                 var outputfile = file;
 
-                judgeOptionBuilder.UseComparingOption(option =>
+                judgeOptionsBuilder.UseComparingOptions(options =>
                 {
-                    option.IgnoreLineTailWhiteSpaces = problemConfig.ComparingOptions.IgnoreLineTailWhiteSpaces;
-                    option.IgnoreTextTailLineFeeds = problemConfig.ComparingOptions.IgnoreTextTailLineFeeds;
+                    options.IgnoreLineTailWhiteSpaces = problemConfig.ComparingOptions.IgnoreLineTailWhiteSpaces;
+                    options.IgnoreTextTailLineFeeds = problemConfig.ComparingOptions.IgnoreTextTailLineFeeds;
                 });
 
-                judgeOptionBuilder.UseAnswerPoint(new AnswerPoint
+                judgeOptionsBuilder.UseAnswerPoint(new AnswerPoint
                 {
                     AnswerFile = (string.IsNullOrWhiteSpace(problemConfig.Answer.AnswerFile) ? null : problemConfig.Answer.AnswerFile)
                             ?.Replace("${datadir}", datadir)
@@ -251,7 +251,7 @@ namespace hjudgeWebHost.Utils
 
                 if (problemConfig.ExtraFiles.Count != 0)
                 {
-                    judgeOptionBuilder.UseExtraFiles(problemConfig.ExtraFiles.Select(
+                    judgeOptionsBuilder.UseExtraFiles(problemConfig.ExtraFiles.Select(
                         i => i
                             ?.Replace("${datadir}", datadir)
                             ?.Replace("${workingdir}", workingdir)
@@ -263,21 +263,21 @@ namespace hjudgeWebHost.Utils
 
                 if (!string.IsNullOrWhiteSpace(problemConfig.SpecialJudge))
                 {
-                    judgeOptionBuilder.UseSpecialJudge(option =>
+                    judgeOptionsBuilder.UseSpecialJudge(options =>
                     {
-                        option.Exec = problemConfig.SpecialJudge
+                        options.Exec = problemConfig.SpecialJudge
                             .Replace("${datadir}", datadir)
                             .Replace("${workingdir}", workingdir)
                             .Replace("${file}", file)
                             .Replace("${outputfile}", outputfile)
                             .Replace("${name}", name);
-                        option.UseSourceFile = true;
-                        option.UseOutputFile = true;
-                        option.UseStdInputFile = true;
-                        option.UseStdOutputFile = true;
+                        options.UseSourceFile = true;
+                        options.UseOutputFile = true;
+                        options.UseStdInputFile = true;
+                        options.UseStdOutputFile = true;
                     });
                 }
-                return (judgeOptionBuilder, buildOptionBuilder);
+                return (judgeOptionsBuilder, buildOptionsBuilder);
             }
         }
     }

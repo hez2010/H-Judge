@@ -3,7 +3,7 @@ using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
 
-namespace hjudgeWebHost.Services
+namespace hjudgeCore
 {
     public class MessageQueueFactory : IDisposable
     {
@@ -15,6 +15,7 @@ namespace hjudgeWebHost.Services
         public class HostOptions
         {
             public string HostName { get; set; } = string.Empty;
+            public string VirtualHost { get; set; } = "/";
             public int Port { get; set; } = 5672;
             public string UserName { get; set; } = "guest";
             public string Password { get; set; } = "guest";
@@ -28,7 +29,7 @@ namespace hjudgeWebHost.Services
                 Port = options.Port,
                 UserName = options.UserName,
                 Password = options.Password,
-                VirtualHost = "/",
+                VirtualHost = options.VirtualHost,
                 DispatchConsumersAsync = true
             };
         }
@@ -39,8 +40,8 @@ namespace hjudgeWebHost.Services
             public bool Durable { get; set; } = true;
             public bool Exclusive { get; set; } = false;
             public bool AutoDelete { get; set; } = false;
-            public string Exchange => Queue + "_Exchange";
-            public string RoutingKey => "H::Judge_" + Queue;
+            public string Exchange { get; set; } = string.Empty;
+            public string RoutingKey { get; set; } = string.Empty;
         }
 
         public void CreateProducer(ProducerOptions options)
@@ -76,11 +77,11 @@ namespace hjudgeWebHost.Services
         public class ConsumerOptions
         {
             public string Queue { get; set; } = string.Empty;
-            public string Exchange => Queue + "_Exchange";
             public bool Durable { get; set; } = true;
             public bool AutoAck { get; set; } = false;
             public bool Exclusive { get; set; } = false;
-            public string RoutingKey => "H::Judge_" + Queue;
+            public string Exchange { get; set; } = string.Empty;
+            public string RoutingKey { get; set; } = string.Empty;
             public AsyncEventHandler<BasicDeliverEventArgs>? OnReceived { get; set; }
             public AsyncEventHandler<ConsumerEventArgs>? OnRegistered { get; set; }
             public AsyncEventHandler<ConsumerEventArgs>? OnCancelled { get; set; }

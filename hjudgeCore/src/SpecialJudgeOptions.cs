@@ -1,6 +1,6 @@
 ﻿namespace hjudgeCore
 {
-    public class SpecialJudgeOption
+    public class SpecialJudgeOptions
     {
         public string Exec { get; set; } = string.Empty;
         public bool UseSourceFile { get; set; } = true;

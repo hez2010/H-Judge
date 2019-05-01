@@ -1,16 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using hjudgeCore;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using static hjudgeWebHost.Services.MessageQueueFactory;
+using static hjudgeCore.MessageQueueFactory;
 
 namespace hjudgeWebHost.Services
 {
-    public interface IMessageQueueService
+    public interface IMessageQueueService : IDisposable
     {
         (IModel Channel, ProducerOptions Options) GetInstance(string queueName);
     }
@@ -28,6 +24,12 @@ namespace hjudgeWebHost.Services
         {
             factory = options.Value.MessageQueueFactory ?? throw new ArgumentNullException("MessageQueueFactory");
         }
+
+        public void Dispose()
+        {
+            factory.Dispose();
+        }
+
         public (IModel, ProducerOptions) GetInstance(string queueName)
         {
             return factory.GetProducer(queueName);

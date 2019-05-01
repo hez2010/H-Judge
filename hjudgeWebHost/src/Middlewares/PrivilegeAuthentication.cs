@@ -1,12 +1,10 @@
 ﻿using hjudgeWebHost.Data;
-using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Models;
-using hjudgeWebHost.Services;
 using hjudgeWebHost.Utils;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -20,9 +18,7 @@ namespace hjudgeWebHost.Middlewares
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (!(context.HttpContext.RequestServices.GetService(typeof(ApplicationDbContext)) is ApplicationDbContext dbContext))
-                    throw new InvalidOperationException("DbContext is null");
-
+                var dbContext = context.HttpContext.RequestServices.GetService<ApplicationDbContext>();
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
 
@@ -53,8 +49,7 @@ namespace hjudgeWebHost.Middlewares
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (!(context.HttpContext.RequestServices.GetService(typeof(ApplicationDbContext)) is ApplicationDbContext dbContext))
-                    throw new InvalidOperationException("DbContext is null");
+                var dbContext = context.HttpContext.RequestServices.GetService<ApplicationDbContext>();
 
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
@@ -77,8 +72,7 @@ namespace hjudgeWebHost.Middlewares
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (!(context.HttpContext.RequestServices.GetService(typeof(ApplicationDbContext)) is ApplicationDbContext dbContext))
-                    throw new InvalidOperationException("DbContext is null");
+                var dbContext = context.HttpContext.RequestServices.GetService<ApplicationDbContext>();
 
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);

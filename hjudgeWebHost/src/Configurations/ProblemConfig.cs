@@ -13,7 +13,7 @@ namespace hjudgeWebHost.Configurations
         public List<string> ExtraFiles { get; set; } = new List<string>();
         public List<DataPoint> Points { get; set; } = new List<DataPoint>();
         public AnswerPoint Answer { get; set; } = new AnswerPoint();
-        public ComparingOption ComparingOptions { get; set; } = new ComparingOption();
+        public ComparingOptions ComparingOptions { get; set; } = new ComparingOptions();
         public bool UseStdIO { get; set; } = true;
         public string CompileArgs { get; set; } = string.Empty;
         public string Languages { get; set; } = string.Empty;

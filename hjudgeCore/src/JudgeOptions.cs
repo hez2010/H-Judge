@@ -9,15 +9,15 @@ namespace hjudgeCore
         TreatAsRuntimeError
     }
 
-    public sealed class JudgeOption
+    public sealed class JudgeOptions
     {
         public string GuidStr { get; set; } = string.Empty;
-        public ComparingOption ComparingOption { get; set; } = new ComparingOption();
-        public RunOption RunOption { get; set; } = new RunOption();
+        public ComparingOptions ComparingOptions { get; set; } = new ComparingOptions();
+        public RunOptions RunOptions { get; set; } = new RunOptions();
         public List<DataPoint> DataPoints { get; set; } = new List<DataPoint>();
         public AnswerPoint AnswerPoint { get; set; } = new AnswerPoint();
         public List<string> ExtraFiles { get; set; } = new List<string>();
-        public SpecialJudgeOption? SpecialJudgeOption { get; set; }
+        public SpecialJudgeOptions? SpecialJudgeOptions { get; set; }
         public string InputFileName { get; set; } = string.Empty;
         public string OutputFileName { get; set; } = string.Empty;
         public bool UseStdIO { get; set; } = true;

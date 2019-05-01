@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data;
+﻿using hjudgeCore;
+using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.MessageHandlers;
 using hjudgeWebHost.Middlewares;
@@ -62,6 +63,7 @@ namespace hjudgeWebHost
                 new MessageQueueFactory.HostOptions
                 {
                     HostName = Configuration["MessageQueue:HostName"],
+                    VirtualHost = Configuration["MessageQueue:VirtualHost"],
                     Port = int.Parse(Configuration["MessageQueue:Port"]),
                     UserName = Configuration["MessageQueue:UserName"],
                     Password = Configuration["MessageQueue:Password"]
@@ -128,6 +130,8 @@ namespace hjudgeWebHost
                     Durable = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Durable"]),
                     AutoDelete = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:AutoDelete"]),
                     Exclusive = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Exclusive"]),
+                    Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
+                    RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"]
                 });
                 ++cnt;
             }
@@ -141,6 +145,8 @@ namespace hjudgeWebHost
                     Durable = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Durable"]),
                     AutoAck = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:AutoAck"]),
                     Exclusive = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Exclusive"]),
+                    Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
+                    RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"],
                     OnReceived = Configuration[$"MessageQueue:Consumers:{cnt}:Queue"] switch
                     {
                         "JudgeReport" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received),
@@ -153,8 +159,14 @@ namespace hjudgeWebHost
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
+            if (lifetime.ApplicationStopped.IsCancellationRequested)
+            {
+                var mqService = Provider.GetService<IMessageQueueService>();
+                mqService?.Dispose();
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

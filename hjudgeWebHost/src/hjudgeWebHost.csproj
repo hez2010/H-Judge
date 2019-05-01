@@ -37,6 +37,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\hjudgeCore\src\hjudgeCore.csproj" />
+    <ProjectReference Include="..\..\hjudgeJudgeHost\src\hjudgeJudgeHost.csproj" />
   </ItemGroup>
 
   <ItemGroup>
