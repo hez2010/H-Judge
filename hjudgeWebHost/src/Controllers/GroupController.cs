@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class GroupController : ControllerBase
     {
         private readonly IGroupService groupService;

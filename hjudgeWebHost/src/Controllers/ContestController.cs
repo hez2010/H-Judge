@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class ContestController : ControllerBase
     {
         private readonly CachedUserManager<UserInfo> userManager;

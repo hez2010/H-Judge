@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 namespace hjudgeWebHost.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class HomeController : ControllerBase
     {
         [AllowAnonymous]

@@ -18,7 +18,7 @@ interface ProblemDetailsProps extends CommonProps { }
 interface ProblemDetailsState {
   problem: ProblemModel,
   languageChoice: number,
-  languageTitle: string
+  languageValue: string
 }
 
 interface ProblemModel extends ResultModel {
@@ -39,6 +39,14 @@ interface ProblemModel extends ResultModel {
   downvote: number
 }
 
+interface LanguageOptions {
+  key: number,
+  value: number,
+  text: string,
+  information: string,
+  highlight: string
+}
+
 export default class ProblemDetails extends React.Component<ProblemDetailsProps, ProblemDetailsState> {
   constructor(props: ProblemDetailsProps) {
     super(props);
@@ -46,6 +54,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     this.fetchDetail = this.fetchDetail.bind(this);
     this.renderProblemInfo = this.renderProblemInfo.bind(this);
     this.editProblem = this.editProblem.bind(this);
+    this.submit = this.submit.bind(this);
 
     this.state = {
       problem: {
@@ -69,11 +78,16 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         userName: ""
       },
       languageChoice: 0,
-      languageTitle: ''
+      languageValue: 'plain_text'
     };
   }
 
-  private editor: React.Ref<CodeEditor> = React.createRef();
+  private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
+  private submitting: boolean = false;
+  private problemId: number = 0;
+  private contestId: number = 0;
+  private groupId: number = 0;
+  private languageOptions: LanguageOptions[] = [];
 
   fetchDetail(problemId: number, contestId: number, groupId: number) {
     Post('/Problem/ProblemDetails', {
@@ -90,7 +104,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
           this.setState({
             problem: result,
-            languageTitle: lang
+            languageValue: lang
           } as ProblemDetailsState);
           setTitle(result.name);
         }
@@ -105,12 +119,11 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
   }
 
   componentDidMount() {
-    setTitle('题目详情'),
-      this.fetchDetail(
-        this.props.match.params.problemId ? parseInt(this.props.match.params.problemId) : 0,
-        this.props.match.params.contestId ? parseInt(this.props.match.params.contestId) : 0,
-        this.props.match.params.groupId ? parseInt(this.props.match.params.groupId) : 0,
-      );
+    setTitle('题目详情');
+    this.problemId = this.props.match.params.problemId ?parseInt(this.props.match.params.problemId) : 0;
+    this.contestId = this.props.match.params.contestId ? parseInt(this.props.match.params.contestId) : 0;
+    this.groupId = this.props.match.params.groupId ? parseInt(this.props.match.params.groupId) : 0;
+    this.fetchDetail(this.problemId, this.contestId, this.groupId);
   }
 
   renderProblemInfo() {
@@ -131,6 +144,43 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     this.props.history.push(`/edit/problem/${id}`);
   }
 
+  submit() {
+    if (this.submitting) {
+      this.props.openPortal('提示', '正在提交中，请稍等', 'orange');
+      return;
+    }
+    if (!this.languageOptions[this.state.languageChoice]) {
+      this.props.openPortal('提示', '请选择语言', 'orange');
+      return;
+    }
+    let editor = this.editor.current;
+    if (!editor) return;
+    this.submitting = true;
+    Post('/api/Judge/Submit', {
+      problemId: this.problemId,
+      contestId: this.contestId,
+      groupId: this.groupId,
+      content: editor.getInstance().getValue(),
+      language: this.languageOptions[this.state.languageChoice].text
+    })
+      .then(res => res.json())
+      .then(data => {
+        this.submitting = false;
+        let result = data as ResultModel;
+        if (result.succeeded) {
+          this.props.openPortal('成功', '提交成功', 'green');
+          //TODO: jump to result page
+        }
+        else {
+          this.props.openPortal('错误', `提交失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+        }
+      }).catch(err => {
+        this.submitting = false;
+        this.props.openPortal('错误', '提交失败', 'red');
+        console.log(err);
+      });
+  }
+
   render() {
     let placeHolder = <Placeholder>
       <Placeholder.Paragraph>
@@ -144,15 +194,13 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
     let markdown = new md({ html: true }).use(mk, { throwOnError: false }).use(hljs);
 
-    let langOptions = this.state.problem.languages.map((v, i) => {
-      return {
+    this.languageOptions = this.state.problem.languages.map((v, i) => ({
         key: i,
         value: i,
         text: v.name,
         information: v.information,
         highlight: v.syntaxHighlight
-      }
-    });
+      } as LanguageOptions));
     const { languageChoice } = this.state;
 
     let submitModal = <>
@@ -163,22 +211,22 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           fluid
           search
           selection
-          options={langOptions}
+          options={this.languageOptions}
           value={languageChoice}
           onChange={(_, { value }) => {
-            let lang = langOptions[value as number] ? langOptions[value as number].highlight : 'plain_text';
-            this.setState({ languageChoice: value, languageTitle: lang } as ProblemDetailsState);
+            let lang = this.languageOptions[value as number] ? this.languageOptions[value as number].highlight : 'plain_text';
+            this.setState({ languageChoice: value, languageValue: lang } as ProblemDetailsState);
           }}
         />
-        <Label pointing>{langOptions[languageChoice] ? langOptions[languageChoice].information : '请选择语言'}</Label>
+        <Label pointing>{this.languageOptions[languageChoice] ? this.languageOptions[languageChoice].information : '请选择语言'}</Label>
       </div>
       <br />
       <div style={{ width: '100%', height: '30em' }}>
-        <CodeEditor ref={this.editor} onChange={(e: any) => console.log(e)} language={this.state.languageTitle}></CodeEditor>
+        <CodeEditor ref={this.editor} language={this.state.languageValue}></CodeEditor>
       </div>
       <br />
       <div style={{ textAlign: 'right' }}>
-        <Button primary>提交</Button>
+        <Button primary onClick={this.submit}>提交</Button>
       </div>
     </>;
 

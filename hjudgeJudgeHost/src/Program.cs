@@ -22,49 +22,57 @@ namespace hjudgeJudgeHost
             public MessageQueueFactory.ProducerOptions[]? Producers { get; set; }
             public MessageQueueFactory.ConsumerOptions[]? Consumers { get; set; }
         }
+        class JudgeHostConfig
+        {
+            public MessageQueueOptions? MessageQueue { get; set; }
+        }
 
         public static MessageQueueFactory JudgeMessageQueueFactory;
         private static readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         static async Task Main(string[] args)
         {
+            //FIX ME: json parse err.
 #if DEBUG
-            var options = File.ReadAllText("appsettings.Development.json").DeserializeJson<MessageQueueOptions>();
+            var config = File.ReadAllText("appsettings.Development.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>();
 #endif
 #if RELEASE
-            var options = File.ReadAllText("appsettings.json").DeserializeJson<MessageQueueOptions>();
+            var config = File.ReadAllText("appsettings.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>();
 #endif
-            JudgeMessageQueueFactory = new MessageQueueFactory(new MessageQueueFactory.HostOptions
+            var options = config.MessageQueue;
+            if (options != null)
             {
-                HostName = options.HostName,
-                Password = options.Password,
-                Port = options.Port,
-                UserName = options.UserName,
-                VirtualHost = options.VirtualHost
-            });
-
-            if (options.Producers != null)
-            {
-                foreach (var i in options.Producers)
+                JudgeMessageQueueFactory = new MessageQueueFactory(new MessageQueueFactory.HostOptions
                 {
-                    JudgeMessageQueueFactory.CreateProducer(i);
-                }
-            }
+                    HostName = options.HostName,
+                    Password = options.Password,
+                    Port = options.Port,
+                    UserName = options.UserName,
+                    VirtualHost = options.VirtualHost
+                });
 
-            if (options.Consumers != null)
-            {
-                foreach (var i in options.Consumers)
+                if (options.Producers != null)
                 {
-                    i.OnReceived = i.Queue switch
+                    foreach (var i in options.Producers)
                     {
-                        "JudgeQueue" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeRequest_Received),
-                        _ => null
-                    };
+                        JudgeMessageQueueFactory.CreateProducer(i);
+                    }
+                }
 
-                    JudgeMessageQueueFactory.CreateConsumer(i);
+                if (options.Consumers != null)
+                {
+                    foreach (var i in options.Consumers)
+                    {
+                        i.OnReceived = i.Queue switch
+                        {
+                            "JudgeQueue" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeRequest_Received),
+                            _ => null
+                        };
+
+                        JudgeMessageQueueFactory.CreateConsumer(i);
+                    }
                 }
             }
-
             var token = tokenSource.Token;
 
             Console.CancelKeyPress += (sender, e) =>
@@ -84,7 +92,7 @@ namespace hjudgeJudgeHost
 
                 try
                 {
-                    info = JsonConvert.DeserializeObject<JudgeInfo>(Encoding.UTF8.GetString(args.Body));
+                    info = args.Body.DeserializeJson<JudgeInfo>();
                 }
                 catch
                 {

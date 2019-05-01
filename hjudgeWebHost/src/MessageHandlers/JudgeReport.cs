@@ -31,8 +31,8 @@ namespace hjudgeWebHost.MessageHandlers
                 judgeService = Startup.Provider.GetService<IJudgeService>();
                 if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed.");
 
+                await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);
                 consumer.Model.BasicAck(args.DeliveryTag, false);
-                if (info.JudgeResult != null) await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);
             }
         }
     }

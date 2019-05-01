@@ -65,6 +65,7 @@ namespace hjudgeWebHost.Services
         public async Task QueueJudgeAsync(Judge judge)
         {
             judge.ResultType = (int)ResultCode.Pending;
+            judge.JudgeTime = DateTime.Now;
             dbContext.Judge.Add(judge);
             await dbContext.SaveChangesAsync();
 
