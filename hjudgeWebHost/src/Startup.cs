@@ -66,16 +66,6 @@ namespace hjudgeWebHost
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
                 .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-#if DEBUG
-                options.EnableDetailedErrors(true);
-                options.EnableSensitiveDataLogging(true);
-#endif
-                options.EnableServiceProviderCaching(true);
-            });
-
             services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
@@ -91,6 +81,16 @@ namespace hjudgeWebHost
                     .WithRedisCacheHandle(Configuration["Redis:Configuration"])
                     .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromHours(4))
                     .Build());
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+#if DEBUG
+                options.EnableDetailedErrors(true);
+                options.EnableSensitiveDataLogging(true);
+#endif
+                options.EnableServiceProviderCaching(true);
+            });
 
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
 

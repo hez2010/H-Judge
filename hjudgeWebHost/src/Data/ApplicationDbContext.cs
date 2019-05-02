@@ -1,7 +1,12 @@
 ﻿#nullable disable
+using System.Threading;
+using System.Threading.Tasks;
+using EFSecondLevelCache.Core;
+using EFSecondLevelCache.Core.Contracts;
 using hjudgeWebHost.Data.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace hjudgeWebHost.Data
 {
@@ -270,6 +275,56 @@ namespace hjudgeWebHost.Data
             });
         }
 
-        
+        public override int SaveChanges()
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
+
+            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            var result = base.SaveChanges();
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            return result;
+        }
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
+
+            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            var result = base.SaveChanges(acceptAllChangesOnSuccess);
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            return result;
+        }
+
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
+
+            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            return result;
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
+
+            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            var result = await base.SaveChangesAsync(cancellationToken);
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            return result;
+        }
     }
 }

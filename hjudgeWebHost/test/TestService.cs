@@ -1,3 +1,5 @@
+using CacheManager.Core;
+using EFSecondLevelCache.Core;
 using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Services;
@@ -16,6 +18,15 @@ namespace hjudgeWebHostTest
         {
             var services = new ServiceCollection();
 
+            services.AddEFSecondLevelCache();
+            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+            services.AddSingleton(typeof(ICacheManagerConfiguration),
+               new ConfigurationBuilder()
+                       .WithSerializer(typeof(JsonSerializer))
+                       .WithMicrosoftMemoryCacheHandle(instanceName: "test")
+                       .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromHours(4))
+                       .Build());
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseInMemoryDatabase("test");
@@ -31,7 +42,7 @@ namespace hjudgeWebHostTest
             services.AddTransient<IContestService, ContestService>();
             services.AddTransient<IJudgeService, JudgeService>();
             services.AddTransient<IGroupService, GroupService>();
-            services.AddTransient<ICacheService, FakeCacheService>();
+            services.AddTransient<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
             services.AddIdentityCore<UserInfo>(options =>
