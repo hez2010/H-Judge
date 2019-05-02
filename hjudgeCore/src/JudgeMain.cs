@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -111,9 +110,9 @@ namespace hjudgeCore
                             judgeOptions.ActiveProcessLimit
                         };
                         var ret = new StringBuilder(256);
-                        if (Execute(JsonConvert.SerializeObject(param), ret))
+                        if (Execute(Encoding.UTF8.GetString(SpanJson.JsonSerializer.Generic.Utf8.Serialize(param)), ret))
                         {
-                            point = JsonConvert.DeserializeObject<JudgePoint>(ret.ToString()?.Trim() ?? "{}");
+                            point = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<JudgePoint>(Encoding.UTF8.GetBytes(ret.ToString()?.Trim() ?? "{}"));
                         }
                         else
                         {

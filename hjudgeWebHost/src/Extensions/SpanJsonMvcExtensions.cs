@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
-using SpanJson.Resolvers;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using static hjudgeShared.Utils.JsonHelper;
 
 namespace SpanJson.AspNetCore.Formatter
 {
@@ -57,28 +57,6 @@ namespace SpanJson.AspNetCore.Formatter
                 context.ModelState.AddModelError("JSON", ex.Message);
                 return InputFormatterResult.Failure();
             }
-        }
-    }
-    public class AspNetCoreDefaultResolver<TSymbol> : ResolverBase<TSymbol, AspNetCoreDefaultResolver<TSymbol>> where TSymbol : struct
-    {
-        public AspNetCoreDefaultResolver() : base(new SpanJsonOptions
-        {
-            NullOption = NullOptions.IncludeNulls,
-            NamingConvention = NamingConventions.CamelCase,
-            EnumOption = EnumOptions.Integer
-        })
-        {
-        }
-    }
-    public class ConfigDefaultResolver<TSymbol> : ResolverBase<TSymbol, ConfigDefaultResolver<TSymbol>> where TSymbol : struct
-    {
-        public ConfigDefaultResolver() : base(new SpanJsonOptions
-        {
-            NullOption = NullOptions.IncludeNulls,
-            NamingConvention = NamingConventions.OriginalCase,
-            EnumOption = EnumOptions.Integer
-        })
-        {
         }
     }
     /// <summary>

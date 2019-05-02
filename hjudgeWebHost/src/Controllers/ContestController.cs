@@ -3,12 +3,13 @@ using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Models.Contest;
 using hjudgeWebHost.Services;
-using hjudgeWebHost.Utils;
+using hjudgeShared.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EFSecondLevelCache.Core;
 
 namespace hjudgeWebHost.Controllers
 {
@@ -17,16 +18,13 @@ namespace hjudgeWebHost.Controllers
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IContestService contestService;
-        private readonly ICacheService cacheService;
 
         public ContestController(
             CachedUserManager<UserInfo> userManager,
-            IContestService contestService,
-            ICacheService cacheService)
+            IContestService contestService)
         {
             this.userManager = userManager;
             this.contestService = contestService;
-            this.cacheService = cacheService;
         }
 
         public class ContestListQueryModel
@@ -117,7 +115,7 @@ namespace hjudgeWebHost.Controllers
                 Upvote = i.Upvote,
                 Status = now < i.StartTime ? 0 :
                     now > i.EndTime ? 2 : 1
-            }).ToListAsync();
+            }).Cacheable().ToListAsync();
 
             return ret;
         }
@@ -155,9 +153,15 @@ namespace hjudgeWebHost.Controllers
                 return ret;
             }
 
-            var contest = await contests.Include(i => i.UserInfo).FirstOrDefaultAsync(i => i.Id == model.ContestId);
+            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).Cacheable().FirstOrDefaultAsync();
 
-            var user = await cacheService.GetObjectAndSetAsync($"user_{contest.UserId}", () => userManager.FindByIdAsync(contest.UserId));
+            if (contest == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
+
+            var user = await userManager.FindByIdAsync(contest.UserId);
             ret.Description = contest.Description;
             ret.Downvote = contest.Downvote;
             ret.EndTime = contest.EndTime;

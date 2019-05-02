@@ -1,12 +1,12 @@
-﻿using hjudgeCore;
-using Newtonsoft.Json;
-using RabbitMQ.Client;
+﻿using hjudgeShared.Utils;
+using hjudgeShared.MessageQueue;
 using RabbitMQ.Client.Events;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using hjudgeShared.Judge;
 
 namespace hjudgeJudgeHost
 {
@@ -34,10 +34,10 @@ namespace hjudgeJudgeHost
         {
             //FIX ME: json parse err.
 #if DEBUG
-            var config = File.ReadAllText("appsettings.Development.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>();
+            var config = File.ReadAllText("appsettings.Development.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>(false);
 #endif
 #if RELEASE
-            var config = File.ReadAllText("appsettings.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>();
+            var config = File.ReadAllText("appsettings.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>(false);
 #endif
             var options = config.MessageQueue;
             if (options != null)
@@ -82,6 +82,8 @@ namespace hjudgeJudgeHost
             };
 
             await JudgeQueue.JudgeQueueExecuter(token);
+
+            JudgeMessageQueueFactory.Dispose();
         }
 
         private static async Task JudgeRequest_Received(object sender, BasicDeliverEventArgs args)
@@ -92,7 +94,7 @@ namespace hjudgeJudgeHost
 
                 try
                 {
-                    info = args.Body.DeserializeJson<JudgeInfo>();
+                    info = args.Body.DeserializeJson<JudgeInfo>(false);
                 }
                 catch
                 {

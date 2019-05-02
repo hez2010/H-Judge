@@ -1,6 +1,6 @@
 ﻿using hjudgeCore;
 
-namespace hjudgeJudgeHost
+namespace hjudgeShared.Judge
 {
     public class JudgeInfo
     {

@@ -1,10 +1,11 @@
-﻿using hjudgeJudgeHost;
+﻿using hjudgeShared.Judge;
 using hjudgeWebHost.Services;
-using hjudgeWebHost.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client.Events;
+using hjudgeShared.Utils;
 using System;
 using System.Threading.Tasks;
+using hjudgeWebHost.Extensions;
 
 namespace hjudgeWebHost.MessageHandlers
 {
@@ -28,7 +29,7 @@ namespace hjudgeWebHost.MessageHandlers
                     return;
                 }
 
-                judgeService = Startup.Provider.GetService<IJudgeService>();
+                judgeService = MessageHandlersServiceExtensions.ServiceProvider.GetService<IJudgeService>();
                 if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed.");
 
                 await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);

@@ -1,12 +1,14 @@
-﻿using hjudgeCore;
-using hjudgeJudgeHost;
+﻿using EFSecondLevelCache.Core;
+using hjudgeCore;
+using hjudgeShared.Judge;
+using hjudgeShared.Utils;
 using hjudgeWebHost.Data;
 using hjudgeWebHost.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using static hjudgeJudgeHost.JudgeInfo;
+using static hjudgeShared.Judge.JudgeInfo;
 
 namespace hjudgeWebHost.Services
 {
@@ -21,19 +23,16 @@ namespace hjudgeWebHost.Services
     public class JudgeService : IJudgeService
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly ICacheService cacheService;
         private readonly IProblemService problemService;
         private readonly ILanguageService languageService;
         private readonly IMessageQueueService messageQueueService;
 
         public JudgeService(ApplicationDbContext dbContext,
-            ICacheService cacheService,
             IProblemService problemService,
             ILanguageService languageService,
             IMessageQueueService messageQueueService)
         {
             this.dbContext = dbContext;
-            this.cacheService = cacheService;
             this.problemService = problemService;
             this.languageService = languageService;
             this.messageQueueService = messageQueueService;
@@ -41,7 +40,7 @@ namespace hjudgeWebHost.Services
 
         public Task<Judge> GetJudgeAsync(int judgeId)
         {
-            return cacheService.GetObjectAndSetAsync($"judge_{judgeId}", () => dbContext.Judge.FirstOrDefaultAsync(i => i.Id == judgeId));
+            return dbContext.Judge.Cacheable().FirstOrDefaultAsync(i => i.Id == judgeId);
         }
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId)
@@ -87,7 +86,7 @@ namespace hjudgeWebHost.Services
                     Priority = JudgePriority.Normal,
                     JudgeOptions = judgeOptions,
                     BuildOptions = buildOptions
-                }.SerializeJson());
+                }.SerializeJson(false));
         }
 
         public async Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? result)
@@ -95,7 +94,7 @@ namespace hjudgeWebHost.Services
             var judge = await GetJudgeAsync(judgeId);
             if (reportType == JudgeReportInfo.ReportType.PostJudge)
             {
-                judge.Result = result?.SerializeJsonAsString() ?? "{}";
+                judge.Result = result?.SerializeJsonAsString(false) ?? "{}";
                 judge.ResultType = (int)new Func<ResultCode>(() =>
                 {
                     if (result.JudgePoints == null)

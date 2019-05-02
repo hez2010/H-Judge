@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data;
+﻿using EFSecondLevelCache.Core;
+using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -21,17 +22,14 @@ namespace hjudgeWebHost.Services
     public class ContestService : IContestService
     {
         private readonly CachedUserManager<UserInfo> userManager;
-        private readonly ICacheService cacheService;
         private readonly IGroupService groupService;
         private readonly ApplicationDbContext dbContext;
 
         public ContestService(CachedUserManager<UserInfo> userManager,
-            ICacheService cacheService,
             IGroupService groupService,
             ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
-            this.cacheService = cacheService;
             this.groupService = groupService;
             this.dbContext = dbContext;
         }
@@ -40,13 +38,12 @@ namespace hjudgeWebHost.Services
         {
             await dbContext.Contest.AddAsync(contest);
             await dbContext.SaveChangesAsync();
-            await cacheService.SetObjectAsync($"contest_{contest.Id}", contest);
             return contest.Id;
         }
 
         public Task<Contest> GetContestAsync(int contestId)
         {
-            return cacheService.GetObjectAndSetAsync($"contest_{contestId}", () => dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId));
+            return  dbContext.Contest.Cacheable().FirstOrDefaultAsync(i => i.Id == contestId);
         }
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId)
@@ -89,15 +86,12 @@ namespace hjudgeWebHost.Services
             var contest = await GetContestAsync(contestId);
             dbContext.Contest.Remove(contest);
             await dbContext.SaveChangesAsync();
-            await cacheService.RemoveObjectAsync($"contest_{contestId}");
         }
 
         public async Task UpdateContestAsync(Contest contest)
         {
             dbContext.Contest.Update(contest);
             await dbContext.SaveChangesAsync();
-            await cacheService.RemoveObjectAsync($"contest_{contest.Id}");
-            await cacheService.SetObjectAsync($"contest_{contest.Id}", contest);
         }
 
         public async Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems)

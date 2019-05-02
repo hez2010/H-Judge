@@ -269,5 +269,7 @@ namespace hjudgeWebHost.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
+
+        
     }
 }

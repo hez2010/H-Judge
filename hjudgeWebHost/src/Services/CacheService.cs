@@ -1,23 +1,66 @@
-﻿using hjudgeWebHost.Utils;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using CacheManager.Core;
+using CacheManager.Core.Internal;
+using hjudgeShared.Utils;
+using SpanJson;
 using System;
 using System.Threading.Tasks;
 
 namespace hjudgeWebHost.Services
 {
+#nullable disable
+    class JsonCacheItem<T> : SerializerCacheItem<T>
+    {
+        [JsonConstructor]
+        public JsonCacheItem() { }
+
+        public JsonCacheItem(ICacheItemProperties properties, object value) : base(properties, value) { }
+
+        public override long CreatedUtc { get; set; }
+        public override ExpirationMode ExpirationMode { get; set; }
+        public override double ExpirationTimeout { get; set; }
+        public override string Key { get; set; } = string.Empty;
+        public override long LastAccessedUtc { get; set; }
+        public override string Region { get; set; } = string.Empty;
+        public override bool UsesExpirationDefaults { get; set; }
+        public override string ValueType { get; set; } = string.Empty;
+        public override T Value { get; set; }
+    }
+#nullable enable
+    public class JsonSerializer : CacheSerializer
+    {
+        private static readonly Type _openGenericItemType = typeof(JsonCacheItem<>);
+        public override object Deserialize(byte[] data, Type target)
+        {
+            return data.DeserializeJson(target, false);
+        }
+
+        public override byte[] Serialize<T>(T value)
+        {
+            return value.SerializeJson(false);
+        }
+
+        protected override object CreateNewItem<TCacheValue>(ICacheItemProperties properties, object value)
+        {
+            return new JsonCacheItem<TCacheValue>(properties, value);
+        }
+
+        protected override Type GetOpenGeneric()
+        {
+            return _openGenericItemType;
+        }
+    }
     public interface ICacheService
     {
         Task<(bool Succeeded, T Result)> GetObjectAsync<T>(string key);
         Task SetObjectAsync<T>(string key, T obj);
         Task<T> GetObjectAndSetAsync<T>(string key, Func<Task<T>> func);
-        Task RemoveObjectAsync(string key);
-        Task RefreshObjectAsync(string key);
+        Task<bool> RemoveObjectAsync(string key);
     }
     public class CacheService : ICacheService
     {
-        private readonly IDistributedCache distributedCache;
+        private readonly ICacheManager<string> distributedCache;
 
-        public CacheService(IDistributedCache distributedCache)
+        public CacheService(ICacheManager<string> distributedCache)
         {
             this.distributedCache = distributedCache;
         }
@@ -38,7 +81,7 @@ namespace hjudgeWebHost.Services
 
         public async Task<(bool Succeeded, T Result)> GetObjectAsync<T>(string key)
         {
-            var v = await distributedCache.GetAsync(key);
+            var v = distributedCache.Get(key);
             if (v == null)
 #nullable disable
                 return (false, default);
@@ -57,26 +100,19 @@ namespace hjudgeWebHost.Services
             }
         }
 
-        public Task RefreshObjectAsync(string key)
+        public Task<bool> RemoveObjectAsync(string key)
         {
-            return distributedCache.RefreshAsync(key);
-        }
-
-        public Task RemoveObjectAsync(string key)
-        {
-            return distributedCache.RemoveAsync(key);
+            return Task.FromResult(distributedCache.Remove(key));
         }
 
         public Task SetObjectAsync<T>(string key, T obj)
         {
             try
             {
-                return distributedCache.SetAsync(key, obj.SerializeJson(false), new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4) });
+                distributedCache.AddOrUpdate(key, obj.SerializeJsonAsString(false), _ => obj.SerializeJsonAsString(false));
             }
-            catch
-            {
-                return Task.CompletedTask;
-            }
+            catch { /* ignored */ }
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using hjudgeCore;
+﻿using hjudgeShared.MessageQueue;
 using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
+using hjudgeWebHost.Extensions;
 using hjudgeWebHost.MessageHandlers;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Services;
@@ -20,12 +21,13 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EFSecondLevelCache.Core;
+using CacheManager.Core;
 
 namespace hjudgeWebHost
 {
     public class Startup
     {
-        public static IServiceProvider Provider;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -59,18 +61,10 @@ namespace hjudgeWebHost
             services.AddTransient<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
-            var factory = new MessageQueueFactory(
-                new MessageQueueFactory.HostOptions
-                {
-                    HostName = Configuration["MessageQueue:HostName"],
-                    VirtualHost = Configuration["MessageQueue:VirtualHost"],
-                    Port = int.Parse(Configuration["MessageQueue:Port"]),
-                    UserName = Configuration["MessageQueue:UserName"],
-                    Password = Configuration["MessageQueue:Password"]
-                });
+            services.AddMessageHandlers();
 
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
-                .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = factory);
+                .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -82,13 +76,25 @@ namespace hjudgeWebHost
                 options.EnableServiceProviderCaching(true);
             });
 
-            services.AddEntityFrameworkSqlServer();
+            services.AddEFSecondLevelCache();
+            services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
+                    .WithUpdateMode(CacheUpdateMode.Up)
+                    .WithSerializer(typeof(JsonSerializer))
+                    .WithRedisConfiguration(Configuration["Redis:Configuration"], config =>
+                    {
+                        config.WithAllowAdmin()
+                            .WithDatabase(0)
+                            .WithEndpoint(Configuration["Redis:HostName"], int.Parse(Configuration["Redis:Port"]));
+                    })
+                    .WithMaxRetries(100)
+                    .WithRetryTimeout(50)
+                    .WithRedisCacheHandle(Configuration["Redis:Configuration"])
+                    .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromHours(4))
+                    .Build());
 
-            services.AddDistributedRedisCache(options =>
-            {
-                options.Configuration = Configuration["Redis:Configuration"];
-                options.InstanceName = Configuration["Redis:InstanceName"];
-            });
+            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+
+            services.AddEntityFrameworkSqlServer();
 
             services.AddAuthentication(o =>
             {
@@ -118,44 +124,6 @@ namespace hjudgeWebHost
             {
                 configuration.RootPath = "wwwroot/dist";
             });
-
-            Provider = services.BuildServiceProvider();
-
-            var cnt = 0;
-            while (Configuration.GetSection($"MessageQueue:Producers:{cnt}").Exists())
-            {
-                factory.CreateProducer(new MessageQueueFactory.ProducerOptions
-                {
-                    Queue = Configuration[$"MessageQueue:Producers:{cnt}:Queue"],
-                    Durable = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Durable"]),
-                    AutoDelete = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:AutoDelete"]),
-                    Exclusive = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Exclusive"]),
-                    Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
-                    RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"]
-                });
-                ++cnt;
-            }
-
-            cnt = 0;
-            while (Configuration.GetSection($"MessageQueue:Consumers:{cnt}").Exists())
-            {
-                factory.CreateConsumer(new MessageQueueFactory.ConsumerOptions
-                {
-                    Queue = Configuration[$"MessageQueue:Consumers:{cnt}:Queue"],
-                    Durable = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Durable"]),
-                    AutoAck = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:AutoAck"]),
-                    Exclusive = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Exclusive"]),
-                    Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
-                    RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"],
-                    OnReceived = Configuration[$"MessageQueue:Consumers:{cnt}:Queue"] switch
-                    {
-                        "JudgeReport" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received),
-                        _ => null
-                    }
-                });
-                ++cnt;
-            }
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -163,7 +131,7 @@ namespace hjudgeWebHost
         {
             if (lifetime.ApplicationStopped.IsCancellationRequested)
             {
-                var mqService = Provider.GetService<IMessageQueueService>();
+                var mqService = MessageHandlersServiceExtensions.ServiceProvider.GetService<IMessageQueueService>();
                 mqService?.Dispose();
             }
 
@@ -211,6 +179,56 @@ namespace hjudgeWebHost
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+        }
+
+        public MessageQueueFactory CreateMessageQueueInstance()
+        {
+            var factory = new MessageQueueFactory(
+                new MessageQueueFactory.HostOptions
+                {
+                    HostName = Configuration["MessageQueue:HostName"],
+                    VirtualHost = Configuration["MessageQueue:VirtualHost"],
+                    Port = int.Parse(Configuration["MessageQueue:Port"]),
+                    UserName = Configuration["MessageQueue:UserName"],
+                    Password = Configuration["MessageQueue:Password"]
+                });
+
+            var cnt = 0;
+            while (Configuration.GetSection($"MessageQueue:Producers:{cnt}").Exists())
+            {
+                factory.CreateProducer(new MessageQueueFactory.ProducerOptions
+                {
+                    Queue = Configuration[$"MessageQueue:Producers:{cnt}:Queue"],
+                    Durable = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Durable"]),
+                    AutoDelete = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:AutoDelete"]),
+                    Exclusive = bool.Parse(Configuration[$"MessageQueue:Producers:{cnt}:Exclusive"]),
+                    Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
+                    RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"]
+                });
+                ++cnt;
+            }
+
+            cnt = 0;
+            while (Configuration.GetSection($"MessageQueue:Consumers:{cnt}").Exists())
+            {
+                factory.CreateConsumer(new MessageQueueFactory.ConsumerOptions
+                {
+                    Queue = Configuration[$"MessageQueue:Consumers:{cnt}:Queue"],
+                    Durable = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Durable"]),
+                    AutoAck = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:AutoAck"]),
+                    Exclusive = bool.Parse(Configuration[$"MessageQueue:Consumers:{cnt}:Exclusive"]),
+                    Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
+                    RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"],
+                    OnReceived = Configuration[$"MessageQueue:Consumers:{cnt}:Queue"] switch
+                    {
+                        "JudgeReport" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received),
+                        _ => null
+                    }
+                });
+                ++cnt;
+            }
+
+            return factory;
         }
     }
 }

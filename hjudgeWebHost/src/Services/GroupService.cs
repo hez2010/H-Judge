@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data;
+﻿using EFSecondLevelCache.Core;
+using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,26 +23,23 @@ namespace hjudgeWebHost.Services
     public class GroupService : IGroupService
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly ICacheService cacheService;
         private readonly CachedUserManager<UserInfo> userManager;
 
-        public GroupService(ApplicationDbContext dbContext, ICacheService cacheService, CachedUserManager<UserInfo> userManager)
+        public GroupService(ApplicationDbContext dbContext, CachedUserManager<UserInfo> userManager)
         {
             this.dbContext = dbContext;
-            this.cacheService = cacheService;
             this.userManager = userManager;
         }
         public async Task<int> CreateGroupAsync(Group group)
         {
             await dbContext.Group.AddAsync(group);
             await dbContext.SaveChangesAsync();
-            await cacheService.SetObjectAsync($"group_{group.Id}", group);
             return group.Id;
         }
 
         public Task<Group> GetGroupAsync(int groupId)
         {
-            return cacheService.GetObjectAndSetAsync($"group_{groupId}", () => dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId));
+            return dbContext.Group.Cacheable().FirstOrDefaultAsync(i => i.Id == groupId);
         }
 
         public async Task OptInGroup(string userId, int groupId)
@@ -96,15 +94,12 @@ namespace hjudgeWebHost.Services
             var group = await GetGroupAsync(groupId);
             dbContext.Group.Remove(group);
             await dbContext.SaveChangesAsync();
-            await cacheService.RemoveObjectAsync($"group_{group.Id}");
         }
 
         public async Task UpdateGroupAsync(Group group)
         {
             dbContext.Group.Update(group);
             await dbContext.SaveChangesAsync();
-            await cacheService.RemoveObjectAsync($"group_{group.Id}");
-            await cacheService.SetObjectAsync($"group_{group.Id}", group);
         }
 
         public async Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests)

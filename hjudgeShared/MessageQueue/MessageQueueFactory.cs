@@ -2,8 +2,9 @@
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Concurrent;
+using System.Runtime.Serialization;
 
-namespace hjudgeCore
+namespace hjudgeShared.MessageQueue
 {
     public class MessageQueueFactory : IDisposable
     {
@@ -82,10 +83,16 @@ namespace hjudgeCore
             public bool Exclusive { get; set; } = false;
             public string Exchange { get; set; } = string.Empty;
             public string RoutingKey { get; set; } = string.Empty;
+
+            [IgnoreDataMember]
             public AsyncEventHandler<BasicDeliverEventArgs>? OnReceived { get; set; }
+            [IgnoreDataMember]
             public AsyncEventHandler<ConsumerEventArgs>? OnRegistered { get; set; }
+            [IgnoreDataMember]
             public AsyncEventHandler<ConsumerEventArgs>? OnCancelled { get; set; }
+            [IgnoreDataMember]
             public AsyncEventHandler<ShutdownEventArgs>? OnShutdown { get; set; }
+            [IgnoreDataMember]
             public AsyncEventHandler<ConsumerEventArgs>? OnUnregistered { get; set; }
         }
 

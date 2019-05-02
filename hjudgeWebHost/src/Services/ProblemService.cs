@@ -1,4 +1,5 @@
-﻿using hjudgeWebHost.Data;
+﻿using EFSecondLevelCache.Core;
+using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,20 +21,17 @@ namespace hjudgeWebHost.Services
     public class ProblemService : IProblemService
     {
         private readonly CachedUserManager<UserInfo> userManager;
-        private readonly ICacheService cacheService;
         private readonly ApplicationDbContext dbContext;
         private readonly IContestService contestService;
         private readonly IGroupService groupService;
 
         public ProblemService(
             CachedUserManager<UserInfo> userManager,
-            ICacheService cacheService,
             ApplicationDbContext dbContext,
             IContestService contestService,
             IGroupService groupService)
         {
             this.userManager = userManager;
-            this.cacheService = cacheService;
             this.dbContext = dbContext;
             this.contestService = contestService;
             this.groupService = groupService;
@@ -43,13 +41,12 @@ namespace hjudgeWebHost.Services
         {
             await dbContext.Problem.AddAsync(problem);
             await dbContext.SaveChangesAsync();
-            await cacheService.SetObjectAsync($"problem_{problem.Id}", problem);
             return problem.Id;
         }
 
         public Task<Problem> GetProblemAsync(int problemId)
         {
-            return cacheService.GetObjectAndSetAsync($"problem_{problemId}", () => dbContext.Problem.FirstOrDefaultAsync(i => i.Id == problemId));
+            return dbContext.Problem.Cacheable().FirstOrDefaultAsync(i => i.Id == problemId);
         }
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId)
@@ -121,15 +118,12 @@ namespace hjudgeWebHost.Services
             var problem = await GetProblemAsync(problemId);
             dbContext.Problem.Remove(problem);
             await dbContext.SaveChangesAsync();
-            await cacheService.RemoveObjectAsync($"problem_{problemId}");
         }
 
         public async Task UpdateProblemAsync(Problem problem)
         {
             dbContext.Problem.Update(problem);
             await dbContext.SaveChangesAsync();
-            await cacheService.RemoveObjectAsync($"problem_{problem.Id}");
-            await cacheService.SetObjectAsync($"problem_{problem.Id}", problem);
         }
     }
 }

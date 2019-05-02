@@ -1,7 +1,5 @@
 ﻿using hjudgeWebHost.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace hjudgeWebHostTest
@@ -23,9 +21,9 @@ namespace hjudgeWebHostTest
             return Task.CompletedTask;
         }
 
-        public Task RemoveObjectAsync(string key)
+        public Task<bool> RemoveObjectAsync(string key)
         {
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
 
         public Task SetObjectAsync<T>(string key, T obj)

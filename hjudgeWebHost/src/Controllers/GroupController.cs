@@ -3,10 +3,9 @@ using hjudgeWebHost.Models.Group;
 using hjudgeWebHost.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EFSecondLevelCache.Core;
 
 namespace hjudgeWebHost.Controllers
 {
@@ -68,11 +67,11 @@ namespace hjudgeWebHost.Controllers
                 Name = i.Name,
                 UserId = i.UserId,
                 UserName = i.UserInfo.UserName
-            }).ToListAsync();
+            }).Cacheable().ToListAsync();
 
             if (model.RequireTotalCount)
             {
-                ret.TotalCount = await groups.CountAsync();
+                ret.TotalCount = await groups.Cacheable().CountAsync();
             }
             return ret;
         }

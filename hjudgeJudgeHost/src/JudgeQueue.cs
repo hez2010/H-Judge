@@ -1,4 +1,6 @@
 ﻿using hjudgeCore;
+using hjudgeShared.Judge;
+using hjudgeShared.Utils;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,7 +21,7 @@ namespace hjudgeJudgeHost
             var (channel, options) = Program.JudgeMessageQueueFactory.GetProducer("JudgeReport");
             var props = channel.CreateBasicProperties();
             props.ContentType = "application/json";
-            channel.BasicPublish(options.Exchange, options.RoutingKey, false, props, result.SerializeJson());
+            channel.BasicPublish(options.Exchange, options.RoutingKey, false, props, result.SerializeJson(false));
             return Task.CompletedTask;
         }
 

@@ -1,10 +1,11 @@
-﻿using hjudgeWebHost.Data;
+﻿using hjudgeShared.Utils;
+using hjudgeWebHost.Utils;
+using hjudgeWebHost.Data;
 using hjudgeWebHost.Data.Identity;
 using hjudgeWebHost.Middlewares;
 using hjudgeWebHost.Models;
 using hjudgeWebHost.Models.Account;
 using hjudgeWebHost.Services;
-using hjudgeWebHost.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

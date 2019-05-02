@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using static hjudgeJudgeHost.JudgeInfo;
+using static hjudgeShared.Judge.JudgeInfo;
 
-namespace hjudgeJudgeHost
+namespace hjudgeShared.Utils
 {
     public class ConcurrentPriorityQueue<T> : IEnumerable<T>, IEnumerable, IReadOnlyCollection<T>
     {

@@ -14,6 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview4-19216-03" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0-preview4-19216-03" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview4.19216.3" />
@@ -22,10 +23,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview4.19216.3" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
-    <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
-    <PackageReference Include="SpanJson" Version="2.0.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,8 +35,10 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
     <ProjectReference Include="..\..\hjudgeCore\src\hjudgeCore.csproj" />
-    <ProjectReference Include="..\..\hjudgeJudgeHost\src\hjudgeJudgeHost.csproj" />
+    <ProjectReference Include="..\..\hjudgeShared\hjudgeShared.csproj" />
+    <ProjectReference Include="..\..\SpanJson\SpanJson.csproj" />
   </ItemGroup>
 
   <ItemGroup>

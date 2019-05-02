@@ -1,5 +1,5 @@
 ﻿using hjudgeWebHost.Configurations;
-using hjudgeWebHost.Utils;
+using hjudgeShared.Utils;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

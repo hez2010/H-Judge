@@ -8,12 +8,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RabbitMQ.Client" Version="5.1.0" />
-    <PackageReference Include="SpanJson" Version="2.0.9" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\hjudgeCore\src\hjudgeCore.csproj" />
+    <ProjectReference Include="..\..\hjudgeShared\hjudgeShared.csproj" />
+    <ProjectReference Include="..\..\SpanJson\SpanJson.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.Development.json" Condition="'$(Configuration)' == 'Debug'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.json" Condition="'$(Configuration)' == 'Release'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
