@@ -69,10 +69,7 @@ namespace hjudgeWebHost.Controllers
                 UserName = i.UserInfo.UserName
             }).Cacheable().ToListAsync();
 
-            if (model.RequireTotalCount)
-            {
-                ret.TotalCount = await groups.Cacheable().CountAsync();
-            }
+            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).Cacheable().CountAsync();
             return ret;
         }
     }

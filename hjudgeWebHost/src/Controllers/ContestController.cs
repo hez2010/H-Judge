@@ -97,7 +97,7 @@ namespace hjudgeWebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
 
             contests = contests.OrderByDescending(i => i.Id);
 
