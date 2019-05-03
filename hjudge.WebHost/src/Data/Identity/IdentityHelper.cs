@@ -34,8 +34,8 @@ namespace hjudge.WebHost.Data.Identity
                         otherInfoList.Add(new OtherUserInfoModel
                         {
                             Key = property.Name,
-                            Name = attribute.GetType().GetProperty("ItemName").GetValue(attribute)?.ToString(),
-                            Value = property.GetValue(otherInfo)?.ToString()
+                            Name = attribute.GetType().GetProperty("ItemName").GetValue(attribute)?.ToString() ?? string.Empty,
+                            Value = property.GetValue(otherInfo)?.ToString() ?? string.Empty
                         });
                         break;
                     }

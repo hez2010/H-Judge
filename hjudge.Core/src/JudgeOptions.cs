@@ -15,7 +15,7 @@ namespace hjudge.Core
         public ComparingOptions ComparingOptions { get; set; } = new ComparingOptions();
         public RunOptions RunOptions { get; set; } = new RunOptions();
         public List<DataPoint> DataPoints { get; set; } = new List<DataPoint>();
-        public AnswerPoint AnswerPoint { get; set; } = new AnswerPoint();
+        public AnswerPoint? AnswerPoint { get; set; }
         public List<string> ExtraFiles { get; set; } = new List<string>();
         public SpecialJudgeOptions? SpecialJudgeOptions { get; set; }
         public string InputFileName { get; set; } = string.Empty;

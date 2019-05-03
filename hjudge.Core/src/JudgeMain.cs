@@ -20,14 +20,22 @@ namespace hjudge.Core
         [DllImport("./hjudge.Exec.Linux.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "excute", CharSet = CharSet.Ansi)]
         static extern bool ExecuteLinux(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
 
-        static (bool Succeeded, string? Result) Execute(string param)
+        static (bool Succeeded, JudgePoint? Result) Execute(string param)
         {
             var result = false;
-            var ret = new StringBuilder(256);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) result = ExecuteWindows(param, ret);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) result = ExecuteLinux(param, ret);
+            var retBuffer = new StringBuilder(256);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) result = ExecuteWindows(param, retBuffer);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) result = ExecuteLinux(param, retBuffer);
+            
+            JudgePoint? ret = null;
+            try
+            {
+                var retStr = retBuffer.ToString().Trim();
+                ret = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<JudgePoint>(Encoding.UTF8.GetBytes(retStr));
+            }
+            catch { /* ignored */ }
 
-            return (result, ret.ToString()?.Trim() ?? "{}");
+            return (result, ret);
         } 
 
         public JudgeMain(string environments = "")
@@ -92,7 +100,7 @@ namespace hjudge.Core
                     if (!File.Exists(judgeOptions.RunOptions.Exec))
                     {
                         point.ResultType = ResultCode.Compile_Error;
-                        point.ExtraInfo = "Cannot find compiled executable file";
+                        point.ExtraInfo = "Cannot find compiled executable file.";
                         result.JudgePoints.Add(point);
                         continue;
                     }
@@ -104,7 +112,7 @@ namespace hjudge.Core
                         }
                         catch
                         {
-                            throw new InvalidOperationException("Unable to find standard input file");
+                            throw new InvalidOperationException("Unable to find standard input file.");
                         }
                         var strErrFile = Path.Combine(_workingdir, $"stderr_{judgeOptions.GuidStr}.dat");
                         var inputFile = Path.Combine(_workingdir, judgeOptions.InputFileName);
@@ -123,13 +131,13 @@ namespace hjudge.Core
                             ActiveProcessLimit = judgeOptions.ActiveProcessLimit
                         };
                         var (succeeded, ret) = Execute(Encoding.UTF8.GetString(SpanJson.JsonSerializer.Generic.Utf8.Serialize(param)));
-                        if (succeeded)
+                        if (succeeded && ret != null)
                         {
-                            point = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<JudgePoint>(Encoding.UTF8.GetBytes(ret));
+                            point = ret;
                         }
                         else
                         {
-                            throw new Exception("Unable to execute target program");
+                            throw new Exception("Unable to execute target program or fetch result.");
                         }
                         try
                         {
@@ -137,7 +145,7 @@ namespace hjudge.Core
                         }
                         catch
                         {
-                            throw new InvalidOperationException("Unable to find standard output file");
+                            throw new InvalidOperationException("Unable to find standard output file.");
                         }
 
                         if (point.ResultType == ResultCode.Runtime_Error)
@@ -237,19 +245,19 @@ namespace hjudge.Core
                 }
             };
 
-            if (judgeOption.AnswerPoint == null || !File.Exists(judgeOption.AnswerPoint.AnswerFile ?? string.Empty))
+            if (judgeOption.AnswerPoint == null || !File.Exists(judgeOption.AnswerPoint.AnswerFile))
             {
                 result.JudgePoints[0].ResultType = ResultCode.Problem_Config_Error;
             }
 
             try
             {
-                File.Copy(judgeOption.AnswerPoint.AnswerFile, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
+                File.Copy(judgeOption.AnswerPoint?.AnswerFile, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
                 var fileName = Path.Combine(_workingdir, buildOption.SubmitFileName);
                 File.WriteAllText(fileName, buildOption.Source, Encoding.UTF8);
                 var (resultType, percentage, extraInfo) = await CompareAsync(fileName, string.Empty, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption, true);
                 result.JudgePoints[0].ResultType = resultType;
-                result.JudgePoints[0].Score = percentage * judgeOption.AnswerPoint.Score;
+                result.JudgePoints[0].Score = percentage * (judgeOption.AnswerPoint?.Score ?? 0);
                 result.JudgePoints[0].ExtraInfo = extraInfo;
             }
             catch (Exception ex)

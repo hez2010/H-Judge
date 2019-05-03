@@ -21,7 +21,7 @@ namespace hjudge.WebHost.Utils
             }
 
             var re = new Regex("[A-Z]|[a-z]|[0-9]");
-            return re.Matches(input)?.Cast<object>()?.Aggregate(string.Empty, (current, t) => current + t);
+            return re.Matches(input)?.Cast<object>()?.Aggregate(string.Empty, (current, t) => current + t) ?? string.Empty;
         }
 
         public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, IEnumerable<LanguageConfig> languageConfig)
@@ -32,7 +32,7 @@ namespace hjudge.WebHost.Utils
             if (problem.Type == 1)
             {
                 var judgeOptionsBuilder = new CodeJudgeOptionsBuilder();
-                var ext = languageConfig.FirstOrDefault(i => i.Name == judge.Language)?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim();
+                var ext = languageConfig.FirstOrDefault(i => i.Name == judge.Language)?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim() ?? string.Empty;
                 buildOptionsBuilder.UseExtensionName(ext);
 
                 var datadir = $"${{datadir:{problem.Id}}}";
@@ -259,12 +259,12 @@ namespace hjudge.WebHost.Utils
                 {
                     judgeOptionsBuilder.UseExtraFiles(problemConfig.ExtraFiles.Select(
                         i => i
-                            ?.Replace("${datadir}", datadir)
-                            ?.Replace("${workingdir}", workingdir)
-                            ?.Replace("${file}", file)
-                            ?.Replace("${outputfile}", outputfile)
-                            ?.Replace("${name}", name))
-                            ?.ToList());
+                            .Replace("${datadir}", datadir)
+                            .Replace("${workingdir}", workingdir)
+                            .Replace("${file}", file)
+                            .Replace("${outputfile}", outputfile)
+                            .Replace("${name}", name))
+                            .ToList());
                 }
 
                 if (!string.IsNullOrWhiteSpace(problemConfig.SpecialJudge))

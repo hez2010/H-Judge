@@ -233,7 +233,7 @@ namespace hjudge.WebHost.Controllers
             ret.Level = problem.Level;
             ret.Type = problem.Type;
             ret.UserId = problem.UserId;
-            ret.UserName = user?.UserName;
+            ret.UserName = user?.UserName ?? string.Empty;
             ret.Id = problem.Id;
             ret.Description = problem.Description;
             ret.CreationTime = problem.CreationTime;
