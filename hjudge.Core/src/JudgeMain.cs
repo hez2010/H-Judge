@@ -14,8 +14,21 @@ namespace hjudge.Core
     {
         private string _workingdir = string.Empty;
 
-        [DllImport("./hjudgeExec.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "#1", CharSet = CharSet.Ansi)]
-        static extern bool Execute(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
+        [DllImport("./hjudge.Exec.Windows.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "excute", CharSet = CharSet.Ansi)]
+        static extern bool ExecuteWindows(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
+
+        [DllImport("./hjudge.Exec.Linux.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "excute", CharSet = CharSet.Ansi)]
+        static extern bool ExecuteLinux(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
+
+        static (bool Succeeded, string? Result) Execute(string param)
+        {
+            var result = false;
+            var ret = new StringBuilder(256);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) result = ExecuteWindows(param, ret);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) result = ExecuteLinux(param, ret);
+
+            return (result, ret.ToString()?.Trim() ?? "{}");
+        } 
 
         public JudgeMain(string environments = "")
         {
@@ -76,7 +89,7 @@ namespace hjudge.Core
                 for (var i = 0; i < judgeOptions.DataPoints.Count; i++)
                 {
                     var point = new JudgePoint();
-                    if (!File.Exists(judgeOptions.RunOptions?.Exec))
+                    if (!File.Exists(judgeOptions.RunOptions.Exec))
                     {
                         point.ResultType = ResultCode.Compile_Error;
                         point.ExtraInfo = "Cannot find compiled executable file";
@@ -96,23 +109,23 @@ namespace hjudge.Core
                         var strErrFile = Path.Combine(_workingdir, $"stderr_{judgeOptions.GuidStr}.dat");
                         var inputFile = Path.Combine(_workingdir, judgeOptions.InputFileName);
                         var outputFile = Path.Combine(_workingdir, judgeOptions.OutputFileName);
-                        var param = new
+                        var param = new ExecOptions
                         {
-                            judgeOptions.RunOptions.Exec,
-                            judgeOptions.RunOptions.Args,
+                            Exec = judgeOptions.RunOptions.Exec,
+                            Args = judgeOptions.RunOptions.Args,
                             WorkingDir = _workingdir,
                             StdErrRedirectFile = strErrFile,
                             InputFile = inputFile,
                             OutputFile = outputFile,
-                            judgeOptions.DataPoints[i].TimeLimit,
-                            judgeOptions.DataPoints[i].MemoryLimit,
+                            TimeLimit = judgeOptions.DataPoints[i].TimeLimit,
+                            MemoryLimit = judgeOptions.DataPoints[i].MemoryLimit,
                             IsStdIO = judgeOptions.UseStdIO,
-                            judgeOptions.ActiveProcessLimit
+                            ActiveProcessLimit = judgeOptions.ActiveProcessLimit
                         };
-                        var ret = new StringBuilder(256);
-                        if (Execute(Encoding.UTF8.GetString(SpanJson.JsonSerializer.Generic.Utf8.Serialize(param)), ret))
+                        var (succeeded, ret) = Execute(Encoding.UTF8.GetString(SpanJson.JsonSerializer.Generic.Utf8.Serialize(param)));
+                        if (succeeded)
                         {
-                            point = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<JudgePoint>(Encoding.UTF8.GetBytes(ret.ToString()?.Trim() ?? "{}"));
+                            point = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<JudgePoint>(Encoding.UTF8.GetBytes(ret));
                         }
                         else
                         {
@@ -396,7 +409,7 @@ namespace hjudge.Core
                 }
 
                 line++;
-                if (judgeOption.ComparingOptions?.IgnoreLineTailWhiteSpaces ?? true)
+                if (judgeOption.ComparingOptions.IgnoreLineTailWhiteSpaces)
                 {
                     if (!string.IsNullOrEmpty(stdline))
                     {
@@ -409,7 +422,7 @@ namespace hjudge.Core
                     }
                 }
 
-                if (judgeOption.ComparingOptions?.IgnoreTextTailLineFeeds ?? true)
+                if (judgeOption.ComparingOptions.IgnoreTextTailLineFeeds)
                 {
                     if (stdline == null)
                     {
@@ -526,7 +539,7 @@ namespace hjudge.Core
         {
             try
             {
-                extra?.ForEach(i => File.Copy(i, Path.Combine(_workingdir, Path.GetFileName(i)), true));
+                extra.ForEach(i => File.Copy(i, Path.Combine(_workingdir, Path.GetFileName(i)), true));
             }
             catch
             {

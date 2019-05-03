@@ -6,8 +6,14 @@
 #include <sdkddkver.h>
 #include <winnt.h>
 
-_declspec(dllexport)
-bool execute(const char*, char*);
+#ifdef __cplusplus
+extern "C" {
+#endif
+    _declspec(dllexport)
+        bool execute(const char*, char*);
+#ifdef __cplusplus
+}
+#endif
 
 DWORD WINAPI IOCPThread(LPVOID);
 std::string getJsonString(Json::Value);

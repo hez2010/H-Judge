@@ -17,9 +17,7 @@ namespace hjudge.Core
 
         public override void UseComparingOptions(Action<ComparingOptions>? options = null)
         {
-            var comparingOptions = new ComparingOptions();
-            options?.Invoke(comparingOptions);
-            judgeOptions.ComparingOptions = comparingOptions;
+            options?.Invoke(judgeOptions.ComparingOptions);
         }
 
         public override void UseExtraFiles(List<string> extraFiles)
@@ -29,15 +27,12 @@ namespace hjudge.Core
 
         public override void UseSpecialJudge(Action<SpecialJudgeOptions>? options = null)
         {
-            var specialJudgeOptions = new SpecialJudgeOptions();
-            options?.Invoke(specialJudgeOptions);
-            judgeOptions.SpecialJudgeOptions = specialJudgeOptions;
+            judgeOptions.SpecialJudgeOptions = new SpecialJudgeOptions();
+            options?.Invoke(judgeOptions.SpecialJudgeOptions);
         }
         public void UseRunOptions(Action<RunOptions>? options = null)
         {
-            var runOptions = new RunOptions();
-            options?.Invoke(runOptions);
-            judgeOptions.RunOptions = runOptions;
+            options?.Invoke(judgeOptions.RunOptions);
         }
 
         public void UseStdIO()
