@@ -30,45 +30,39 @@ namespace hjudgeFileHost.Services
             connection.Start().Wait();
         }
 
+
         public async Task Upload(string fileName, Stream content)
         {
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
             FileHandleStatus result;
-
             var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
-            var isExists = await template.CheckFileExists(fileRecord.FileId);
 
-            if (fileRecord != null && isExists)
+            if (fileRecord != null)
             {
-                result = await template.UpdateFileByStream(fileRecord.FileId, hash, content);
-            }
-            else
-            {
-                result = await template.SaveFileByStream(GetFileNameHash(fileName), content);
-            }
-
-            if (isExists)
-            {
+                if (await template.CheckFileExists(fileRecord.FileId)) result = await template.UpdateFileByStream(fileRecord.FileId, hash, content);
+                else result = await template.SaveFileByStream(hash, content);
                 fileRecord.ContentType = result.ContentType;
                 fileRecord.FileSize = result.Size;
                 fileRecord.LastModified = new DateTime(result.LastModified);
                 fileRecord.FileName = hash;
                 dbContext.Files.Update(fileRecord);
+                await dbContext.SaveChangesAsync();
             }
             else
             {
+                result = await template.SaveFileByStream(hash, content);
+
                 await dbContext.Files.AddAsync(new FileRecord
                 {
-                    FileId = result.FileId,
-                    FileName = result.Filename,
                     ContentType = result.ContentType,
                     FileSize = result.Size,
-                    LastModified = new DateTime(result.LastModified)
+                    LastModified = new DateTime(result.LastModified),
+                    FileName = hash,
+                    FileId = result.FileId
                 });
+                await dbContext.SaveChangesAsync();
             }
-
-            await dbContext.SaveChangesAsync();
         }
 
         public async Task<bool> Delete(string fileName)
@@ -76,11 +70,11 @@ namespace hjudgeFileHost.Services
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
             var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
-
+            if (fileRecord == null) return true;
             var result = await template.DeleteFile(fileRecord.FileId);
             if (result)
             {
-                dbContext.Remove(fileRecord);
+                dbContext.Files.Remove(fileRecord);
                 await dbContext.SaveChangesAsync();
             }
             return result;
@@ -90,8 +84,8 @@ namespace hjudgeFileHost.Services
         {
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
-
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().MarkAsNoTracking().FirstOrDefaultAsync();
+            if (fileRecord == null) return null;
             var response = await template.GetFileStream(fileRecord.FileId);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {

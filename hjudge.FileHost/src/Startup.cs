@@ -36,6 +36,7 @@ namespace hjudgeFileHost
                 options.EnableSensitiveDataLogging(true);
 #endif
                 options.EnableServiceProviderCaching(true);
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
             services.AddEntityFrameworkSqlServer();

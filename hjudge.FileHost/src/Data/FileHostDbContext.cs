@@ -18,20 +18,6 @@ namespace hjudgeFileHost.Data
         public virtual DbSet<FileRecord> Files { get; set; }
 #nullable enable
 
-
-        public override int SaveChanges()
-        {
-            var changedEntityNames = this.GetChangedEntityNames();
-
-            this.ChangeTracker.AutoDetectChangesEnabled = false;
-            var result = base.SaveChanges();
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
-
-            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
-
-            return result;
-        }
-
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             var changedEntityNames = this.GetChangedEntityNames();
@@ -42,6 +28,10 @@ namespace hjudgeFileHost.Data
 
             this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
+            foreach (var i in this.ChangeTracker.Entries())
+            {
+                i.State = EntityState.Detached;
+            }
             return result;
         }
 
@@ -54,20 +44,11 @@ namespace hjudgeFileHost.Data
             this.ChangeTracker.AutoDetectChangesEnabled = true;
 
             this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
-
-            return result;
-        }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var changedEntityNames = this.GetChangedEntityNames();
-
-            this.ChangeTracker.AutoDetectChangesEnabled = false;
-            var result = await base.SaveChangesAsync(cancellationToken);
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
-
-            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
-
+            
+            foreach(var i in this.ChangeTracker.Entries())
+            {
+                i.State = EntityState.Detached;
+            }
             return result;
         }
     }

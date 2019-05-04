@@ -4,13 +4,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
     [TestClass]
     public class ProblemTest
     {
-        private readonly IProblemService service = TestService.Provider.GetService(typeof(IProblemService)) as IProblemService;
+        private readonly IProblemService service = TestService.Provider.GetService<IProblemService>();
 
         [TestMethod]
         public async Task ModifyAsync()

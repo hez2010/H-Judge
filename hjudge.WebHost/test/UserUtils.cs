@@ -2,12 +2,13 @@
 using hjudge.WebHost.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
     public class UserUtils
     {
-        private static readonly CachedUserManager<UserInfo> userManager = TestService.Provider.GetService(typeof(CachedUserManager<UserInfo>)) as CachedUserManager<UserInfo>;
+        private static readonly CachedUserManager<UserInfo> userManager = TestService.Provider.GetService<CachedUserManager<UserInfo>>();
         private static bool inited;
         public static async Task InitUsers()
         {

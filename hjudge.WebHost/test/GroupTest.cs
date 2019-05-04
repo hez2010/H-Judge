@@ -4,14 +4,15 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
     [TestClass]
     public class GroupTest
     {
-        private readonly IGroupService groupService = TestService.Provider.GetService(typeof(IGroupService)) as IGroupService;
-        private readonly IContestService contestService = TestService.Provider.GetService(typeof(IContestService)) as IContestService;
+        private readonly IGroupService groupService = TestService.Provider.GetService<IGroupService>();
+        private readonly IContestService contestService = TestService.Provider.GetService<IContestService>();
 
         [TestMethod]
         public async Task ConfigAsync()
