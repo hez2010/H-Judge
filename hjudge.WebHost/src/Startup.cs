@@ -54,7 +54,7 @@ namespace hjudge.WebHost
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
             services.AddSingleton<AntiForgeryFilter>();
-            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IProblemService, ProblemService>();
             services.AddScoped<IContestService, ContestService>();
             services.AddScoped<IJudgeService, JudgeService>();
