@@ -113,14 +113,14 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目信息加载失败', 'red'),
-          console.log(err);
+        this.props.openPortal('错误', '题目信息加载失败', 'red');
+        console.log(err);
       });
   }
 
   componentDidMount() {
     setTitle('题目详情');
-    this.problemId = this.props.match.params.problemId ?parseInt(this.props.match.params.problemId) : 0;
+    this.problemId = this.props.match.params.problemId ? parseInt(this.props.match.params.problemId) : 0;
     this.contestId = this.props.match.params.contestId ? parseInt(this.props.match.params.contestId) : 0;
     this.groupId = this.props.match.params.groupId ? parseInt(this.props.match.params.groupId) : 0;
     this.fetchDetail(this.problemId, this.contestId, this.groupId);
@@ -195,12 +195,12 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     let markdown = new md({ html: true }).use(mk, { throwOnError: false }).use(hljs);
 
     this.languageOptions = this.state.problem.languages.map((v, i) => ({
-        key: i,
-        value: i,
-        text: v.name,
-        information: v.information,
-        highlight: v.syntaxHighlight
-      } as LanguageOptions));
+      key: i,
+      value: i,
+      text: v.name,
+      information: v.information,
+      highlight: v.syntaxHighlight
+    } as LanguageOptions));
     const { languageChoice } = this.state;
 
     let submitModal = <>

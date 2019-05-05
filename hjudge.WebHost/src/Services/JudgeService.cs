@@ -38,9 +38,14 @@ namespace hjudge.WebHost.Services
             this.messageQueueService = messageQueueService;
         }
 
-        public Task<Judge> GetJudgeAsync(int judgeId)
+        public async Task<Judge> GetJudgeAsync(int judgeId)
         {
-            return dbContext.Judge.Cacheable().FirstOrDefaultAsync(i => i.Id == judgeId);
+            var result = await dbContext.Judge.Cacheable().FirstOrDefaultAsync(i => i.Id == judgeId);
+            if (result != null)
+            {
+                dbContext.Entry(result).State = EntityState.Detached;
+            }
+            return result;
         }
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId)
@@ -65,7 +70,7 @@ namespace hjudge.WebHost.Services
         {
             judge.ResultType = (int)ResultCode.Pending;
             judge.JudgeTime = DateTime.Now;
-            dbContext.Judge.Add(judge);
+            await dbContext.Judge.AddAsync(judge);
             await dbContext.SaveChangesAsync();
 
             var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, await languageService.GetLanguageConfigAsync());
@@ -92,6 +97,8 @@ namespace hjudge.WebHost.Services
         public async Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? result)
         {
             var judge = await GetJudgeAsync(judgeId);
+            if (judge == null) return;
+
             if (reportType == JudgeReportInfo.ReportType.PostJudge)
             {
                 judge.Result = result?.SerializeJsonAsString(false) ?? "{}";

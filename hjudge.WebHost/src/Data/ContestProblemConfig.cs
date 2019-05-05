@@ -1,4 +1,6 @@
-﻿namespace hjudge.WebHost.Data
+﻿using System.Collections.Generic;
+
+namespace hjudge.WebHost.Data
 {
     public partial class ContestProblemConfig
     {

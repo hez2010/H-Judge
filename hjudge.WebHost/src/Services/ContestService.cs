@@ -41,9 +41,14 @@ namespace hjudge.WebHost.Services
             return contest.Id;
         }
 
-        public Task<Contest> GetContestAsync(int contestId)
+        public async Task<Contest> GetContestAsync(int contestId)
         {
-            return  dbContext.Contest.Cacheable().FirstOrDefaultAsync(i => i.Id == contestId);
+            var result = await dbContext.Contest.Cacheable().FirstOrDefaultAsync(i => i.Id == contestId);
+            if (result != null)
+            {
+                dbContext.Entry(result).State = EntityState.Detached;
+            }
+            return result;
         }
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId)
@@ -96,7 +101,7 @@ namespace hjudge.WebHost.Services
 
         public async Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems)
         {
-            var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId).ToListAsync();
+            var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId).Cacheable().ToListAsync();
             dbContext.ContestProblemConfig.RemoveRange(oldProblems);
             var dict = oldProblems.ToDictionary(i => i.ProblemId);
             foreach (var i in problems.Distinct())
@@ -104,11 +109,11 @@ namespace hjudge.WebHost.Services
                 if (dict.ContainsKey(i))
                 {
                     dict[i].Id = 0;
-                    dbContext.ContestProblemConfig.Add(dict[i]);
+                    await dbContext.ContestProblemConfig.AddAsync(dict[i]);
                 }
                 else
                 {
-                    dbContext.ContestProblemConfig.Add(new ContestProblemConfig
+                    await dbContext.ContestProblemConfig.AddAsync(new ContestProblemConfig
                     {
                         ProblemId = i,
                         ContestId = contestId,

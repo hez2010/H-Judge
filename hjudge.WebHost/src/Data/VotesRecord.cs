@@ -10,6 +10,9 @@ namespace hjudge.WebHost.Data
         public int? ContestId { get; set; }
         public string UserId { get; set; } = string.Empty;
         public DateTime VoteTime { get; set; }
+        /// <summary>
+        /// 0 -- upvote, 1 -- downvote
+        /// </summary>
         public int VoteType { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;

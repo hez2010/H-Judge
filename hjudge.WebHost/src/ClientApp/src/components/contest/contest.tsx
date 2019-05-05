@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
@@ -16,7 +16,9 @@ interface ContestListItemModel {
   name: string,
   hidden: boolean,
   startTime: Date,
-  endTime: Date
+  endTime: Date,
+  upvote: number,
+  downvote: number
 }
 
 interface ContestListModel extends ResultModel {
@@ -131,6 +133,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
             <Table.HeaderCell>编号</Table.HeaderCell>
             <Table.HeaderCell>名称</Table.HeaderCell>
             <Table.HeaderCell>状态</Table.HeaderCell>
+            <Table.HeaderCell>评分</Table.HeaderCell>
             <Table.HeaderCell>开始时间</Table.HeaderCell>
             <Table.HeaderCell>结束时间</Table.HeaderCell>
             {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
@@ -144,6 +147,11 @@ export default class Contest extends React.Component<ContestProps, ContestState>
                 <Table.Cell>{v.id}</Table.Cell>
                 <Table.Cell>{v.name}</Table.Cell>
                 <Table.Cell>{status === 0 ? '未开始' : status === 1 ? '进行中' : '已结束'}</Table.Cell>
+                {
+                  v.upvote + v.downvote === 0 ?
+                    <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /></Table.Cell> :
+                    <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
+                }
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}

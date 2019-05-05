@@ -39,11 +39,12 @@ namespace hjudge.WebHost.Test
             services.AddEntityFrameworkInMemoryDatabase();
 
             services.AddTransient<IEmailSender, EmailSender>();
-            services.AddTransient<IProblemService, ProblemService>();
-            services.AddTransient<IContestService, ContestService>();
-            services.AddTransient<IJudgeService, JudgeService>();
-            services.AddTransient<IGroupService, GroupService>();
-            services.AddTransient<ICacheService, CacheService>();
+            services.AddScoped<IProblemService, ProblemService>();
+            services.AddScoped<IContestService, ContestService>();
+            services.AddScoped<IJudgeService, JudgeService>();
+            services.AddScoped<IGroupService, GroupService>();
+            services.AddScoped<IVoteService, VoteService>();
+            services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
             services.AddIdentityCore<UserInfo>(options =>

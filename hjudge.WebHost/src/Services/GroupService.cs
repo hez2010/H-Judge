@@ -17,8 +17,8 @@ namespace hjudge.WebHost.Services
         Task UpdateGroupAsync(Group group);
         Task RemoveGroupAsync(int groupId);
         Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests);
-        Task OptInGroup(string userId, int groupId);
-        Task OptOutGroup(string userId, int groupId);
+        Task<bool> OptInGroup(string userId, int groupId);
+        Task<bool> OptOutGroup(string userId, int groupId);
     }
     public class GroupService : IGroupService
     {
@@ -37,18 +37,23 @@ namespace hjudge.WebHost.Services
             return group.Id;
         }
 
-        public Task<Group> GetGroupAsync(int groupId)
+        public async Task<Group> GetGroupAsync(int groupId)
         {
-            return dbContext.Group.Cacheable().FirstOrDefaultAsync(i => i.Id == groupId);
+            var result = await dbContext.Group.Cacheable().FirstOrDefaultAsync(i => i.Id == groupId);
+            if (result != null)
+            {
+                dbContext.Entry(result).State = EntityState.Detached;
+            }
+            return result;
         }
 
-        public async Task OptInGroup(string userId, int groupId)
+        public async Task<bool> OptInGroup(string userId, int groupId)
         {
             var user = await userManager.FindByIdAsync(userId);
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                if (!await dbContext.GroupJoin.AnyAsync(i => i.GroupId == groupId && i.UserId == userId))
+                if (!await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).Cacheable().AnyAsync())
                 {
                     await dbContext.GroupJoin.AddAsync(new GroupJoin
                     {
@@ -57,22 +62,26 @@ namespace hjudge.WebHost.Services
                         JoinTime = DateTime.Now
                     });
                     await dbContext.SaveChangesAsync();
+                    return true;
                 }
             }
+            return false;
         }
-        public async Task OptOutGroup(string userId, int groupId)
+        public async Task<bool> OptOutGroup(string userId, int groupId)
         {
             var user = await userManager.FindByIdAsync(userId);
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                var info = await dbContext.GroupJoin.FirstOrDefaultAsync(i => i.GroupId == groupId && i.UserId == userId);
+                var info = await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).Cacheable().FirstOrDefaultAsync();
                 if (info != null)
                 {
                     dbContext.GroupJoin.Remove(info);
                     await dbContext.SaveChangesAsync();
+                    return true;
                 }
             }
+            return false;
         }
 
         public async Task<IQueryable<Group>> QueryGroupAsync(string? userId)
@@ -104,7 +113,7 @@ namespace hjudge.WebHost.Services
 
         public async Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests)
         {
-            var oldContests = await dbContext.GroupContestConfig.Where(i => i.GroupId == groupId).ToListAsync();
+            var oldContests = await dbContext.GroupContestConfig.Where(i => i.GroupId == groupId).Cacheable().ToListAsync();
             dbContext.GroupContestConfig.RemoveRange(oldContests);
             var dict = oldContests.ToDictionary(i => i.ContestId);
             foreach (var i in contests.Distinct())
@@ -112,11 +121,11 @@ namespace hjudge.WebHost.Services
                 if (dict.ContainsKey(i))
                 {
                     dict[i].Id = 0;
-                    dbContext.GroupContestConfig.Add(dict[i]);
+                    await dbContext.GroupContestConfig.AddAsync(dict[i]);
                 }
                 else
                 {
-                    dbContext.GroupContestConfig.Add(new GroupContestConfig
+                    await dbContext.GroupContestConfig.AddAsync(new GroupContestConfig
                     {
                         ContestId = i,
                         GroupId = groupId

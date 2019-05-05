@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
@@ -19,7 +19,9 @@ interface ProblemListItemModel {
   hidden: boolean,
   status: number,
   acceptCount: number,
-  submissionCount: number
+  submissionCount: number,
+  upvote: number,
+  downvote: number
 }
 
 interface ProblemListModel extends ResultModel {
@@ -127,6 +129,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
             <Table.HeaderCell>难度</Table.HeaderCell>
             <Table.HeaderCell>状态</Table.HeaderCell>
             <Table.HeaderCell>通过量/提交量</Table.HeaderCell>
+            <Table.HeaderCell>评分</Table.HeaderCell>
             <Table.HeaderCell>通过率</Table.HeaderCell>
             {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
@@ -140,6 +143,11 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
                 <Table.Cell>⭐×{v.level}</Table.Cell>
                 <Table.Cell>{v.status === 0 ? '未尝试' : v.status === 1 ? '已尝试' : '已通过'}</Table.Cell>
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
+                {
+                  v.upvote + v.downvote === 0 ?
+                    <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /></Table.Cell> :
+                    <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
+                }
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
                 {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)

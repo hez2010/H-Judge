@@ -44,9 +44,14 @@ namespace hjudge.WebHost.Services
             return problem.Id;
         }
 
-        public Task<Problem> GetProblemAsync(int problemId)
+        public async Task<Problem> GetProblemAsync(int problemId)
         {
-            return dbContext.Problem.Cacheable().FirstOrDefaultAsync(i => i.Id == problemId);
+            var result = await dbContext.Problem.Cacheable().FirstOrDefaultAsync(i => i.Id == problemId);
+            if (result != null)
+            {
+                dbContext.Entry(result).State = EntityState.Detached;
+            }
+            return result;
         }
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId)
