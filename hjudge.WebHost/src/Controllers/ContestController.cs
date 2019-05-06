@@ -108,7 +108,7 @@ namespace hjudge.WebHost.Controllers
         {
             var userId = userManager.GetUserId(User);
 
-            var ret = new ContestModel();
+            var ret = new ContestModel { CurrentTime = DateTime.Now };
 
             IQueryable<Contest> contests;
 
