@@ -14,6 +14,7 @@ import Contest from "./components/contest/contest";
 import ProblemDetails from "./components/problem/details";
 import Group from "./components/group/group";
 import { CommonProps } from "./interfaces/commonProps";
+import ContestDetails from "./components/contest/details";
 
 interface PortalState {
   open: boolean,
@@ -127,6 +128,10 @@ export default class App extends React.Component<any, AppState> {
             <Route
               path='/details/problem/:problemId/:contestId?/:groupId?'
               render={props => <ProblemDetails {...Object.assign(commonProps, props)}></ProblemDetails>}>
+            </Route>
+            <Route
+              path='/details/contest/:contestId?/:groupId?'
+              render={props => <ContestDetails {...Object.assign(commonProps, props)}></ContestDetails>}>
             </Route>
             <Route
               path='/contest/:page?'

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Input, Button, Form, Label, Checkbox, SemanticCOLORS } from 'semantic-ui-react';
+import { Modal, Input, Button, Form, Label, Checkbox } from 'semantic-ui-react';
 import { SerializeForm } from '../../utils/formHelper';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';

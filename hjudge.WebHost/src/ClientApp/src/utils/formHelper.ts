@@ -25,6 +25,7 @@ export function SerializeForm(form: HTMLFormElement) {
             if (!element.name) break;
             q[element.name] = element.checked;
             break;
+          default: break;
         }
         break;
       }
@@ -51,6 +52,7 @@ export function SerializeForm(form: HTMLFormElement) {
               }
             }
             break;
+          default: break;
         }
         break;
       }
@@ -63,9 +65,11 @@ export function SerializeForm(form: HTMLFormElement) {
           case 'button':
             q[element.name] = element.value;
             break;
+          default: break;
         }
         break;
       }
+      default: break;
     }
   }
   return q;

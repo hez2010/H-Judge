@@ -13,7 +13,11 @@ import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 import CodeEditor from '../editor/code-editor';
 
-interface ProblemDetailsProps extends CommonProps { }
+interface ProblemDetailsProps extends CommonProps {
+  problemId?: number,
+  contestId?: number,
+  groupId?: number
+}
 
 interface ProblemDetailsState {
   problem: ProblemModel,
@@ -120,9 +124,22 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
   componentDidMount() {
     setTitle('题目详情');
-    this.problemId = this.props.match.params.problemId ? parseInt(this.props.match.params.problemId) : 0;
-    this.contestId = this.props.match.params.contestId ? parseInt(this.props.match.params.contestId) : 0;
-    this.groupId = this.props.match.params.groupId ? parseInt(this.props.match.params.groupId) : 0;
+    console.log(this.props);
+
+    if (this.props.problemId) this.problemId = this.props.problemId;
+    else if (this.props.match.params.problemId) this.problemId = parseInt(this.props.match.params.problemId)
+    else this.problemId = 0;
+    
+    if (this.props.contestId) this.contestId = this.props.contestId;
+    else if (this.props.match.params.contestId) this.contestId = parseInt(this.props.match.params.contestId)
+    else this.contestId = 0;
+
+    if (this.props.groupId) this.groupId = this.props.groupId;
+    else if (this.props.match.params.groupId) this.groupId = parseInt(this.props.match.params.groupId)
+    else this.groupId = 0;
+
+    console.log(this);
+
     this.fetchDetail(this.problemId, this.contestId, this.groupId);
   }
 

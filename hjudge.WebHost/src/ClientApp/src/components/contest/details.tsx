@@ -80,6 +80,10 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
     }
   }
 
+  contestContent() {
+
+  }
+
   render() {
     return <></>;
   }

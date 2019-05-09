@@ -140,7 +140,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
               <Table.Row key={i} warning={v.hidden} onClick={() => this.gotoDetails(v.id)} style={{ cursor: 'pointer' }}>
                 <Table.Cell>{v.id}</Table.Cell>
                 <Table.Cell>{v.name}</Table.Cell>
-                <Table.Cell>⭐×{v.level}</Table.Cell>
+                <Table.Cell><span role='img' aria-label='level'>⭐</span>×{v.level}</Table.Cell>
                 <Table.Cell>{v.status === 0 ? '未尝试' : v.status === 1 ? '已尝试' : '已通过'}</Table.Cell>
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 {
