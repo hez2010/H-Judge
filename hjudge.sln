@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "smartbox.SeaweedFs.Client",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpanJson", "SpanJson\SpanJson.csproj", "{97B781A3-F909-4546-808B-3467830681EB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.WebFrontEnd", "hjudge.WebFrontEnd\hjudge.WebFrontEnd.csproj", "{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -179,6 +181,18 @@ Global
 		{97B781A3-F909-4546-808B-3467830681EB}.Release|x64.Build.0 = Release|Any CPU
 		{97B781A3-F909-4546-808B-3467830681EB}.Release|x86.ActiveCfg = Release|Any CPU
 		{97B781A3-F909-4546-808B-3467830681EB}.Release|x86.Build.0 = Release|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|x64.Build.0 = Debug|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|x86.Build.0 = Debug|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Release|x64.ActiveCfg = Release|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Release|x64.Build.0 = Release|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

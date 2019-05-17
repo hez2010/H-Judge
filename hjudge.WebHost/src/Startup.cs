@@ -174,7 +174,7 @@ namespace hjudge.WebHost
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "ClientApp";
+                spa.Options.SourcePath = "../../hjudge.WebFrontEnd/src";
 
                 if (env.IsDevelopment())
                 {
