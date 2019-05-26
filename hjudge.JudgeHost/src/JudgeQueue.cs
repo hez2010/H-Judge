@@ -1,6 +1,7 @@
 ﻿using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.Utils;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,9 +11,15 @@ namespace hjudge.JudgeHost
     class JudgeQueue
     {
         private static readonly ConcurrentPriorityQueue<JudgeInfo> pools = new ConcurrentPriorityQueue<JudgeInfo>();
+        public static SemaphoreSlim Semaphore { get; set; }
         public static Task QueueJudgeAsync(JudgeInfo info)
         {
             pools.Enqueue(info, info.Priority);
+            try
+            {
+                Semaphore.Release();
+            }
+            catch { /* ignored */ }
             return Task.CompletedTask;
         }
 
@@ -29,7 +36,8 @@ namespace hjudge.JudgeHost
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                while (pools.TryDequeue(out var judgeInfo))
+                await Semaphore.WaitAsync();
+                if (pools.TryDequeue(out var judgeInfo))
                 {
                     await ReportJudgeResultAsync(new JudgeReportInfo
                     {
@@ -50,7 +58,7 @@ namespace hjudge.JudgeHost
                     var result = new JudgeResult { JudgePoints = null };
                     try
                     {
-                        result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions);
+                        result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions, Path.GetTempPath());
                     }
                     catch
                     {
@@ -64,7 +72,6 @@ namespace hjudge.JudgeHost
                     });
                     if (cancellationToken.IsCancellationRequested) break;
                 }
-                await Task.Delay(100);
             }
         }
     }

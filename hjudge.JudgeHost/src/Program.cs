@@ -7,38 +7,26 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using hjudge.Shared.Judge;
+using System.Collections.Generic;
 
 namespace hjudge.JudgeHost
 {
     class Program
     {
-        class MessageQueueOptions
-        {
-            public string HostName { get; set; } = string.Empty;
-            public string VirtualHost { get; set; } = "/";
-            public int Port { get; set; } = 5672;
-            public string UserName { get; set; } = "guest";
-            public string Password { get; set; } = "guest";
-            public MessageQueueFactory.ProducerOptions[]? Producers { get; set; }
-            public MessageQueueFactory.ConsumerOptions[]? Consumers { get; set; }
-        }
-        class JudgeHostConfig
-        {
-            public MessageQueueOptions? MessageQueue { get; set; }
-        }
 
         public static MessageQueueFactory JudgeMessageQueueFactory;
         private static readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         static async Task Main(string[] args)
         {
-            //FIX ME: json parse err.
 #if DEBUG
             var config = File.ReadAllText("appsettings.Development.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>(false);
-#endif
-#if RELEASE
+#else
             var config = File.ReadAllText("appsettings.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>(false);
 #endif
+            if (config.ConcurrentJudgeTask <= 0) config.ConcurrentJudgeTask = Environment.ProcessorCount;
+            JudgeQueue.Semaphore = new SemaphoreSlim(0, config.ConcurrentJudgeTask);
+
             var options = config.MessageQueue;
             if (options != null)
             {
@@ -81,7 +69,10 @@ namespace hjudge.JudgeHost
                 e.Cancel = true;
             };
 
-            await JudgeQueue.JudgeQueueExecuter(token);
+            var tasks = new List<Task>();
+            for (var i = 0; i < config.ConcurrentJudgeTask; i++) tasks.Add(JudgeQueue.JudgeQueueExecuter(token));
+
+            await Task.WhenAll(tasks);
 
             JudgeMessageQueueFactory.Dispose();
         }

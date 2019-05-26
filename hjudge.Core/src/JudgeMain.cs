@@ -52,9 +52,9 @@ namespace hjudge.Core
             }
         }
 
-        public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions)
+        public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingBaseDir)
         {
-            _workingdir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeOptions.GuidStr);
+            _workingdir = Path.Combine(workingBaseDir, "hjudgeTest", judgeOptions.GuidStr);
 
             Directory.CreateDirectory(_workingdir);
             var result = new JudgeResult
