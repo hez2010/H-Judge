@@ -13,7 +13,7 @@ namespace hjudge.WebHost.Services
     {
         Task<IQueryable<Contest>> QueryContestAsync(string? userId);
         Task<IQueryable<Contest>> QueryContestAsync(string? userId, int groupId);
-        Task<Contest> GetContestAsync(int contestId);
+        Task<Contest?> GetContestAsync(int contestId);
         Task<int> CreateContestAsync(Contest contest);
         Task UpdateContestAsync(Contest contest);
         Task RemoveContestAsync(int contestId);
@@ -41,7 +41,7 @@ namespace hjudge.WebHost.Services
             return contest.Id;
         }
 
-        public async Task<Contest> GetContestAsync(int contestId)
+        public async Task<Contest?> GetContestAsync(int contestId)
         {
             var result = await dbContext.Contest.Cacheable().FirstOrDefaultAsync(i => i.Id == contestId);
             if (result != null)

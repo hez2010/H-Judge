@@ -27,6 +27,7 @@ namespace hjudge.WebHost.Utils
         public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, IEnumerable<LanguageConfig> languageConfig)
         {
             var problem = await problemService.GetProblemAsync(judge.ProblemId);
+            if (problem == null) throw new InvalidOperationException("Problem is null");
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
             var buildOptionsBuilder = new BuildOptionsBuilder();
             if (problem.Type == 1)

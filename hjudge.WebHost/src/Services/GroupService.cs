@@ -12,7 +12,7 @@ namespace hjudge.WebHost.Services
     public interface IGroupService
     {
         Task<IQueryable<Group>> QueryGroupAsync(string? userId);
-        Task<Group> GetGroupAsync(int groupId);
+        Task<Group?> GetGroupAsync(int groupId);
         Task<int> CreateGroupAsync(Group group);
         Task UpdateGroupAsync(Group group);
         Task RemoveGroupAsync(int groupId);
@@ -37,7 +37,7 @@ namespace hjudge.WebHost.Services
             return group.Id;
         }
 
-        public async Task<Group> GetGroupAsync(int groupId)
+        public async Task<Group?> GetGroupAsync(int groupId)
         {
             var result = await dbContext.Group.Cacheable().FirstOrDefaultAsync(i => i.Id == groupId);
             if (result != null)

@@ -13,7 +13,7 @@ namespace hjudge.WebHost.Services
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId);
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId);
         Task<IQueryable<Problem>> QueryProblemAsync(string? userId, int contestId, int groupId);
-        Task<Problem> GetProblemAsync(int problemId);
+        Task<Problem?> GetProblemAsync(int problemId);
         Task<int> CreateProblemAsync(Problem problem);
         Task UpdateProblemAsync(Problem problem);
         Task RemoveProblemAsync(int problemId);
@@ -44,7 +44,7 @@ namespace hjudge.WebHost.Services
             return problem.Id;
         }
 
-        public async Task<Problem> GetProblemAsync(int problemId)
+        public async Task<Problem?> GetProblemAsync(int problemId)
         {
             var result = await dbContext.Problem.Cacheable().FirstOrDefaultAsync(i => i.Id == problemId);
             if (result != null)

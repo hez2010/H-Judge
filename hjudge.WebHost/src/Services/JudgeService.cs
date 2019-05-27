@@ -16,7 +16,7 @@ namespace hjudge.WebHost.Services
     {
         Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId);
         Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId);
-        Task<Judge> GetJudgeAsync(int judgeId);
+        Task<Judge?> GetJudgeAsync(int judgeId);
         Task QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
     }
@@ -38,7 +38,7 @@ namespace hjudge.WebHost.Services
             this.messageQueueService = messageQueueService;
         }
 
-        public async Task<Judge> GetJudgeAsync(int judgeId)
+        public async Task<Judge?> GetJudgeAsync(int judgeId)
         {
             var result = await dbContext.Judge.Cacheable().FirstOrDefaultAsync(i => i.Id == judgeId);
             if (result != null)

@@ -25,7 +25,7 @@ namespace EFSecondLevelCache.Core
         {
             var query = buildFindQueryable(cachedQueryable, keyValues);
             return new EFCachedQueryable<TEntity>(
-                query, cachedQueryable.SaltKey, cachedQueryable.DebugInfo,
+                query, cachedQueryable.CachePolicy, cachedQueryable.DebugInfo,
                 cachedQueryable.CacheKeyProvider, cachedQueryable.CacheServiceProvider).FirstOrDefault();
         }
 
@@ -39,7 +39,7 @@ namespace EFSecondLevelCache.Core
         {
             var query = buildFindQueryable(cachedQueryable, keyValues);
             return new EFCachedQueryable<TEntity>(
-                query, cachedQueryable.SaltKey, cachedQueryable.DebugInfo,
+                query, cachedQueryable.CachePolicy, cachedQueryable.DebugInfo,
                 cachedQueryable.CacheKeyProvider, cachedQueryable.CacheServiceProvider).FirstOrDefaultAsync(cancellationToken);
         }
 
