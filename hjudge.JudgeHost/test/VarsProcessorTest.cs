@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost.Test
 {
@@ -19,14 +20,14 @@ namespace hjudge.JudgeHost.Test
             public string A { get; set; } = "testabc123456";
             public string B { get; } = "testabc";
             public InnerStructure C { get; } = new InnerStructure();
-            public InnerStructure D { get; set; } = new InnerStructure();
+            public InnerStructure? D { get; set; } = new InnerStructure();
             public string F { get; set; } = "hhhh";
             public int G { get; set; } = 123;
             public string H = "testabc";
         }
 
         [TestMethod]
-        public void VarsProcess()
+        public async Task VarsProcess()
         {
             var dict = new Dictionary<string, string>
             {
@@ -36,7 +37,7 @@ namespace hjudge.JudgeHost.Test
 
             var obj = new TestStructure();
 
-            VarsProcessor.FillinVars(obj, dict);
+            await VarsProcessor.FillinVarsAndFetchFiles(obj, dict);
 
             Assert.AreEqual("abcabcdef", obj.A);
             Assert.AreEqual("testabc", obj.B);
@@ -44,9 +45,13 @@ namespace hjudge.JudgeHost.Test
             Assert.AreEqual("abcabc", obj.C.A);
             Assert.AreEqual("testabc", obj.C.B);
             Assert.AreEqual("testabc", obj.C.H);
-            Assert.AreEqual("abcabc", obj.D.A);
-            Assert.AreEqual("testabc", obj.D.B);
-            Assert.AreEqual("testabc", obj.D.H);
+            Assert.AreEqual("abcabc", obj.D?.A);
+            Assert.AreEqual("testabc", obj.D?.B);
+            Assert.AreEqual("testabc", obj.D?.H);
+
+            var nullobj = new TestStructure();
+            nullobj.D = null;
+            await VarsProcessor.FillinVarsAndFetchFiles(obj, dict);
         }
     }
 }

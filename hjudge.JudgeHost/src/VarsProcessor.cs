@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost
 {
@@ -10,15 +12,16 @@ namespace hjudge.JudgeHost
         {
             foreach(var i in varsTable)
             {
-                str = str.Replace(i.Key, i.Value);
+                str = Regex.Replace(str, i.Key, i.Value);
             }
             return str;
         }
-
-        public static void FillinVars(object target, IDictionary<string, string> varsTable)
+        
+        public static async Task<IEnumerable<string>> FillinVarsAndFetchFiles(object target, IDictionary<string, string> varsTable)
         {
             var type = target.GetType();
             var properties = type.GetProperties();
+            var fileList = new List<string>();
 
             if (properties.Length != 0)
             {
@@ -26,17 +29,23 @@ namespace hjudge.JudgeHost
                 {
                     if (p.PropertyType == typeof(string))
                     {
-                        if (p.CanRead && p.CanWrite && p.GetValue(target) is string str)
+                        if (p.GetValue(target) is string str)
                         {
-                            p.SetValue(target, ProcessString(str, varsTable));
+                            var newStr = ProcessString(str, varsTable);
+                            if (p.CanRead && p.CanWrite) p.SetValue(target, ProcessString(str, varsTable));
+                            if (newStr.Contains("${datadir"))
+                            {
+                                fileList.Add(newStr);
+                            }
                         }
                     }
                     else
                     {
-                        FillinVars(p.GetValue(target), varsTable);
+                        fileList.AddRange(await FillinVarsAndFetchFiles(p.GetValue(target), varsTable));
                     }
                 }
             }
+            return fileList;
         }
     }
 }

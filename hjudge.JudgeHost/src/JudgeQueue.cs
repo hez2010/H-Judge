@@ -1,7 +1,9 @@
 ﻿using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.Utils;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,6 +46,7 @@ namespace hjudge.JudgeHost
                         JudgeId = judgeInfo.JudgeId,
                         Type = JudgeReportInfo.ReportType.PreJudge
                     });
+
                     var judge = new JudgeMain();
                     if (judgeInfo.BuildOptions == null || judgeInfo.JudgeOptions == null)
                     {
@@ -55,6 +58,25 @@ namespace hjudge.JudgeHost
                         });
                         continue;
                     }
+
+                    var varsTable = new Dictionary<string, string>
+                    {
+                        ["\\${workingdir:(.*?)}"] = JudgeMain.GetWorkingDir(Path.GetTempPath(), judgeInfo.JudgeOptions.GuidStr)
+                    };
+                    var filesRequired = (await VarsProcessor.FillinVarsAndFetchFiles(judgeInfo, varsTable)).Distinct();
+                    var fileService = new Files.FilesClient(Program.FileHostChannel);
+                    var request = new DownloadRequest();
+                    request.Info.AddRange(filesRequired.Select(i => new DownloadInfo { FileName = i }));
+                    var filesResponse = fileService.DownloadFiles(request);
+                    while (await filesResponse.ResponseStream.MoveNext())
+                    {
+                        foreach (var i in filesResponse.ResponseStream.Current.Result)
+                        {
+                            //TODO: datadir
+                            i.Content.WriteTo(null);
+                        }
+                    }
+
                     var result = new JudgeResult { JudgePoints = null };
                     try
                     {

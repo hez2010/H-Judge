@@ -9,12 +9,15 @@
 
   <ItemGroup>
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
+    <PackageReference Include="Google.Protobuf" Version="3.7.0" />
+    <PackageReference Include="Grpc" Version="1.20.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\hjudge.Core\src\hjudge.Core.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
     <ProjectReference Include="..\..\SpanJson\SpanJson.csproj" />
+    <ProjectReference Include="..\..\hjudge.RpcInterface\hjudge.RpcInterface.csproj" />
   </ItemGroup>
 
   <ItemGroup>

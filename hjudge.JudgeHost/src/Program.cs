@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using hjudge.Shared.Judge;
 using System.Collections.Generic;
+using Grpc.Core;
 
 namespace hjudge.JudgeHost
 {
@@ -15,6 +16,7 @@ namespace hjudge.JudgeHost
     {
 
         public static MessageQueueFactory JudgeMessageQueueFactory;
+        public static Channel FileHostChannel;
         private static readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         static async Task Main(string[] args)
@@ -26,6 +28,8 @@ namespace hjudge.JudgeHost
 #endif
             if (config.ConcurrentJudgeTask <= 0) config.ConcurrentJudgeTask = Environment.ProcessorCount;
             JudgeQueue.Semaphore = new SemaphoreSlim(0, config.ConcurrentJudgeTask);
+
+            FileHostChannel = new Channel(config.FileHost, ChannelCredentials.Insecure);
 
             var options = config.MessageQueue;
             if (options != null)

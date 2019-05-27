@@ -38,6 +38,8 @@ namespace hjudge.Core
             return (result, ret);
         } 
 
+        public static string GetWorkingDir(string workingBaseDir, string guid) => Path.Combine(workingBaseDir, "hjudgeTest", guid);
+
         public JudgeMain(string environments = "")
         {
             if (!string.IsNullOrEmpty(environments))
@@ -54,7 +56,7 @@ namespace hjudge.Core
 
         public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingBaseDir)
         {
-            _workingdir = Path.Combine(workingBaseDir, "hjudgeTest", judgeOptions.GuidStr);
+            _workingdir = GetWorkingDir(workingBaseDir, judgeOptions.GuidStr);
 
             Directory.CreateDirectory(_workingdir);
             var result = new JudgeResult
@@ -108,7 +110,7 @@ namespace hjudge.Core
                     {
                         try
                         {
-                            File.Copy(judgeOptions.DataPoints[i].StdInFile, Path.Combine(_workingdir, judgeOptions.InputFileName), true);
+                            File.Copy(judgeOptions.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, judgeOptions.InputFileName), true);
                         }
                         catch
                         {
@@ -141,7 +143,7 @@ namespace hjudge.Core
                         }
                         try
                         {
-                            File.Copy(judgeOptions.DataPoints[i].StdOutFile, Path.Combine(_workingdir, $"answer_{judgeOptions.GuidStr}.dat"), true);
+                            File.Copy(judgeOptions.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOptions.GuidStr}.dat"), true);
                         }
                         catch
                         {
