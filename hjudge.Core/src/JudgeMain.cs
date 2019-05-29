@@ -56,15 +56,15 @@ namespace hjudge.Core
         }
 
         public static string EscapeFileName(string? fileName) => fileName
-                ?.Replace(":", "_")
-                ?.Replace("\\", "_")
-                ?.Replace("/", "_")
-                ?.Replace("?", "_")
-                ?.Replace("*", "_")
-                ?.Replace("\"", "_")
-                ?.Replace("<", "_")
-                ?.Replace(">", "_")
-                ?.Replace("|", "_") ?? string.Empty;
+                ?.Replace(":", "_1_")
+                ?.Replace("\\", "_2_")
+                ?.Replace("/", "_2_")
+                ?.Replace("?", "_3_")
+                ?.Replace("*", "_4_")
+                ?.Replace("\"", "")
+                ?.Replace("<", "_5_")
+                ?.Replace(">", "_6_")
+                ?.Replace("|", "_7_") ?? string.Empty;
 
         private string GetTargetFilePath(string? originalFilePath) => Path.Combine(_dataCacheDir, EscapeFileName(originalFilePath));
 
