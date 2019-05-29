@@ -67,14 +67,15 @@ namespace hjudge.JudgeHost
             }
             var token = tokenSource.Token;
 
-            Console.CancelKeyPress += (sender, e) =>
+            Console.CancelKeyPress += async (sender, e) =>
             {
+                await FileHostChannel.ShutdownAsync();
                 tokenSource.Cancel();
                 e.Cancel = true;
             };
 
             var tasks = new List<Task>();
-            for (var i = 0; i < config.ConcurrentJudgeTask; i++) tasks.Add(JudgeQueue.JudgeQueueExecuter(token));
+            for (var i = 0; i < config.ConcurrentJudgeTask; i++) tasks.Add(JudgeQueue.JudgeQueueExecuter(Path.Combine(config.DataCacheDirectory, Guid.NewGuid().ToString().Replace("-", "_")), token));
 
             await Task.WhenAll(tasks);
 

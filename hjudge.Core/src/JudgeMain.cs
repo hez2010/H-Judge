@@ -13,6 +13,7 @@ namespace hjudge.Core
     public class JudgeMain
     {
         private string _workingdir = string.Empty;
+        private string _dataCacheDir = string.Empty;
 
         [DllImport("./hjudge.Exec.Windows.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "execute", CharSet = CharSet.Ansi)]
         static extern bool ExecuteWindows(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
@@ -26,7 +27,7 @@ namespace hjudge.Core
             var retBuffer = new StringBuilder(256);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) result = ExecuteWindows(param, retBuffer);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) result = ExecuteLinux(param, retBuffer);
-            
+
             JudgePoint? ret = null;
             try
             {
@@ -36,7 +37,7 @@ namespace hjudge.Core
             catch { /* ignored */ }
 
             return (result, ret);
-        } 
+        }
 
         public static string GetWorkingDir(string workingBaseDir, string guid) => Path.Combine(workingBaseDir, "hjudgeTest", guid);
 
@@ -54,9 +55,23 @@ namespace hjudge.Core
             }
         }
 
-        public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingBaseDir)
+        public static string EscapeFileName(string? fileName) => fileName
+                ?.Replace(":", "_")
+                ?.Replace("\\", "_")
+                ?.Replace("/", "_")
+                ?.Replace("?", "_")
+                ?.Replace("*", "_")
+                ?.Replace("\"", "_")
+                ?.Replace("<", "_")
+                ?.Replace(">", "_")
+                ?.Replace("|", "_") ?? string.Empty;
+
+        private string GetTargetFilePath(string? originalFilePath) => Path.Combine(_dataCacheDir, EscapeFileName(originalFilePath));
+
+        public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingBaseDir, string dataCacheDir)
         {
             _workingdir = GetWorkingDir(workingBaseDir, judgeOptions.GuidStr);
+            _dataCacheDir = dataCacheDir;
 
             Directory.CreateDirectory(_workingdir);
             var result = new JudgeResult
@@ -110,7 +125,7 @@ namespace hjudge.Core
                     {
                         try
                         {
-                            File.Copy(judgeOptions.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, judgeOptions.InputFileName), true);
+                            File.Copy(GetTargetFilePath(judgeOptions.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString())), Path.Combine(_workingdir, judgeOptions.InputFileName), true);
                         }
                         catch
                         {
@@ -143,7 +158,7 @@ namespace hjudge.Core
                         }
                         try
                         {
-                            File.Copy(judgeOptions.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString()), Path.Combine(_workingdir, $"answer_{judgeOptions.GuidStr}.dat"), true);
+                            File.Copy(GetTargetFilePath(judgeOptions.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString())), Path.Combine(_workingdir, $"answer_{judgeOptions.GuidStr}.dat"), true);
                         }
                         catch
                         {
@@ -254,7 +269,7 @@ namespace hjudge.Core
 
             try
             {
-                File.Copy(judgeOption.AnswerPoint?.AnswerFile, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
+                File.Copy(GetTargetFilePath(judgeOption.AnswerPoint?.AnswerFile), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
                 var fileName = Path.Combine(_workingdir, buildOption.SubmitFileName);
                 File.WriteAllText(fileName, buildOption.Source, Encoding.UTF8);
                 var (resultType, percentage, extraInfo) = await CompareAsync(fileName, string.Empty, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption, true);
@@ -549,7 +564,7 @@ namespace hjudge.Core
         {
             try
             {
-                extra.ForEach(i => File.Copy(i, Path.Combine(_workingdir, Path.GetFileName(i)), true));
+                extra.ForEach(i => File.Copy(GetTargetFilePath(i), Path.Combine(_workingdir, Path.GetFileName(i)), true));
             }
             catch
             {

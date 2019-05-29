@@ -1,6 +1,8 @@
 ﻿using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.Utils;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost
 {
-
     class JudgeQueue
     {
         private static readonly ConcurrentPriorityQueue<JudgeInfo> pools = new ConcurrentPriorityQueue<JudgeInfo>();
+        private static readonly ConcurrentDictionary<string, DateTime> fileCache = new ConcurrentDictionary<string, DateTime>();
         public static SemaphoreSlim Semaphore { get; set; }
         public static Task QueueJudgeAsync(JudgeInfo info)
         {
@@ -34,7 +36,8 @@ namespace hjudge.JudgeHost
             return Task.CompletedTask;
         }
 
-        public static async Task JudgeQueueExecuter(CancellationToken cancellationToken)
+
+        public static async Task JudgeQueueExecuter(string dataCacheDir, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -48,7 +51,7 @@ namespace hjudge.JudgeHost
                     });
 
                     var judge = new JudgeMain();
-                    if (judgeInfo.BuildOptions == null || judgeInfo.JudgeOptions == null)
+                    if (judgeInfo.JudgeOptions == null || judgeInfo.BuildOptions == null)
                     {
                         await ReportJudgeResultAsync(new JudgeReportInfo
                         {
@@ -58,29 +61,81 @@ namespace hjudge.JudgeHost
                         });
                         continue;
                     }
-
+                    var workingdir = JudgeMain.GetWorkingDir(Path.GetTempPath(), judgeInfo.JudgeOptions.GuidStr);
                     var varsTable = new Dictionary<string, string>
                     {
-                        ["\\${workingdir:(.*?)}"] = JudgeMain.GetWorkingDir(Path.GetTempPath(), judgeInfo.JudgeOptions.GuidStr)
+                        ["\\${workingdir:(.*?)}"] = workingdir
                     };
+                    if (judgeInfo.JudgeOptions != null)
+                    {
+                        for (var i = 0; i < judgeInfo.JudgeOptions.DataPoints.Count; i++)
+                        {
+                            judgeInfo.JudgeOptions.DataPoints[i].StdInFile = judgeInfo.JudgeOptions.DataPoints[i].StdInFile
+                                .Replace("${index0}", i.ToString())
+                                .Replace("${index}", (i + 1).ToString());
+                            judgeInfo.JudgeOptions.DataPoints[i].StdOutFile = judgeInfo.JudgeOptions.DataPoints[i].StdOutFile
+                                .Replace("${index0}", i.ToString())
+                                .Replace("${index}", (i + 1).ToString());
+                        }
+                        if (judgeInfo.JudgeOptions.AnswerPoint != null)
+                        {
+                            judgeInfo.JudgeOptions.AnswerPoint.AnswerFile = judgeInfo.JudgeOptions.AnswerPoint.AnswerFile
+                                .Replace("${index0}", "0")
+                                .Replace("${index}", "1");
+                        }
+                    }
                     var filesRequired = (await VarsProcessor.FillinVarsAndFetchFiles(judgeInfo, varsTable)).Distinct();
+
                     var fileService = new Files.FilesClient(Program.FileHostChannel);
+
                     var request = new DownloadRequest();
-                    request.Info.AddRange(filesRequired.Select(i => new DownloadInfo { FileName = i }));
+                    var now = DateTime.Now;
+
+                    var timeoutThreshold = TimeSpan.FromMinutes(10);
+                    foreach (var i in filesRequired)
+                    {
+                        var cache = fileCache.Where(j => j.Key == i);
+                        if (!cache.Any())
+                        {
+                            request.Info.Add(new DownloadInfo { FileName = i });
+                            fileCache[i] = now;
+                        }
+                        else if (now - cache.FirstOrDefault().Value > timeoutThreshold)
+                        {
+                            request.Info.Add(new DownloadInfo { FileName = i });
+                            fileCache[i] = now;
+                        }
+                    }
+
                     var filesResponse = fileService.DownloadFiles(request);
+
                     while (await filesResponse.ResponseStream.MoveNext())
                     {
                         foreach (var i in filesResponse.ResponseStream.Current.Result)
                         {
-                            //TODO: datadir
-                            i.Content.WriteTo(null);
+                            var fileName = Path.Combine(dataCacheDir, JudgeMain.EscapeFileName(i.FileName));
+                            FileMode mode;
+                            if (File.Exists(fileName)) mode = FileMode.Truncate;
+                            else mode = FileMode.CreateNew;
+                            try
+                            {
+                                using var fs = new FileStream(fileName, mode, FileAccess.ReadWrite, FileShare.None);
+                                i.Content.WriteTo(fs);
+                                await fs.FlushAsync();
+                                fs.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                            }
                         }
                     }
 
                     var result = new JudgeResult { JudgePoints = null };
                     try
                     {
-                        result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions, Path.GetTempPath());
+                        //TODO: remove !
+                        result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions!, Path.GetTempPath(), dataCacheDir);
                     }
                     catch
                     {
