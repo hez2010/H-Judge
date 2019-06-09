@@ -214,7 +214,7 @@ namespace hjudgeWeb.Controllers
             {
                 var contest = await db.Contest.FindAsync(cid);
                 var list = new List<ProblemListItemModel>();
-                if (contest == null || (contest.Hidden && !HasAdminPrivilege(privilege)))
+                if (start < 0 || contest == null || (contest.Hidden && !HasAdminPrivilege(privilege)))
                 {
                     return list;
                 }
@@ -224,7 +224,7 @@ namespace hjudgeWeb.Controllers
                     return list;
                 }
 
-                foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == cid).Select(i => new { i.ProblemId, i.AcceptCount, i.SubmissionCount }))
+                foreach (var i in db.ContestProblemConfig.Where(i => i.ContestId == cid).Skip(start).Take(count).Select(i => new { i.ProblemId, i.AcceptCount, i.SubmissionCount }))
                 {
                     var problem = await db.Problem.Include(j => j.UserInfo).FirstOrDefaultAsync(j => j.Id == i.ProblemId);
                     if (problem == null)
