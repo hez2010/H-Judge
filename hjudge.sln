@@ -25,8 +25,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.WebHost.Test", "hjud
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "smartbox.SeaweedFs.Client", "smartbox.SeaweedFs.Client\smartbox.SeaweedFs.Client.csproj", "{E7EAFF9E-7DA1-4ED9-A446-230E519F2116}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpanJson", "SpanJson\SpanJson.csproj", "{97B781A3-F909-4546-808B-3467830681EB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.WebFrontEnd", "hjudge.WebFrontEnd\hjudge.WebFrontEnd.csproj", "{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.JudgeHost.Test", "hjudge.JudgeHost\test\hjudge.JudgeHost.Test.csproj", "{49FA00D8-14A0-4FCB-B250-773B71F06F93}"
@@ -171,18 +169,6 @@ Global
 		{E7EAFF9E-7DA1-4ED9-A446-230E519F2116}.Release|x64.Build.0 = Release|Any CPU
 		{E7EAFF9E-7DA1-4ED9-A446-230E519F2116}.Release|x86.ActiveCfg = Release|Any CPU
 		{E7EAFF9E-7DA1-4ED9-A446-230E519F2116}.Release|x86.Build.0 = Release|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Debug|x64.Build.0 = Debug|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Debug|x86.Build.0 = Debug|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Release|x64.ActiveCfg = Release|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Release|x64.Build.0 = Release|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Release|x86.ActiveCfg = Release|Any CPU
-		{97B781A3-F909-4546-808B-3467830681EB}.Release|x86.Build.0 = Release|Any CPU
 		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D1F59E0-FA17-434B-8162-0CAC00E3DADF}.Debug|x64.ActiveCfg = Debug|Any CPU

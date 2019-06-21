@@ -87,11 +87,7 @@ namespace hjudgeFileHost.Services
             var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().MarkAsNoTracking().FirstOrDefaultAsync();
             if (fileRecord == null) return null;
             var response = await template.GetFileStream(fileRecord.FileId);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return response.OutputStream;
-            }
-            return null;
+            return response.StatusCode == System.Net.HttpStatusCode.OK ? response.OutputStream : null;
         }
 
         public void Dispose()

@@ -138,11 +138,9 @@ namespace hjudge.WebHost.Controllers
             {
                 return NotFound();
             }
-            if (user.Avatar.Length == 0)
-            {
-                return File(ImageScaler.ScaleImage(Properties.Resource.DefaultAvatar, 128, 128), "image/png");
-            }
-            return File(ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
+            return user.Avatar.Length == 0
+                ? File(ImageScaler.ScaleImage(Properties.Resource.DefaultAvatar, 128, 128), "image/png")
+                : File(ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
         }
 
         [HttpPost]

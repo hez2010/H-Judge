@@ -24,7 +24,7 @@ namespace EFSecondLevelCache.Core
         /// <summary>
         /// Gets the current element in the iteration.
         /// </summary>
-        public T Current => !_moved ? default(T) : _task.Result;
+        public T Current => !_moved ? default : _task.Result;
 
         /// <summary>
         ///

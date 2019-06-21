@@ -7,7 +7,6 @@ using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SpanJson.AspNetCore.Formatter;
 using System;
 
 namespace hjudge.WebHost.Test
@@ -58,7 +57,7 @@ namespace hjudge.WebHost.Test
             .AddEntityFrameworkStores<WebHostDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
-            services.AddMvc().AddSpanJson();
+            services.AddMvc();
 
             return services.BuildServiceProvider();
         }

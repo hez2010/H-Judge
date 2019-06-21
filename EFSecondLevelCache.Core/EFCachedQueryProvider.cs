@@ -163,8 +163,9 @@ namespace EFSecondLevelCache.Core
             }
         }
 
-        TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression)
+        TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             return Execute<TResult>(expression);
         }
     }

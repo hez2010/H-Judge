@@ -20,12 +20,9 @@ namespace EFSecondLevelCache.Core
         /// </summary>
         public static IEnumerable<Type> GetBaseTypes(this Type type)
         {
-            if (type.GetTypeInfo().BaseType == null)
-            {
-                return type.GetInterfaces();
-            }
-
-            return Enumerable.Repeat(type.GetTypeInfo().BaseType, 1)
+            return type.GetTypeInfo().BaseType == null
+                ? type.GetInterfaces()
+                : Enumerable.Repeat(type.GetTypeInfo().BaseType, 1)
                              .Concat(type.GetInterfaces())
                              .Concat(type.GetInterfaces().SelectMany(GetBaseTypes))
                              .Concat(type.GetTypeInfo().BaseType.GetBaseTypes());
@@ -76,12 +73,10 @@ namespace EFSecondLevelCache.Core
         /// </summary>
         public static IQueryable<TType> MarkAsNoTracking<TType>(this IQueryable<TType> query)
         {
-            if (typeof(TType).GetTypeInfo().IsClass)
-            {
-                return query.Provider.CreateQuery<TType>(
-                    Expression.Call(null, _asNoTrackingMethodInfo.MakeGenericMethod(typeof(TType)), query.Expression));
-            }
-            return query;
+            return typeof(TType).GetTypeInfo().IsClass
+                ? query.Provider.CreateQuery<TType>(
+                    Expression.Call(null, _asNoTrackingMethodInfo.MakeGenericMethod(typeof(TType)), query.Expression))
+                : query;
         }
     }
 }

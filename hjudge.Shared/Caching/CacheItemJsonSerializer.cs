@@ -1,7 +1,6 @@
 ﻿using CacheManager.Core;
 using CacheManager.Core.Internal;
 using hjudge.Shared.Utils;
-using SpanJson;
 using System;
 
 namespace hjudge.Shared.Caching
@@ -9,7 +8,6 @@ namespace hjudge.Shared.Caching
 #nullable disable
     class JsonCacheItem<T> : SerializerCacheItem<T>
     {
-        [JsonConstructor]
         public JsonCacheItem() { }
 
         public JsonCacheItem(ICacheItemProperties properties, object value) : base(properties, value) { }

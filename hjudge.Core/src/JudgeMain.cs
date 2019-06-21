@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -12,8 +13,13 @@ namespace hjudge.Core
 {
     public class JudgeMain
     {
-        private string _workingdir = string.Empty;
-        private string _dataCacheDir = string.Empty;
+        private string workingdir = string.Empty;
+        private string dataCacheDir = string.Empty;
+        private static readonly JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            AllowTrailingCommas = true,
+            PropertyNameCaseInsensitive = false
+        };
 
         [DllImport("./hjudge.Exec.Windows.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "execute", CharSet = CharSet.Ansi)]
         static extern bool ExecuteWindows(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
@@ -32,7 +38,7 @@ namespace hjudge.Core
             try
             {
                 var retStr = retBuffer.ToString().Trim();
-                ret = SpanJson.JsonSerializer.Generic.Utf8.Deserialize<JudgePoint>(Encoding.UTF8.GetBytes(retStr));
+                ret = JsonSerializer.Parse<JudgePoint>(retStr, options);
             }
             catch { /* ignored */ }
 
@@ -66,14 +72,14 @@ namespace hjudge.Core
                 ?.Replace(">", "_6_")
                 ?.Replace("|", "_7_") ?? string.Empty;
 
-        private string GetTargetFilePath(string? originalFilePath) => Path.Combine(_dataCacheDir, EscapeFileName(originalFilePath));
+        private string GetTargetFilePath(string? originalFilePath) => Path.Combine(dataCacheDir, EscapeFileName(originalFilePath));
 
         public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingBaseDir, string dataCacheDir)
         {
-            _workingdir = GetWorkingDir(workingBaseDir, judgeOptions.GuidStr);
-            _dataCacheDir = dataCacheDir;
+            workingdir = GetWorkingDir(workingBaseDir, judgeOptions.GuidStr);
+            this.dataCacheDir = dataCacheDir;
 
-            Directory.CreateDirectory(_workingdir);
+            Directory.CreateDirectory(workingdir);
             var result = new JudgeResult
             {
                 JudgePoints = new List<JudgePoint>()
@@ -86,7 +92,7 @@ namespace hjudge.Core
                     return await AnswerJudgeAsync(buildOptions, judgeOptions);
                 }
 
-                var fileName = Path.Combine(_workingdir, $"{buildOptions.SubmitFileName}{buildOptions.ExtensionName}");
+                var fileName = Path.Combine(workingdir, $"{buildOptions.SubmitFileName}{buildOptions.ExtensionName}");
                 File.WriteAllText(fileName, buildOptions.Source, Encoding.UTF8);
 
                 if (buildOptions.StaticCheckOption != null)
@@ -125,20 +131,20 @@ namespace hjudge.Core
                     {
                         try
                         {
-                            File.Copy(GetTargetFilePath(judgeOptions.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString())), Path.Combine(_workingdir, judgeOptions.InputFileName), true);
+                            File.Copy(GetTargetFilePath(judgeOptions.DataPoints[i].StdInFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString())), Path.Combine(workingdir, judgeOptions.InputFileName), true);
                         }
                         catch
                         {
                             throw new InvalidOperationException("Unable to find standard input file.");
                         }
-                        var strErrFile = Path.Combine(_workingdir, $"stderr_{judgeOptions.GuidStr}.dat");
-                        var inputFile = Path.Combine(_workingdir, judgeOptions.InputFileName);
-                        var outputFile = Path.Combine(_workingdir, judgeOptions.OutputFileName);
+                        var strErrFile = Path.Combine(workingdir, $"stderr_{judgeOptions.GuidStr}.dat");
+                        var inputFile = Path.Combine(workingdir, judgeOptions.InputFileName);
+                        var outputFile = Path.Combine(workingdir, judgeOptions.OutputFileName);
                         var param = new ExecOptions
                         {
                             Exec = judgeOptions.RunOptions.Exec,
                             Args = judgeOptions.RunOptions.Args,
-                            WorkingDir = _workingdir,
+                            WorkingDir = workingdir,
                             StdErrRedirectFile = strErrFile,
                             InputFile = inputFile,
                             OutputFile = outputFile,
@@ -147,7 +153,7 @@ namespace hjudge.Core
                             IsStdIO = judgeOptions.UseStdIO,
                             ActiveProcessLimit = judgeOptions.ActiveProcessLimit
                         };
-                        var (succeeded, ret) = Execute(Encoding.UTF8.GetString(SpanJson.JsonSerializer.Generic.Utf8.Serialize(param)));
+                        var (succeeded, ret) = Execute(JsonSerializer.ToString(param, options));
                         if (succeeded && ret != null)
                         {
                             point = ret;
@@ -158,7 +164,7 @@ namespace hjudge.Core
                         }
                         try
                         {
-                            File.Copy(GetTargetFilePath(judgeOptions.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString())), Path.Combine(_workingdir, $"answer_{judgeOptions.GuidStr}.dat"), true);
+                            File.Copy(GetTargetFilePath(judgeOptions.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString())), Path.Combine(workingdir, $"answer_{judgeOptions.GuidStr}.dat"), true);
                         }
                         catch
                         {
@@ -189,8 +195,8 @@ namespace hjudge.Core
                                 try
                                 {
                                     var stderr = File.ReadAllText(strErrFile).Trim()
-                                                     .Replace(_workingdir, "...")
-                                                     .Replace(_workingdir.Replace("/", "\\"), "...");
+                                                     .Replace(workingdir, "...")
+                                                     .Replace(workingdir.Replace("/", "\\"), "...");
 
                                     if (!string.IsNullOrWhiteSpace(stderr.Replace("\n", string.Empty).Replace("\r", string.Empty).Replace("\t", string.Empty).Trim()))
                                     {
@@ -217,7 +223,7 @@ namespace hjudge.Core
                             if (point.ResultType == ResultCode.Accepted)
                             {
                                 var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
-                                   await CompareAsync(fileName, inputFile, Path.Combine(_workingdir, $"answer_{judgeOptions.GuidStr}.dat"), outputFile, judgeOptions)
+                                   await CompareAsync(fileName, inputFile, Path.Combine(workingdir, $"answer_{judgeOptions.GuidStr}.dat"), outputFile, judgeOptions)
                                     : (point.ResultType, 0, point.ExtraInfo);
                                 point.ExtraInfo = extraInfo;
                                 point.ResultType = resultType;
@@ -245,7 +251,7 @@ namespace hjudge.Core
             {
                 try
                 {
-                    Directory.Delete(_workingdir, true);
+                    Directory.Delete(workingdir, true);
                 }
                 catch { /* ignored */ }
             }
@@ -269,10 +275,10 @@ namespace hjudge.Core
 
             try
             {
-                File.Copy(GetTargetFilePath(judgeOption.AnswerPoint?.AnswerFile), Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
-                var fileName = Path.Combine(_workingdir, buildOption.SubmitFileName);
+                File.Copy(GetTargetFilePath(judgeOption.AnswerPoint?.AnswerFile), Path.Combine(workingdir, $"answer_{judgeOption.GuidStr}.txt"), true);
+                var fileName = Path.Combine(workingdir, buildOption.SubmitFileName);
                 File.WriteAllText(fileName, buildOption.Source, Encoding.UTF8);
-                var (resultType, percentage, extraInfo) = await CompareAsync(fileName, string.Empty, Path.Combine(_workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(_workingdir, buildOption.SubmitFileName), judgeOption, true);
+                var (resultType, percentage, extraInfo) = await CompareAsync(fileName, string.Empty, Path.Combine(workingdir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(workingdir, buildOption.SubmitFileName), judgeOption, true);
                 result.JudgePoints[0].ResultType = resultType;
                 result.JudgePoints[0].Score = percentage * (judgeOption.AnswerPoint?.Score ?? 0);
                 result.JudgePoints[0].ExtraInfo = extraInfo;
@@ -313,7 +319,7 @@ namespace hjudge.Core
                     argsBuilder.Append($" \"{stdOutputFile}\"");
                 }
 
-                using (var judge = new Process
+                using var judge = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -325,50 +331,48 @@ namespace hjudge.Core
                         UseShellExecute = false,
                         StandardOutputEncoding = Encoding.UTF8
                     }
-                })
+                };
+                await Task.Delay(100);
+                try
                 {
-                    await Task.Delay(100);
+                    judge.Start();
+                }
+                catch (Exception ex)
+                {
+                    return (ResultCode.Special_Judge_Error, 0, ex.Message);
+                }
+
+                if (judge.WaitForExit(60 * 1000))
+                {
                     try
                     {
-                        judge.Start();
-                    }
-                    catch (Exception ex)
-                    {
-                        return (ResultCode.Special_Judge_Error, 0, ex.Message);
-                    }
-
-                    if (judge.WaitForExit(60 * 1000))
-                    {
-                        try
-                        {
-                            judge.Kill();
-                        }
-                        catch
-                        {
-                            /* ignored */
-                        }
-                    }
-
-                    var (error, output) = (await judge.StandardError.ReadToEndAsync(), await judge.StandardOutput.ReadToEndAsync());
-
-                    if (judge.ExitCode != 0)
-                    {
-                        return (ResultCode.Special_Judge_Error, 0, string.Empty);
-                    }
-
-                    try
-                    {
-                        var percentage = Convert.ToSingle(output.Trim());
-                        return (
-                            Math.Abs(percentage - 1f) < 0.001 ?
-                                ResultCode.Accepted : ResultCode.Wrong_Answer,
-                            percentage,
-                            error);
+                        judge.Kill();
                     }
                     catch
                     {
-                        return (ResultCode.Special_Judge_Error, 0, string.Empty);
+                        /* ignored */
                     }
+                }
+
+                var (error, output) = (await judge.StandardError.ReadToEndAsync(), await judge.StandardOutput.ReadToEndAsync());
+
+                if (judge.ExitCode != 0)
+                {
+                    return (ResultCode.Special_Judge_Error, 0, string.Empty);
+                }
+
+                try
+                {
+                    var percentage = Convert.ToSingle(output.Trim());
+                    return (
+                        Math.Abs(percentage - 1f) < 0.001 ?
+                            ResultCode.Accepted : ResultCode.Wrong_Answer,
+                        percentage,
+                        error);
+                }
+                catch
+                {
+                    return (ResultCode.Special_Judge_Error, 0, string.Empty);
                 }
             }
 
@@ -488,7 +492,7 @@ namespace hjudge.Core
 
         private async Task<string> StaticCheck(StaticCheckOptions checker)
         {
-            using (var sta = new Process
+            using var sta = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -498,50 +502,17 @@ namespace hjudge.Core
                     RedirectStandardError = checker.ReadStdError,
                     RedirectStandardOutput = checker.ReadStdOutput,
                     UseShellExecute = false,
-                    WorkingDirectory = _workingdir
+                    WorkingDirectory = workingdir
                 }
-            })
+            };
+            try
             {
-                try
+                sta.Start();
+
+                StringBuilder output = new StringBuilder();
+
+                if (!sta.WaitForExit(30 * 1000))
                 {
-                    sta.Start();
-
-                    StringBuilder output = new StringBuilder();
-
-                    if (!sta.WaitForExit(30 * 1000))
-                    {
-                        try
-                        {
-                            sta.Kill();
-                        }
-                        catch
-                        {
-                            /* ignored */
-                        }
-                    }
-
-                    if (checker.ReadStdOutput)
-                    {
-                        var temp = (await sta.StandardOutput.ReadToEndAsync()).Trim();
-                        if (!string.IsNullOrWhiteSpace(temp))
-                        {
-                            output.AppendLine(temp);
-                        }
-                    }
-
-                    if (checker.ReadStdError)
-                    {
-                        var temp = (await sta.StandardError.ReadToEndAsync()).Trim();
-                        if (!string.IsNullOrWhiteSpace(temp))
-                        {
-                            output.AppendLine(temp);
-                        }
-                    }
-
-                    var log = MatchProblem(output.ToString(), checker.ProblemMatcher)
-                        .Replace(_workingdir, "...")
-                        .Replace(_workingdir.Replace("/", "\\"), "...");
-
                     try
                     {
                         sta.Kill();
@@ -550,13 +521,44 @@ namespace hjudge.Core
                     {
                         /* ignored */
                     }
+                }
 
-                    return sta.ExitCode == 0 ? log : string.Empty;
-                }
-                catch (Exception ex)
+                if (checker.ReadStdOutput)
                 {
-                    return ex.Message;
+                    var temp = (await sta.StandardOutput.ReadToEndAsync()).Trim();
+                    if (!string.IsNullOrWhiteSpace(temp))
+                    {
+                        output.AppendLine(temp);
+                    }
                 }
+
+                if (checker.ReadStdError)
+                {
+                    var temp = (await sta.StandardError.ReadToEndAsync()).Trim();
+                    if (!string.IsNullOrWhiteSpace(temp))
+                    {
+                        output.AppendLine(temp);
+                    }
+                }
+
+                var log = MatchProblem(output.ToString(), checker.ProblemMatcher)
+                    .Replace(workingdir, "...")
+                    .Replace(workingdir.Replace("/", "\\"), "...");
+
+                try
+                {
+                    sta.Kill();
+                }
+                catch
+                {
+                    /* ignored */
+                }
+
+                return sta.ExitCode == 0 ? log : string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
             }
         }
 
@@ -564,14 +566,14 @@ namespace hjudge.Core
         {
             try
             {
-                extra.ForEach(i => File.Copy(GetTargetFilePath(i), Path.Combine(_workingdir, Path.GetFileName(i)), true));
+                extra.ForEach(i => File.Copy(GetTargetFilePath(i), Path.Combine(workingdir, Path.GetFileName(i)), true));
             }
             catch
             {
                 return (false, "Cannot copy one of extra files");
             }
 
-            using (var comp = new Process
+            using var comp = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -581,48 +583,16 @@ namespace hjudge.Core
                     RedirectStandardError = compiler.ReadStdError,
                     RedirectStandardOutput = compiler.ReadStdOutput,
                     UseShellExecute = false,
-                    WorkingDirectory = _workingdir
+                    WorkingDirectory = workingdir
                 }
-            })
+            };
+            try
             {
-                try
+                comp.Start();
+
+                StringBuilder output = new StringBuilder();
+                if (!comp.WaitForExit(30 * 1000))
                 {
-                    comp.Start();
-
-                    StringBuilder output = new StringBuilder();
-                    if (!comp.WaitForExit(30 * 1000))
-                    {
-                        try
-                        {
-                            comp.Kill();
-                        }
-                        catch
-                        {
-                            /* ignored */
-                        }
-                    }
-
-                    if (compiler.ReadStdOutput)
-                    {
-                        var temp = (await comp.StandardOutput.ReadToEndAsync()).Trim();
-                        if (!string.IsNullOrWhiteSpace(temp))
-                        {
-                            output.AppendLine(temp);
-                        }
-                    }
-
-                    if (compiler.ReadStdError)
-                    {
-                        var temp = (await comp.StandardError.ReadToEndAsync()).Trim();
-                        if (!string.IsNullOrWhiteSpace(temp))
-                        {
-                            output.AppendLine(temp);
-                        }
-                    }
-
-                    var log = MatchProblem(output.ToString(), compiler.ProblemMatcher)
-                        .Replace(_workingdir, "...")
-                        .Replace(_workingdir.Replace("/", "\\"), "...");
                     try
                     {
                         comp.Kill();
@@ -631,18 +601,43 @@ namespace hjudge.Core
                     {
                         /* ignored */
                     }
-
-                    if (comp.ExitCode != 0 || !File.Exists(compiler.OutputFile))
-                    {
-                        return (false, log);
-                    }
-
-                    return (true, log);
                 }
-                catch (Exception ex)
+
+                if (compiler.ReadStdOutput)
                 {
-                    return (false, ex.Message);
+                    var temp = (await comp.StandardOutput.ReadToEndAsync()).Trim();
+                    if (!string.IsNullOrWhiteSpace(temp))
+                    {
+                        output.AppendLine(temp);
+                    }
                 }
+
+                if (compiler.ReadStdError)
+                {
+                    var temp = (await comp.StandardError.ReadToEndAsync()).Trim();
+                    if (!string.IsNullOrWhiteSpace(temp))
+                    {
+                        output.AppendLine(temp);
+                    }
+                }
+
+                var log = MatchProblem(output.ToString(), compiler.ProblemMatcher)
+                    .Replace(workingdir, "...")
+                    .Replace(workingdir.Replace("/", "\\"), "...");
+                try
+                {
+                    comp.Kill();
+                }
+                catch
+                {
+                    /* ignored */
+                }
+
+                return comp.ExitCode != 0 || !File.Exists(compiler.OutputFile) ? (false, log) : (true, log);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
             }
         }
 

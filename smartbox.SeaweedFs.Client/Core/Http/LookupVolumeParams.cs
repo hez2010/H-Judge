@@ -54,9 +54,7 @@ namespace smartbox.SeaweedFs.Client.Core.Http
         private long ConvertVolumeId(string value)
         {
             var index = value.IndexOf(',');
-            if (index < 1)
-                return long.Parse(value);
-            return long.Parse(value.Substring(0, index));
+            return index < 1 ? long.Parse(value) : long.Parse(value.Substring(0, index));
         }
 
         public string ToUrlParams()

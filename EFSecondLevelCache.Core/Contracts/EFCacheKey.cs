@@ -38,11 +38,7 @@ namespace EFSecondLevelCache.Core.Contracts
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            var efCacheKey = obj as EFCacheKey;
-            if (efCacheKey == null)
-                return false;
-
-            return this.KeyHash == efCacheKey.KeyHash;
+            return !(obj is EFCacheKey efCacheKey) ? false : this.KeyHash == efCacheKey.KeyHash;
         }
 
         /// <summary>

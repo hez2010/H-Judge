@@ -15,14 +15,14 @@
 
   <ItemGroup>
     <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview5-19227-01" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0-preview5-19227-01" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview5.19227.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0-preview5.19227.1">
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview6.19304.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0-preview6.19304.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview5.19227.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview6.19304.10" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
   </ItemGroup>
@@ -38,7 +38,6 @@
     <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
     <ProjectReference Include="..\..\hjudge.Core\src\hjudge.Core.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
-    <ProjectReference Include="..\..\SpanJson\SpanJson.csproj" />
   </ItemGroup>
 
   <ItemGroup>

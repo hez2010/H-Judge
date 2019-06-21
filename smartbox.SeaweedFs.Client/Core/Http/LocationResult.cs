@@ -54,11 +54,9 @@ namespace smartbox.SeaweedFs.Client.Core.Http
         {
             if (this == obj) return true;
 
-            var that = obj as LocationResult;
-            if (that == null) return false;
+            if (!(obj is LocationResult that)) return false;
 
-            if (!Url.Equals(that.Url)) return false;
-            return PublicUrl.Equals(that.PublicUrl);
+            return !Url.Equals(that.Url) ? false : PublicUrl.Equals(that.PublicUrl);
         }
 
         public override int GetHashCode()

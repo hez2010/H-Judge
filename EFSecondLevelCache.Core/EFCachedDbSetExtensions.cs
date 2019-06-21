@@ -23,7 +23,7 @@ namespace EFSecondLevelCache.Core
             this EFCachedDbSet<TEntity> cachedQueryable, params object[] keyValues)
             where TEntity : class
         {
-            var query = buildFindQueryable(cachedQueryable, keyValues);
+            var query = BuildFindQueryable(cachedQueryable, keyValues);
             return new EFCachedQueryable<TEntity>(
                 query, cachedQueryable.CachePolicy, cachedQueryable.DebugInfo,
                 cachedQueryable.CacheKeyProvider, cachedQueryable.CacheServiceProvider).FirstOrDefault();
@@ -37,7 +37,7 @@ namespace EFSecondLevelCache.Core
             object[] keyValues,
             CancellationToken cancellationToken) where TEntity : class
         {
-            var query = buildFindQueryable(cachedQueryable, keyValues);
+            var query = BuildFindQueryable(cachedQueryable, keyValues);
             return new EFCachedQueryable<TEntity>(
                 query, cachedQueryable.CachePolicy, cachedQueryable.DebugInfo,
                 cachedQueryable.CacheKeyProvider, cachedQueryable.CacheServiceProvider).FirstOrDefaultAsync(cancellationToken);
@@ -50,10 +50,10 @@ namespace EFSecondLevelCache.Core
             this EFCachedDbSet<TEntity> cachedQueryable,
             params object[] keyValues) where TEntity : class
         {
-            return cachedQueryable.FindAsync(keyValues, default(CancellationToken));
+            return cachedQueryable.FindAsync(keyValues, default);
         }
 
-        private static IQueryable<TEntity> buildFindQueryable<TEntity>(
+        private static IQueryable<TEntity> BuildFindQueryable<TEntity>(
             EFCachedDbSet<TEntity> cachedQueryable, object[] keyValues)
             where TEntity : class
         {

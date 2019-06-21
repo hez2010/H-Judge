@@ -1,72 +1,61 @@
-﻿using SpanJson;
-using SpanJson.Resolvers;
-using System;
+﻿using System;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace hjudge.Shared.Utils
 {
     public static class JsonHelper
     {
-        public class AspNetCoreDefaultResolver<TSymbol> : ResolverBase<TSymbol, AspNetCoreDefaultResolver<TSymbol>> where TSymbol : struct
+        private static readonly JsonSerializerOptions camelOptions = new JsonSerializerOptions
         {
-            public AspNetCoreDefaultResolver() : base(new SpanJsonOptions
-            {
-                NullOption = NullOptions.IncludeNulls,
-                NamingConvention = NamingConventions.CamelCase,
-                EnumOption = EnumOptions.Integer
-            })
-            {
-            }
-        }
-        public class ConfigDefaultResolver<TSymbol> : ResolverBase<TSymbol, ConfigDefaultResolver<TSymbol>> where TSymbol : struct
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            AllowTrailingCommas = true
+        };
+
+        private static readonly JsonSerializerOptions pascalOptions = new JsonSerializerOptions
         {
-            public ConfigDefaultResolver() : base(new SpanJsonOptions
-            {
-                NullOption = NullOptions.IncludeNulls,
-                NamingConvention = NamingConventions.OriginalCase,
-                EnumOption = EnumOptions.Integer
-            })
-            {
-            }
-        }
+            PropertyNameCaseInsensitive = false,
+            AllowTrailingCommas = true
+        };
+
         public static byte[] SerializeJson<T>(this T obj, bool camel = true)
         {
-            return camel switch
+            return Encoding.UTF8.GetBytes(camel switch
             {
-                true => JsonSerializer.Generic.Utf8.Serialize<T, AspNetCoreDefaultResolver<byte>>(obj),
-                false => JsonSerializer.Generic.Utf8.Serialize<T, ConfigDefaultResolver<byte>>(obj)
-            };
+                true => JsonSerializer.ToString<T>(obj, camelOptions),
+                false => JsonSerializer.ToString<T>(obj, pascalOptions)
+            });
         }
         public static string SerializeJsonAsString<T>(this T obj, bool camel = true)
         {
-            return Encoding.UTF8.GetString(camel switch
+            return camel switch
             {
-                true => JsonSerializer.Generic.Utf8.Serialize<T, AspNetCoreDefaultResolver<byte>>(obj),
-                false => JsonSerializer.Generic.Utf8.Serialize<T, ConfigDefaultResolver<byte>>(obj)
-            });
+                true => JsonSerializer.ToString<T>(obj, camelOptions),
+                false => JsonSerializer.ToString<T>(obj, pascalOptions)
+            };
         }
         public static T DeserializeJson<T>(this ReadOnlySpan<byte> data, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Generic.Utf8.Deserialize<T, AspNetCoreDefaultResolver<byte>>(data),
-                false => JsonSerializer.Generic.Utf8.Deserialize<T, ConfigDefaultResolver<byte>>(data)
+                true => JsonSerializer.Parse<T>(data, camelOptions),
+                false => JsonSerializer.Parse<T>(data, pascalOptions)
             };
         }
         public static T DeserializeJson<T>(this byte[] data, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Generic.Utf8.Deserialize<T, AspNetCoreDefaultResolver<byte>>(data),
-                false => JsonSerializer.Generic.Utf8.Deserialize<T, ConfigDefaultResolver<byte>>(data)
+                true => JsonSerializer.Parse<T>(data, camelOptions),
+                false => JsonSerializer.Parse<T>(data, pascalOptions)
             };
         }
         public static T DeserializeJson<T>(this string str, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Generic.Utf8.Deserialize<T, AspNetCoreDefaultResolver<byte>>(Encoding.UTF8.GetBytes(str)),
-                false => JsonSerializer.Generic.Utf8.Deserialize<T, ConfigDefaultResolver<byte>>(Encoding.UTF8.GetBytes(str))
+                true => JsonSerializer.Parse<T>(str, camelOptions),
+                false => JsonSerializer.Parse<T>(str, pascalOptions)
             };
         }
 
@@ -74,24 +63,24 @@ namespace hjudge.Shared.Utils
         {
             return camel switch
             {
-                true => JsonSerializer.NonGeneric.Utf8.Deserialize<AspNetCoreDefaultResolver<byte>>(data, type),
-                false => JsonSerializer.NonGeneric.Utf8.Deserialize<ConfigDefaultResolver<byte>>(data, type)
+                true => JsonSerializer.Parse(data, type, camelOptions),
+                false => JsonSerializer.Parse(data, type, pascalOptions)
             };
         }
         public static object DeserializeJson(this byte[] data, Type type, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.NonGeneric.Utf8.Deserialize<AspNetCoreDefaultResolver<byte>>(data, type),
-                false => JsonSerializer.NonGeneric.Utf8.Deserialize<ConfigDefaultResolver<byte>>(data, type)
+                true => JsonSerializer.Parse(data, type, camelOptions),
+                false => JsonSerializer.Parse(data, type, pascalOptions)
             };
         }
         public static object DeserializeJson(this string str, Type type, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.NonGeneric.Utf8.Deserialize<AspNetCoreDefaultResolver<byte>>(Encoding.UTF8.GetBytes(str), type),
-                false => JsonSerializer.NonGeneric.Utf8.Deserialize<ConfigDefaultResolver<byte>>(Encoding.UTF8.GetBytes(str), type)
+                true => JsonSerializer.Parse(str, type, camelOptions),
+                false => JsonSerializer.Parse(str, type, pascalOptions)
             };
         }
     }

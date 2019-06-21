@@ -15,11 +15,7 @@ namespace hjudge.WebHost.Extensions
                 return val.ToString();
             }
             var attributes = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-            if (attributes == null)
-            {
-                return val.ToString();
-            }
-            return (attributes.Single() as DescriptionAttribute)?.Description ?? val.ToString();
+            return attributes == null ? val.ToString() : (attributes.Single() as DescriptionAttribute)?.Description ?? val.ToString();
         }
 
     }

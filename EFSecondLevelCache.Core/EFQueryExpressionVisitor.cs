@@ -904,11 +904,7 @@ namespace EFSecondLevelCache.Core
             {
                 return "F";
             }
-            if (type == typeof(decimal))
-            {
-                return "M";
-            }
-            return null;
+            return type == typeof(decimal) ? "M" : null;
         }
 
         private static string getDisplayName(string name)
@@ -1067,12 +1063,7 @@ namespace EFSecondLevelCache.Core
 
         private static bool isSimpleExpression(Expression node)
         {
-            if (node is BinaryExpression binary)
-            {
-                return !(binary.Left is BinaryExpression || binary.Right is BinaryExpression);
-            }
-
-            return false;
+            return node is BinaryExpression binary ? !(binary.Left is BinaryExpression || binary.Right is BinaryExpression) : false;
         }
 
 
@@ -1220,11 +1211,7 @@ namespace EFSecondLevelCache.Core
 
         private string getLambdaName(LambdaExpression lambda)
         {
-            if (string.IsNullOrEmpty(lambda.Name))
-            {
-                return $"#Lambda{getLambdaId(lambda)}";
-            }
-            return getDisplayName(lambda.Name);
+            return string.IsNullOrEmpty(lambda.Name) ? $"#Lambda{getLambdaId(lambda)}" : getDisplayName(lambda.Name);
         }
 
         private int getParamId(ParameterExpression p)
