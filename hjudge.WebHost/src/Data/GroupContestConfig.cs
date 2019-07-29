@@ -7,8 +7,8 @@
         public int ContestId { get; set; }
 
 #nullable disable
-        public Contest Contest { get; set; }
-        public Group Group { get; set; }
+        public virtual Contest Contest { get; set; }
+        public virtual Group Group { get; set; }
 #nullable enable
     }
 }

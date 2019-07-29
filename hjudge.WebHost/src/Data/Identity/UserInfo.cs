@@ -74,16 +74,16 @@ namespace hjudge.WebHost.Data.Identity
         public int MessageReplyCount { get; set; }
 
 
-        public ICollection<Judge> Judge { get; set; }
-        public ICollection<Problem> Problem { get; set; }
-        public ICollection<Contest> Contest { get; set; }
-        public ICollection<Group> Group { get; set; }
-        public ICollection<ContestRegister> ContestRegister { get; set; }
-        public ICollection<GroupJoin> GroupJoin { get; set; }
-        public ICollection<Message> Message { get; set; }
-        public ICollection<MessageContent> MessageStatus { get; set; }
-        public ICollection<VotesRecord> VotesRecord { get; set; }
-        public ICollection<Discussion> Discussion { get; set; }
-        public ICollection<Announcement> Announcement { get; set; }
+        public virtual ICollection<Judge> Judge { get; set; }
+        public virtual ICollection<Problem> Problem { get; set; }
+        public virtual ICollection<Contest> Contest { get; set; }
+        public virtual ICollection<Group> Group { get; set; }
+        public virtual ICollection<ContestRegister> ContestRegister { get; set; }
+        public virtual ICollection<GroupJoin> GroupJoin { get; set; }
+        public virtual ICollection<Message> Message { get; set; }
+        public virtual ICollection<MessageContent> MessageStatus { get; set; }
+        public virtual ICollection<VotesRecord> VotesRecord { get; set; }
+        public virtual ICollection<Discussion> Discussion { get; set; }
+        public virtual ICollection<Announcement> Announcement { get; set; }
     }
 }

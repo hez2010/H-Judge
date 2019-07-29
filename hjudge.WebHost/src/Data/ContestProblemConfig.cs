@@ -11,8 +11,8 @@ namespace hjudge.WebHost.Data
         public int SubmissionCount { get; set; }
 
 #nullable disable
-        public Contest Contest { get; set; }
-        public Problem Problem { get; set; }
+        public virtual Contest Contest { get; set; }
+        public virtual Problem Problem { get; set; }
 #nullable enable
     }
 }

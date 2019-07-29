@@ -28,9 +28,9 @@ namespace hjudge.WebHost.Data
         public int ReplyId { get; set; }
 
 #nullable disable
-        public UserInfo UserInfo { get; set; }
-        public MessageContent MessageContent { get; set; }
+        public virtual UserInfo UserInfo { get; set; }
+        public virtual MessageContent MessageContent { get; set; }
 #nullable enable
-        public ICollection<MessageContent> MessageContents { get; set; }
+        public virtual ICollection<MessageContent> MessageContents { get; set; }
     }
 }

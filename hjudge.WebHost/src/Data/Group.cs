@@ -23,12 +23,15 @@ namespace hjudge.WebHost.Data
         public DateTime CreationTime { get; set; }
         public bool IsPrivate { get; set; }
         public string AdditionalInfo { get; set; } = string.Empty;
-        public UserInfo UserInfo { get; set; }
 
-        public ICollection<GroupContestConfig> GroupContestConfig { get; set; }
-        public ICollection<GroupJoin> GroupJoin { get; set; }
-        public ICollection<Judge> Judge { get; set; }
-        public ICollection<Discussion> Discussion { get; set; }
-        public ICollection<Announcement> Announcement { get; set; }
+#nullable disable
+        public virtual UserInfo UserInfo { get; set; }
+#nullable enable
+
+        public virtual ICollection<GroupContestConfig> GroupContestConfig { get; set; }
+        public virtual ICollection<GroupJoin> GroupJoin { get; set; }
+        public virtual ICollection<Judge> Judge { get; set; }
+        public virtual ICollection<Discussion> Discussion { get; set; }
+        public virtual ICollection<Announcement> Announcement { get; set; }
     }
 }

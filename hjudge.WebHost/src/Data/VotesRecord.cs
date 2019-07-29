@@ -18,9 +18,9 @@ namespace hjudge.WebHost.Data
         public string Content { get; set; } = string.Empty;
 
 #nullable disable
-        public UserInfo UserInfo { get; set; }
-        public Problem Problem { get; set; }
-        public Contest Contest { get; set; }
+        public virtual UserInfo UserInfo { get; set; }
+        public virtual Problem Problem { get; set; }
+        public virtual Contest Contest { get; set; }
 #nullable enable
     }
 }

@@ -30,14 +30,14 @@ namespace hjudge.WebHost.Data
         public int Upvote { get; set; }
         public int Downvote { get; set; }
 #nullable disable
-        public UserInfo UserInfo { get; set; }
+        public virtual UserInfo UserInfo { get; set; }
 #nullable enable
 
-        public ICollection<ContestProblemConfig> ContestProblemConfig { get; set; }
-        public ICollection<ContestRegister> ContestRegister { get; set; }
-        public ICollection<GroupContestConfig> GroupContestConfig { get; set; }
-        public ICollection<Judge> Judge { get; set; }
-        public ICollection<VotesRecord> VotesRecord { get; set; }
-        public ICollection<Discussion> Discussion { get; set; }
+        public virtual ICollection<ContestProblemConfig> ContestProblemConfig { get; set; }
+        public virtual ICollection<ContestRegister> ContestRegister { get; set; }
+        public virtual ICollection<GroupContestConfig> GroupContestConfig { get; set; }
+        public virtual ICollection<Judge> Judge { get; set; }
+        public virtual ICollection<VotesRecord> VotesRecord { get; set; }
+        public virtual ICollection<Discussion> Discussion { get; set; }
     }
 }

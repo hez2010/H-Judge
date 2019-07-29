@@ -16,10 +16,10 @@ namespace hjudge.WebHost.Data
         public int ReplyId { get; set; }
 
 #nullable disable
-        public UserInfo UserInfo { get; set; }
-        public Contest Contest { get; set; }
-        public Group Group { get; set; }
-        public Problem Problem { get; set; }
+        public virtual UserInfo UserInfo { get; set; }
+        public virtual Contest Contest { get; set; }
+        public virtual Group Group { get; set; }
+        public virtual Problem Problem { get; set; }
 #nullable enable
     }
 }

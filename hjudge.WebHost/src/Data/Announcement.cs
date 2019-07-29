@@ -14,8 +14,8 @@ namespace hjudge.WebHost.Data
         public int? GroupId { get; set; }
 
 #nullable disable
-        public UserInfo UserInfo { get; set; }
-        public Group Group { get; set; }
+        public virtual UserInfo UserInfo { get; set; }
+        public virtual Group Group { get; set; }
 #nullable enable
     }
 }

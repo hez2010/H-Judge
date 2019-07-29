@@ -9,8 +9,8 @@ namespace hjudge.WebHost.Data
         public string UserId { get; set; } = string.Empty;
         
 #nullable disable
-        public UserInfo UserInfo { get; set; }
-        public Contest Contest { get; set; }
+        public virtual UserInfo UserInfo { get; set; }
+        public virtual Contest Contest { get; set; }
 #nullable enable
     }
 }
