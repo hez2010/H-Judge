@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 
 namespace hjudge.WebHost.Data.Identity
 {
@@ -20,7 +20,7 @@ namespace hjudge.WebHost.Data.Identity
 
         public static List<OtherUserInfoModel> GetOtherUserInfo(string rawInfo)
         {
-            var otherInfo = JsonConvert.DeserializeObject<OtherUserInfo>(rawInfo ?? "{}");
+            var otherInfo = JsonSerializer.Deserialize<OtherUserInfo>(rawInfo ?? "{}");
             if (otherInfo == null) otherInfo = new OtherUserInfo();
             var otherInfoList = new List<OtherUserInfoModel>();
             
@@ -34,7 +34,7 @@ namespace hjudge.WebHost.Data.Identity
                         otherInfoList.Add(new OtherUserInfoModel
                         {
                             Key = property.Name,
-                            Name = attribute.GetType().GetProperty("ItemName").GetValue(attribute)?.ToString() ?? string.Empty,
+                            Name = attribute.GetType().GetProperty("ItemName")?.GetValue(attribute)?.ToString() ?? string.Empty,
                             Value = property.GetValue(otherInfo)?.ToString() ?? string.Empty
                         });
                         break;

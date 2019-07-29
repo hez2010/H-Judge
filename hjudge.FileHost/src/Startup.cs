@@ -30,7 +30,7 @@ namespace hjudgeFileHost
 
             services.AddDbContext<FileHostDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 #if DEBUG
                 options.EnableDetailedErrors(true);
                 options.EnableSensitiveDataLogging(true);
@@ -39,7 +39,7 @@ namespace hjudgeFileHost
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
-            services.AddEntityFrameworkSqlServer();
+            services.AddEntityFrameworkNpgsql();
 
             services.AddScoped<SeaweedFsService>()
                 .Configure<SeaweedFsOptions>(options =>
@@ -48,7 +48,7 @@ namespace hjudgeFileHost
                     options.Port = int.Parse(Configuration["SeaweedFs:Port"]);
                 });
 
-            services.AddEFSecondLevelCache();
+            //services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
                     .WithSerializer(typeof(CacheItemJsonSerializer))

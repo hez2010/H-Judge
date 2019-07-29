@@ -84,7 +84,7 @@ namespace hjudgeFileHost.Services
         {
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().MarkAsNoTracking().FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
             if (fileRecord == null) return null;
             var response = await template.GetFileStream(fileRecord.FileId);
             return response.StatusCode == System.Net.HttpStatusCode.OK ? response.OutputStream : null;
@@ -100,7 +100,7 @@ namespace hjudgeFileHost.Services
             string ext;
             try
             {
-                ext = Path.GetExtension(str);
+                ext = Path.GetExtension(str) ?? string.Empty;
             }
             catch
             {

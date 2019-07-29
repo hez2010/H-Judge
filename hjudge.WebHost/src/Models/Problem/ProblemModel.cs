@@ -1,5 +1,6 @@
 using hjudge.WebHost.Models.Language;
 using System;
+using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Problem
 {
@@ -15,7 +16,7 @@ namespace hjudge.WebHost.Models.Problem
         public int Type { get; set; }
         public int AcceptCount { get; set; }
         public int SubmissionCount { get; set; }
-        public LanguageModel[] Languages { get; set; } = new LanguageModel[0];
+        public List<LanguageModel> Languages { get; set; } = new List<LanguageModel>();
         public int Status { get; set; }
         public bool Hidden { get; set; }
         public int Upvote { get; set; }

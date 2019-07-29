@@ -18,8 +18,9 @@ namespace hjudge.JudgeHost
             return str;
         }
 
-        public static async Task<IEnumerable<string>> FillinVarsAndFetchFiles(object target, IDictionary<string, string> varsTable)
+        public static async Task<IEnumerable<string>> FillinVarsAndFetchFiles(object? target, IDictionary<string, string> varsTable)
         {
+            if (target == null) return new string[0];
             var type = target.GetType();
             var properties = type.GetProperties();
             var fileList = new List<string>();

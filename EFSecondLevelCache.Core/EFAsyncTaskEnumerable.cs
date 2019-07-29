@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EFSecondLevelCache.Core
@@ -21,6 +22,11 @@ namespace EFSecondLevelCache.Core
         /// <summary>
         /// Gets an asynchronous enumerator over the sequence.
         /// </summary>
-        public IAsyncEnumerator<T> GetEnumerator() => new EFAsyncTaskEnumerator<T>(_task);
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return new EFAsyncTaskEnumerator<T>(_task);
+        }
+
     }
 }

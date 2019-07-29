@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace hjudge.Shared.Utils
 {
@@ -22,40 +22,40 @@ namespace hjudge.Shared.Utils
         {
             return Encoding.UTF8.GetBytes(camel switch
             {
-                true => JsonSerializer.ToString<T>(obj, camelOptions),
-                false => JsonSerializer.ToString<T>(obj, pascalOptions)
+                true => JsonSerializer.Serialize<T>(obj, camelOptions),
+                false => JsonSerializer.Serialize<T>(obj, pascalOptions)
             });
         }
         public static string SerializeJsonAsString<T>(this T obj, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.ToString<T>(obj, camelOptions),
-                false => JsonSerializer.ToString<T>(obj, pascalOptions)
+                true => JsonSerializer.Serialize<T>(obj, camelOptions),
+                false => JsonSerializer.Serialize<T>(obj, pascalOptions)
             };
         }
         public static T DeserializeJson<T>(this ReadOnlySpan<byte> data, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Parse<T>(data, camelOptions),
-                false => JsonSerializer.Parse<T>(data, pascalOptions)
+                true => JsonSerializer.Deserialize<T>(data, camelOptions),
+                false => JsonSerializer.Deserialize<T>(data, pascalOptions)
             };
         }
         public static T DeserializeJson<T>(this byte[] data, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Parse<T>(data, camelOptions),
-                false => JsonSerializer.Parse<T>(data, pascalOptions)
+                true => JsonSerializer.Deserialize<T>(data, camelOptions),
+                false => JsonSerializer.Deserialize<T>(data, pascalOptions)
             };
         }
         public static T DeserializeJson<T>(this string str, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Parse<T>(str, camelOptions),
-                false => JsonSerializer.Parse<T>(str, pascalOptions)
+                true => JsonSerializer.Deserialize<T>(str, camelOptions),
+                false => JsonSerializer.Deserialize<T>(str, pascalOptions)
             };
         }
 
@@ -63,24 +63,24 @@ namespace hjudge.Shared.Utils
         {
             return camel switch
             {
-                true => JsonSerializer.Parse(data, type, camelOptions),
-                false => JsonSerializer.Parse(data, type, pascalOptions)
+                true => JsonSerializer.Deserialize(data, type, camelOptions),
+                false => JsonSerializer.Deserialize(data, type, pascalOptions)
             };
         }
         public static object DeserializeJson(this byte[] data, Type type, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Parse(data, type, camelOptions),
-                false => JsonSerializer.Parse(data, type, pascalOptions)
+                true => JsonSerializer.Deserialize(data, type, camelOptions),
+                false => JsonSerializer.Deserialize(data, type, pascalOptions)
             };
         }
         public static object DeserializeJson(this string str, Type type, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Parse(str, type, camelOptions),
-                false => JsonSerializer.Parse(str, type, pascalOptions)
+                true => JsonSerializer.Deserialize(str, type, camelOptions),
+                false => JsonSerializer.Deserialize(str, type, pascalOptions)
             };
         }
     }

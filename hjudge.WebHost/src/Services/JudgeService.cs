@@ -104,7 +104,7 @@ namespace hjudge.WebHost.Services
                 judge.Result = result?.SerializeJsonAsString(false) ?? "{}";
                 judge.ResultType = (int)new Func<ResultCode>(() =>
                 {
-                    if (result.JudgePoints == null)
+                    if (result?.JudgePoints == null)
                     {
                         return ResultCode.Unknown_Error;
                     }

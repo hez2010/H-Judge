@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,9 +37,11 @@ namespace hjudge.WebHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCaching();
             services.AddResponseCompression(options =>
             {
                 options.Providers.Add<BrotliCompressionProvider>();
+                options.Providers.Add<GzipCompressionProvider>();
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] {
                     "image/svg+xml",
                     "image/png",
@@ -67,7 +68,7 @@ namespace hjudge.WebHost
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
                 .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
-            services.AddEFSecondLevelCache();
+            //services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
                     .WithSerializer(typeof(CacheItemJsonSerializer))
@@ -87,7 +88,7 @@ namespace hjudge.WebHost
 
             services.AddDbContext<WebHostDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 #if DEBUG
                 options.EnableDetailedErrors(true);
                 options.EnableSensitiveDataLogging(true);
@@ -95,7 +96,7 @@ namespace hjudge.WebHost
                 options.EnableServiceProviderCaching(true);
             });
 
-            services.AddEntityFrameworkSqlServer();
+            services.AddEntityFrameworkNpgsql();
 
             services.AddAuthentication(o =>
             {
@@ -120,10 +121,9 @@ namespace hjudge.WebHost
                 options.Filters.AddService<AntiForgeryFilter>();
             });
 
-            // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
+            services.AddSpaStaticFiles(options =>
             {
-                configuration.RootPath = "wwwroot/dist";
+                options.RootPath = "wwwroot/dist";
             });
         }
 
@@ -154,6 +154,7 @@ namespace hjudge.WebHost
                     Encoding.UTF8.GetBytes($"{{succeeded: false, errorCode: {context.HttpContext.Response.StatusCode}, errorMessage: '请求失败'}}"));
             }));
 
+            app.UseResponseCaching();
             app.UseResponseCompression();
 
             app.UseStaticFiles();
@@ -171,14 +172,9 @@ namespace hjudge.WebHost
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            app.UseSpa(spa =>
+            app.UseSpa(options =>
             {
-                spa.Options.SourcePath = "../../hjudge.WebFrontEnd/src";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
+                options.UseProxyToSpaDevelopmentServer("http://localhost:3000");
             });
         }
 
@@ -194,8 +190,8 @@ namespace hjudge.WebHost
                     Password = Configuration["MessageQueue:Password"]
                 });
 
-            var cnt = 0;
-            while (Configuration.GetSection($"MessageQueue:Producers:{cnt}").Exists())
+            var cnt = -1;
+            while (Configuration.GetSection($"MessageQueue:Producers:{++cnt}").Exists())
             {
                 factory.CreateProducer(new MessageQueueFactory.ProducerOptions
                 {
@@ -206,11 +202,10 @@ namespace hjudge.WebHost
                     Exchange = Configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
                     RoutingKey = Configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"]
                 });
-                ++cnt;
             }
 
-            cnt = 0;
-            while (Configuration.GetSection($"MessageQueue:Consumers:{cnt}").Exists())
+            cnt = -1;
+            while (Configuration.GetSection($"MessageQueue:Consumers:{++cnt}").Exists())
             {
                 factory.CreateConsumer(new MessageQueueFactory.ConsumerOptions
                 {
@@ -226,7 +221,6 @@ namespace hjudge.WebHost
                         _ => null
                     }
                 });
-                ++cnt;
             }
 
             return factory;

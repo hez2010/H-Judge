@@ -26,10 +26,8 @@ namespace EFSecondLevelCache.Core
         /// </summary>
         public T Current => _inner.Current;
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
+
+        public async ValueTask DisposeAsync()
         {
             _inner.Dispose();
         }
@@ -42,6 +40,11 @@ namespace EFSecondLevelCache.Core
         public Task<bool> MoveNext(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            return Task.FromResult(_inner.MoveNext());
+        }
+
+        public ValueTask<bool> MoveNextAsync()
+        {
             return Task.FromResult(_inner.MoveNext());
         }
     }

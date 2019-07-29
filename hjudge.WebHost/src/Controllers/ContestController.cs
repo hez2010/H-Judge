@@ -64,7 +64,7 @@ namespace hjudge.WebHost.Controllers
             }
             var now = DateTime.Now;
 
-            if (model.Filter.Status.Length < 3)
+            if (model.Filter.Status.Count < 3)
             {
                 foreach (var status in new[] { 0, 1, 2 })
                 {

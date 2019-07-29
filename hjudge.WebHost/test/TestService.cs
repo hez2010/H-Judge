@@ -18,7 +18,7 @@ namespace hjudge.WebHost.Test
         {
             var services = new ServiceCollection();
 
-            services.AddEFSecondLevelCache();
+            //services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                new ConfigurationBuilder()

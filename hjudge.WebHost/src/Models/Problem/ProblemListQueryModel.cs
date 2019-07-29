@@ -1,4 +1,6 @@
-﻿namespace hjudge.WebHost.Models.Problem
+﻿using System.Collections.Generic;
+
+namespace hjudge.WebHost.Models.Problem
 {
     public class ProblemListQueryModel
     {
@@ -6,7 +8,7 @@
         {
             public int Id { get; set; } = 0;
             public string Name { get; set; } = string.Empty;
-            public int[] Status { get; set; } = new[] { 0, 1, 2 };
+            public List<int> Status { get; set; } = new List<int> { 0, 1, 2 };
         }
         public int Start { get; set; }
         public int StartId { get; set; }

@@ -2,29 +2,28 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using hjudge.WebHost.Data;
 
 namespace hjudge.WebHost.Data.Migrations
 {
     [DbContext(typeof(WebHostDbContext))]
-    [Migration("20190305030308_RemoveGroupIdField")]
-    partial class RemoveGroupIdField
+    [Migration("20190729133419_CreateSchema")]
+    partial class CreateSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0-preview3.19128.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                .HasAnnotation("ProductVersion", "3.0.0-preview7.19362.6")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("Id");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
@@ -39,8 +38,7 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
                 });
@@ -49,7 +47,7 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("ClaimType");
 
@@ -69,7 +67,7 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("ClaimType");
 
@@ -135,23 +133,27 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Announcement", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Announcement", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<string>("Content");
+                    b.Property<string>("Content")
+                        .IsRequired();
 
-                    b.Property<int?>("GroupId");
+                    b.Property<int?>("GroupId")
+                        .IsRequired();
 
                     b.Property<bool>("Hidden");
 
                     b.Property<DateTime>("PublishTime");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .IsRequired();
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -162,17 +164,20 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("Announcement");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Contest", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Contest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<string>("AdditionalInfo");
+                    b.Property<string>("AdditionalInfo")
+                        .IsRequired();
 
-                    b.Property<string>("Config");
+                    b.Property<string>("Config")
+                        .IsRequired();
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .IsRequired();
 
                     b.Property<int>("Downvote")
                         .ValueGeneratedOnAdd()
@@ -182,9 +187,11 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.Property<bool>("Hidden");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
-                    b.Property<string>("Password");
+                    b.Property<string>("Password")
+                        .IsRequired();
 
                     b.Property<bool>("SpecifyCompetitors");
 
@@ -194,7 +201,8 @@ namespace hjudge.WebHost.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("0");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -203,11 +211,11 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("Contest");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.ContestProblemConfig", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.ContestProblemConfig", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<int>("AcceptCount")
                         .ValueGeneratedOnAdd()
@@ -230,15 +238,16 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("ContestProblemConfig");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.ContestRegister", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.ContestRegister", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<int>("ContestId");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -249,13 +258,14 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("ContestRegister");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Discussion", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Discussion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<string>("Content");
+                    b.Property<string>("Content")
+                        .IsRequired();
 
                     b.Property<int?>("ContestId");
 
@@ -269,9 +279,11 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.Property<DateTime>("SubmitTime");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .IsRequired();
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -286,11 +298,11 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("Discussion");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Group", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Group", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("AdditionalInfo");
 
@@ -311,11 +323,11 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("Group");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.GroupContestConfig", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.GroupContestConfig", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<int>("ContestId");
 
@@ -330,17 +342,18 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("GroupContestConfig");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.GroupJoin", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.GroupJoin", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<int>("GroupId");
 
                     b.Property<DateTime>("JoinTime");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -351,16 +364,16 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("GroupJoin");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Identity.UserInfo", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Identity.UserInfo", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("Id");
 
                     b.Property<int>("AcceptedCount");
 
                     b.Property<int>("AccessFailedCount");
 
-                    b.Property<byte[]>("Avatar");
+                    b.Property<byte[]>("Avatar")
+                        .IsRequired();
 
                     b.Property<long>("Coins");
 
@@ -384,7 +397,8 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.Property<int>("MessageReplyCount");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256);
@@ -392,7 +406,8 @@ namespace hjudge.WebHost.Data.Migrations
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256);
 
-                    b.Property<string>("OtherInfo");
+                    b.Property<string>("OtherInfo")
+                        .IsRequired();
 
                     b.Property<string>("PasswordHash");
 
@@ -418,29 +433,33 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Judge", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Judge", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<string>("AdditionalInfo");
+                    b.Property<string>("AdditionalInfo")
+                        .IsRequired();
 
-                    b.Property<string>("Content");
+                    b.Property<string>("Content")
+                        .IsRequired();
 
-                    b.Property<int?>("ContestId");
+                    b.Property<int?>("ContestId")
+                        .IsRequired();
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .IsRequired();
 
                     b.Property<float>("FullScore");
 
-                    b.Property<int?>("GroupId");
+                    b.Property<int?>("GroupId")
+                        .IsRequired();
 
                     b.Property<bool>("IsPublic");
 
@@ -450,19 +469,23 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.Property<DateTime>("JudgeTime");
 
-                    b.Property<string>("Language");
+                    b.Property<string>("Language")
+                        .IsRequired();
 
-                    b.Property<string>("Logs");
+                    b.Property<string>("Logs")
+                        .IsRequired();
 
                     b.Property<int>("ProblemId");
 
-                    b.Property<string>("Result");
+                    b.Property<string>("Result")
+                        .IsRequired();
 
                     b.Property<int>("ResultType");
 
                     b.Property<int>("Type");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -477,15 +500,17 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("Judge");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Message", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Message", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<int?>("ContentId");
+                    b.Property<int?>("ContentId")
+                        .IsRequired();
 
-                    b.Property<string>("FromUserId");
+                    b.Property<string>("FromUserId")
+                        .IsRequired();
 
                     b.Property<int>("ReplyId");
 
@@ -493,9 +518,11 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.Property<int>("Status");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .IsRequired();
 
-                    b.Property<string>("ToUserId");
+                    b.Property<string>("ToUserId")
+                        .IsRequired();
 
                     b.Property<int>("Type");
 
@@ -508,13 +535,14 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("Message");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.MessageContent", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.MessageContent", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<string>("Content");
+                    b.Property<string>("Content")
+                        .IsRequired();
 
                     b.Property<int?>("MessageId");
 
@@ -529,23 +557,26 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("MessageContent");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Problem", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Problem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<int>("AcceptCount")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("0");
 
-                    b.Property<string>("AdditionalInfo");
+                    b.Property<string>("AdditionalInfo")
+                        .IsRequired();
 
-                    b.Property<string>("Config");
+                    b.Property<string>("Config")
+                        .IsRequired();
 
                     b.Property<DateTime>("CreationTime");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .IsRequired();
 
                     b.Property<int>("Downvote")
                         .ValueGeneratedOnAdd()
@@ -555,7 +586,8 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.Property<int>("Level");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<int>("SubmissionCount")
                         .ValueGeneratedOnAdd()
@@ -567,7 +599,8 @@ namespace hjudge.WebHost.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("0");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -576,23 +609,24 @@ namespace hjudge.WebHost.Data.Migrations
                     b.ToTable("Problem");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.VotesRecord", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.VotesRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<string>("Content");
+                    b.Property<string>("Content")
+                        .IsRequired();
 
                     b.Property<int?>("ContestId");
 
-                    b.Property<int?>("GroupId");
-
                     b.Property<int?>("ProblemId");
 
-                    b.Property<string>("Title");
+                    b.Property<string>("Title")
+                        .IsRequired();
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.Property<DateTime>("VoteTime");
 
@@ -604,8 +638,6 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.HasIndex("ContestId");
 
-                    b.HasIndex("GroupId");
-
                     b.HasIndex("ProblemId");
 
                     b.HasIndex("UserId");
@@ -615,223 +647,249 @@ namespace hjudge.WebHost.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Announcement", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Announcement", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Group", "Group")
+                    b.HasOne("hjudge.WebHost.Data.Group", "Group")
                         .WithMany("Announcement")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Announcement")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Contest", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Contest", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Contest")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.ContestProblemConfig", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.ContestProblemConfig", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Contest", "Contest")
+                    b.HasOne("hjudge.WebHost.Data.Contest", "Contest")
                         .WithMany("ContestProblemConfig")
                         .HasForeignKey("ContestId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Problem", "Problem")
+                    b.HasOne("hjudge.WebHost.Data.Problem", "Problem")
                         .WithMany("ContestProblemConfig")
                         .HasForeignKey("ProblemId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.ContestRegister", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.ContestRegister", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Contest", "Contest")
+                    b.HasOne("hjudge.WebHost.Data.Contest", "Contest")
                         .WithMany("ContestRegister")
                         .HasForeignKey("ContestId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("ContestRegister")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Discussion", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Discussion", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Contest", "Contest")
+                    b.HasOne("hjudge.WebHost.Data.Contest", "Contest")
                         .WithMany("Discussion")
                         .HasForeignKey("ContestId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("hjudgeWebHost.Data.Group", "Group")
+                    b.HasOne("hjudge.WebHost.Data.Group", "Group")
                         .WithMany("Discussion")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("hjudgeWebHost.Data.Problem", "Problem")
+                    b.HasOne("hjudge.WebHost.Data.Problem", "Problem")
                         .WithMany("Discussion")
                         .HasForeignKey("ProblemId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Discussion")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Group", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Group", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Group")
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.GroupContestConfig", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.GroupContestConfig", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Contest", "Contest")
+                    b.HasOne("hjudge.WebHost.Data.Contest", "Contest")
                         .WithMany("GroupContestConfig")
                         .HasForeignKey("ContestId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Group", "Group")
+                    b.HasOne("hjudge.WebHost.Data.Group", "Group")
                         .WithMany("GroupContestConfig")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.GroupJoin", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.GroupJoin", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Group", "Group")
+                    b.HasOne("hjudge.WebHost.Data.Group", "Group")
                         .WithMany("GroupJoin")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("GroupJoin")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Judge", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Judge", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Contest", "Contest")
+                    b.HasOne("hjudge.WebHost.Data.Contest", "Contest")
                         .WithMany("Judge")
                         .HasForeignKey("ContestId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Group", "Group")
+                    b.HasOne("hjudge.WebHost.Data.Group", "Group")
                         .WithMany("Judge")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Problem", "Problem")
+                    b.HasOne("hjudge.WebHost.Data.Problem", "Problem")
                         .WithMany("Judge")
                         .HasForeignKey("ProblemId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Judge")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Message", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Message", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.MessageContent", "MessageContent")
+                    b.HasOne("hjudge.WebHost.Data.MessageContent", "MessageContent")
                         .WithMany("Messages")
-                        .HasForeignKey("ContentId");
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Message")
                         .HasForeignKey("ToUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.MessageContent", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.MessageContent", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Message")
+                    b.HasOne("hjudge.WebHost.Data.Message", null)
                         .WithMany("MessageContents")
                         .HasForeignKey("MessageId");
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", null)
                         .WithMany("MessageStatus")
                         .HasForeignKey("UserInfoId");
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.Problem", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.Problem", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Problem")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("hjudgeWebHost.Data.VotesRecord", b =>
+            modelBuilder.Entity("hjudge.WebHost.Data.VotesRecord", b =>
                 {
-                    b.HasOne("hjudgeWebHost.Data.Contest", "Contest")
+                    b.HasOne("hjudge.WebHost.Data.Contest", "Contest")
                         .WithMany("VotesRecord")
                         .HasForeignKey("ContestId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("hjudgeWebHost.Data.Group")
-                        .WithMany("VotesRecord")
-                        .HasForeignKey("GroupId");
-
-                    b.HasOne("hjudgeWebHost.Data.Problem", "Problem")
+                    b.HasOne("hjudge.WebHost.Data.Problem", "Problem")
                         .WithMany("VotesRecord")
                         .HasForeignKey("ProblemId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("hjudgeWebHost.Data.Identity.UserInfo", "UserInfo")
+                    b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("VotesRecord")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

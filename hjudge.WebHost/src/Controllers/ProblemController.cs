@@ -84,7 +84,7 @@ namespace hjudge.WebHost.Controllers
                 problems = problems.Where(i => i.Name.Contains(model.Filter.Name));
             }
 
-            if (model.Filter.Status.Length < 3)
+            if (model.Filter.Status.Count < 3)
             {
                 if (!string.IsNullOrEmpty(userId))
                 {
@@ -245,7 +245,7 @@ namespace hjudge.WebHost.Controllers
             var langConfig = await languageService.GetLanguageConfigAsync();
             var langs = config?.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-            ret.Languages = LanguageConfigHelper.GenerateLanguageConfig(langConfig, langs).ToArray();
+            ret.Languages = LanguageConfigHelper.GenerateLanguageConfig(langConfig, langs).ToList();
 
             return ret;
         }

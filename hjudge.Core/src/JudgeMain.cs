@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -38,7 +38,7 @@ namespace hjudge.Core
             try
             {
                 var retStr = retBuffer.ToString().Trim();
-                ret = JsonSerializer.Parse<JudgePoint>(retStr, options);
+                ret = JsonSerializer.Deserialize<JudgePoint>(retStr, options);
             }
             catch { /* ignored */ }
 
@@ -153,7 +153,7 @@ namespace hjudge.Core
                             IsStdIO = judgeOptions.UseStdIO,
                             ActiveProcessLimit = judgeOptions.ActiveProcessLimit
                         };
-                        var (succeeded, ret) = Execute(JsonSerializer.ToString(param, options));
+                        var (succeeded, ret) = Execute(JsonSerializer.Serialize(param, options));
                         if (succeeded && ret != null)
                         {
                             point = ret;
