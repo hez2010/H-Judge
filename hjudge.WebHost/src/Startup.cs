@@ -3,11 +3,13 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Extensions;
 using hjudge.WebHost.MessageHandlers;
-using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Services;
+using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client.Events;
+using React.AspNet;
 using System;
 using System.Linq;
 using System.Text;
@@ -115,12 +118,20 @@ namespace hjudge.WebHost
             .AddEntityFrameworkStores<WebHostDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddReact();
+
+            services.AddJsEngineSwitcher(options =>
+            {
+                options.DefaultEngineName = ChakraCoreJsEngine.EngineName;
+            }).AddChakraCore();
+
             services.AddMvc();
 
-            services.AddSpaStaticFiles(options =>
-            {
-                options.RootPath = "wwwroot/dist";
-            });
+            //services.AddSpaStaticFiles(options =>
+            //{
+            //    options.RootPath = "wwwroot/dist";
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -153,8 +164,17 @@ namespace hjudge.WebHost
             app.UseResponseCaching();
             app.UseResponseCompression();
 
+            app.UseReact(config =>
+            {
+                config.UseServerSideRendering = true;
+                config.SetReuseJavaScriptEngines(true);
+                config.SetUseDebugReact(env.IsDevelopment());
+                config.SetAllowJavaScriptPrecompilation(true);
+                config.AddScriptWithoutTransform("~/dist/js/main.e15a6089.chunk.js");
+            });
+
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+            //app.UseSpaStaticFiles();
 
             app.UseRouting();
 
