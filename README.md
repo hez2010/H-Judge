@@ -19,6 +19,9 @@ This is the official repository for [H::Judge](https://hjudge.com).
 - [Yarn](https://yarnpkg.com/)
 - [Nuget](https://www.nuget.org/)
 
+## Database
+- [PostgreSQL](https://www.postgresql.org/)
+
 ## Projects
 - hjudge.WebHost:
     > The web host for H::Judge using .NET Core. 
@@ -36,33 +39,44 @@ This is the official repository for [H::Judge](https://hjudge.com).
     > A module on Linux operating system used to run a program and measure time, memory consuming and execution status of the process being created. 
 
 ## Build
-1. Build hjudge.Exec.Windows
+1. Build hjudge.Exec.Windows/hjudge.Exec.Linux
 2. Build hjudge.WebHost (It will automatically build hjudge.Core because hjudge.Core is a dependecy of hjudge.WebHost): Using .NET Core SDK 3.0.100 or above
     ```
     An example:
     cd hjudge.WebHost/src
     dotnet publish -c Release
     ```
-3. Copy the output dll file generated in step 1 to the hjudge.WebHost build output folder, and rename the dll to 'hjudge.Exec.dll'.
+3. Copy the output dll file generated in step 1 to the hjudge.JudgeHost build output folder, and rename the dll to `hjudge.Exec.Windows.dll`/`hjudge.Exec.Linux.dll`.
+
+
+## Setup Development Environment
+1. Export an environment variable 'ASPNETCORE_ENVIRONMENT' with 'Development'
 
 ## Run
-1. Setting your connection string to a SQL Server Database in ./hjudge.WebHost/src/appsettings.json
+1. Setting your connection string to a PostgreSQL Database in ./hjudge.WebHost/src/appsettings.json (or appsettings.Development.json for development environment)
 2. Migrate and update database
     ```
     cd hjudge.WebHost/src
     dotnet ef database update
     ```
 3. Build
-4. Run hjudge.WebHost.dll
+4. Run hjudge.JudgeHost (can be skipped if you don't use solution submission in Web)
     ```
-    cd hjudge.WebHost/src/bin/netcoreapp3.0/Release/publish
-    dotnet ./hjudge.WebHost.dll
+    cd hjudge.JudgeHost/src
+    dotnet run -c [Debug/Release]
     ```
-
-## Debug
-1. Export an environment variable 'ASPNETCORE_ENVIRONMENT' with 'Development'
-2. Start debugging
+5. Run hjudge.FileHost (can be skipped if you don't use solution submission in Web)
+    ```
+    cd hjudge.FileHost/src
+    dotnet run -c [Debug/Release]
+    ```
+6. Run hjudge.WebHost
     ```
     cd hjudge.WebHost/src
-    dotnet run
+    dotnet run -c [Debug/Release]
+    ```
+7. Run hjudge.WebFrontEnd
+    ```
+    cd hjudge.WebFrontEnd/src
+    yarn start
     ```
