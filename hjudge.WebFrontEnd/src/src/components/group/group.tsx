@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Placeholder } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Label, Input, Placeholder, Select } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
@@ -26,7 +26,8 @@ interface GroupListModel extends ResultModel {
 }
 
 interface GroupState {
-  groupList: GroupListModel
+  groupList: GroupListModel,
+  statusFilter: number[]
 }
 
 export default class Group extends React.Component<GroupProps, GroupState> {
@@ -42,7 +43,8 @@ export default class Group extends React.Component<GroupProps, GroupState> {
       groupList: {
         groups: [],
         totalCount: 0
-      }
+      },
+      statusFilter: [0, 1]
     };
 
     this.idRecord = new Map<number, number>();
@@ -63,6 +65,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
     let req: any = {};
     req.filter = SerializeForm(form);
     if (!req.filter.id) req.filter.id = 0;
+    req.filter.status = this.state.statusFilter;
     req.start = (page - 1) * 10;
     req.count = 10;
     req.requireTotalCount = requireTotalCount;
@@ -153,13 +156,17 @@ export default class Group extends React.Component<GroupProps, GroupState> {
     return <>
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
-          <Form.Field width={6}>
+          <Form.Field width={4}>
             <Label>小组编号</Label>
             <Input fluid name='id' type='number' onChange={() => { this.idRecord.clear(); }}></Input>
           </Form.Field>
-          <Form.Field>
+          <Form.Field width={8}>
             <Label>小组名称</Label>
             <Input fluid name='name' onChange={() => { this.idRecord.clear(); }}></Input>
+          </Form.Field>
+          <Form.Field width={8}>
+            <Label>小组状态</Label>
+            <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as GroupState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1]} options={[{ text: '已加入', value: 0 }, { text: '未加入', value: 1 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
             <Label>小组操作</Label>

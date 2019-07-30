@@ -19,6 +19,7 @@ namespace hjudge.WebHost.Services
         Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests);
         Task<bool> OptInGroup(string userId, int groupId);
         Task<bool> OptOutGroup(string userId, int groupId);
+        Task<DbSet<GroupJoin>> QueryGroupJoinRecords();
     }
     public class GroupService : IGroupService
     {
@@ -96,6 +97,11 @@ namespace hjudge.WebHost.Services
             }
 
             return groups;
+        }
+
+        public Task<DbSet<GroupJoin>> QueryGroupJoinRecords()
+        {
+            return Task.FromResult(dbContext.GroupJoin);
         }
 
         public async Task RemoveGroupAsync(int groupId)

@@ -24,6 +24,8 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
+        private readonly static int[] allStatus = new[] { 0, 1 };
+
         public async Task<GroupListModel> GroupList([FromBody]GroupListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -40,6 +42,29 @@ namespace hjudge.WebHost.Controllers
             {
                 groups = groups.Where(i => i.Name.Contains(model.Filter.Name));
             }
+
+            var groupJoin = await groupService.QueryGroupJoinRecords();
+
+            if (model.Filter.Status.Count < 2)
+            {
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    foreach (var status in allStatus)
+                    {
+                        if (!model.Filter.Status.Contains(status))
+                        {
+                            groups = status switch
+                            {
+                                0 => groups.Where(i => !groupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)),
+                                1 => groups.Where(i => groupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)),
+                                _ => groups
+                            };
+                        }
+                    }
+                }
+            }
+
+            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).Cacheable().CountAsync();
 
             groups = groups.OrderByDescending(i => i.Id);
             if (model.StartId == 0) groups = groups.Skip(model.Start);

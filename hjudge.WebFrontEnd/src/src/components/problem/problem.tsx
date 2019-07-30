@@ -170,15 +170,15 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
     return <>
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
-          <Form.Field width={6}>
+          <Form.Field width={4}>
             <Label>题目编号</Label>
             <Input fluid name='id' type='number' onChange={() => { this.idRecord.clear(); }}></Input>
           </Form.Field>
-          <Form.Field>
+          <Form.Field width={8}>
             <Label>题目名称</Label>
             <Input fluid name='name' onChange={() => { this.idRecord.clear(); }}></Input>
           </Form.Field>
-          <Form.Field>
+          <Form.Field width={8}>
             <Label>题目状态</Label>
             <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ProblemState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未尝试', value: 0 }, { text: '已尝试', value: 1 }, { text: '已通过', value: 2 }]}></Select>
           </Form.Field>

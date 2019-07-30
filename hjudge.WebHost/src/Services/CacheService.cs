@@ -65,6 +65,8 @@ namespace hjudge.WebHost.Services
         {
             try
             {
+                //TODO: remove exception once bugs in System.Text.Json fixed
+                throw new NotImplementedException();
                 distributedCache.AddOrUpdate(key, obj.SerializeJsonAsString(false), _ => obj.SerializeJsonAsString(false));
             }
             catch { /* ignored */ }

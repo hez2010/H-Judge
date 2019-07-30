@@ -81,14 +81,14 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).Cacheable().CountAsync();
 
             contests = contests.OrderByDescending(i => i.Id);
 
             if (model.StartId == 0) contests = contests.Skip(model.Start);
             else contests = contests.Where(i => i.Id <= model.StartId);
 
-            ret.Contests = await contests.OrderByDescending(i => i.Id).Skip(model.Start).Take(model.Count).Select(i => new ContestListModel.ContestListItemModel
+            ret.Contests = await contests.Take(model.Count).Select(i => new ContestListModel.ContestListItemModel
             {
                 Id = i.Id,
                 Downvote = i.Downvote,

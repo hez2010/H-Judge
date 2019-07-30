@@ -9,7 +9,6 @@ using hjudge.Core;
 using hjudge.WebHost.Models.Problem;
 using hjudge.WebHost.Services;
 using hjudge.WebHost.Configurations;
-using System.Collections.Generic;
 using hjudge.Shared.Utils;
 using EFSecondLevelCache.Core;
 using hjudge.WebHost.Utils;
@@ -104,11 +103,12 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
+            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).Cacheable().CountAsync();
+
             problems = problems.OrderBy(i => i.Id);
+
             if (model.StartId == 0) problems = problems.Skip(model.Start);
             else problems = problems.Where(i => i.Id >= model.StartId);
-
-            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).Cacheable().CountAsync();
 
             if (model.ContestId != 0)
             {

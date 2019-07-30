@@ -192,6 +192,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
+        [AntiForgeryFilter]
         public async Task<UserInfoModel> UserInfo(string? userId)
         {
             var userInfoRet = new UserInfoModel
