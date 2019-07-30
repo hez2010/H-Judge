@@ -70,7 +70,7 @@ namespace hjudge.WebHost
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
                 .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
-            //services.AddEFSecondLevelCache();
+            services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
                     .WithSerializer(typeof(CacheItemJsonSerializer))
@@ -128,10 +128,12 @@ namespace hjudge.WebHost
 
             services.AddMvc();
 
-            //services.AddSpaStaticFiles(options =>
-            //{
-            //    options.RootPath = "wwwroot/dist";
-            //});
+            services.AddControllersWithViews();
+
+            services.AddSpaStaticFiles(options =>
+            {
+                options.RootPath = "wwwroot/dist";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -170,11 +172,11 @@ namespace hjudge.WebHost
                 config.SetReuseJavaScriptEngines(true);
                 config.SetUseDebugReact(env.IsDevelopment());
                 config.SetAllowJavaScriptPrecompilation(true);
-                config.AddScriptWithoutTransform("~/dist/js/main.e15a6089.chunk.js");
+                config.AddScriptWithoutTransform("~/dist/main.bundle.js");
             });
 
             app.UseStaticFiles();
-            //app.UseSpaStaticFiles();
+            app.UseSpaStaticFiles();
 
             app.UseRouting();
 
@@ -186,11 +188,13 @@ namespace hjudge.WebHost
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
 
-            app.UseSpa(options =>
-            {
-                options.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                endpoints.MapControllerRoute(
+                    name: "frontend",
+                    pattern: "{path?}/{id?}",
+                    defaults: new { Controller = "Home", Action = "Index" });
+
+                endpoints.MapRazorPages();
             });
         }
 

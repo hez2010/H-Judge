@@ -6,10 +6,13 @@
     <IsPackable>false</IsPackable>
     <LangVersion>8.0</LangVersion>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <SpaRoot>.\Frontend\</SpaRoot>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
     <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.5.0" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore" Version="3.1.3" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore.Native.linux-x64" Version="3.1.3" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore.Native.win-x64" Version="3.1.3" />
@@ -24,6 +27,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview7" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
     <PackageReference Include="React.AspNet" Version="5.0.0" />
+    <PackageReference Include="React.Router" Version="5.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
   </ItemGroup>
 
@@ -52,8 +56,49 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Migrations\" />
-    <Folder Include="Views\Shared\" />
+    <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Content Remove="$(SpaRoot)**" />
+    <None Remove="$(SpaRoot)**" />
+    <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
+
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+    <!-- Ensure Node.js is installed -->
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode1" />
+    </Exec>
+    <Error Condition="'$(ErrorCode1)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+    <Exec Command="yarn --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode2" />
+    </Exec>
+    <Error Condition="'$(ErrorCode2)' != '0'" Text="Yarn is required by this project. To continue, please install Yarn from https://yarnpkg.com, and then restart your command prompt or IDE." />
+    <Message Importance="high" Text="Restoring dependencies using 'yarn'. This may take several minutes..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install" />
+  </Target>
+
+  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn webpack --mode=production" />
+
+    <!-- Include the newly-built files in the publish output -->
+    <ItemGroup>
+      <DistFiles Include="$(SpaRoot)build\**" />
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>wwwroot\dist\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn webpack --mode=development" />
+    <RemoveDir Directories="wwwroot\dist\" />
+    <ItemGroup>
+      <DistFiles Include="$(SpaRoot)build\**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'wwwroot\dist\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
 
 </Project>

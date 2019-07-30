@@ -75,8 +75,3 @@ This is the official repository for [H::Judge](https://hjudge.com).
     cd hjudge.WebHost/src
     dotnet run -c [Debug/Release]
     ```
-7. Run hjudge.WebFrontEnd
-    ```
-    cd hjudge.WebFrontEnd/src
-    yarn start
-    ```

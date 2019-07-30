@@ -64,7 +64,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).Cacheable().CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).CountAsync();
 
             groups = groups.OrderByDescending(i => i.Id);
             if (model.StartId == 0) groups = groups.Skip(model.Start);
@@ -80,7 +80,6 @@ namespace hjudge.WebHost.Controllers
                 UserName = i.UserInfo.UserName
             }).Cacheable().ToListAsync();
 
-            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).Cacheable().CountAsync();
             return ret;
         }
     }
