@@ -1,0 +1,60 @@
+﻿syntax = "proto3";
+
+service Files {
+    rpc DownloadFiles (DownloadRequest) returns (stream DownloadResponse) {};
+    rpc UploadFiles (stream UploadRequest) returns (UploadResponse) {};
+    rpc DeleteFiles (DeleteRequest) returns (DeleteResponse) {};
+}
+
+message DownloadRequest {
+    repeated DownloadInfo info = 1;
+}
+
+message DownloadInfo {
+    string fileName = 1;
+}
+
+message DownloadResponse {
+    repeated DownloadResult result = 1;
+}
+
+message DownloadResult {
+    string fileName = 1;
+    bool succeeded = 2;
+    bytes content = 3;
+}
+
+message UploadRequest {
+    repeated UploadInfo info = 1;
+}
+
+message UploadInfo {
+    string fileName = 1;
+    bytes content = 2;
+}
+
+message UploadResponse {
+    repeated UploadResult result = 1;
+}
+
+message UploadResult {
+    string fileName = 1;
+    bool succeeded = 2;
+}
+
+message DeleteRequest {
+    repeated DeleteInfo info = 1;
+}
+
+message DeleteInfo {
+    string fileName = 1;
+}
+
+message DeleteResponse {
+    repeated DeleteResult result = 1;
+}
+
+message DeleteResult {
+    string fileName = 1;
+    bool succeeded = 2;
+}

@@ -1,6 +1,17 @@
 trigger:
 - master
 - develop
+
 steps:
 - script: |
-    build.bat
+    dotnet restore
+- task: VSBuild@1
+  inputs:
+    solution: '**\*.sln'
+    msbuildArgs: '/m'
+    platform: 'x64'
+    configuration: 'Release'
+    msbuildArchitecture: 'x64'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'

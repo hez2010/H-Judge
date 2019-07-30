@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "hjudgeWebHostTest": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:52162/"
+    }
+  }
+}
