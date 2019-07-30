@@ -3,11 +3,13 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Extensions;
 using hjudge.WebHost.MessageHandlers;
-using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Services;
+using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client.Events;
+using React.AspNet;
 using System;
 using System.Linq;
 using System.Text;
@@ -67,7 +70,7 @@ namespace hjudge.WebHost
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
                 .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
-            //services.AddEFSecondLevelCache();
+            services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
                     .WithSerializer(typeof(CacheItemJsonSerializer))
@@ -115,7 +118,17 @@ namespace hjudge.WebHost
             .AddEntityFrameworkStores<WebHostDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddReact();
+
+            services.AddJsEngineSwitcher(options =>
+            {
+                options.DefaultEngineName = ChakraCoreJsEngine.EngineName;
+            }).AddChakraCore();
+
             services.AddMvc();
+
+            services.AddControllersWithViews();
 
             services.AddSpaStaticFiles(options =>
             {
@@ -153,6 +166,15 @@ namespace hjudge.WebHost
             app.UseResponseCaching();
             app.UseResponseCompression();
 
+            app.UseReact(config =>
+            {
+                config.UseServerSideRendering = true;
+                config.SetReuseJavaScriptEngines(true);
+                config.SetUseDebugReact(env.IsDevelopment());
+                config.SetAllowJavaScriptPrecompilation(true);
+                config.AddScriptWithoutTransform("~/dist/main.bundle.js");
+            });
+
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
@@ -166,11 +188,13 @@ namespace hjudge.WebHost
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
 
-            app.UseSpa(options =>
-            {
-                options.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                endpoints.MapControllerRoute(
+                    name: "frontend",
+                    pattern: "{path?}/{id?}",
+                    defaults: new { Controller = "Home", Action = "Index" });
+
+                endpoints.MapRazorPages();
             });
         }
 

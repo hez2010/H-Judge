@@ -1,0 +1,15 @@
+﻿@using hjudge.WebHost.Models.Account
+@model UserInfoModel
+@{
+    ViewData["Title"] = "主页";
+}
+
+<div>
+    @Html.ReactRouter("AppComponent", new { UserInfo = Model });
+</div>
+
+@section Scripts {
+    <script src="~/dist/main.bundle.js"></script>
+
+    @Html.ReactInitJavaScript()
+}

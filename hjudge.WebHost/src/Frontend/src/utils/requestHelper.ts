@@ -1,4 +1,7 @@
-﻿export function ReadCookie(name: string) {
+﻿import fetchPonyfill from 'fetch-ponyfill';
+const { fetch, Request, Response, Headers } = fetchPonyfill();
+
+export function ReadCookie(name: string) {
   name += '=';
   for (let ca = document.cookie.split(/;\s*/), i = ca.length - 1; i >= 0; i--)
     if (!ca[i].indexOf(name))
