@@ -6,7 +6,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: 'SDK 3.0.100-preview7-012821'
+    version: '3.0.100-preview7-012821'
     includePreviewVersions: true
 - task: NuGetCommand@2
   inputs:
