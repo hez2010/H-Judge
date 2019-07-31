@@ -8,22 +8,12 @@ steps:
     packageType: 'sdk'
     version: '3.0.100-preview7-012821'
     includePreviewVersions: true
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    restoreSolution: '**/*.sln'
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
   inputs:
-    solution: '**/*.sln'
-    msbuildArgs: '/m'
-    platform: 'x64'
-    configuration: 'Release'
-    msbuildArchitecture: 'x64'
-- task: VisualStudioTestPlatformInstaller@1
+    command: 'build'
+- task: DotNetCoreCLI@2
   inputs:
-    packageFeedSelector: 'nugetOrg'
-    versionSelector: 'latestPreRelease'
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'test'
