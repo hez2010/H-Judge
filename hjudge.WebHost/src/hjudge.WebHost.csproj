@@ -29,6 +29,7 @@
     <PackageReference Include="React.AspNet" Version="5.0.0" />
     <PackageReference Include="React.Router" Version="5.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+    <PackageReference Include="System.Resources.Extensions" Version="4.6.0-preview7.19362.9" />
   </ItemGroup>
 
   <ItemGroup>

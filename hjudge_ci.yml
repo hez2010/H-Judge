@@ -3,15 +3,17 @@ trigger:
 - develop
 
 steps:
-- script: |
-    dotnet restore
-- task: VSBuild@1
+- task: UseDotNet@2
   inputs:
-    solution: '**\*.sln'
-    msbuildArgs: '/m'
-    platform: 'x64'
-    configuration: 'Release'
-    msbuildArchitecture: 'x64'
+    packageType: 'sdk'
+    version: '3.0.100-preview7-012821'
+    includePreviewVersions: true
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
