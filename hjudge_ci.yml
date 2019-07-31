@@ -3,15 +3,27 @@ trigger:
 - develop
 
 steps:
-- script: |
-    dotnet restore
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: 'SDK 3.0.100-preview7-012821'
+    includePreviewVersions: true
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
 - task: VSBuild@1
   inputs:
-    solution: '**\*.sln'
+    solution: '**/*.sln'
     msbuildArgs: '/m'
     platform: 'x64'
     configuration: 'Release'
     msbuildArchitecture: 'x64'
-- task: DotNetCoreCLI@2
+- task: VisualStudioTestPlatformInstaller@1
   inputs:
-    command: 'test'
+    packageFeedSelector: 'nugetOrg'
+    versionSelector: 'latestPreRelease'
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
