@@ -48,7 +48,7 @@ namespace hjudgeFileHost
                     options.Port = int.Parse(Configuration["SeaweedFs:Port"]);
                 });
 
-            //services.AddEFSecondLevelCache();
+            services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
                     .WithSerializer(typeof(CacheItemJsonSerializer))
