@@ -7,7 +7,11 @@ import { UserInfo } from './interfaces/userInfo';
 
 PromisePolyfill.polyfill();
 
-(global as any).AppComponent = (userInfo: UserInfo) => <App userInfo={userInfo} />;
-(global as any).React = React;
-(global as any).ReactDOM = ReactDOM;
-(global as any).ReactDOMServer = ReactDOMServer;
+let Global = global as any;
+
+Global.React = React;
+Global.ReactDOM = ReactDOM;
+Global.ReactDOMServer = ReactDOMServer;
+Global.AppComponent = (userInfo: UserInfo, location: string) => <App userInfo={userInfo} location={location} />;
+
+if (typeof window !== 'undefined') ReactDOM.render(<App />, document.querySelector('main'));

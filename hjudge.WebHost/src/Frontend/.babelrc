@@ -4,6 +4,16 @@
     "@babel/react",
     "@babel/preset-typescript"
   ],
+  "env": {
+    "production": {
+      "presets": [
+        [
+          "minify",
+          { "builtIns": false }
+        ]
+      ]
+    }
+  },
   "plugins": [
     "@babel/proposal-class-properties",
     "@babel/proposal-object-rest-spread"
