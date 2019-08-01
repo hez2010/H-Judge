@@ -14,6 +14,7 @@ import ProblemDetails from "./components/problem/details";
 import Group from "./components/group/group";
 import { CommonProps } from "./interfaces/commonProps";
 import ContestDetails from "./components/contest/details";
+import { StaticRouterContext } from "react-router";
 
 interface PortalState {
   open: boolean,
@@ -27,12 +28,7 @@ interface AppState {
   portal: PortalState
 }
 
-interface AppProps {
-  userInfo?: UserInfo,
-  location?: string
-}
-
-export default class App extends React.Component<AppProps, AppState> {
+export default class App extends React.Component<any, AppState> {
   constructor(props: any) {
     super(props);
 
@@ -196,7 +192,7 @@ export default class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
-    if (typeof window === 'undefined') return <StaticRouter location={this.props.location}>{this.renderContent()}</StaticRouter>;
+    if (typeof window === 'undefined') return <StaticRouter context={this.props.context} location={this.props.location}>{this.renderContent()}</StaticRouter>;
     return <BrowserRouter>{this.renderContent()}</BrowserRouter>;
   }
 }

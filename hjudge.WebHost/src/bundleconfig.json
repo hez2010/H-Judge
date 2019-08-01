@@ -4,5 +4,11 @@
     "inputFiles": [
       "wwwroot/css/index.css"
     ]
+  },
+  {
+    "outputFileName": "Frontend/public/css/index.min.css",
+    "inputFiles": [
+      "wwwroot/css/index.css"
+    ]
   }
 ]

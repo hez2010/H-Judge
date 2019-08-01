@@ -180,7 +180,7 @@ namespace hjudge.WebHost
                     config.SetReuseJavaScriptEngines(true);
                     config.SetUseDebugReact(environment.IsDevelopment());
                     config.SetAllowJavaScriptPrecompilation(true);
-                    config.AddScriptWithoutTransform("~/dist/*.bundle.js");
+                    config.AddScriptWithoutTransform("~/dist/*.js");
                 });
             }
 
@@ -205,7 +205,11 @@ namespace hjudge.WebHost
                 {
                     endpoints.MapControllerRoute(
                         name: "frontend",
-                        pattern: "{path?}/{id?}",
+                        pattern: "{path?}",
+                        defaults: new { Controller = "Home", Action = "Index" });
+                    endpoints.MapControllerRoute(
+                        name: "frontend-params",
+                        pattern: "{path?}/{**params}",
                         defaults: new { Controller = "Home", Action = "Index" });
 
                     endpoints.MapRazorPages();

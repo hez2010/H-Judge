@@ -5,7 +5,7 @@
 }
 
 <environment exclude="Development">
-    @Html.ReactRouter("AppComponent", new { UserInfo = Model, Location = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}" });
+    @Html.ReactRouter("AppComponent", new { UserInfo = Model });
 
     @section Scripts {
         @Html.ReactInitJavaScript()
