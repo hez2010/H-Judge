@@ -4,12 +4,10 @@
     ViewData["Title"] = "主页";
 }
 
-<div>
+<environment exclude="Development">
     @Html.ReactRouter("AppComponent", new { UserInfo = Model });
-</div>
 
-@section Scripts {
-    <script src="~/dist/main.bundle.js"></script>
-
-    @Html.ReactInitJavaScript()
-}
+    @section Scripts {
+        @Html.ReactInitJavaScript()
+    }
+</environment>

@@ -1,7 +1,6 @@
 ﻿import * as React from "react";
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
-import 'semantic-ui-css/semantic.min.css';
 import NotFound from './components/notfound/notfound';
 import About from './components/about/about';
 import Home from './components/home/home';
@@ -15,6 +14,7 @@ import ProblemDetails from "./components/problem/details";
 import Group from "./components/group/group";
 import { CommonProps } from "./interfaces/commonProps";
 import ContestDetails from "./components/contest/details";
+import { StaticRouterContext } from "react-router";
 
 interface PortalState {
   open: boolean,
@@ -32,9 +32,6 @@ export default class App extends React.Component<any, AppState> {
   constructor(props: any) {
     super(props);
 
-    let userInfo = this.props.userInfo;
-    while (userInfo.signedIn === undefined || userInfo.signedIn === null) userInfo = userInfo.userInfo;
-
     this.state = {
       portal: {
         open: false,
@@ -42,12 +39,30 @@ export default class App extends React.Component<any, AppState> {
         message: '',
         color: 'black'
       },
-      userInfo: { ...userInfo }
-    }
+      userInfo:
+        this.props.userInfo ?
+          this.props.userInfo :
+          {
+            userId: "",
+            userName: "",
+            privilege: 4,
+            name: "",
+            email: "",
+            signedIn: false,
+            emailConfirmed: false,
+            coins: 0,
+            experience: 0,
+            otherInfo: [],
+            phoneNumber: "",
+            phoneNumberConfirmed: false
+          }
+    };
 
     this.refreshUserInfo = this.refreshUserInfo.bind(this);
     this.openPortal = this.openPortal.bind(this);
     this.closePortal = this.closePortal.bind(this);
+
+    if (!this.props.userInfo) this.refreshUserInfo();
   }
 
   openPortal(header: string, message: string, color: SemanticCOLORS) {

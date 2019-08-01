@@ -58,8 +58,12 @@
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Compile Remove="Frontend\build\**" />
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Frontend\build\**" />
+    <EmbeddedResource Remove="Frontend\build\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="Frontend\build\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
@@ -80,7 +84,7 @@
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn webpack --mode=production" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn build" />
 
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
@@ -92,14 +96,8 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="yarn webpack --mode=development" />
+  <Target Name="PreBuild" AfterTargets="PreBuildEvent">
     <RemoveDir Directories="wwwroot\dist\" />
-    <ItemGroup>
-      <DistFiles Include="$(SpaRoot)build\**" />
-    </ItemGroup>
-    <Copy SourceFiles="@(DistFiles)" DestinationFiles="@(DistFiles->'wwwroot\dist\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

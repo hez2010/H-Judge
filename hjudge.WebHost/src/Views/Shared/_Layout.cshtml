@@ -1,19 +1,28 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <title>@ViewData["Title"] - H::Judge</title>
     <link rel="stylesheet" href="~/css/index.min.css" />
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" />
 </head>
 <body>
-    <div>
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main">
+        @RenderBody()
+    </main>
 
+    <noscript>此站点需要启用 JavaScript 才能正常运行。</noscript>
+    <environment include="Development">
+        <script src="~/main.bundle.js"></script>
+        <script src="~/dist/vendors~main.bundle.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/dist/main.bundle.js"></script>
+        <script src="~/dist/vendors~main.bundle.js"></script>
+    </environment>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

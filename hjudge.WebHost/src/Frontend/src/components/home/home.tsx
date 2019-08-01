@@ -1,9 +1,11 @@
 ﻿import * as React from "react";
-import { UserInfo } from "../../interfaces/userInfo";
 import { setTitle } from "../../utils/titleHelper";
 import { Header, Divider } from "semantic-ui-react";
+import { CommonProps } from "../../interfaces/commonProps";
 
-export default class Home extends React.Component<PropsInterface> {
+interface HomeProps extends CommonProps { }
+
+export default class Home extends React.Component<HomeProps> {
   componentDidMount() {
     setTitle('主页');
   }
@@ -19,8 +21,4 @@ export default class Home extends React.Component<PropsInterface> {
       </>
     );
   }
-}
-
-export interface PropsInterface {
-  userInfo: UserInfo
 }

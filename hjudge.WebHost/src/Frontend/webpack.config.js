@@ -1,5 +1,6 @@
 ﻿const path = require('path');
 const fs = require('fs');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = function (webpackEnv) {
   const appDirectory = fs.realpathSync(process.cwd());
@@ -14,13 +15,25 @@ module.exports = function (webpackEnv) {
     entry: {
       main: './src/index.tsx'
     },
+    devServer: {
+      contentBase: path.join(__dirname, 'public'),
+      compress: true,
+      port: 3000,
+      inline: true,
+      hot: true
+    },
     output: {
-      path: path.join(__dirname, './build'),
+      path: path.join(__dirname, 'build'),
       filename: '[name].bundle.js',
       globalObject: 'this'
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js']
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'all'
+      }
     },
     module: {
       rules: [
@@ -63,6 +76,9 @@ module.exports = function (webpackEnv) {
         { test: /\.png$/, use: 'url-loader?mimetype=image/png' },
         { test: /\.gif$/, use: 'url-loader?mimetype=image/gif' }
       ]
-    }
+    },
+    plugins: [
+      new CleanWebpackPlugin()
+    ]
   }
 }
