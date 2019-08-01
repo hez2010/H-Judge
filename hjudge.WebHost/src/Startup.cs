@@ -126,7 +126,7 @@ namespace hjudge.WebHost
 
             services.AddMvc();
 
-            if (!environment.IsDevelopment())
+            if (environment.IsProduction())
             {
                 services.AddReact();
 
@@ -172,7 +172,7 @@ namespace hjudge.WebHost
             app.UseResponseCaching();
             app.UseResponseCompression();
 
-            if (!environment.IsDevelopment())
+            if (environment.IsProduction())
             {
                 app.UseReact(config =>
                 {
@@ -180,12 +180,12 @@ namespace hjudge.WebHost
                     config.SetReuseJavaScriptEngines(true);
                     config.SetUseDebugReact(environment.IsDevelopment());
                     config.SetAllowJavaScriptPrecompilation(true);
-                    config.AddScriptWithoutTransform("~/dist/main.bundle.js");
+                    config.AddScriptWithoutTransform("~/dist/*.bundle.js");
                 });
             }
 
             app.UseStaticFiles();
-            if (!environment.IsDevelopment())
+            if (environment.IsProduction())
             {
                 app.UseSpaStaticFiles();
             }
@@ -201,7 +201,7 @@ namespace hjudge.WebHost
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-                if (!environment.IsDevelopment())
+                if (environment.IsProduction())
                 {
                     endpoints.MapControllerRoute(
                         name: "frontend",
