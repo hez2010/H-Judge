@@ -41,6 +41,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
     this.fetchProblemList = this.fetchProblemList.bind(this);
     this.gotoDetails = this.gotoDetails.bind(this);
     this.editProblem = this.editProblem.bind(this);
+    this.deleteProblem = this.deleteProblem.bind(this);
 
     this.state = {
       problemList: {
@@ -54,6 +55,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   }
 
   private idRecord: Map<number, number>;
+  private disableNavi = false;
 
   componentWillUpdate(nextProps: any, nextState: any) {
     if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
@@ -110,13 +112,23 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   }
 
   gotoDetails(index: number) {
+    if (this.disableNavi) {
+      this.disableNavi = false;
+      return;
+    }
     if (!this.props.contestId) this.props.history.push(`/details/problem/${index}`);
     else if (!this.props.groupId) this.props.history.push(`/details/problem/${this.props.contestId}/${index}`);
     else this.props.history.push(`/details/problem/${this.props.groupId}/${this.props.contestId}/${index}`);
   }
 
   editProblem(id: number) {
+    this.disableNavi = true;
     this.props.history.push(`/edit/problem/${id}`);
+  }
+
+  deleteProblem(id: number) {
+    this.disableNavi = true;
+    console.log(`delete ${id}!`);
   }
 
   renderProblemList() {
@@ -149,7 +161,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
                     <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
                 }
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => this.deleteProblem(v.id)} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>

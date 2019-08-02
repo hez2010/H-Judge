@@ -220,6 +220,7 @@ namespace hjudge.WebHost
             {
                 app.UseSpa(options =>
                 {
+                    options.Options.DefaultPage = "/";
                     options.UseProxyToSpaDevelopmentServer("http://localhost:3000");
                 });
             }
