@@ -58,12 +58,12 @@ namespace hjudge.WebHost.Data.Identity
         /// 1 管理员 2 教师 3 助教 4 学生/选手 5 黑名单
         /// </summary>
         public int Privilege { get; set; }
-        public byte[] Avatar { get; set; } = new byte[0];
-        public string? OtherInfo { get; set; }
+        public byte[]? Avatar { get; set; }
+        public string OtherInfo { get; set; } = string.Empty;
         /// <summary>
         /// 上次登录时间
         /// </summary>
-        public DateTime LastSignedIn { get; set; }
+        public DateTime LastSignedIn { get; set; } = DateTime.Parse("1970-01-01T00:00:00");
         /// <summary>
         /// 连续登录天数
         /// </summary>

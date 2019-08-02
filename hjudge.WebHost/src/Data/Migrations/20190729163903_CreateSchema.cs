@@ -68,7 +68,7 @@ namespace hjudge.WebHost.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None),
                     Privilege = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None),
-                    Avatar = table.Column<byte[]>(nullable: false)
+                    Avatar = table.Column<byte[]>(nullable: true)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None),
                     OtherInfo = table.Column<string>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None),
