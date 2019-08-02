@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace hjudge.FileHost.Test
 {
-    [TestClass]
+    //[TestClass]
     public class FileInterfaceTest
     {
         private readonly SeaweedFsService service = TestService.Provider.GetService<SeaweedFsService>();
