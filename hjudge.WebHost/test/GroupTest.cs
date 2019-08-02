@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
-    [TestClass]
+    //[TestClass]
     public class GroupTest
     {
         private readonly IGroupService groupService = TestService.Provider.GetService<IGroupService>();

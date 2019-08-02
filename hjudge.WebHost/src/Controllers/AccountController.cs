@@ -138,7 +138,7 @@ namespace hjudge.WebHost.Controllers
             {
                 return NotFound();
             }
-            return user.Avatar.Length == 0
+            return user.Avatar == null || user.Avatar.Length == 0
                 ? File(ImageScaler.ScaleImage(Properties.Resource.DefaultAvatar, 128, 128), "image/png")
                 : File(ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
         }

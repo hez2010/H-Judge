@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
-    [TestClass]
+    //[TestClass]
     public class ContestTest
     {
         private readonly IContestService contestService = TestService.Provider.GetService<IContestService>();
