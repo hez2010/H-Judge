@@ -4,13 +4,10 @@ import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { setTitle } from '../../utils/titleHelper';
 import { NavLink } from 'react-router-dom';
-import md from 'markdown-it';
-import katex from 'katex';
-import texmath from '../../extensions/markdown-it-math';
-import hljs from '../../extensions/markdown-it-code';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 import CodeEditor from '../editor/code-editor';
+import MarkdownViewer from '../viewer/markdown';
 
 interface ProblemDetailsProps extends CommonProps {
   problemId?: number,
@@ -204,10 +201,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     </Placeholder>;
     if (!this.state.problem.succeeded) return placeHolder;
 
-    let markdown = new md({ html: true })
-      .use(texmath.use(katex), { delimiters: 'brackets' })
-      .use(texmath.use(katex), { delimiters: 'dollars' })
-      .use(hljs);
 
     this.languageOptions = this.state.problem.languages.map((v, i) => ({
       key: i,
@@ -262,7 +255,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           </Item.Header>
 
           <Item.Description>
-            <div dangerouslySetInnerHTML={{ __html: markdown.render(this.state.problem.description) }}></div>
+            <MarkdownViewer content={this.state.problem.description} />
           </Item.Description>
           <Item.Extra>
 
