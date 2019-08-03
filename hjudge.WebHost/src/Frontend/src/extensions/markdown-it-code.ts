@@ -1,5 +1,4 @@
 ﻿import * as hljs from 'highlight.js';
-import markdownit from 'markdown-it';
 
 const maybe = (f: any) => {
   try {
@@ -29,10 +28,13 @@ const wrap = (render: Function, thisArg: any) => function (...args: any) {
 interface Option {
   auto: boolean, code: boolean
 }
-export default function highlightjs(md: markdownit, opts?: Option) {
+export default function highlightjs(md: any, opts?: Option) {
   if (!opts) {
-    opts = highlightjs.defaults;
-  }
+    opts = {
+      auto: true,
+      code: true
+    };
+  };
 
   md.set({ highlight: opts.auto ? highlightAuto : highlight });
   md.renderer.rules.fence = wrap(md.renderer.rules.fence, md);
@@ -41,8 +43,3 @@ export default function highlightjs(md: markdownit, opts?: Option) {
     md.renderer.rules.code_block = wrap(md.renderer.rules.code_block, md);
   }
 }
-
-highlightjs.defaults = {
-  auto: true,
-  code: true
-};

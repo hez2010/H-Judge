@@ -1,191 +1,205 @@
-﻿import * as katex from 'katex';
+﻿export default function texmath(md: any, options: any) {
+  let delimiters = options && options.delimiters || 'dollars',
+    macros = options && options.macros;
 
-// Test if potential opening or closing delimieter
-// Assumes that there is a "$" at state.src[pos]
-function isValidDelim(state: any, pos: number) {
-  let prevChar, nextChar,
-    max = state.posMax,
-    can_open = true,
-    can_close = true;
-
-  prevChar = pos > 0 ? state.src.charCodeAt(pos - 1) : -1;
-  nextChar = pos + 1 <= max ? state.src.charCodeAt(pos + 1) : -1;
-
-  // Check non-whitespace conditions for opening and closing, and
-  // check that closing delimeter isn't followed by a number
-  if (prevChar === 0x20/* " " */ || prevChar === 0x09/* \t */ ||
-    (nextChar >= 0x30/* "0" */ && nextChar <= 0x39/* "9" */)) {
-    can_close = false;
-  }
-  if (nextChar === 0x20/* " " */ || nextChar === 0x09/* \t */) {
-    can_open = false;
-  }
-
-  return {
-    can_open: can_open,
-    can_close: can_close
-  };
-}
-
-function math_inline(state: any, silent: boolean) {
-  let start, match, token, res, pos;
-
-  if (state.src[state.pos] !== "$") { return false; }
-
-  res = isValidDelim(state, state.pos);
-  if (!res.can_open) {
-    if (!silent) { state.pending += "$"; }
-    state.pos += 1;
-    return true;
-  }
-
-  // First check for and bypass all properly escaped delimieters
-  // This loop will assume that the first leading backtick can not
-  // be the first character in state.src, which is known since
-  // we have found an opening delimieter already.
-  start = state.pos + 1;
-  match = start;
-  while ((match = state.src.indexOf("$", match)) !== -1) {
-    // Found potential $, look for escapes, pos will point to
-    // first non escape when complete
-    pos = match - 1;
-    while (state.src[pos] === "\\") { pos -= 1; }
-
-    // Even number of escapes, potential closing delimiter found
-    if (((match - pos) % 2) === 1) { break; }
-    match += 1;
-  }
-
-  // No closing delimter found.  Consume $ and continue.
-  if (match === -1) {
-    if (!silent) { state.pending += "$"; }
-    state.pos = start;
-    return true;
-  }
-
-  // Check if we have empty content, ie: $$.  Do not parse.
-  if (match - start === 0) {
-    if (!silent) { state.pending += "$$"; }
-    state.pos = start + 1;
-    return true;
-  }
-
-  // Check for valid closing delimiter
-  res = isValidDelim(state, match);
-  if (!res.can_close) {
-    if (!silent) { state.pending += "$"; }
-    state.pos = start;
-    return true;
-  }
-
-  if (!silent) {
-    token = state.push('math_inline', 'math', 0);
-    token.markup = "$";
-    token.content = state.src.slice(start, match);
-  }
-
-  state.pos = match + 1;
-  return true;
-}
-
-function math_block(state: any, start: number, end: number, silent: boolean) {
-  let firstLine, lastLine, next, lastPos, found = false, token,
-    pos = state.bMarks[start] + state.tShift[start],
-    max = state.eMarks[start]
-
-  if (pos + 2 > max) { return false; }
-  if (state.src.slice(pos, pos + 2) !== '$$') { return false; }
-
-  pos += 2;
-  firstLine = state.src.slice(pos, max);
-
-  if (silent) { return true; }
-  if (firstLine.trim().slice(-2) === '$$') {
-    // Single line expression
-    firstLine = firstLine.trim().slice(0, -2);
-    found = true;
-  }
-
-  for (next = start; !found;) {
-
-    next++;
-
-    if (next >= end) { break; }
-
-    pos = state.bMarks[next] + state.tShift[next];
-    max = state.eMarks[next];
-
-    if (pos < max && state.tShift[next] < state.blkIndent) {
-      // non-empty line with negative indent should stop the list:
-      break;
+  if (delimiters in texmath.rules) {
+    for (let rule of (texmath as any).rules[delimiters].inline) {
+      md.inline.ruler.before('escape', rule.name, texmath.inline(rule));  // ! important
+      md.renderer.rules[rule.name] = (tokens: any, idx: any) => rule.tmpl.replace(/\$1/, texmath.render(tokens[idx].content, false, macros));
     }
 
-    if (state.src.slice(pos, max).trim().slice(-2) === '$$') {
-      lastPos = state.src.slice(0, max).lastIndexOf('$$');
-      lastLine = state.src.slice(pos, lastPos);
-      found = true;
+    for (let rule of (texmath as any).rules[delimiters].block) {
+      md.block.ruler.before('fence', rule.name, texmath.block(rule));
+      md.renderer.rules[rule.name] = (tokens: any, idx: any) => rule.tmpl.replace(/\$2/, tokens[idx].info)  // equation number .. ?
+        .replace(/\$1/, texmath.render(tokens[idx].content, true, macros));
     }
-
   }
-
-  state.line = next + 1;
-
-  token = state.push('math_block', 'math', 0);
-  token.block = true;
-  token.content = (firstLine && firstLine.trim() ? firstLine + '\n' : '')
-    + state.getLines(start + 1, next, state.tShift[start], true)
-    + (lastLine && lastLine.trim() ? lastLine : '');
-  token.map = [start, state.line];
-  token.markup = '$$';
-  return true;
 }
 
-export default function math_plugin(md: any, options: any) {
-  // Default options
-  options = options || {}; // set KaTeX as the renderer for markdown-it-simplemath
+texmath.applyRule = function (rule: any, str: any, beg: any, inBlockquote?: any) {
+  let pre, match, post;
+  rule.rex.lastIndex = beg;
 
-  let katexInline = function katexInline(latex: string) {
-    options.displayMode = false;
+  pre = str.startsWith(rule.tag, beg) && (!rule.pre || rule.pre(str, beg));
+  match = pre && rule.rex.exec(str);
+  if (match) {
+    match.lastIndex = rule.rex.lastIndex;
+    post = (!rule.post || rule.post(str, match.lastIndex - 1))  // valid post-condition
+      && (!inBlockquote || !match[1].includes('\n'));       // remove evil blockquote bug (https://github.com/goessner/mdmath/issues/50)
+  }
+  rule.rex.lastIndex = 0;
 
-    try {
-      return katex.renderToString(latex, options);
-    }
-    catch (error) {
-      if (options.throwOnError) {
-        console.log(error);
+  return post && match;
+}
+
+// texmath.inline = (rule) => dollar;  // just for testing ..
+
+texmath.inline = (rule: any) =>
+  function (state: any, silent: any) {
+    let res = texmath.applyRule(rule, state.src, state.pos);
+    if (res) {
+      if (!silent) {
+        let token = state.push(rule.name, 'math', 0);
+        token.content = res[1];  // group 1 from regex ..
+        token.markup = rule.tag;
       }
-
-      return latex;
+      state.pos = res.lastIndex;
     }
-  };
+    return !!res;
+  }
 
-  let inlineRenderer = function inlineRenderer(tokens: any, idx: any) {
-    return katexInline(tokens[idx].content);
-  };
-
-  let katexBlock = function katexBlock(latex: string) {
-    options.displayMode = true;
-
-    try {
-      return "<p>" + katex.renderToString(latex, options) + "</p>";
-    }
-    catch (error) {
-      if (options.throwOnError) {
-        console.log(error);
+texmath.block = (rule: any) =>
+  function (state: any, begLine: any, endLine: any, silent: any) {
+    let res = texmath.applyRule(rule, state.src, state.bMarks[begLine] + state.tShift[begLine], state.parentType === 'blockquote');
+    if (res) {
+      if (!silent) {
+        let token = state.push(rule.name, 'math', 0);
+        token.block = true;
+        token.content = res[1];
+        token.info = res[res.length - 1];
+        token.markup = rule.tag;
       }
-
-      return latex;
+      for (let line = begLine, endpos = res.lastIndex - 1; line < endLine; line++)
+        if (endpos >= state.bMarks[line] && endpos <= state.eMarks[line]) { // line for end of block math found ...
+          state.line = line + 1;
+          break;
+        }
+      state.pos = res.lastIndex;
     }
-  };
+    return !!res;
+  }
 
-  let blockRenderer = function blockRenderer(tokens: any, idx: any) {
-    return katexBlock(tokens[idx].content) + '\n';
-  };
-
-  md.inline.ruler.after('escape', 'math_inline', math_inline);
-  md.block.ruler.after('blockquote', 'math_block', math_block, {
-    alt: ['paragraph', 'reference', 'blockquote', 'list']
-  });
-  md.renderer.rules.math_inline = inlineRenderer;
-  md.renderer.rules.math_block = blockRenderer;
+texmath.render = function (tex: any, displayMode: any, macros: any) {
+  let res;
+  try {
+    res = (texmath as any).katex.renderToString(tex, { throwOnError: false, displayMode, macros });
+  }
+  catch (err) {
+    res = tex + ": " + err.message.replace("<", "&lt;");
+  }
+  return res;
 }
+
+texmath.use = function (katex: any) {  // math renderer used ...
+  (texmath as any).katex = katex;       // ... katex solely at current ...
+  return texmath;
+}
+
+texmath.$_pre = (str: any, beg: any) => {
+  let prv = beg > 0 ? str[beg - 1].charCodeAt(0) : false;
+  return !prv || prv !== 0x5c                // no backslash,
+    && (prv < 0x30 || prv > 0x39); // no decimal digit .. before opening '$'
+}
+texmath.$_post = (str: any, end: any) => {
+  let nxt = str[end + 1] && str[end + 1].charCodeAt(0);
+  return !nxt || nxt < 0x30 || nxt > 0x39;   // no decimal digit .. after closing '$'
+}
+
+texmath.rules = {
+  brackets: {
+    inline: [
+      {
+        name: 'math_inline',
+        rex: /\\\((.+?)\\\)/gy,
+        tmpl: '<eq>$1</eq>',
+        tag: '\\('
+      }
+    ],
+    block: [
+      {
+        name: 'math_block_eqno',
+        rex: /\\\[(((?!\\\]|\\\[)[\s\S])+?)\\\]\s*?\(([^)$\r\n]+?)\)/gmy,
+        tmpl: '<section class="eqno"><eqn>$1</eqn><span>($2)</span></section>',
+        tag: '\\['
+      },
+      {
+        name: 'math_block',
+        rex: /\\\[([\s\S]+?)\\\]/gmy,
+        tmpl: '<section><eqn>$1</eqn></section>',
+        tag: '\\['
+      }
+    ]
+  },
+  gitlab: {
+    inline: [
+      {
+        name: 'math_inline',
+        rex: /\$`(.+?)`\$/gy,
+        tmpl: '<eq>$1</eq>',
+        tag: '$`'
+      }
+    ],
+    block: [
+      {
+        name: 'math_block_eqno',
+        rex: /`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)/gmy,
+        tmpl: '<section class="eqno"><eqn>$1</eqn><span>($2)</span></section>',
+        tag: '```math'
+      },
+      {
+        name: 'math_block',
+        rex: /`{3}math\s+?([^`]+?)\s+?`{3}/gmy,
+        tmpl: '<section><eqn>$1</eqn></section>',
+        tag: '```math'
+      }
+    ]
+  },
+  kramdown: {
+    inline: [
+      {
+        name: 'math_inline',
+        rex: /\${2}([^$\r\n]*?)\${2}/gy,
+        tmpl: '<eq>$1</eq>',
+        tag: '$$'
+      }
+    ],
+    block: [
+      {
+        name: 'math_block_eqno',
+        rex: /\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)/gmy,
+        tmpl: '<section class="eqno"><eqn>$1</eqn><span>($2)</span></section>',
+        tag: '$$'
+      },
+      {
+        name: 'math_block',
+        rex: /\${2}([^$]*?)\${2}/gmy,
+        tmpl: '<section><eqn>$1</eqn></section>',
+        tag: '$$'
+      }
+    ]
+  },
+  dollars: {
+    inline: [
+      {
+        name: 'math_inline',
+        rex: /\$(\S[^$\r\n]*?[^\s\\]{1}?)\$/gy,
+        tmpl: '<eq>$1</eq>',
+        tag: '$',
+        pre: texmath.$_pre,
+        post: texmath.$_post
+      },
+      {
+        name: 'math_single',
+        rex: /\$([^$\s\\]{1}?)\$/gy,
+        tmpl: '<eq>$1</eq>',
+        tag: '$',
+        pre: texmath.$_pre,
+        post: texmath.$_post
+      }
+    ],
+    block: [
+      {
+        name: 'math_block_eqno',
+        rex: /\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)/gmy,
+        tmpl: '<section class="eqno"><eqn>$1</eqn><span>($2)</span></section>',
+        tag: '$$'
+      },
+      {
+        name: 'math_block',
+        rex: /\${2}([^$]*?)\${2}/gmy,
+        tmpl: '<section><eqn>$1</eqn></section>',
+        tag: '$$'
+      }
+    ]
+  }
+};
