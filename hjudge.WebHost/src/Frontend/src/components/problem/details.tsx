@@ -4,10 +4,9 @@ import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { setTitle } from '../../utils/titleHelper';
 import { NavLink } from 'react-router-dom';
-import 'highlight.js/styles/github.css';
-import 'katex/dist/katex.min.css';
 import md from 'markdown-it';
-import mk from '../../extensions/markdown-it-math';
+import katex from 'katex';
+import texmath from '../../extensions/markdown-it-math';
 import hljs from '../../extensions/markdown-it-code';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
@@ -54,7 +53,6 @@ interface LanguageOptions {
 export default class ProblemDetails extends React.Component<ProblemDetailsProps, ProblemDetailsState> {
   constructor(props: ProblemDetailsProps) {
     super(props);
-
     this.fetchDetail = this.fetchDetail.bind(this);
     this.renderProblemInfo = this.renderProblemInfo.bind(this);
     this.editProblem = this.editProblem.bind(this);
@@ -124,7 +122,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
   componentDidMount() {
     setTitle('题目详情');
-    console.log(this.props);
 
     if (this.props.problemId) this.problemId = this.props.problemId;
     else if (this.props.match.params.problemId) this.problemId = parseInt(this.props.match.params.problemId)
@@ -137,8 +134,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     if (this.props.groupId) this.groupId = this.props.groupId;
     else if (this.props.match.params.groupId) this.groupId = parseInt(this.props.match.params.groupId)
     else this.groupId = 0;
-
-    console.log(this);
 
     this.fetchDetail(this.problemId, this.contestId, this.groupId);
   }
@@ -209,7 +204,10 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     </Placeholder>;
     if (!this.state.problem.succeeded) return placeHolder;
 
-    let markdown = new md({ html: true }).use(mk, { throwOnError: false }).use(hljs);
+    let markdown = new md({ html: true })
+      .use(texmath.use(katex), { delimiters: 'brackets' })
+      .use(texmath.use(katex), { delimiters: 'dollars' })
+      .use(hljs);
 
     this.languageOptions = this.state.problem.languages.map((v, i) => ({
       key: i,
