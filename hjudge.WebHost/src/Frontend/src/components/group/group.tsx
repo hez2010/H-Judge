@@ -50,6 +50,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
     this.idRecord = new Map<number, number>();
   }
   private idRecord: Map<number, number>;
+  private disableNavi = false;
 
   componentWillUpdate(nextProps: any, nextState: any) {
     if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
@@ -105,11 +106,16 @@ export default class Group extends React.Component<GroupProps, GroupState> {
   }
 
   gotoDetails(index: number) {
+    if (this.disableNavi) {
+      this.disableNavi = false;
+      return;
+    }
     if (!this.props.groupId) this.props.history.push(`/details/group/${index}`);
     else this.props.history.push(`/details/group/${this.props.groupId}/${index}`);
   }
 
   editGroup(id: number) {
+    this.disableNavi = true;
     this.props.history.push(`/edit/group/${id}`);
   }
 
@@ -135,7 +141,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
                 <Table.Cell>{v.userName}</Table.Cell>
                 <Table.Cell>{v.creationTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.isPrivate ? '公开' : '私有'}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editGroup(v.id)} color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>

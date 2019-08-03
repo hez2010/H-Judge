@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -175,12 +176,22 @@ namespace hjudge.WebHost.Controllers
             }
             if (model.OtherInfo != null)
             {
-                var otherInfoJson = (string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo).DeserializeJson<IDictionary<string, string>>();
+                var otherInfoJson = (string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo).DeserializeJson<IDictionary<string, object?>>();
                 foreach (var info in model.OtherInfo)
                 {
-                    if (IdentityHelper.OtherInfoProperties.Any(i => i.Name == info.Key))
+                    var prop = IdentityHelper.OtherInfoProperties.FirstOrDefault(i => i.Name == info.Key);
+                    if (prop != null)
                     {
-                        otherInfoJson[info.Key] = info.Value;
+                        try
+                        {
+                            otherInfoJson[info.Key] = Convert.ChangeType(info.Value, prop.PropertyType);
+                        }
+                        catch
+                        {
+                            ret.ErrorCode = ErrorDescription.ArgumentError;
+                            ret.ErrorMessage = "请填写正确的信息";
+                            return ret;
+                        }
                     }
                 }
                 user.OtherInfo = otherInfoJson.SerializeJsonAsString();
@@ -192,7 +203,6 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [AntiForgeryFilter]
         public async Task<UserInfoModel> UserInfo(string? userId)
         {
             var userInfoRet = new UserInfoModel

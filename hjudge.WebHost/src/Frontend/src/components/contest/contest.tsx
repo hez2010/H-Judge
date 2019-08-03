@@ -53,6 +53,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     this.idRecord = new Map<number, number>();
   }
   private idRecord: Map<number, number>;
+  private disableNavi = false;
 
   componentWillUpdate(nextProps: any, nextState: any) {
     if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
@@ -111,11 +112,16 @@ export default class Contest extends React.Component<ContestProps, ContestState>
   }
 
   gotoDetails(index: number) {
+    if (this.disableNavi) {
+      this.disableNavi = false;
+      return;
+    }
     if (!this.props.groupId) this.props.history.push(`/details/contest/${index}`);
     else this.props.history.push(`/details/contest/${this.props.groupId}/${index}`);
   }
 
   editContest(id: number) {
+    this.disableNavi = true;
     this.props.history.push(`/edit/contest/${id}`);
   }
 
@@ -154,7 +160,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
                 }
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>;
             })
           }
