@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Middlewares
 {
-    public class AntiForgeryFilterAttribute : ResultFilterAttribute
+    public class SendAntiForgeryTokenAttribute : ResultFilterAttribute
     {
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
