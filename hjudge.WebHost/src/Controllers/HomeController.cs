@@ -25,7 +25,7 @@ namespace hjudge.WebHost.Controllers
             this.signInManager = signInManager;
         }
 
-        [AntiForgeryFilter]
+        [SendAntiForgeryToken]
         public async Task<IActionResult> Index()
         {
             var model = await GetCurrentUserInfo();
