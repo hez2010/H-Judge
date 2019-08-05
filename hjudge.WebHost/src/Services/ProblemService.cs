@@ -121,6 +121,7 @@ namespace hjudge.WebHost.Services
         public async Task RemoveProblemAsync(int problemId)
         {
             var problem = await GetProblemAsync(problemId);
+            if (problem == null) return;
             dbContext.Problem.Remove(problem);
             await dbContext.SaveChangesAsync();
         }

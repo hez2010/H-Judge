@@ -55,8 +55,8 @@ namespace hjudge.WebHost.Controllers
                         {
                             groups = status switch
                             {
-                                0 => groups.Where(i => !groupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)),
-                                1 => groups.Where(i => groupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)),
+                                0 => groups.Where(i => groupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)),
+                                1 => groups.Where(i => !groupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)),
                                 _ => groups
                             };
                         }
@@ -64,7 +64,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).Cacheable().CountAsync();
 
             groups = groups.OrderByDescending(i => i.Id);
             if (model.StartId == 0) groups = groups.Skip(model.Start);

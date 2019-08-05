@@ -127,9 +127,9 @@ export default class Contest extends React.Component<ContestProps, ContestState>
 
   renderContestList() {
     let getStatus = (startTime: Date, endTime: Date) => {
-      if (startTime < this.state.contestList.currentTime) return 0;
-      if (this.state.contestList.currentTime > endTime) return 2;
-      return 1;
+      if (this.state.contestList.currentTime >= endTime) return 2;
+      if (startTime < this.state.contestList.currentTime) return 1;
+      return 0;
     };
 
     return <>

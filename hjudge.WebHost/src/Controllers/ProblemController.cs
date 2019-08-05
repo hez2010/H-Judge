@@ -12,6 +12,8 @@ using hjudge.WebHost.Configurations;
 using hjudge.Shared.Utils;
 using EFSecondLevelCache.Core;
 using hjudge.WebHost.Utils;
+using hjudge.WebHost.Models;
+using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -103,7 +105,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).Cacheable().CountAsync();
 
             problems = problems.OrderBy(i => i.Id);
 
@@ -248,6 +250,23 @@ namespace hjudge.WebHost.Controllers
             ret.Languages = LanguageConfigHelper.GenerateLanguageConfig(langConfig, langs).ToList();
 
             return ret;
+        }
+
+        [HttpDelete]
+        [RequireAdmin]
+        public async Task<ResultModel> ProblemItem(int problemId)
+        {
+            var ret = new ResultModel();
+
+            await problemService.RemoveProblemAsync(problemId);
+            return ret;
+        }
+
+        [HttpPut]
+        [RequireAdmin]
+        public async Task<ProblemModel> ProblemItem([FromBody]ProblemModel model)
+        {
+            throw new Exception();
         }
     }
 }

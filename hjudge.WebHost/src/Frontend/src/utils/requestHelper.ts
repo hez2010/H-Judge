@@ -1,5 +1,5 @@
 ﻿import fetchPonyfill from 'fetch-ponyfill';
-const { fetch, Request, Response, Headers } = fetchPonyfill();
+const { fetch, Request } = fetchPonyfill();
 
 export function ReadCookie(name: string) {
   name += '=';
@@ -29,6 +29,26 @@ export function Post(url: string, data: any = {}) {
   return fetch(myRequest, myInit);
 }
 
+export function Put(url: string, data: any = {}) {
+  let token = ReadCookie('XSRF-TOKEN');
+
+  let myInit: RequestInit = {
+    method: 'PUT',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-XSRF-TOKEN': token
+    },
+    body: JSON.stringify(data),
+    mode: 'cors',
+    cache: 'default'
+  };
+
+  let myRequest = new Request(url);
+
+  return fetch(myRequest, myInit);
+}
+
 export function Get(url: string, data: any = {}) {
   let paramStr = '?';
   for (let x in data) {
@@ -39,6 +59,26 @@ export function Get(url: string, data: any = {}) {
 
   let myInit: RequestInit = {
     method: 'GET',
+    credentials: 'same-origin',
+    mode: 'cors',
+    cache: 'default'
+  };
+
+  let myRequest = new Request(url + paramStr);
+
+  return fetch(myRequest, myInit);
+}
+
+export function Delete(url: string, data: any = {}) {
+  let paramStr = '?';
+  for (let x in data) {
+    paramStr += `${x}=${escape(data[x])}&`;
+  }
+
+  paramStr = paramStr.substring(0, paramStr.length - 1);
+
+  let myInit: RequestInit = {
+    method: 'DELETE',
     credentials: 'same-origin',
     mode: 'cors',
     cache: 'default'

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Modal, Input, Button, Form, Label } from 'semantic-ui-react';
 import { SerializeForm } from '../../utils/formHelper';
-import { Post } from '../../utils/requestHelper';
+import { Put } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { CommonProps } from '../../interfaces/commonProps';
 
@@ -21,7 +21,7 @@ export default class Register extends React.Component<RegisterProps> {
     let form = document.querySelector('#registerForm') as HTMLFormElement;
     if (form.reportValidity()) {
       element.disabled = true;
-      Post('/Account/Register', SerializeForm(form))
+      Put('/Account/Register', SerializeForm(form))
         .then(res => res.json())
         .then(data => {
           let result = data as ResultModel;
