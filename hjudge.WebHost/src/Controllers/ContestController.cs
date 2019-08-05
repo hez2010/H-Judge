@@ -27,6 +27,7 @@ namespace hjudge.WebHost.Controllers
             this.contestService = contestService;
         }
 
+        private readonly static int[] allStatus = new[] { 0, 1, 2 };
         [HttpPost]
         public async Task<ContestListModel> ContestList([FromBody]ContestListQueryModel model)
         {
@@ -66,22 +67,22 @@ namespace hjudge.WebHost.Controllers
 
             if (model.Filter.Status.Count < 3)
             {
-                foreach (var status in new[] { 0, 1, 2 })
+                foreach (var status in allStatus)
                 {
                     if (!model.Filter.Status.Contains(status))
                     {
                         contests = status switch
                         {
                             0 => contests.Where(i => !(now < i.StartTime)),
-                            1 => contests.Where(i => !(i.StartTime >= now && i.EndTime <= now)),
-                            2 => contests.Where(i => !(now > i.EndTime)),
+                            1 => contests.Where(i => !(i.StartTime <= now && i.EndTime > now)),
+                            2 => contests.Where(i => !(now >= i.EndTime)),
                             _ => contests
                         };
                     }
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).Cacheable().CountAsync();
 
             contests = contests.OrderByDescending(i => i.Id);
 

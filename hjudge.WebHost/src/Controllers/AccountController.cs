@@ -50,7 +50,7 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
-        [HttpPost]
+        [HttpPut]
         public async Task<ResultModel> Register([FromBody]RegisterModel model)
         {
             var ret = new ResultModel();
