@@ -18,6 +18,8 @@ using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 namespace hjudge.WebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
+    [Route("problem")]
+    [ApiController]
     public class ProblemController : ControllerBase
     {
         private readonly CachedUserManager<UserInfo> userManager;
@@ -43,6 +45,7 @@ namespace hjudge.WebHost.Controllers
         private readonly static int[] allStatus = new[] { 0, 1, 2 };
 
         [HttpPost]
+        [Route("list")]
         public async Task<ProblemListModel> ProblemList([FromBody]ProblemListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -150,6 +153,7 @@ namespace hjudge.WebHost.Controllers
 
 
         [HttpPost]
+        [Route("details")]
         public async Task<ProblemModel> ProblemDetails([FromBody]ProblemQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -254,7 +258,8 @@ namespace hjudge.WebHost.Controllers
 
         [HttpDelete]
         [RequireAdmin]
-        public async Task<ResultModel> ProblemItem(int problemId)
+        [Route("edit")]
+        public async Task<ResultModel> RemoveProblem(int problemId)
         {
             var ret = new ResultModel();
 
@@ -264,9 +269,83 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPut]
         [RequireAdmin]
-        public async Task<ProblemModel> ProblemItem([FromBody]ProblemModel model)
+        [Route("edit")]
+        public async Task<ProblemEditModel> CreateProblem([FromBody]ProblemEditModel model)
         {
-            throw new Exception();
+            var ret = new ProblemEditModel();
+
+            var problem = new Problem
+            {
+                Description = model.Description,
+                Hidden = model.Hidden,
+                Level = model.Level,
+                Name = model.Name,
+                Type = model.Type,
+                Config = model.Config.SerializeJsonAsString(false)
+            };
+
+            problem.Id = await problemService.CreateProblemAsync(problem);
+
+            ret.Description = problem.Description;
+            ret.Hidden = problem.Hidden;
+            ret.Id = problem.Id;
+            ret.Level = problem.Level;
+            ret.Name = problem.Name;
+            ret.Type = problem.Type;
+            ret.Config = problem.Config.DeserializeJson<ProblemConfig>(false);
+
+            return ret;
+        }
+
+        [HttpPost]
+        [RequireAdmin]
+        [Route("edit")]
+        public async Task<ResultModel> UpdateProblem([FromBody]ProblemEditModel model)
+        {
+            var ret = new ResultModel();
+
+            var problem = await problemService.GetProblemAsync(model.Id);
+            if (problem == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
+
+            problem.Description = model.Description;
+            problem.Hidden = model.Hidden;
+            problem.Level = model.Level;
+            problem.Name = model.Name;
+            problem.Type = model.Type;
+            problem.Config = model.Config.SerializeJsonAsString(false);
+
+            await problemService.UpdateProblemAsync(problem);
+
+            return ret;
+        }
+
+        [HttpGet]
+        [RequireAdmin]
+        [Route("edit")]
+        public async Task<ProblemEditModel> GetProblem(int problemId)
+        {
+            var ret = new ProblemEditModel();
+
+            var problem = await problemService.GetProblemAsync(problemId);
+            if (problem == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
+
+            ret.Description = problem.Description;
+            ret.Hidden = problem.Hidden;
+            ret.Id = problem.Id;
+            ret.Level = problem.Level;
+            ret.Name = problem.Name;
+            ret.Type = problem.Type;
+            ret.Config = problem.Config.DeserializeJson<ProblemConfig>(false);
+
+            return ret;
         }
     }
 }

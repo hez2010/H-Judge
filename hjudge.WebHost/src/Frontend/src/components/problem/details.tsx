@@ -6,7 +6,7 @@ import { setTitle } from '../../utils/titleHelper';
 import { NavLink } from 'react-router-dom';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
-import CodeEditor from '../editor/code-editor';
+import CodeEditor from '../editor/code';
 import MarkdownViewer from '../viewer/markdown';
 
 interface ProblemDetailsProps extends CommonProps {
@@ -89,7 +89,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
   private languageOptions: LanguageOptions[] = [];
 
   fetchDetail(problemId: number, contestId: number, groupId: number) {
-    Post('/Problem/ProblemDetails', {
+    Post('/problem/details', {
       problemId: problemId,
       contestId: contestId,
       groupId: groupId
@@ -108,7 +108,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           setTitle(result.name);
         }
         else {
-          this.props.openPortal('错误', `题目信息加载失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
@@ -165,7 +165,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     let editor = this.editor.current;
     if (!editor) return;
     this.submitting = true;
-    Post('/api/Judge/Submit', {
+    Post('/judge/submit', {
       problemId: this.problemId,
       contestId: this.contestId,
       groupId: this.groupId,
@@ -181,7 +181,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           //TODO: jump to result page
         }
         else {
-          this.props.openPortal('错误', `提交失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       }).catch(err => {
         this.submitting = false;

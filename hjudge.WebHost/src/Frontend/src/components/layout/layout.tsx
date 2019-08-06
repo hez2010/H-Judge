@@ -240,7 +240,7 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
         this.props.refreshUserInfo();
       }
       else {
-        this.props.openPortal('错误', `退出失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+        this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
       }
     })
       .catch(err => {

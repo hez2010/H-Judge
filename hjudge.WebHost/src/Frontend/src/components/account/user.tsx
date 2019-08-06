@@ -67,7 +67,7 @@ export default class User extends React.Component<UserProps> {
           this.props.refreshUserInfo();
         }
         else {
-          this.props.openPortal('错误', `信息更新失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, `信息更新失败\n${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {

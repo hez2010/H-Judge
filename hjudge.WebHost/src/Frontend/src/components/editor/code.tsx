@@ -8,6 +8,7 @@ interface CodeEditorState {
 
 interface CodeEditorProps {
   language: string,
+  defaultValue?: string,
   onBlur?: () => void,
   onChange?: (e: Object) => void,
   onChangeSelectionStyle?: (data: Object) => void,
@@ -67,6 +68,9 @@ export default class CodeEditor extends React.Component<CodeEditorProps, CodeEdi
 
       this.editor.setTheme('ace/theme/tomorrow');
       this.editor.session.setMode(`ace/mode/${this.initLang}`);
+
+      if (this.props.defaultValue)
+        this.editor.setValue(this.props.defaultValue);
     }
   }
 
@@ -84,9 +88,7 @@ export default class CodeEditor extends React.Component<CodeEditorProps, CodeEdi
       </Placeholder.Paragraph>
     </Placeholder>;
 
-    let editor = this.state.editorLoaded ? <>
-      <div id={`code-editor-${this.uuid}`} style={{ width: '100%', height: '100%' }}></div>
-    </> : placeHolder;
+    let editor = this.state.editorLoaded ? <div id={`code-editor-${this.uuid}`} style={{ width: '100%', height: '100%' }}></div> : placeHolder;
 
     return editor;
   }

@@ -23,6 +23,6 @@ namespace hjudge.WebHost
         [Description("资源不存在")]
         ResourceNotFound = 404,
         [Description("服务器内部异常")]
-        InteralServerException = 500
+        InternalServerException = 500
     }
 }

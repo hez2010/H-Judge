@@ -56,12 +56,6 @@ namespace hjudge.WebHost.Controllers
             var ret = new ResultModel();
             if (TryValidateModel(model))
             {
-                if (model.Password != model.ConfirmPassword)
-                {
-                    ret.ErrorCode = ErrorDescription.ArgumentError;
-                    ret.ErrorMessage = "两次输入的密码不一致";
-                    return ret;
-                }
                 await signInManager.SignOutAsync();
                 var user = new UserInfo
                 {
@@ -81,6 +75,8 @@ namespace hjudge.WebHost.Controllers
             else
             {
                 ret.ErrorCode = ErrorDescription.ArgumentError;
+                var errors = ModelState.ToList().SelectMany(i => i.Value.Errors, (i, j) => j.ErrorMessage);
+                if (errors.Any()) ret.ErrorMessage = errors.Aggregate((accu, next) => accu + "\n" + next);
             }
             return ret;
         }

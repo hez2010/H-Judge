@@ -15,6 +15,7 @@ import Group from "./components/group/group";
 import { CommonProps } from "./interfaces/commonProps";
 import ContestDetails from "./components/contest/details";
 import { StaticRouterContext } from "react-router";
+import ProblemEdit from "./components/problem/edit";
 
 interface PortalState {
   open: boolean,
@@ -131,12 +132,16 @@ export default class App extends React.Component<any, AppState> {
             render={props => <ProblemDetails {...Object.assign(commonProps, props)}></ProblemDetails>}>
           </Route>
           <Route
-            path='/details/contest/:contestId?/:groupId?'
-            render={props => <ContestDetails {...Object.assign(commonProps, props)}></ContestDetails>}>
+            path='/edit/problem/:problemId?'
+            render={props => <ProblemEdit {...Object.assign(commonProps, props)}></ProblemEdit>}>
           </Route>
           <Route
             path='/contest/:page?'
             render={props => <Contest {...Object.assign(commonProps, props)}></Contest>}>
+          </Route>
+          <Route
+            path='/details/contest/:contestId?/:groupId?'
+            render={props => <ContestDetails {...Object.assign(commonProps, props)}></ContestDetails>}>
           </Route>
           <Route
             path='/group/:page?'
@@ -144,23 +149,23 @@ export default class App extends React.Component<any, AppState> {
           </Route>
           <Route
             path='/message'
-            render={props => <p {...Object.assign(commonProps, props)}>message</p>}>
+            render={props => <p>message</p>}>
           </Route>
           <Route
             path='/status'
-            render={props => <p {...Object.assign(commonProps, props)}>status</p>}>
+            render={props => <p>status</p>}>
           </Route>
           <Route
             path='/rank'
-            render={props => <p {...Object.assign(commonProps, props)}>rank</p>}>
+            render={props => <p>rank</p>}>
           </Route>
           <Route
             path='/discussion'
-            render={props => <p {...Object.assign(commonProps, props)}>discussion</p>}>
+            render={props => <p>discussion</p>}>
           </Route>
           <Route
             path='/article'
-            render={props => <p {...Object.assign(commonProps, props)}>article</p>}>
+            render={props => <p>article</p>}>
           </Route>
           <Route
             exact
@@ -185,7 +190,7 @@ export default class App extends React.Component<any, AppState> {
             </div>
           </Header>
           <Divider />
-          <p style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{this.state.portal.message}</p>
+          <pre style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{this.state.portal.message}</pre>
         </Segment>
       </TransitionablePortal>
     </>;
