@@ -184,11 +184,11 @@ export default class Contest extends React.Component<ContestProps, ContestState>
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
             <Label>比赛编号</Label>
-            <Input fluid name='id' type='number' onChange={() => { this.idRecord.clear(); }}></Input>
+            <Input fluid name='id' type='number' onChange={this.idRecord.clear}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>比赛名称</Label>
-            <Input fluid name='name' onChange={() => { this.idRecord.clear(); }}></Input>
+            <Input fluid name='name' onChange={this.idRecord.clear}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>比赛状态</Label>

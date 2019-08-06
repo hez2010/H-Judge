@@ -86,9 +86,8 @@ class DesktopContainer extends React.Component<ContainerProps, DesktopContainerS
           </Segment>
         </Visibility>
         {children}
-
       </Responsive>
-    )
+    );
   }
 }
 
@@ -182,7 +181,6 @@ class MobileContainer extends React.Component<ContainerProps, MobileContainerSta
               </Menu>
             </Container>
           </Segment>
-
           {children}
         </Sidebar.Pusher>
       </Responsive>
@@ -191,20 +189,21 @@ class MobileContainer extends React.Component<ContainerProps, MobileContainerSta
 }
 
 interface ResponsiveContainerProps {
-  children: React.ReactNode,
   account: ContainerProps
 }
 
-const ResponsiveContainer = ({ children, account }: ResponsiveContainerProps) => (
-  <>
-    <DesktopContainer {...account}>
-      {children}
-    </DesktopContainer>
-    <MobileContainer {...account}>
-      {children}
-    </MobileContainer>
-  </>
-)
+class ResponsiveContainer extends React.PureComponent<ResponsiveContainerProps> {
+  render() {
+    return <>
+      <DesktopContainer {...this.props.account}>
+        {this.props.children}
+      </DesktopContainer>
+      <MobileContainer {...this.props.account}>
+        {this.props.children}
+      </MobileContainer>
+    </>;
+  }
+}
 
 export default class Layout extends React.Component<LayoutProps, LayoutState> {
   constructor(props: LayoutProps) {
