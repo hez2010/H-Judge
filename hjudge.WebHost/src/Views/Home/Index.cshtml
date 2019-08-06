@@ -3,10 +3,8 @@
 @{
     ViewData["Title"] = "主页";
 }
-
 <environment exclude="Development">
     @Html.ReactRouter("AppComponent", new { UserInfo = Model });
-
     @section Scripts {
         @Html.ReactInitJavaScript()
     }

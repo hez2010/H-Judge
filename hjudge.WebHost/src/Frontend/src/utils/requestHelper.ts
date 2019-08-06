@@ -50,6 +50,8 @@ export function Put(url: string, data: any = {}) {
 }
 
 export function Get(url: string, data: any = {}) {
+  let token = ReadCookie('XSRF-TOKEN');
+
   let paramStr = '?';
   for (let x in data) {
     paramStr += `${x}=${escape(data[x])}&`;
@@ -60,6 +62,9 @@ export function Get(url: string, data: any = {}) {
   let myInit: RequestInit = {
     method: 'GET',
     credentials: 'same-origin',
+    headers: {
+      'X-XSRF-TOKEN': token
+    },
     mode: 'cors',
     cache: 'default'
   };
@@ -70,6 +75,8 @@ export function Get(url: string, data: any = {}) {
 }
 
 export function Delete(url: string, data: any = {}) {
+  let token = ReadCookie('XSRF-TOKEN');
+
   let paramStr = '?';
   for (let x in data) {
     paramStr += `${x}=${escape(data[x])}&`;
@@ -80,6 +87,9 @@ export function Delete(url: string, data: any = {}) {
   let myInit: RequestInit = {
     method: 'DELETE',
     credentials: 'same-origin',
+    headers: {
+      'X-XSRF-TOKEN': token
+    },
     mode: 'cors',
     cache: 'default'
   };

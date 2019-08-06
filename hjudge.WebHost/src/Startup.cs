@@ -1,4 +1,5 @@
 ﻿using hjudge.Shared.MessageQueue;
+using hjudge.Shared.Utils;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Extensions;
@@ -20,11 +21,11 @@ using RabbitMQ.Client.Events;
 using React.AspNet;
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using CacheManager.Core;
 using hjudge.Shared.Caching;
+using hjudge.WebHost.Models;
 
 namespace hjudge.WebHost
 {
@@ -157,7 +158,18 @@ namespace hjudge.WebHost
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler(config =>
+                {
+                    config.Run(async context =>
+                    {
+                        context.Response.ContentType = "application/json";
+                        await context.Response.Body.WriteAsync(new ResultModel
+                        {
+                            Succeeded = false,
+                            ErrorCode = ErrorDescription.InternalServerException
+                        }.SerializeJson(true));
+                    });
+                });
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -166,7 +178,12 @@ namespace hjudge.WebHost
             {
                 context.HttpContext.Response.ContentType = "application/json";
                 await context.HttpContext.Response.Body.WriteAsync(
-                    Encoding.UTF8.GetBytes($"{{succeeded: false, errorCode: {context.HttpContext.Response.StatusCode}, errorMessage: '请求失败'}}"));
+                    new ResultModel
+                    {
+                        Succeeded = false,
+                        ErrorCode = (ErrorDescription)context.HttpContext.Response.StatusCode,
+                        ErrorMessage = "请求失败"
+                    }.SerializeJson(true));
             }));
 
             app.UseResponseCaching();

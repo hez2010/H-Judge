@@ -90,7 +90,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
           } as GroupState);
         }
         else {
-          this.props.openPortal('错误', `小组列表加载失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {

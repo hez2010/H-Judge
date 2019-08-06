@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace hjudge.WebHost.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("judge")]
     [AutoValidateAntiforgeryToken]
     [ApiController]
     public class JudgeController : ControllerBase
@@ -33,8 +33,8 @@ namespace hjudge.WebHost.Controllers
 
         [PrivilegeAuthentication.RequireSignedIn]
         [HttpPost]
-        [Route("Submit")]
-        public async Task<ResultModel> Submit([FromBody]SubmitModel model)
+        [Route("submit")]
+        public async Task<ResultModel> SubmitSolution([FromBody]SubmitModel model)
         {
             var ret = new ResultModel();
             var userId = userManager.GetUserId(User);

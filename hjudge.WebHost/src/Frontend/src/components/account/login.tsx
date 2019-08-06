@@ -31,7 +31,7 @@ export default class Login extends React.Component<LoginProps> {
             this.props.openPortal('提示', '登录成功', 'green');
           }
           else {
-            this.props.openPortal('错误', `${result.errorMessage} (${result.errorCode})`, 'red');
+            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
           }
           element.disabled = false;
         })

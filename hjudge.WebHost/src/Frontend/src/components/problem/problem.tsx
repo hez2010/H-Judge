@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
 import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating } from 'semantic-ui-react';
-import { Post } from '../../utils/requestHelper';
+import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { isTeacher } from '../../utils/privilegeHelper';
@@ -80,7 +80,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
     req.groupId = this.props.groupId;
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
-    Post('/Problem/ProblemList', req)
+    Post('/problem/list', req)
       .then(res => res.json())
       .then(data => {
         let result = data as ProblemListModel;
@@ -95,7 +95,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
           } as ProblemState);
         }
         else {
-          this.props.openPortal('错误', `题目列表加载失败\n${result.errorMessage} (${result.errorCode})`, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
@@ -128,7 +128,25 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
 
   deleteProblem(id: number) {
     this.disableNavi = true;
-    console.log(`delete ${id}!`);
+    if (!confirm('此操作不可恢复，确定继续删除该题目？')) return;
+    Delete('/problem/edit', { problemId: id })
+      .then(res => res.json())
+      .then(data => {
+        let result = data as ResultModel;
+        if (result.succeeded) {
+          this.props.openPortal('成功', '删除成功', 'green');
+
+          if (!this.props.match.params.page) this.fetchProblemList(true, 1);
+          else this.fetchProblemList(true, this.props.match.params.page);
+        }
+        else {
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+        }
+      })
+      .catch(err => {
+        this.props.openPortal('错误', '题目删除失败', 'red');
+        console.log(err);
+      })
   }
 
   renderProblemList() {
