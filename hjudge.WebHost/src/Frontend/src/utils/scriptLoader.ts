@@ -6,8 +6,8 @@
     let script = document.createElement('script');
     script.id = 'script_loaded_' + name;
     script.type = 'text/javascript';
+    script.onload = callback;
     script.src = src;
     document.body.appendChild(script);
-    script.onload = callback;
   }
 }

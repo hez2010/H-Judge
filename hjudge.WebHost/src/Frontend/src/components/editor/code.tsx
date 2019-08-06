@@ -71,6 +71,8 @@ export default class CodeEditor extends React.Component<CodeEditorProps, CodeEdi
 
       if (this.props.defaultValue)
         this.editor.setValue(this.props.defaultValue);
+
+      this.editor.session.getUndoManager().reset();
     }
   }
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
@@ -31,7 +31,8 @@ interface ProblemListModel extends ResultModel {
 
 interface ProblemState {
   problemList: ProblemListModel,
-  statusFilter: number[]
+  statusFilter: number[],
+  deleteItem: number
 }
 
 export default class Problem extends React.Component<ProblemProps, ProblemState> {
@@ -48,7 +49,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         problems: [],
         totalCount: 0
       },
-      statusFilter: [0, 1, 2]
+      statusFilter: [0, 1, 2],
+      deleteItem: 0
     };
 
     this.idRecord = new Map<number, number>();
@@ -127,8 +129,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
   }
 
   deleteProblem(id: number) {
-    this.disableNavi = true;
-    if (!confirm('此操作不可恢复，确定继续删除该题目？')) return;
+    this.setState({ deleteItem: 0 } as ProblemState);
     Delete('/problem/edit', { problemId: id })
       .then(res => res.json())
       .then(data => {
@@ -179,7 +180,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
                     <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
                 }
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => this.deleteProblem(v.id)} color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -202,11 +203,11 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
             <Label>题目编号</Label>
-            <Input fluid name='id' type='number' onChange={() => { this.idRecord.clear(); }}></Input>
+            <Input fluid name='id' type='number' onChange={this.idRecord.clear}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>题目名称</Label>
-            <Input fluid name='name' onChange={() => { this.idRecord.clear(); }}></Input>
+            <Input fluid name='name' onChange={this.idRecord.clear}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>题目状态</Label>
@@ -235,6 +236,14 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
           lastItem={null}
         />
       </div>
+      <Confirm
+        open={this.state.deleteItem !== 0}
+        cancelButton='取消'
+        confirmButton='确定'
+        onCancel={() => this.setState({ deleteItem: 0 } as ProblemState)}
+        onConfirm={() => this.deleteProblem(this.state.deleteItem)}
+        content={"删除后不可恢复，确定继续？"}
+      />
     </>;
   }
 }

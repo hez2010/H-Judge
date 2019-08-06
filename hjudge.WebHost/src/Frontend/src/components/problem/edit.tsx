@@ -4,7 +4,7 @@ import { setTitle } from '../../utils/titleHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { Get } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
-import { Placeholder, Tab } from 'semantic-ui-react';
+import { Placeholder, Tab, Grid } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 
 interface ProblemEditState {
@@ -157,12 +157,33 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       </Placeholder.Paragraph>
     </Placeholder>;
     if (!this.state.problem.succeeded) return placeHolder;
-    
+
+    const description = <Grid columns={2} divided>
+      <Grid.Row>
+        <Grid.Column>
+          <div style={{ width: '100%', height: '30em' }}>
+            <CodeEditor ref={this.editor} language="markdown" onChange={() => this.renderPreview()} defaultValue={this.state.problem.description}></CodeEditor>
+          </div>
+        </Grid.Column>
+        <Grid.Column>
+          <div style={{ width: '100%', height: '30em', overflow: 'auto', scrollBehavior: 'auto' }}>
+            <MarkdownViewer content={this.state.problem.description}></MarkdownViewer>
+          </div>
+        </Grid.Column>
+      </Grid.Row>
+    </Grid>;
+
+    const panes = [
+      { menuItem: '基本信息', render: () => <Tab.Pane attached={false}>Tab 1 Content</Tab.Pane> },
+      {
+        menuItem: '题目描述', render: () => <Tab.Pane attached={false}>{description}</Tab.Pane>
+      },
+      { menuItem: '题目数据', render: () => <Tab.Pane attached={false}>Tab 3 Content</Tab.Pane> },
+      { menuItem: '高级选项', render: () => <Tab.Pane attached={false}>Tab 3 Content</Tab.Pane> }
+    ]
+
     return <>
-      <div style={{ width: '100%', height: '30em' }}>
-        <CodeEditor ref={this.editor} language="markdown" onChange={() => this.renderPreview()} defaultValue={this.state.problem.description}></CodeEditor>
-      </div>
-      <MarkdownViewer content={this.state.problem.description}></MarkdownViewer>
+      <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
     </>;
   }
 }
