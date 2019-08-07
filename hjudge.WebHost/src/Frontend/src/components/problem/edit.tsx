@@ -98,7 +98,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         type: 1
       },
       useSpecialJudge: false,
-      selectedTemplate: '${datadir}/${name}${index}.in|${datadir}/${name}${index}.ans|1000|131072|10'
+      selectedTemplate: ''
     };
 
     this.fetchConfig = this.fetchConfig.bind(this);
