@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.5.2" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.1" />
     <PackageReference Include="Grpc.AspNetCore.Server" Version="0.1.22-pre2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview7.19362.6" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview7" />
