@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0-preview7.19362.4" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
-    <PackageReference Include="Google.Protobuf" Version="3.9.0-rc1" />
+    <PackageReference Include="Google.Protobuf" Version="3.9.1" />
     <PackageReference Include="Grpc" Version="1.22.0" />
   </ItemGroup>
 
