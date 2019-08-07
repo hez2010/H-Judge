@@ -96,7 +96,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
           } as ContestState);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `比赛列表加载失败\n${result.errorMessage}`, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, result.errorMessage, 'red');
         }
       })
       .catch(err => {
