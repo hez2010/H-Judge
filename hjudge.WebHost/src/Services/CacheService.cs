@@ -38,10 +38,7 @@ namespace hjudge.WebHost.Services
         public async Task<(bool Succeeded, T Result)> GetObjectAsync<T>(string key)
         {
             var v = distributedCache.Get(key);
-            if (v == null)
-#nullable disable
-                return (false, default);
-#nullable enable
+            if (v == null) return (false, default);
 
             try
             {
@@ -49,10 +46,8 @@ namespace hjudge.WebHost.Services
             }
             catch
             {
-#nullable disable
                 await RemoveObjectAsync(key);
                 return (false, default);
-#nullable enable
             }
         }
 
