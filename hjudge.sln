@@ -25,6 +25,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "smartbox.SeaweedFs.Client",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.JudgeHost.Test", "hjudge.JudgeHost\test\hjudge.JudgeHost.Test.csproj", "{49FA00D8-14A0-4FCB-B250-773B71F06F93}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Miscs", "Miscs", "{272848C8-5F02-41D5-80F5-35B729A861A2}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		global.json = global.json
+		hjudge_ci.yml = hjudge_ci.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
