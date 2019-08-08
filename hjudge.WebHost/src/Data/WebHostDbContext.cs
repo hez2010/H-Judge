@@ -36,7 +36,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<Announcement>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.PublishTime).IsRequired();
 
@@ -52,7 +52,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<Contest>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.EndTime).IsRequired();
 
@@ -69,7 +69,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<ContestProblemConfig>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.AcceptCount).HasDefaultValueSql("0");
 
@@ -90,7 +90,7 @@ namespace hjudge.WebHost.Data
             {
                 entity.HasIndex(e => e.ContestId);
 
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.ContestRegister)
@@ -105,7 +105,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<Group>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.CreationTime).IsRequired();
 
@@ -116,7 +116,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<GroupContestConfig>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.HasOne(d => d.Contest)
                     .WithMany(p => p.GroupContestConfig)
@@ -133,7 +133,7 @@ namespace hjudge.WebHost.Data
             {
                 entity.HasIndex(e => e.GroupId);
 
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.JoinTime).IsRequired();
 
@@ -150,7 +150,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<Judge>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.JudgeTime).IsRequired();
 
@@ -181,7 +181,7 @@ namespace hjudge.WebHost.Data
             {
                 entity.HasIndex(e => e.ContentId);
 
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.SendTime).IsRequired();
 
@@ -198,12 +198,12 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<MessageContent>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<Problem>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.AcceptCount).HasDefaultValueSql("0");
 
@@ -222,7 +222,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<VotesRecord>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.VoteType).HasDefaultValueSql("1");
 
@@ -246,7 +246,7 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<Discussion>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).UseIdentityByDefaultColumn().ValueGeneratedOnAdd();
 
                 entity.Property(e => e.SubmitTime).IsRequired();
 
