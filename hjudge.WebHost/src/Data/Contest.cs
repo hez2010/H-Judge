@@ -21,12 +21,12 @@ namespace hjudge.WebHost.Data
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public string Config { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public string? Password { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public bool SpecifyCompetitors { get; set; }
         public bool Hidden { get; set; }
-        public string AdditionalInfo { get; set; } = string.Empty;
+        public string? AdditionalInfo { get; set; } = string.Empty;
         public int Upvote { get; set; }
         public int Downvote { get; set; }
 #nullable disable

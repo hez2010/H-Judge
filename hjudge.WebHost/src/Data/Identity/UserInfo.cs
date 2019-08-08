@@ -50,7 +50,7 @@ namespace hjudge.WebHost.Data.Identity
         }
 
         [PersonalData]
-        public string Name { get; set; } = string.Empty;
+        public string? Name { get; set; } = string.Empty;
         public long Coins { get; set; }
         public long Experience { get; set; }
 
@@ -59,7 +59,7 @@ namespace hjudge.WebHost.Data.Identity
         /// </summary>
         public int Privilege { get; set; }
         public byte[]? Avatar { get; set; }
-        public string OtherInfo { get; set; } = string.Empty;
+        public string? OtherInfo { get; set; } = string.Empty;
         /// <summary>
         /// 上次登录时间
         /// </summary>

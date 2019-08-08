@@ -25,7 +25,7 @@ namespace hjudge.WebHost.Data
         public bool Hidden { get; set; }
         public int AcceptCount { get; set; }
         public int SubmissionCount { get; set; }
-        public string AdditionalInfo { get; set; } = string.Empty;
+        public string? AdditionalInfo { get; set; } = string.Empty;
         public int Upvote { get; set; }
         public int Downvote { get; set; }
 

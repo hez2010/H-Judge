@@ -10,7 +10,7 @@ namespace hjudge.WebHost.Models.Contest
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public DateTime CurrentTime { get; set; }
-        public string Password { get; set; } = string.Empty;
+        public string? Password { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
