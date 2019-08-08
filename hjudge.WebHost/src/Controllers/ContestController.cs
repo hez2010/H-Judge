@@ -92,7 +92,8 @@ namespace hjudge.WebHost.Controllers
 
             if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
 
-            contests = contests.OrderByDescending(i => i.Id);
+            if (model.GroupId != 0)
+                contests = contests.OrderByDescending(i => i.Id);
 
             if (model.StartId == 0) contests = contests.Skip(model.Start);
             else contests = contests.Where(i => i.Id <= model.StartId);
@@ -233,7 +234,7 @@ namespace hjudge.WebHost.Controllers
             contest.Name = model.Name;
             contest.Password = model.Password;
             contest.Config = model.Config.SerializeJsonAsString(false);
-            
+
             await contestService.UpdateContestAsync(contest);
             await contestService.UpdateContestProblemAsync(contest.Id, model.Problems);
 
