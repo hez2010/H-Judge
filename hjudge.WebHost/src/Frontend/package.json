@@ -17,7 +17,7 @@
     "@types/react-router-dom": "4.3.4",
     "@typescript-eslint/eslint-plugin": "1.13.0",
     "@typescript-eslint/parser": "1.13.0",
-    "astroturf": "0.9.9",
+    "astroturf": "0.9.10",
     "autoprefixer": "9.6.1",
     "babel-eslint": "10.0.2",
     "babel-loader": "8.0.6",
