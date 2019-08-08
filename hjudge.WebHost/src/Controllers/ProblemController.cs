@@ -117,7 +117,7 @@ namespace hjudge.WebHost.Controllers
 
             if (model.ContestId != 0)
             {
-                ret.Problems = await problems.Include(i => i.ContestProblemConfig).Take(model.Count).Select(i => new ProblemListItemModel
+                ret.Problems = await problems.Include(i => i.ContestProblemConfig).Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
@@ -133,7 +133,7 @@ namespace hjudge.WebHost.Controllers
             }
             else
             {
-                ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListItemModel
+                ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
@@ -272,6 +272,7 @@ namespace hjudge.WebHost.Controllers
         [Route("edit")]
         public async Task<ProblemEditModel> CreateProblem([FromBody]ProblemEditModel model)
         {
+            var userId = userManager.GetUserId(User);
             var ret = new ProblemEditModel();
 
             var problem = new Problem
@@ -281,6 +282,8 @@ namespace hjudge.WebHost.Controllers
                 Level = model.Level,
                 Name = model.Name,
                 Type = model.Type,
+                CreationTime = DateTime.Now,
+                UserId = userId,
                 Config = model.Config.SerializeJsonAsString(false)
             };
 

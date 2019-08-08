@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { CommonProps } from '../../interfaces/commonProps';
 import { ResultModel } from '../../interfaces/resultModel';
-import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress } from 'semantic-ui-react';
+import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form, Label } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { NavLink } from 'react-router-dom';
@@ -57,7 +57,8 @@ export interface ContestModel extends ResultModel {
 interface ContestDetailsState {
   contest: ContestModel,
   progress: number,
-  status: number
+  status: number,
+  inputPassword: string
 }
 
 export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState> {
@@ -90,13 +91,15 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         userName: ''
       },
       progress: 0,
-      status: 0
+      status: 0,
+      inputPassword: ''
     }
 
     this.editContest = this.editContest.bind(this);
     this.renderContestInfo = this.renderContestInfo.bind(this);
     this.fetchDetail = this.fetchDetail.bind(this);
     this.updateProgressBar = this.updateProgressBar.bind(this);
+    this.problemList = this.problemList.bind(this);
   }
 
   private contestId: number = 0;
@@ -154,7 +157,8 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
           result.currentTime = new Date(result.currentTime.toString());
 
           this.setState({
-            contest: result
+            contest: result,
+            inputPassword: window.localStorage.getItem(`contest_${this.contestId}`)
           } as ContestDetailsState);
           setTitle(result.name);
           this.currentTime = Date.now();
@@ -173,6 +177,9 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
   componentWillUnmount() {
     if (this.timer) clearInterval(this.timer);
     this.timer = undefined;
+    if (this.state.inputPassword) {
+      window.localStorage.setItem(`contest_${this.contestId}`, this.state.inputPassword);
+    }
   }
 
   renderContestInfo() {
@@ -187,6 +194,24 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
 
   editContest(id: number) {
     this.props.history.push(`/edit/contest/${id}`);
+  }
+
+  problemList() {
+    let authed = true;
+    if (!!this.state.contest.password && this.state.inputPassword !== this.state.contest.password) {
+      authed = false;
+    }
+
+    let props = { ...this.props };
+    props.contestId = this.contestId;
+
+    return authed ? <Problem {...props} /> :
+      <Form>
+        <Form.Field>
+          <Label>比赛密码</Label>
+          <Form.Input type='password' defaultValue={this.state.inputPassword} error={this.state.inputPassword !== this.state.contest.password} onChange={(_, data) => { this.setState({ inputPassword: data.value }) }} />
+        </Form.Field>
+      </Form>;
   }
 
   render() {
@@ -205,7 +230,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         <Item.Content>
           <Item.Header as='h2'>
             <Popup flowing hoverable position='right center' trigger={<span>{this.state.contest.name}</span>}>
-              <Popup.Header>题目信息</Popup.Header>
+              <Popup.Header>比赛信息</Popup.Header>
               <Popup.Content>{this.renderContestInfo()}</Popup.Content>
             </Popup>
             <div style={{ float: 'right' }}>
@@ -233,13 +258,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
           <Icon name='list' />题目列表
       </Header>
       </Divider>
-      {
-        (() => {
-          let props = { ...this.props };
-          props.contestId = this.contestId;
-          return <Problem {...props} />;
-        })()
-      }
+      {this.problemList()}
     </>;
   }
 }

@@ -475,6 +475,10 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         <Label>附加文件</Label>
         <Form.TextArea placeholder='一行一个' defaultValue={this.state.problem.config.extraFiles.length === 0 ? "" : this.state.problem.config.extraFiles.reduce((accu, next) => `${accu}\n${next}`)} onChange={(_, data) => this.handleChange(this.state.problem.config, 'extraFiles', data.value ? data.value.toString().split('\n') : [])} />
       </Form.Field>
+      <Form.Field>
+        <Label>提交长度限制</Label>
+        <Form.Input type='number' placeholder='单位：byte' defaultValue={this.state.problem.config.codeSizeLimit} onChange={(_, data) => this.handleChange(this.state.problem.config, 'codeSizeLimit', data.value)} />
+      </Form.Field>
     </Form>;
 
     const panes = [

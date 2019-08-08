@@ -10,6 +10,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
+using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
+using hjudge.WebHost.Models;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -161,6 +163,109 @@ namespace hjudge.WebHost.Controllers
             ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
 
             ret.CurrentTime = DateTime.Now;
+            return ret;
+        }
+
+        [HttpDelete]
+        [RequireAdmin]
+        [Route("edit")]
+        public async Task<ResultModel> RemoveContest(int contestId)
+        {
+            var ret = new ResultModel();
+
+            await contestService.RemoveContestAsync(contestId);
+            return ret;
+        }
+
+        [HttpPut]
+        [RequireAdmin]
+        [Route("edit")]
+        public async Task<ContestEditModel> CreateContest([FromBody]ContestEditModel model)
+        {
+            var userId = userManager.GetUserId(User);
+            var ret = new ContestEditModel();
+
+            var contest = new Contest
+            {
+                Description = model.Description,
+                Hidden = model.Hidden,
+                UserId = userId,
+                Name = model.Name,
+                StartTime = model.StartTime,
+                EndTime = model.EndTime,
+                Password = model.Password,
+                Config = model.Config.SerializeJsonAsString(false)
+            };
+
+            contest.Id = await contestService.CreateContestAsync(contest);
+            await contestService.UpdateContestProblemAsync(contest.Id, model.Problems);
+
+            ret.Description = contest.Description;
+            ret.Hidden = contest.Hidden;
+            ret.Id = contest.Id;
+            ret.StartTime = contest.StartTime;
+            ret.EndTime = contest.EndTime;
+            ret.Name = contest.Name;
+            ret.Password = contest.Password;
+            ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
+
+            return ret;
+        }
+
+        [HttpPost]
+        [RequireAdmin]
+        [Route("edit")]
+        public async Task<ResultModel> UpdateContest([FromBody]ContestEditModel model)
+        {
+            var ret = new ResultModel();
+
+            var contest = await contestService.GetContestAsync(model.Id);
+            if (contest == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
+
+            contest.Description = model.Description;
+            contest.Hidden = model.Hidden;
+            contest.StartTime = model.StartTime;
+            contest.EndTime = model.EndTime;
+            contest.Name = model.Name;
+            contest.Password = model.Password;
+            contest.Config = model.Config.SerializeJsonAsString(false);
+            
+            await contestService.UpdateContestAsync(contest);
+            await contestService.UpdateContestProblemAsync(contest.Id, model.Problems);
+
+            return ret;
+        }
+
+        [HttpGet]
+        [RequireAdmin]
+        [Route("edit")]
+        public async Task<ContestEditModel> GetContest(int contestId)
+        {
+            var userId = userManager.GetUserId(User);
+            var ret = new ContestEditModel();
+
+            var contest = await contestService.GetContestAsync(contestId);
+            if (contest == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
+
+            ret.Description = contest.Description;
+            ret.Hidden = contest.Hidden;
+            ret.Id = contest.Id;
+            ret.StartTime = contest.StartTime;
+            ret.EndTime = contest.EndTime;
+            ret.Name = contest.Name;
+            ret.Password = contest.Password;
+            ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
+
+            var problems = await problemService.QueryProblemAsync(userId, contestId);
+            ret.Problems = problems.Select(i => i.Id).Distinct().ToList();
             return ret;
         }
     }
