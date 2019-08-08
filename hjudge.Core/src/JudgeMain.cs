@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -18,7 +19,8 @@ namespace hjudge.Core
         private static readonly JsonSerializerOptions options = new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
-            PropertyNameCaseInsensitive = false
+            PropertyNameCaseInsensitive = false,
+            IgnoreNullValues = true
         };
 
         [DllImport("./hjudge.Exec.Windows.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "execute", CharSet = CharSet.Ansi)]
@@ -51,7 +53,7 @@ namespace hjudge.Core
         {
             if (!string.IsNullOrEmpty(environments))
             {
-                var current = Environment.GetEnvironmentVariable("PATH");
+                var current = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
                 var newValue = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? environments : environments.Replace(';', ':');
                 if (current.IndexOf(newValue) < 0)
                 {
@@ -176,11 +178,11 @@ namespace hjudge.Core
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                                 Enum.IsDefined(typeof(WindowsExceptionCode), (uint)point.ExitCode))
                             {
-                                point.ExtraInfo = Enum.GetName(typeof(WindowsExceptionCode), (uint)point.ExitCode);
+                                point.ExtraInfo = Enum.GetName(typeof(WindowsExceptionCode), (uint)point.ExitCode) ?? string.Empty;
                             }
                             else if (Enum.IsDefined(typeof(LinuxExceptionCode), point.ExitCode - 128))
                             {
-                                point.ExtraInfo = Enum.GetName(typeof(LinuxExceptionCode), point.ExitCode - 128);
+                                point.ExtraInfo = Enum.GetName(typeof(LinuxExceptionCode), point.ExitCode - 128) ?? string.Empty;
                             }
                             else
                             {
@@ -566,7 +568,7 @@ namespace hjudge.Core
         {
             try
             {
-                extra.ForEach(i => File.Copy(GetTargetFilePath(i), Path.Combine(workingdir, Path.GetFileName(i)), true));
+                extra.ForEach(i => File.Copy(GetTargetFilePath(i), Path.Combine(workingdir, Path.GetFileName(i) ?? string.Empty), true));
             }
             catch
             {
@@ -658,8 +660,9 @@ namespace hjudge.Core
                     return string.Empty;
                 }
 
-                foreach (Match item in ret)
+                foreach (Match? item in ret)
                 {
+                    if (item == null) continue;
                     GroupCollection matches = item.Groups;
                     var temp = matcher.DisplayFormat;
                     for (var i = 0; i < matches.Count; i++)

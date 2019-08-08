@@ -36,7 +36,7 @@ namespace hjudgeFileHost.Services
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
             FileHandleStatus result;
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
 
             if (fileRecord != null)
             {
@@ -69,7 +69,7 @@ namespace hjudgeFileHost.Services
         {
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
             if (fileRecord == null) return true;
             var result = await template.DeleteFile(fileRecord.FileId);
             if (result)
@@ -84,7 +84,7 @@ namespace hjudgeFileHost.Services
         {
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
             if (fileRecord == null) return null;
             var response = await template.GetFileStream(fileRecord.FileId);
             return response.StatusCode == System.Net.HttpStatusCode.OK ? response.OutputStream : null;

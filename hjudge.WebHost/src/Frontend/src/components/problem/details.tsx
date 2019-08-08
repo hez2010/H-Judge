@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Item, Placeholder, Popup, Dropdown, Label, Header, Button } from 'semantic-ui-react';
+import { Item, Placeholder, Popup, Dropdown, Label, Header, Button, Rating } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { setTitle } from '../../utils/titleHelper';
@@ -21,7 +21,7 @@ interface ProblemDetailsState {
   languageValue: string
 }
 
-interface ProblemModel extends ResultModel {
+export interface ProblemModel extends ResultModel {
   id: number,
   name: string,
   creationTime: Date,
@@ -123,7 +123,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     if (this.props.problemId) this.problemId = this.props.problemId;
     else if (this.props.match.params.problemId) this.problemId = parseInt(this.props.match.params.problemId)
     else this.problemId = 0;
-    
+
     if (this.props.contestId) this.contestId = this.props.contestId;
     else if (this.props.match.params.contestId) this.contestId = parseInt(this.props.match.params.contestId)
     else this.contestId = 0;
@@ -141,11 +141,13 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       <br />
       <small>出题用户：<NavLink to='/'>{this.state.problem.userName}</NavLink></small>
       <br />
-      <small>题目难度：{this.state.problem.level}</small>
+      <small>题目难度：<Rating icon='star' defaultRating={this.state.problem.level} maxRating={10} disabled={true} /></small>
       <br />
       <small>完成状态：{this.state.problem.status === 0 ? '未尝试' : this.state.problem.status === 1 ? '已尝试' : '已通过'}</small>
       <br />
       <small>提交统计：{this.state.problem.acceptCount} / {this.state.problem.submissionCount}</small>
+      <br />
+      <small>题目评分：{this.state.problem.upvote + this.state.problem.downvote === 0 ? <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /> : <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(this.state.problem.upvote * 5 / (this.state.problem.upvote + this.state.problem.downvote))} />}</small>
     </div>;
   }
 
@@ -255,7 +257,9 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           </Item.Header>
 
           <Item.Description>
-            <MarkdownViewer content={this.state.problem.description} />
+            <div style={{overflow: 'auto', scrollBehavior: 'auto', width: '100%'}}>
+              <MarkdownViewer content={this.state.problem.description} />
+            </div>
           </Item.Description>
           <Item.Extra>
 

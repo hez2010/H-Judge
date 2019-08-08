@@ -10,6 +10,6 @@ namespace hjudge.Core
         public int ExitCode { get; set; }
         public string ExtraInfo { get; set; } = string.Empty;
         public ResultCode ResultType { get; set; }
-        public string Result => Enum.GetName(typeof(ResultCode), ResultType).Replace("_", " ");
+        public string Result => Enum.GetName(typeof(ResultCode), ResultType)?.Replace("_", " ") ?? "Unknown Error";
     }
 }

@@ -1,8 +1,18 @@
 ﻿import * as React from 'react';
 import { CommonProps } from '../../interfaces/commonProps';
 import { ResultModel } from '../../interfaces/resultModel';
+import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress } from 'semantic-ui-react';
+import MarkdownViewer from '../viewer/markdown';
+import { isTeacher } from '../../utils/privilegeHelper';
+import { NavLink } from 'react-router-dom';
+import Problem from '../problem/problem';
+import { Post } from '../../utils/requestHelper';
+import { setTitle } from '../../utils/titleHelper';
 
-interface ContestDetailsProps extends CommonProps { }
+interface ContestDetailsProps extends CommonProps {
+  contestId?: number,
+  groupId?: number
+}
 
 enum ContestType {
   generic, lastSubmit, penalty
@@ -28,7 +38,7 @@ interface ContestConfig {
   canDiscussion: boolean
 }
 
-interface ContestModel extends ResultModel {
+export interface ContestModel extends ResultModel {
   id: number,
   name: string,
   startTime: Date,
@@ -45,7 +55,9 @@ interface ContestModel extends ResultModel {
 }
 
 interface ContestDetailsState {
-  contest: ContestModel
+  contest: ContestModel,
+  progress: number,
+  status: number
 }
 
 export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState> {
@@ -76,15 +88,158 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         password: '',
         userId: '',
         userName: ''
-      }
+      },
+      progress: 0,
+      status: 0
     }
+
+    this.editContest = this.editContest.bind(this);
+    this.renderContestInfo = this.renderContestInfo.bind(this);
+    this.fetchDetail = this.fetchDetail.bind(this);
+    this.updateProgressBar = this.updateProgressBar.bind(this);
   }
 
-  contestContent() {
+  private contestId: number = 0;
+  private groupId: number = 0;
+  private currentTime: number = 0;
+  private timer?: NodeJS.Timeout;
 
+  updateProgressBar() {
+    let offset = this.currentTime - this.state.contest.currentTime.getTime();
+    let curTime = Date.now() - offset;
+    let start = this.state.contest.startTime.getTime();
+    let end = this.state.contest.endTime.getTime();
+
+    let progress = Math.floor((curTime - start) * 10000.0 / (end - start));
+    if (progress < 0) progress = 0;
+    if (progress > 10000) progress = 10000;
+
+    let status = 0;
+
+    if (curTime <= start) status = 0;
+    else if (curTime >= end) status = 2;
+    else status = 1;
+
+    this.setState({
+      progress: progress,
+      status: status
+    } as ContestDetailsState);
+  }
+
+  componentDidMount() {
+    setTitle('比赛详情');
+
+    if (this.props.contestId) this.contestId = this.props.contestId;
+    else if (this.props.match.params.contestId) this.contestId = parseInt(this.props.match.params.contestId)
+    else this.contestId = 0;
+
+    if (this.props.groupId) this.groupId = this.props.groupId;
+    else if (this.props.match.params.groupId) this.groupId = parseInt(this.props.match.params.groupId)
+    else this.groupId = 0;
+
+    this.fetchDetail(this.contestId, this.groupId);
+  }
+
+  fetchDetail(contestId: number, groupId: number) {
+    Post('/contest/details', {
+      contestId: contestId,
+      groupId: groupId
+    })
+      .then(res => res.json())
+      .then(data => {
+        let result = data as ContestModel;
+        if (result.succeeded) {
+          result.startTime = new Date(result.startTime.toString());
+          result.endTime = new Date(result.endTime.toString());
+          result.currentTime = new Date(result.currentTime.toString());
+
+          this.setState({
+            contest: result
+          } as ContestDetailsState);
+          setTitle(result.name);
+          this.currentTime = Date.now();
+          this.timer = setInterval(this.updateProgressBar, 1000);
+        }
+        else {
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+        }
+      })
+      .catch(err => {
+        this.props.openPortal('错误', '比赛信息加载失败', 'red');
+        console.log(err);
+      });
+  }
+
+  componentWillUnmount() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = undefined;
+  }
+
+  renderContestInfo() {
+    return <div>
+      <small>创建用户：<NavLink to='/'>{this.state.contest.userName}</NavLink></small>
+      <br />
+      <small>比赛类型：{this.state.contest.config.type === ContestType.generic ? '一般计时赛' : this.state.contest.config.type === ContestType.lastSubmit ? '最后提交赛' : '罚时计时赛'}</small>
+      <br />
+      <small>比赛评分：{this.state.contest.upvote + this.state.contest.downvote === 0 ? <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /> : <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(this.state.contest.upvote * 5 / (this.state.contest.upvote + this.state.contest.downvote))} />}</small>
+    </div>;
+  }
+
+  editContest(id: number) {
+    this.props.history.push(`/edit/contest/${id}`);
   }
 
   render() {
-    return <></>;
+    let placeHolder = <Placeholder>
+      <Placeholder.Paragraph>
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+      </Placeholder.Paragraph>
+    </Placeholder>;
+    if (!this.state.contest.succeeded) return placeHolder;
+
+    return <>
+      <Item>
+        <Item.Content>
+          <Item.Header as='h2'>
+            <Popup flowing hoverable position='right center' trigger={<span>{this.state.contest.name}</span>}>
+              <Popup.Header>题目信息</Popup.Header>
+              <Popup.Content>{this.renderContestInfo()}</Popup.Content>
+            </Popup>
+            <div style={{ float: 'right' }}>
+              <Button.Group>
+                <Button>状态</Button>
+                <Button>排名</Button>
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
+              </Button.Group>
+            </div>
+          </Item.Header>
+
+          <Item.Description>
+            <Progress error={this.state.status === 2} success={this.state.status === 0} warning={this.state.status === 1} percent={this.state.progress / 100} inverted progress>{this.state.status === 0 ? '未开始' : this.state.status === 1 ? '进行中' : '已结束'}（{this.state.contest.startTime.toLocaleString(undefined, { hour12: false })} - {this.state.contest.endTime.toLocaleString(undefined, { hour12: false })}）</Progress>
+
+            <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%' }}>
+              <MarkdownViewer content={this.state.contest.description} />
+            </div>
+          </Item.Description>
+          <Item.Extra>
+          </Item.Extra>
+        </Item.Content>
+      </Item>
+      <Divider horizontal>
+        <Header as='h4'>
+          <Icon name='list' />题目列表
+      </Header>
+      </Divider>
+      {
+        (() => {
+          let props = { ...this.props };
+          props.contestId = this.contestId;
+          return <Problem {...props} />;
+        })()
+      }
+    </>;
   }
 }

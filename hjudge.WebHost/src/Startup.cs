@@ -125,7 +125,11 @@ namespace hjudge.WebHost
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                });
 
             if (environment.IsProduction())
             {

@@ -29,7 +29,8 @@ interface ContestListModel extends ResultModel {
 
 interface ContestState {
   contestList: ContestListModel,
-  statusFilter: number[]
+  statusFilter: number[],
+  page: number
 }
 
 export default class Contest extends React.Component<ContestProps, ContestState> {
@@ -47,7 +48,8 @@ export default class Contest extends React.Component<ContestProps, ContestState>
         totalCount: 0,
         currentTime: new Date(Date.now())
       },
-      statusFilter: [0, 1, 2]
+      statusFilter: [0, 1, 2],
+      page: 0
     };
 
     this.idRecord = new Map<number, number>();
@@ -64,7 +66,8 @@ export default class Contest extends React.Component<ContestProps, ContestState>
   }
 
   fetchContestList(requireTotalCount: boolean, page: number) {
-    this.props.history.replace(`/contest/${page}`);
+    if (!this.props.groupId && page.toString() !== this.props.match.params.page)
+      this.props.history.replace(`/contest/${page}`);
     let form = document.querySelector('#filterForm') as HTMLFormElement;
     let req: any = {};
     req.filter = SerializeForm(form);
@@ -76,7 +79,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     req.groupId = this.props.groupId;
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
-    Post('/Contest/ContestList', req)
+    Post('/contest/list', req)
       .then(res => res.json())
       .then(data => {
         let result = data as ContestListModel;
@@ -92,11 +95,12 @@ export default class Contest extends React.Component<ContestProps, ContestState>
           if (result.contests.length > 0)
             this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
           this.setState({
-            contestList: result
+            contestList: result,
+            page: page
           } as ContestState);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, result.errorMessage, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
@@ -207,10 +211,10 @@ export default class Contest extends React.Component<ContestProps, ContestState>
       {this.state.contestList.succeeded ? (this.state.contestList.contests.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
-          activePage={this.state.contestList.totalCount === 0 ? 0 : this.props.match.params.page}
+          activePage={this.state.page}
           onPageChange={(_event, data) => this.fetchContestList(false, data.activePage as number)}
           size='small'
-          siblingRange={3}
+          siblingRange={2}
           boundaryRange={1}
           totalPages={this.state.contestList.totalCount === 0 ? 0 : Math.floor(this.state.contestList.totalCount / 10) + (this.state.contestList.totalCount % 10 === 0 ? 0 : 1)}
           firstItem={null}

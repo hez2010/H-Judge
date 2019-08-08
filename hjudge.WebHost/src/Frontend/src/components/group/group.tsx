@@ -27,7 +27,8 @@ interface GroupListModel extends ResultModel {
 
 interface GroupState {
   groupList: GroupListModel,
-  statusFilter: number[]
+  statusFilter: number[],
+  page: number
 }
 
 export default class Group extends React.Component<GroupProps, GroupState> {
@@ -44,7 +45,8 @@ export default class Group extends React.Component<GroupProps, GroupState> {
         groups: [],
         totalCount: 0
       },
-      statusFilter: [0, 1]
+      statusFilter: [0, 1],
+      page: 0
     };
 
     this.idRecord = new Map<number, number>();
@@ -86,7 +88,8 @@ export default class Group extends React.Component<GroupProps, GroupState> {
           if (result.groups.length > 0)
             this.idRecord.set(page + 1, result.groups[result.groups.length - 1].id);
           this.setState({
-            groupList: result
+            groupList: result,
+            page: page
           } as GroupState);
         }
         else {
@@ -187,7 +190,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
       {this.state.groupList.succeeded ? (this.state.groupList.groups.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
-          activePage={this.state.groupList.totalCount === 0 ? 0 : this.props.match.params.page}
+          activePage={this.state.page}
           onPageChange={(_event, data) => this.fetchGroupList(false, data.activePage as number)}
           size='small'
           siblingRange={3}

@@ -15,9 +15,10 @@ namespace hjudge.JudgeHost
     {
         private static readonly ConcurrentPriorityQueue<JudgeInfo> pools = new ConcurrentPriorityQueue<JudgeInfo>();
         private static readonly ConcurrentDictionary<string, DateTime> fileCache = new ConcurrentDictionary<string, DateTime>();
-        public static SemaphoreSlim Semaphore { get; set; }
+        public static SemaphoreSlim? Semaphore { get; set; }
         public static Task QueueJudgeAsync(JudgeInfo info)
         {
+            if (Semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
             pools.Enqueue(info, info.Priority);
             try
             {
@@ -29,6 +30,10 @@ namespace hjudge.JudgeHost
 
         private static Task ReportJudgeResultAsync(JudgeReportInfo result)
         {
+            if (Program.JudgeMessageQueueFactory == null)
+            {
+                throw new InvalidOperationException("Program.JudgeMessageQueueFactory cannot be null.");
+            }
             var (channel, options) = Program.JudgeMessageQueueFactory.GetProducer("JudgeReport");
             var props = channel.CreateBasicProperties();
             props.ContentType = "application/json";
@@ -39,6 +44,7 @@ namespace hjudge.JudgeHost
 
         public static async Task JudgeQueueExecuter(string dataCacheDir, CancellationToken cancellationToken)
         {
+            if (Semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Semaphore.WaitAsync();
