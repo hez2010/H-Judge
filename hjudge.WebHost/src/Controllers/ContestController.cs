@@ -92,8 +92,8 @@ namespace hjudge.WebHost.Controllers
 
             if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
 
-            if (model.GroupId != 0)
-                contests = contests.OrderByDescending(i => i.Id);
+            if (model.GroupId == 0) contests = contests.OrderByDescending(i => i.Id);
+            else model.StartId = 0; // keep original order while fetching contests in a group
 
             if (model.StartId == 0) contests = contests.Skip(model.Start);
             else contests = contests.Where(i => i.Id <= model.StartId);
