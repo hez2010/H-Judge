@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating } from 'semantic-ui-react';
-import { Post } from '../../utils/requestHelper';
+import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
+import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { isTeacher } from '../../utils/privilegeHelper';
@@ -30,7 +30,8 @@ interface ContestListModel extends ResultModel {
 interface ContestState {
   contestList: ContestListModel,
   statusFilter: number[],
-  page: number
+  page: number,
+  deleteItem: number
 }
 
 export default class Contest extends React.Component<ContestProps, ContestState> {
@@ -41,6 +42,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     this.fetchContestList = this.fetchContestList.bind(this);
     this.gotoDetails = this.gotoDetails.bind(this);
     this.editContest = this.editContest.bind(this);
+    this.deleteContest = this.deleteContest.bind(this);
 
     this.state = {
       contestList: {
@@ -49,7 +51,8 @@ export default class Contest extends React.Component<ContestProps, ContestState>
         currentTime: new Date(Date.now())
       },
       statusFilter: [0, 1, 2],
-      page: 0
+      page: 0,
+      deleteItem: 0
     };
 
     this.idRecord = new Map<number, number>();
@@ -129,6 +132,27 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     this.props.history.push(`/edit/contest/${id}`);
   }
 
+  deleteContest(id: number) {
+    this.setState({ deleteItem: 0 } as ContestState);
+    Delete('/contest/edit', { contestId: id })
+      .then(res => res.json())
+      .then(data => {
+        let result = data as ResultModel;
+        if (result.succeeded) {
+          this.props.openPortal('成功', '删除成功', 'green');
+
+          this.fetchContestList(true, this.state.page);
+        }
+        else {
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+        }
+      })
+      .catch(err => {
+        this.props.openPortal('错误', '比赛删除失败', 'red');
+        console.log(err);
+      })
+  }
+
   renderContestList() {
     let getStatus = (startTime: Date, endTime: Date) => {
       if (this.state.contestList.currentTime >= endTime) return 2;
@@ -164,7 +188,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
                 }
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ContestState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>;
             })
           }
@@ -221,6 +245,14 @@ export default class Contest extends React.Component<ContestProps, ContestState>
           lastItem={null}
         />
       </div>
+      <Confirm
+        open={this.state.deleteItem !== 0}
+        cancelButton='取消'
+        confirmButton='确定'
+        onCancel={() => this.setState({ deleteItem: 0 } as ContestState)}
+        onConfirm={() => this.deleteContest(this.state.deleteItem)}
+        content={"删除后不可恢复，确定继续？"}
+      />
     </>;
   }
 }
