@@ -134,7 +134,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
   }
 
   componentDidMount() {
-    setTitle('题目编辑');
+    setTitle('比赛编辑');
 
     if (this.props.contestId) this.contestId = this.props.contestId;
     else if (this.props.match.params.contestId) this.contestId = parseInt(this.props.match.params.contestId)
@@ -179,7 +179,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
           }
         })
         .catch(err => {
-          this.props.openPortal('错误', '比赛配置加载失败', 'red');
+          this.props.openPortal('错误', '比赛保存失败', 'red');
           console.log(err);
         });
     }
@@ -231,11 +231,11 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
       </Form.Field>
       <Form.Field error={!this.state.contest.startTime.getTime()}>
         <Label>开始时间</Label>
-        <Form.Input required type='datetime' defaultValue={this.state.contest.startTime.toLocaleString(undefined, { hour12: false })} onChange={e => this.handleChange(this.state.contest, 'startTime', new Date(e.target.value))} />
+        <Form.Input required defaultValue={this.state.contest.startTime.toLocaleString(undefined, { hour12: false })} onChange={e => this.handleChange(this.state.contest, 'startTime', new Date(e.target.value))} />
       </Form.Field>
       <Form.Field error={!this.state.contest.endTime.getTime()}>
         <Label>结束时间</Label>
-        <Form.Input required type='datetime' defaultValue={this.state.contest.endTime.toLocaleString(undefined, { hour12: false })} onChange={e => this.handleChange(this.state.contest, 'endTime', new Date(e.target.value))} />
+        <Form.Input required defaultValue={this.state.contest.endTime.toLocaleString(undefined, { hour12: false })} onChange={e => this.handleChange(this.state.contest, 'endTime', new Date(e.target.value))} />
       </Form.Field>
       <Form.Field>
         <Label>进入密码</Label>

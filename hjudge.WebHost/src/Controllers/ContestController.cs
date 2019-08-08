@@ -266,7 +266,7 @@ namespace hjudge.WebHost.Controllers
             ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
 
             var problems = await problemService.QueryProblemAsync(userId, contestId);
-            ret.Problems = problems.Select(i => i.Id).Distinct().ToList();
+            ret.Problems = problems.Select(i => i.Id).ToList();
             return ret;
         }
     }

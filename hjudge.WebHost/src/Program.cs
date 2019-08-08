@@ -8,7 +8,6 @@ namespace hjudge.WebHost
     {
         public static void Main(string[] args)
         {
-            var x = typeof(Program).Assembly.GetReferencedAssemblies().Where(i => i.FullName?.Contains("Json") ?? false).ToList();
             CreateHostBuilder(args).Build().Run();
         }
 

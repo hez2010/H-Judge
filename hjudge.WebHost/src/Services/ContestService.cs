@@ -3,7 +3,9 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -103,7 +105,14 @@ namespace hjudge.WebHost.Services
         {
             var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId)/*.Cacheable()*/.ToListAsync();
             dbContext.ContestProblemConfig.RemoveRange(oldProblems);
-            var dict = oldProblems.ToDictionary(i => i.ProblemId);
+            await dbContext.SaveChangesAsync();
+
+            var dict = new Dictionary<int, ContestProblemConfig>();
+            foreach (var i in oldProblems)
+            {
+                if (!dict.ContainsKey(i.ProblemId)) dict[i.ProblemId] = i;
+            }
+
             foreach (var i in problems.Distinct())
             {
                 if (dict.ContainsKey(i))

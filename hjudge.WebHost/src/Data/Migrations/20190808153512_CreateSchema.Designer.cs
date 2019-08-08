@@ -10,7 +10,7 @@ using hjudge.WebHost.Data;
 namespace hjudge.WebHost.Data.Migrations
 {
     [DbContext(typeof(WebHostDbContext))]
-    [Migration("20190808133555_CreateSchema")]
+    [Migration("20190808153512_CreateSchema")]
     partial class CreateSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

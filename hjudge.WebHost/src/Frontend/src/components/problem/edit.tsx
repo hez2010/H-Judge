@@ -190,7 +190,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
           }
         })
         .catch(err => {
-          this.props.openPortal('错误', '题目配置加载失败', 'red');
+          this.props.openPortal('错误', '题目保存失败', 'red');
           console.log(err);
         });
     }
