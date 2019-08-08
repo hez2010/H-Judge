@@ -140,8 +140,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         if (result.succeeded) {
           this.props.openPortal('成功', '删除成功', 'green');
 
-          if (!this.props.match.params.page) this.fetchProblemList(true, 1);
-          else this.fetchProblemList(true, this.props.match.params.page);
+          this.fetchProblemList(true, this.state.page);
         }
         else {
           this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
