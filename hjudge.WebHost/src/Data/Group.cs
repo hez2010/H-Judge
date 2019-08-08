@@ -1,5 +1,4 @@
-﻿#nullable disable
-using hjudge.WebHost.Data.Identity;
+﻿using hjudge.WebHost.Data.Identity;
 using System;
 using System.Collections.Generic;
 
@@ -22,7 +21,7 @@ namespace hjudge.WebHost.Data
         public string Description { get; set; } = string.Empty;
         public DateTime CreationTime { get; set; }
         public bool IsPrivate { get; set; }
-        public string AdditionalInfo { get; set; } = string.Empty;
+        public string? AdditionalInfo { get; set; } = string.Empty;
 
 #nullable disable
         public virtual UserInfo UserInfo { get; set; }

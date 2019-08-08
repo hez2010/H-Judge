@@ -10,28 +10,32 @@ using hjudge.WebHost.Data;
 namespace hjudge.WebHost.Data.Migrations
 {
     [DbContext(typeof(WebHostDbContext))]
-    [Migration("20190729163903_CreateSchema")]
+    [Migration("20190808133555_CreateSchema")]
     partial class CreateSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "3.0.0-preview7.19362.6")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                .HasAnnotation("ProductVersion", "3.0.0-preview8.19381.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
-                    b.Property<string>("Id");
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedName")
+                        .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
@@ -47,14 +51,18 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("ClaimType");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
 
-                    b.Property<string>("ClaimValue");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -67,14 +75,18 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("ClaimType");
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
 
-                    b.Property<string>("ClaimValue");
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -86,15 +98,19 @@ namespace hjudge.WebHost.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
+                        .HasColumnType("character varying(128)")
                         .HasMaxLength(128);
 
                     b.Property<string>("ProviderKey")
+                        .HasColumnType("character varying(128)")
                         .HasMaxLength(128);
 
-                    b.Property<string>("ProviderDisplayName");
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -105,9 +121,11 @@ namespace hjudge.WebHost.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
-                    b.Property<string>("RoleId");
+                    b.Property<string>("RoleId")
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -118,15 +136,19 @@ namespace hjudge.WebHost.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
+                        .HasColumnType("character varying(128)")
                         .HasMaxLength(128);
 
                     b.Property<string>("Name")
+                        .HasColumnType("character varying(128)")
                         .HasMaxLength(128);
 
-                    b.Property<string>("Value");
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -137,23 +159,29 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Content")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int?>("GroupId")
-                        .IsRequired();
+                        .HasColumnType("integer");
 
-                    b.Property<bool>("Hidden");
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("boolean");
 
-                    b.Property<DateTime>("PublishTime");
+                    b.Property<DateTime>("PublishTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Title")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -168,41 +196,52 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("AdditionalInfo")
-                        .IsRequired();
+                        .HasColumnType("text");
 
                     b.Property<string>("Config")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Description")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Downvote")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
-                    b.Property<DateTime>("EndTime");
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<bool>("Hidden");
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Password")
-                        .IsRequired();
+                        .HasColumnType("text");
 
-                    b.Property<bool>("SpecifyCompetitors");
+                    b.Property<bool>("SpecifyCompetitors")
+                        .HasColumnType("boolean");
 
-                    b.Property<DateTime>("StartTime");
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Upvote")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -215,18 +254,23 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int>("AcceptCount")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
-                    b.Property<int>("ContestId");
+                    b.Property<int>("ContestId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("ProblemId");
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("SubmissionCount")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
@@ -242,12 +286,15 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("ContestId");
+                    b.Property<int>("ContestId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -262,28 +309,37 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Content")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int?>("ContestId");
+                    b.Property<int?>("ContestId")
+                        .HasColumnType("integer");
 
-                    b.Property<int?>("GroupId");
+                    b.Property<int?>("GroupId")
+                        .HasColumnType("integer");
 
-                    b.Property<int?>("ProblemId");
+                    b.Property<int?>("ProblemId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("ReplyId")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
-                    b.Property<DateTime>("SubmitTime");
+                    b.Property<DateTime>("SubmitTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Title")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -302,19 +358,29 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("AdditionalInfo");
+                    b.Property<string>("AdditionalInfo")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("CreationTime");
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<bool>("IsPrivate");
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("boolean");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -327,11 +393,14 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("ContestId");
+                    b.Property<int>("ContestId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("GroupId");
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -346,14 +415,18 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("GroupId");
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("JoinTime");
+                    b.Property<DateTime>("JoinTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -366,64 +439,87 @@ namespace hjudge.WebHost.Data.Migrations
 
             modelBuilder.Entity("hjudge.WebHost.Data.Identity.UserInfo", b =>
                 {
-                    b.Property<string>("Id");
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
-                    b.Property<int>("AcceptedCount");
+                    b.Property<int>("AcceptedCount")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("AccessFailedCount");
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("Avatar")
-                        .IsRequired();
+                        .HasColumnType("bytea");
 
-                    b.Property<long>("Coins");
+                    b.Property<long>("Coins")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
 
-                    b.Property<int>("ContinuousSignedIn");
+                    b.Property<int>("ContinuousSignedIn")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
+                        .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
-                    b.Property<bool>("EmailConfirmed");
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
 
-                    b.Property<long>("Experience");
+                    b.Property<long>("Experience")
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime>("LastSignedIn");
+                    b.Property<DateTime>("LastSignedIn")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<bool>("LockoutEnabled");
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd");
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("MessageReplyCount");
+                    b.Property<int>("MessageReplyCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
+                        .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedUserName")
+                        .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
                     b.Property<string>("OtherInfo")
-                        .IsRequired();
+                        .HasColumnType("text");
 
-                    b.Property<string>("PasswordHash");
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
 
-                    b.Property<string>("PhoneNumber");
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
 
-                    b.Property<bool>("PhoneNumberConfirmed");
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("Privilege");
+                    b.Property<int>("Privilege")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("SecurityStamp");
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
 
-                    b.Property<int>("SubmissionCount");
+                    b.Property<int>("SubmissionCount")
+                        .HasColumnType("integer");
 
-                    b.Property<bool>("TwoFactorEnabled");
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
+                        .HasColumnType("character varying(256)")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
@@ -442,50 +538,60 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("AdditionalInfo")
-                        .IsRequired();
+                        .HasColumnType("text");
 
                     b.Property<string>("Content")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int?>("ContestId")
-                        .IsRequired();
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
-                        .IsRequired();
+                        .HasColumnType("text");
 
-                    b.Property<float>("FullScore");
+                    b.Property<float>("FullScore")
+                        .HasColumnType("real");
 
                     b.Property<int?>("GroupId")
-                        .IsRequired();
+                        .HasColumnType("integer");
 
-                    b.Property<bool>("IsPublic");
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("JudgeCount")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
-                    b.Property<DateTime>("JudgeTime");
+                    b.Property<DateTime>("JudgeTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Language")
-                        .IsRequired();
+                        .HasColumnType("text");
 
                     b.Property<string>("Logs")
-                        .IsRequired();
+                        .HasColumnType("text");
 
-                    b.Property<int>("ProblemId");
+                    b.Property<int>("ProblemId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Result")
-                        .IsRequired();
+                        .HasColumnType("text");
 
-                    b.Property<int>("ResultType");
+                    b.Property<int>("ResultType")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -504,33 +610,37 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("ContentId")
-                        .IsRequired();
+                    b.Property<int>("ContentId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("FromUserId")
-                        .IsRequired();
+                    b.Property<int>("ReplyId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("ReplyId");
+                    b.Property<DateTime>("SendTime")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime>("SendTime");
-
-                    b.Property<int>("Status");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("ToUserId")
-                        .IsRequired();
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Type");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ContentId");
 
-                    b.HasIndex("ToUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Message");
                 });
@@ -539,18 +649,17 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Content")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int?>("MessageId");
-
-                    b.Property<string>("UserInfoId");
+                    b.Property<string>("UserInfoId")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MessageId");
 
                     b.HasIndex("UserInfoId");
 
@@ -561,46 +670,59 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int>("AcceptCount")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
                     b.Property<string>("AdditionalInfo")
-                        .IsRequired();
+                        .HasColumnType("text");
 
                     b.Property<string>("Config")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("CreationTime");
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Downvote")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
-                    b.Property<bool>("Hidden");
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("Level");
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("SubmissionCount")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Upvote")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("0");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -613,25 +735,33 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Content")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int?>("ContestId");
+                    b.Property<int?>("ContestId")
+                        .HasColumnType("integer");
 
-                    b.Property<int?>("ProblemId");
+                    b.Property<int?>("ProblemId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("VoteTime");
+                    b.Property<DateTime>("VoteTime")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("VoteType")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasDefaultValueSql("1");
 
                     b.HasKey("Id");
@@ -701,8 +831,7 @@ namespace hjudge.WebHost.Data.Migrations
                     b.HasOne("hjudge.WebHost.Data.Group", "Group")
                         .WithMany("Announcement")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Announcement")
@@ -778,7 +907,9 @@ namespace hjudge.WebHost.Data.Migrations
                 {
                     b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Group")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("hjudge.WebHost.Data.GroupContestConfig", b =>
@@ -816,14 +947,12 @@ namespace hjudge.WebHost.Data.Migrations
                     b.HasOne("hjudge.WebHost.Data.Contest", "Contest")
                         .WithMany("Judge")
                         .HasForeignKey("ContestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("hjudge.WebHost.Data.Group", "Group")
                         .WithMany("Judge")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("hjudge.WebHost.Data.Problem", "Problem")
                         .WithMany("Judge")
@@ -848,17 +977,13 @@ namespace hjudge.WebHost.Data.Migrations
 
                     b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", "UserInfo")
                         .WithMany("Message")
-                        .HasForeignKey("ToUserId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("hjudge.WebHost.Data.MessageContent", b =>
                 {
-                    b.HasOne("hjudge.WebHost.Data.Message", null)
-                        .WithMany("MessageContents")
-                        .HasForeignKey("MessageId");
-
                     b.HasOne("hjudge.WebHost.Data.Identity.UserInfo", null)
                         .WithMany("MessageStatus")
                         .HasForeignKey("UserInfoId");

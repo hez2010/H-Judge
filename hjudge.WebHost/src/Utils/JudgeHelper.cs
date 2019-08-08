@@ -126,7 +126,7 @@ namespace hjudge.WebHost.Utils
                     var args = problemConfig.CompileArgs?.Split('\n')?.FirstOrDefault(i => i.StartsWith($"[{judge.Language}]"));
                     if (args != null)
                     {
-                        args = args.Substring(judge.Language.Length + 2);
+                        args = args.Substring((judge.Language?.Length ?? 0) + 2);
                     }
                     if (!string.IsNullOrWhiteSpace(lang.RunExec))
                     {

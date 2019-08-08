@@ -179,22 +179,21 @@ namespace hjudge.WebHost.Data
 
             modelBuilder.Entity<Message>(entity =>
             {
+                entity.HasIndex(e => e.ContentId);
+
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.SendTime).IsRequired();
 
                 entity.HasOne(d => d.MessageContent)
                     .WithMany(p => p.Messages)
-                    .HasForeignKey(d => d.ContentId);
-
-                entity.HasOne(d => d.UserInfo)
-                    .WithMany(p => p.Message)
-                    .HasForeignKey(d => d.FromUserId)
+                    .HasForeignKey(d => d.ContentId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.UserInfo)
                     .WithMany(p => p.Message)
-                    .HasForeignKey(d => d.ToUserId);
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<MessageContent>(entity =>
