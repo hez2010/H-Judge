@@ -110,8 +110,8 @@ namespace hjudge.WebHost.Controllers
 
             if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
 
-            if (model.ContestId != 0)
-                problems = problems.OrderBy(i => i.Id);
+            if (model.ContestId == 0) problems = problems.OrderBy(i => i.Id);
+            else model.StartId = 0; // keep original order while fetching problems in a contest
 
             if (model.StartId == 0) problems = problems.Skip(model.Start);
             else problems = problems.Where(i => i.Id >= model.StartId);
