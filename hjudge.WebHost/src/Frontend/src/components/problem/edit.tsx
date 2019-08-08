@@ -69,10 +69,10 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       problem: {
         succeeded: false,
         errorCode: 0,
-        errorMessage: "",
+        errorMessage: '',
         config: {
           answer: {
-            answerFile: "",
+            answerFile: '',
             score: 0
           },
           codeSizeLimit: 0,
@@ -80,21 +80,21 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
             ignoreLineTailWhiteSpaces: true,
             ignoreTextTailLineFeeds: true
           },
-          compileArgs: "",
+          compileArgs: '',
           extraFiles: [],
-          inputFileName: "",
-          languages: "",
-          outputFileName: "",
+          inputFileName: '',
+          languages: '',
+          outputFileName: '',
           points: [],
-          specialJudge: "",
-          submitFileName: "",
+          specialJudge: '',
+          submitFileName: '',
           useStdIO: true
         },
-        description: "",
+        description: '',
         hidden: false,
         id: 0,
         level: 1,
-        name: "",
+        name: '',
         type: 1
       },
       useSpecialJudge: false,
@@ -113,6 +113,8 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
 
   private problemId: number = 0;
   private pointsCount: number = 0;
+  private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
+
 
   fetchConfig(problemId: number) {
     if (problemId === 0) {
@@ -151,8 +153,6 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
 
     this.fetchConfig(this.problemId);
   }
-
-  private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
 
   renderPreview() {
     let editor = this.editor.current;
@@ -473,7 +473,11 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       }
       <Form.Field>
         <Label>附加文件</Label>
-        <Form.TextArea placeholder='一行一个' defaultValue={this.state.problem.config.extraFiles.length === 0 ? "" : this.state.problem.config.extraFiles.reduce((accu, next) => `${accu}\n${next}`)} onChange={(_, data) => this.handleChange(this.state.problem.config, 'extraFiles', data.value ? data.value.toString().split('\n') : [])} />
+        <Form.TextArea placeholder='一行一个' defaultValue={this.state.problem.config.extraFiles.length === 0 ? '' : this.state.problem.config.extraFiles.reduce((accu, next) => `${accu}\n${next}`)} onChange={(_, data) => this.handleChange(this.state.problem.config, 'extraFiles', data.value ? data.value.toString().split('\n') : [])} />
+      </Form.Field>
+      <Form.Field>
+        <Label>提交长度限制</Label>
+        <Form.Input type='number' placeholder='单位：byte' defaultValue={this.state.problem.config.codeSizeLimit} onChange={(_, data) => this.handleChange(this.state.problem.config, 'codeSizeLimit', data.value)} />
       </Form.Field>
     </Form>;
 

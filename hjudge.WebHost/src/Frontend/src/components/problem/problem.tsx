@@ -219,8 +219,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
           <Form.Field width={4}>
             <Label>题目操作</Label>
             <Button.Group fluid>
-              <Button primary onClick={() => this.fetchProblemList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
+              <Button type='button' primary onClick={() => this.fetchProblemList(true, 1)}>筛选</Button>
+              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>

@@ -83,6 +83,7 @@ namespace hjudge.WebHost.Services
             IQueryable<Problem> problems = dbContext.ContestProblemConfig
                                                 .Include(i => i.Problem)
                                                 .Where(i => i.ContestId == contestId)
+                                                .OrderBy(i => i.Id)
                                                 .Select(i => i.Problem);
 
             return problems;
@@ -113,6 +114,7 @@ namespace hjudge.WebHost.Services
             IQueryable<Problem> problems = dbContext.ContestProblemConfig
                                                 .Include(i => i.Problem)
                                                 .Where(i => i.ContestId == contestId)
+                                                .OrderBy(i => i.Id)
                                                 .Select(i => i.Problem);
 
             return problems;

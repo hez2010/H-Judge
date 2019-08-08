@@ -81,7 +81,7 @@ namespace hjudge.WebHost.Services
             }
 
             IQueryable<Contest> contests = dbContext.GroupContestConfig
-                .Include(i => i.Contest).Where(i => i.GroupId == groupId).Select(i => i.Contest);
+                .Include(i => i.Contest).Where(i => i.GroupId == groupId).OrderByDescending(i => i.Id).Select(i => i.Contest);
 
             return contests;
         }

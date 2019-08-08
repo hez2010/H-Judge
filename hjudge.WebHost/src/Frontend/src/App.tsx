@@ -16,6 +16,7 @@ import { CommonProps } from "./interfaces/commonProps";
 import ContestDetails from "./components/contest/details";
 import { StaticRouterContext } from "react-router";
 import ProblemEdit from "./components/problem/edit";
+import ContestEdit from "./components/contest/edit";
 
 interface PortalState {
   open: boolean,
@@ -132,7 +133,7 @@ export default class App extends React.Component<any, AppState> {
             render={props => <ProblemDetails {...Object.assign(commonProps, props)}></ProblemDetails>}>
           </Route>
           <Route
-            path='/edit/problem/:problemId?'
+            path='/edit/problem/:problemId'
             render={props => <ProblemEdit {...Object.assign(commonProps, props)}></ProblemEdit>}>
           </Route>
           <Route
@@ -140,8 +141,12 @@ export default class App extends React.Component<any, AppState> {
             render={props => <Contest {...Object.assign(commonProps, props)}></Contest>}>
           </Route>
           <Route
-            path='/details/contest/:contestId?/:groupId?'
+            path='/details/contest/:contestId/:groupId?'
             render={props => <ContestDetails {...Object.assign(commonProps, props)}></ContestDetails>}>
+          </Route>
+          <Route
+            path='/edit/contest/:contestId'
+            render={props => <ContestEdit {...Object.assign(commonProps, props)}></ContestEdit>}>
           </Route>
           <Route
             path='/group/:page?'
