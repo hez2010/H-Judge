@@ -158,7 +158,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
 
           this.setState({
             contest: result,
-            inputPassword: window.localStorage.getItem(`contest_${this.contestId}`)
+            inputPassword: window.sessionStorage.getItem(`contest_${this.contestId}`)
           } as ContestDetailsState);
           setTitle(result.name);
           this.currentTime = Date.now();
@@ -178,7 +178,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
     if (this.timer) clearInterval(this.timer);
     this.timer = undefined;
     if (this.state.inputPassword) {
-      window.localStorage.setItem(`contest_${this.contestId}`, this.state.inputPassword);
+      window.sessionStorage.setItem(`contest_${this.contestId}`, this.state.inputPassword);
     }
   }
 
