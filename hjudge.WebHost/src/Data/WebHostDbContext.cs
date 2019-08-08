@@ -1,5 +1,4 @@
-﻿#nullable disable
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.Contracts;
@@ -16,7 +15,7 @@ namespace hjudge.WebHost.Data
             : base(options)
         {
         }
-
+#nullable disable
         public virtual DbSet<Contest> Contest { get; set; }
         public virtual DbSet<ContestProblemConfig> ContestProblemConfig { get; set; }
         public virtual DbSet<ContestRegister> ContestRegister { get; set; }
@@ -29,6 +28,7 @@ namespace hjudge.WebHost.Data
         public virtual DbSet<Problem> Problem { get; set; }
         public virtual DbSet<VotesRecord> VotesRecord { get; set; }
         public virtual DbSet<Discussion> Discussion { get; set; }
+#nullable enable
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -274,7 +274,7 @@ namespace hjudge.WebHost.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
-
+        /*
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             var changedEntityNames = this.GetChangedEntityNames();
@@ -308,5 +308,6 @@ namespace hjudge.WebHost.Data
             }
             return result;
         }
+        */
     }
 }

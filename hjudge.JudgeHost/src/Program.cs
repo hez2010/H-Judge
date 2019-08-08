@@ -16,8 +16,8 @@ namespace hjudge.JudgeHost
     class Program
     {
 
-        public static MessageQueueFactory JudgeMessageQueueFactory;
-        public static Channel FileHostChannel;
+        public static MessageQueueFactory? JudgeMessageQueueFactory;
+        public static Channel? FileHostChannel;
         private static readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         static async Task Main(string[] args)
@@ -80,7 +80,7 @@ namespace hjudge.JudgeHost
 
             await Task.WhenAll(tasks);
 
-            JudgeMessageQueueFactory.Dispose();
+            JudgeMessageQueueFactory?.Dispose();
         }
 
         private static async Task JudgeRequest_Received(object sender, BasicDeliverEventArgs args)

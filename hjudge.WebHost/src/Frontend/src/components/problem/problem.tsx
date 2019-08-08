@@ -12,7 +12,7 @@ interface ProblemProps extends CommonProps {
   groupId?: number
 }
 
-interface ProblemListItemModel {
+export interface ProblemListItemModel {
   id: number,
   name: string,
   level: number,
@@ -32,7 +32,8 @@ interface ProblemListModel extends ResultModel {
 interface ProblemState {
   problemList: ProblemListModel,
   statusFilter: number[],
-  deleteItem: number
+  deleteItem: number,
+  page: number
 }
 
 export default class Problem extends React.Component<ProblemProps, ProblemState> {
@@ -50,7 +51,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
         totalCount: 0
       },
       statusFilter: [0, 1, 2],
-      deleteItem: 0
+      deleteItem: 0,
+      page: 0
     };
 
     this.idRecord = new Map<number, number>();
@@ -93,7 +95,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
           if (result.problems.length > 0)
             this.idRecord.set(page + 1, result.problems[result.problems.length - 1].id);
           this.setState({
-            problemList: result
+            problemList: result,
+            page: page
           } as ProblemState);
         }
         else {
@@ -119,8 +122,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
       return;
     }
     if (!this.props.contestId) this.props.history.push(`/details/problem/${index}`);
-    else if (!this.props.groupId) this.props.history.push(`/details/problem/${this.props.contestId}/${index}`);
-    else this.props.history.push(`/details/problem/${this.props.groupId}/${this.props.contestId}/${index}`);
+    else if (!this.props.groupId) this.props.history.push(`/details/problem/${index}/${this.props.contestId}`);
+    else this.props.history.push(`/details/problem/${index}/${this.props.contestId}/${this.props.groupId}`);
   }
 
   editProblem(id: number) {
@@ -159,8 +162,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
             <Table.HeaderCell>名称</Table.HeaderCell>
             <Table.HeaderCell>难度</Table.HeaderCell>
             <Table.HeaderCell>状态</Table.HeaderCell>
-            <Table.HeaderCell>通过量/提交量</Table.HeaderCell>
             <Table.HeaderCell>评分</Table.HeaderCell>
+            <Table.HeaderCell>通过量/提交量</Table.HeaderCell>
             <Table.HeaderCell>通过率</Table.HeaderCell>
             {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
@@ -173,12 +176,12 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
                 <Table.Cell>{v.name}</Table.Cell>
                 <Table.Cell><span role='img' aria-label='level'>⭐</span>×{v.level}</Table.Cell>
                 <Table.Cell>{v.status === 0 ? '未尝试' : v.status === 1 ? '已尝试' : '已通过'}</Table.Cell>
-                <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 {
                   v.upvote + v.downvote === 0 ?
                     <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /></Table.Cell> :
                     <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
                 }
+                <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
                 {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
@@ -226,10 +229,10 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
       {this.state.problemList.succeeded ? (this.state.problemList.problems.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
-          activePage={this.state.problemList.totalCount === 0 ? 0 : this.props.match.params.page}
+          activePage={this.state.page}
           onPageChange={(_event, data) => this.fetchProblemList(false, data.activePage as number)}
           size='small'
-          siblingRange={3}
+          siblingRange={2}
           boundaryRange={1}
           totalPages={this.state.problemList.totalCount === 0 ? 0 : Math.floor(this.state.problemList.totalCount / 10) + (this.state.problemList.totalCount % 10 === 0 ? 0 : 1)}
           firstItem={null}

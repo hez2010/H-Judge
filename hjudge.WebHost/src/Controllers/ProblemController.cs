@@ -108,7 +108,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).Cacheable().CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
 
             problems = problems.OrderBy(i => i.Id);
 
@@ -117,23 +117,23 @@ namespace hjudge.WebHost.Controllers
 
             if (model.ContestId != 0)
             {
-                ret.Problems = await problems.Include(i => i.ContestProblemConfig).Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
+                ret.Problems = await problems.Include(i => i.ContestProblemConfig).Take(model.Count).Select(i => new ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
                     Level = i.Level,
                     AcceptCount = i.ContestProblemConfig.FirstOrDefault(j => j.ContestId == model.ContestId && j.ProblemId == i.Id).AcceptCount,
                     SubmissionCount = i.ContestProblemConfig.FirstOrDefault(j => j.ContestId == model.ContestId && j.ProblemId == i.Id).SubmissionCount,
-                    Hidden = i.Hidden,
+                    Hidden = false,
                     Upvote = i.Upvote,
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).Cacheable().ToListAsync();
+                })/*.Cacheable()*/.ToListAsync();
             }
             else
             {
-                ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
+                ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
@@ -145,7 +145,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).Cacheable().ToListAsync();
+                })/*.Cacheable()*/.ToListAsync();
             }
 
             return ret;
@@ -179,7 +179,7 @@ namespace hjudge.WebHost.Controllers
                 return ret;
             }
 
-            var problem = await problems.Where(i => i.Id == model.ProblemId).Cacheable().FirstOrDefaultAsync();
+            var problem = await problems.Where(i => i.Id == model.ProblemId)/*.Cacheable()*/.FirstOrDefaultAsync();
             if (problem == null)
             {
                 ret.ErrorCode = ErrorDescription.ResourceNotFound;
@@ -193,11 +193,11 @@ namespace hjudge.WebHost.Controllers
                 null);
 
             if (await judges.Where(i => i.ProblemId == problem.Id)
-                            .Cacheable().AnyAsync())
+                            /*.Cacheable()*/.AnyAsync())
             {
                 ret.Status = 1;
                 if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                                .Cacheable().AnyAsync())
+                                /*.Cacheable()*/.AnyAsync())
                 {
                     ret.Status = 2;
                 }
@@ -211,7 +211,7 @@ namespace hjudge.WebHost.Controllers
                 var data = await dbContext.ContestProblemConfig
                     .Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id)
                     .Select(i => new { i.AcceptCount, i.SubmissionCount })
-                    .Cacheable()
+                    /*.Cacheable()*/
                     .FirstOrDefaultAsync();
                 if (data != null)
                 {
@@ -222,11 +222,11 @@ namespace hjudge.WebHost.Controllers
 
             if (!string.IsNullOrEmpty(userId))
             {
-                if (await judges.Where(i => i.ProblemId == problem.Id).Cacheable().AnyAsync())
+                if (await judges.Where(i => i.ProblemId == problem.Id)/*.Cacheable()*/.AnyAsync())
                 {
                     ret.Status = 1;
                     if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                                    .Cacheable().AnyAsync())
+                                    /*.Cacheable()*/.AnyAsync())
                     {
                         ret.Status = 2;
                     }

@@ -11,7 +11,6 @@ namespace hjudge.WebHost.Models.Problem
         public string Name { get; set; } = string.Empty;
         [Required, Range(1, 10)]
         public int Level { get; set; }
-        [Required]
         public string Description { get; set; } = string.Empty;
         [Required, Range(1, 2)]
         public int Type { get; set; }

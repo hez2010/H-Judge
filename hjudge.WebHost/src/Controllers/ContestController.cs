@@ -14,21 +14,27 @@ using EFSecondLevelCache.Core;
 namespace hjudge.WebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
+    [Route("contest")]
+    [ApiController]
     public class ContestController : ControllerBase
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IContestService contestService;
+        private readonly IProblemService problemService;
 
         public ContestController(
             CachedUserManager<UserInfo> userManager,
-            IContestService contestService)
+            IContestService contestService,
+            IProblemService problemService)
         {
             this.userManager = userManager;
             this.contestService = contestService;
+            this.problemService = problemService;
         }
 
         private readonly static int[] allStatus = new[] { 0, 1, 2 };
         [HttpPost]
+        [Route("list")]
         public async Task<ContestListModel> ContestList([FromBody]ContestListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -82,7 +88,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).Cacheable().CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
 
             contests = contests.OrderByDescending(i => i.Id);
 
@@ -98,18 +104,19 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
-            }).Cacheable().ToListAsync();
+            })/*.Cacheable()*/.ToListAsync();
 
             ret.CurrentTime = DateTime.Now;
             return ret;
         }
 
         [HttpPost]
+        [Route("details")]
         public async Task<ContestModel> ContestDetails([FromBody]ContestQueryModel model)
         {
             var userId = userManager.GetUserId(User);
 
-            var ret = new ContestModel { CurrentTime = DateTime.Now };
+            var ret = new ContestModel();
 
             IQueryable<Contest> contests;
 
@@ -131,7 +138,7 @@ namespace hjudge.WebHost.Controllers
                 return ret;
             }
 
-            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).Cacheable().FirstOrDefaultAsync();
+            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId)/*.Cacheable()*/.FirstOrDefaultAsync();
 
             if (contest == null)
             {
@@ -153,6 +160,7 @@ namespace hjudge.WebHost.Controllers
             ret.UserName = contest.UserInfo.UserName;
             ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
 
+            ret.CurrentTime = DateTime.Now;
             return ret;
         }
     }

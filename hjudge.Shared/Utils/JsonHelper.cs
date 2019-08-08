@@ -9,13 +9,15 @@ namespace hjudge.Shared.Utils
         private static readonly JsonSerializerOptions camelOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            AllowTrailingCommas = true
+            AllowTrailingCommas = true,
+            IgnoreNullValues = true
         };
 
         private static readonly JsonSerializerOptions pascalOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = false,
-            AllowTrailingCommas = true
+            AllowTrailingCommas = true,
+            IgnoreNullValues = true
         };
 
         public static byte[] SerializeJson<T>(this T obj, bool camel = true)

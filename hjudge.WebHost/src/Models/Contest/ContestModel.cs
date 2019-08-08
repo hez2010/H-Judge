@@ -1,5 +1,7 @@
 ﻿using hjudge.WebHost.Configurations;
+using hjudge.WebHost.Models.Problem;
 using System;
+using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Contest
 {
@@ -18,5 +20,7 @@ namespace hjudge.WebHost.Models.Contest
         public int Upvote { get; set; }
         public int Downvote { get; set; }
         public ContestConfig? Config { get; set; }
+        public List<ProblemListItemModel>? Problems { get; set; }
+        public int TotalCount { get; set; }
     }
 }
