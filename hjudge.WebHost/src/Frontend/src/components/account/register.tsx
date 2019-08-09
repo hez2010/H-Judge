@@ -21,7 +21,7 @@ export default class Register extends React.Component<RegisterProps> {
     let form = document.querySelector('#registerForm') as HTMLFormElement;
     if (form.reportValidity()) {
       element.disabled = true;
-      Put('/Account/Register', SerializeForm(form))
+      Put('/user/register', SerializeForm(form))
         .then(res => res.json())
         .then(data => {
           let result = data as ResultModel;

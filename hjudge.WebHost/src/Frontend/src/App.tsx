@@ -96,7 +96,7 @@ export default class App extends React.Component<any, AppState> {
   }
 
   refreshUserInfo() {
-    Get('/Account/UserInfo')
+    Get('/user/profiles')
       .then(response => response.json())
       .then(data => {
         this.setState({
