@@ -16,6 +16,7 @@ namespace hjudge.WebHost.Services
     {
         Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId);
         Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId);
+        Task<IQueryable<Judge>> QueryAllJudgesAsync(string userId);
         Task<Judge?> GetJudgeAsync(int judgeId);
         Task QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
@@ -46,6 +47,11 @@ namespace hjudge.WebHost.Services
                 dbContext.Entry(result).State = EntityState.Detached;
             }
             return result;
+        }
+
+        public Task<IQueryable<Judge>> QueryAllJudgesAsync(string userId)
+        {
+            return Task.FromResult(dbContext.Judge.Where(i => i.UserId == userId));
         }
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId)

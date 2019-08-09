@@ -232,7 +232,7 @@ export default class Layout extends React.Component<LayoutProps, LayoutState> {
   }
 
   logout() {
-    Post('/Account/Logout').then(res => res.json()).then(data => {
+    Post('/user/logout').then(res => res.json()).then(data => {
       let result = data as ResultModel;
       if (result.succeeded) {
         this.props.openPortal('提示', '退出成功', 'green');

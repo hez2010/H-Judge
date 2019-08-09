@@ -2,23 +2,45 @@ import * as React from 'react';
 import { Item, Popup, Input, Divider, Header, Icon, Table, Label, Form, Placeholder, Grid } from 'semantic-ui-react';
 import { OtherInfo } from '../../interfaces/userInfo';
 import { setTitle } from '../../utils/titleHelper';
-import { Post } from '../../utils/requestHelper';
+import { Post, Get } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { CommonProps } from '../../interfaces/commonProps';
+import { NavLink } from 'react-router-dom';
 
-interface UserProps extends CommonProps {}
+interface UserProps extends CommonProps { }
 
-export default class User extends React.Component<UserProps> {
+interface UserState {
+  statistics: ProblemStatisticsModel
+}
+
+interface ProblemStatisticsModel extends ResultModel {
+  solvedProblems: number[],
+  triedProblems: number[],
+  loaded: boolean
+}
+
+export default class User extends React.Component<UserProps, UserState> {
   constructor(props: UserProps) {
     super(props);
     this.confirmEmail = this.confirmEmail.bind(this);
     this.confirmPhoneNumber = this.confirmPhoneNumber.bind(this);
     this.changeAvatar = this.changeAvatar.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.loadProblems = this.loadProblems.bind(this);
+    this.renderProblems = this.renderProblems.bind(this);
+
+    this.state = {
+      statistics: {
+        solvedProblems: [],
+        triedProblems: [],
+        loaded: false
+      }
+    };
   }
 
   componentDidMount() {
     setTitle('门户');
+    this.loadProblems();
   }
 
   confirmEmail(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
@@ -58,7 +80,7 @@ export default class User extends React.Component<UserProps> {
         break;
     }
 
-    Post('/Account/UserInfo', info)
+    Post('/user/profiles', info)
       .then(res => res.json())
       .then(data => {
         let result = data as ResultModel;
@@ -67,13 +89,76 @@ export default class User extends React.Component<UserProps> {
           this.props.refreshUserInfo();
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `信息更新失败\n${result.errorMessage}`, 'red');
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
         this.props.openPortal('错误', '信息更新失败', 'red');
         console.log(err);
       });
+  }
+
+  loadProblems() {
+    Get('/user/stats')
+      .then(res => res.json())
+      .then(data => {
+        let result = data as ProblemStatisticsModel;
+        if (result.succeeded) {
+          this.setState({
+            statistics: {
+              solvedProblems: result.solvedProblems,
+              triedProblems: result.triedProblems,
+              loaded: true
+            }
+          });
+        }
+        else {
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+        }
+      })
+      .catch(err => {
+        this.props.openPortal('错误', '做题记录加载失败', 'red');
+        console.log(err);
+      });
+  }
+
+  renderProblems() {
+    if (!this.state.statistics.loaded) {
+      return <>
+        <Header as='h5'>已通过的题目</Header>
+        <Placeholder>
+          <Placeholder.Paragraph>
+            <Placeholder.Line />
+            <Placeholder.Line />
+            <Placeholder.Line />
+            <Placeholder.Line />
+          </Placeholder.Paragraph>
+        </Placeholder>
+        <Header as='h5'>已尝试的题目</Header>
+        <Placeholder>
+          <Placeholder.Paragraph>
+            <Placeholder.Line />
+            <Placeholder.Line />
+            <Placeholder.Line />
+            <Placeholder.Line />
+          </Placeholder.Paragraph>
+        </Placeholder></>;
+    }
+    let solved = this.state.statistics.solvedProblems.length === 0 ? <p>无</p> :
+      <Grid columns={10}>{this.state.statistics.solvedProblems.map((v, i) =>
+        <Grid.Column key={i}><NavLink to={`/details/problem/${v}`} >#{v}</NavLink></Grid.Column>
+      )}</Grid>;
+    let tried = this.state.statistics.triedProblems.length === 0 ? <p>无</p> :
+      <Grid columns={10}>{this.state.statistics.triedProblems.map((v, i) =>
+        <Grid.Column key={i}><NavLink to={`/details/problem/${v}`} >#{v}</NavLink></Grid.Column>
+      )}</Grid>;
+
+    return <>
+      <Header as='h5'>已通过的题目</Header>
+      {solved}
+      <Header as='h5'>已尝试的题目</Header>
+      {tried}
+    </>;
   }
 
   showUserInfo() {
@@ -83,7 +168,7 @@ export default class User extends React.Component<UserProps> {
           <div>
             <Popup
               position='bottom center'
-              trigger={<Item.Image size='small' src={`/Account/UserAvatar?userId=${this.props.userInfo.userId}`} circular style={{ cursor: 'pointer' }} onClick={this.changeAvatar} />}
+              trigger={<Item.Image size='small' src={`/user/avatar?userId=${this.props.userInfo.userId}`} circular style={{ cursor: 'pointer' }} onClick={this.changeAvatar} />}
               content='点击更换头像'
             />
           </div>
@@ -148,24 +233,7 @@ export default class User extends React.Component<UserProps> {
                       做题记录
                     </Header>
                   </Divider>
-                  <Header as='h5'>已通过的题目</Header>
-                  <Placeholder>
-                    <Placeholder.Paragraph>
-                      <Placeholder.Line />
-                      <Placeholder.Line />
-                      <Placeholder.Line />
-                      <Placeholder.Line />
-                    </Placeholder.Paragraph>
-                  </Placeholder>
-                  <Header as='h5'>已尝试的题目</Header>
-                  <Placeholder>
-                    <Placeholder.Paragraph>
-                      <Placeholder.Line />
-                      <Placeholder.Line />
-                      <Placeholder.Line />
-                      <Placeholder.Line />
-                    </Placeholder.Paragraph>
-                  </Placeholder>
+                  {this.renderProblems()}
                 </Grid.Column>
               </Grid>
             </Item.Description>

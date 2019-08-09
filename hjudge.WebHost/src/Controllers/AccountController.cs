@@ -14,23 +14,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using hjudge.Core;
 
 namespace hjudge.WebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
+    [Route("user")]
+    [ApiController]
     public class AccountController : ControllerBase
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly SignInManager<UserInfo> signInManager;
+        private readonly IJudgeService judgeService;
 
-        public AccountController(CachedUserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager, WebHostDbContext dbContext)
+        public AccountController(CachedUserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager, IJudgeService judgeService, WebHostDbContext dbContext)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.judgeService = judgeService;
             dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         [HttpPost]
+        [Route("login")]
         public async Task<ResultModel> Login([FromBody]LoginModel model)
         {
             var ret = new ResultModel();
@@ -51,6 +57,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPut]
+        [Route("register")]
         public async Task<ResultModel> Register([FromBody]RegisterModel model)
         {
             var ret = new ResultModel();
@@ -82,6 +89,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
+        [Route("logout")]
         public async Task<ResultModel> Logout()
         {
             await signInManager.SignOutAsync();
@@ -89,6 +97,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
+        [Route("avatar")]
         [PrivilegeAuthentication.RequireSignedIn]
         public async Task<ResultModel> UserAvatar(IFormFile avatar)
         {
@@ -127,6 +136,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
+        [Route("avatar")]
         public async Task<IActionResult> UserAvatar(string? userId)
         {
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
@@ -141,6 +151,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
+        [Route("profiles")]
         [PrivilegeAuthentication.RequireSignedIn]
         public async Task<ResultModel> UserInfo([FromBody]UserInfoModel model)
         {
@@ -200,7 +211,8 @@ namespace hjudge.WebHost.Controllers
 
         [HttpGet]
         [SendAntiForgeryToken]
-        public async Task<UserInfoModel> UserInfo(string? userId)
+        [Route("profiles")]
+        public async Task<UserInfoModel> UserInfo(string? userId = null)
         {
             var userInfoRet = new UserInfoModel
             {
@@ -208,7 +220,7 @@ namespace hjudge.WebHost.Controllers
             };
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (user == null)
+            if (userId == null || user == null)
             {
                 if (!string.IsNullOrEmpty(userId)) userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
                 return userInfoRet;
@@ -230,6 +242,27 @@ namespace hjudge.WebHost.Controllers
             }
 
             return userInfoRet;
+        }
+
+        [HttpGet]
+        [Route("stats")]
+        public async Task<ProblemStatisticsModel> GetUserProblemStatistics(string? userId = null)
+        {
+            var ret = new ProblemStatisticsModel();
+            if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
+            var user = await userManager.FindByIdAsync(userId);
+            if (userId == null || user == null)
+            {
+                if (!string.IsNullOrEmpty(userId)) ret.ErrorCode = ErrorDescription.UserNotExist;
+                return ret;
+            }
+
+            var judges = await judgeService.QueryAllJudgesAsync(userId);
+
+            ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();
+            ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();
+
+            return ret;
         }
     }
 }

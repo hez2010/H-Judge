@@ -21,7 +21,7 @@ export default class Login extends React.Component<LoginProps> {
     let form = document.querySelector('#loginForm') as HTMLFormElement;
     if (form.reportValidity()) {
       element.disabled = true;
-      Post('/Account/Login', SerializeForm(form))
+      Post('/user/login', SerializeForm(form))
         .then(res => res.json())
         .then(data => {
           let result = data as ResultModel;
