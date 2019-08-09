@@ -75,7 +75,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
     req.groupId = this.props.groupId;
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
-    Post('/Group/GroupList', req)
+    Post('/group/list', req)
       .then(res => res.json())
       .then(data => {
         let result = data as GroupListModel;

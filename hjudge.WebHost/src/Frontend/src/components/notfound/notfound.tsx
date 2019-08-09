@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+﻿import * as React from 'react';
 import { Header } from 'semantic-ui-react';
 import { setTitle } from '../../utils/titleHelper';
 

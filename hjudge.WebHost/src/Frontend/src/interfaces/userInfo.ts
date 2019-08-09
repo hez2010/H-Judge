@@ -1,4 +1,4 @@
-﻿import { ResultModel } from "./resultModel";
+﻿import { ResultModel } from './resultModel';
 
 export interface UserInfo extends ResultModel {
   userId: string,

@@ -10,6 +10,7 @@ using EFSecondLevelCache.Core;
 namespace hjudge.WebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
+    [Route("group")]
     public class GroupController : ControllerBase
     {
         private readonly IGroupService groupService;
@@ -26,6 +27,7 @@ namespace hjudge.WebHost.Controllers
 
         private readonly static int[] allStatus = new[] { 0, 1 };
 
+        [Route("list")]
         public async Task<GroupListModel> GroupList([FromBody]GroupListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
