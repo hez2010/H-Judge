@@ -1,22 +1,22 @@
-﻿import * as React from "react";
+﻿import * as React from 'react';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
 import NotFound from './components/notfound/notfound';
 import About from './components/about/about';
 import Home from './components/home/home';
 import { UserInfo } from './interfaces/userInfo'
-import { Get } from "./utils/requestHelper";
-import User from "./components/account/user";
-import { TransitionablePortal, Header, Segment, Divider, SemanticCOLORS, Icon } from "semantic-ui-react";
-import Problem from "./components/problem/problem";
-import Contest from "./components/contest/contest";
-import ProblemDetails from "./components/problem/details";
-import Group from "./components/group/group";
-import { CommonProps } from "./interfaces/commonProps";
-import ContestDetails from "./components/contest/details";
-import { StaticRouterContext } from "react-router";
-import ProblemEdit from "./components/problem/edit";
-import ContestEdit from "./components/contest/edit";
+import { Get } from './utils/requestHelper';
+import User from './components/account/user';
+import { TransitionablePortal, Header, Segment, Divider, SemanticCOLORS, Icon } from 'semantic-ui-react';
+import Problem from './components/problem/problem';
+import Contest from './components/contest/contest';
+import ProblemDetails from './components/problem/details';
+import Group from './components/group/group';
+import { CommonProps } from './interfaces/commonProps';
+import ContestDetails from './components/contest/details';
+import Statistics from './components/statistics/statistics';
+import ProblemEdit from './components/problem/edit';
+import ContestEdit from './components/contest/edit';
 
 interface PortalState {
   open: boolean,
@@ -157,8 +157,8 @@ export default class App extends React.Component<any, AppState> {
             render={props => <p>message</p>}>
           </Route>
           <Route
-            path='/status'
-            render={props => <p>status</p>}>
+            path='/statistics'
+            render={props => <Statistics {...Object.assign(commonProps, props)}></Statistics>}>
           </Route>
           <Route
             path='/rank'

@@ -1,10 +1,10 @@
-import * as React from "react";
+import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Container, Menu, Icon, Responsive, Header, Button, Visibility, Segment, Sidebar, Grid, List } from 'semantic-ui-react';
-import Login from "../account/login";
-import Register from "../account/register";
-import { Post } from "../../utils/requestHelper";
-import { ResultModel } from "../../interfaces/resultModel";
+import Login from '../account/login';
+import Register from '../account/register';
+import { Post } from '../../utils/requestHelper';
+import { ResultModel } from '../../interfaces/resultModel';
 import { CommonProps } from '../../interfaces/commonProps';
 
 interface LayoutState {

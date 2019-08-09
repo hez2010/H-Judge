@@ -1,7 +1,7 @@
-﻿import * as React from "react";
-import { setTitle } from "../../utils/titleHelper";
-import { Header, Divider } from "semantic-ui-react";
-import { CommonProps } from "../../interfaces/commonProps";
+﻿import * as React from 'react';
+import { setTitle } from '../../utils/titleHelper';
+import { Header, Divider } from 'semantic-ui-react';
+import { CommonProps } from '../../interfaces/commonProps';
 
 interface HomeProps extends CommonProps { }
 
