@@ -7,9 +7,7 @@ import { ResultModel } from '../../interfaces/resultModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 
-interface GroupProps extends CommonProps {
-  groupId?: number
-}
+interface GroupProps extends CommonProps { }
 
 interface GroupListItemModel {
   id: number,
@@ -72,7 +70,6 @@ export default class Group extends React.Component<GroupProps, GroupState> {
     req.start = (page - 1) * 10;
     req.count = 10;
     req.requireTotalCount = requireTotalCount;
-    req.groupId = this.props.groupId;
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
     Post('/group/list', req)
@@ -113,8 +110,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
       this.disableNavi = false;
       return;
     }
-    if (!this.props.groupId) this.props.history.push(`/details/group/${index}`);
-    else this.props.history.push(`/details/group/${this.props.groupId}/${index}`);
+    this.props.history.push(`/details/group/${index}`);
   }
 
   editGroup(id: number) {
