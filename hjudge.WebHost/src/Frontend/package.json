@@ -44,7 +44,7 @@
     "typescript": "3.5.3",
     "url-loader": "2.1.0",
     "webpack": "4.39.1",
-    "webpack-dev-server": "3.7.2"
+    "webpack-dev-server": "3.8.0"
   },
   "dependencies": {
     "es6-promise": "4.2.8",
