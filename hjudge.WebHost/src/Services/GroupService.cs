@@ -40,7 +40,7 @@ namespace hjudge.WebHost.Services
 
         public async Task<Group?> GetGroupAsync(int groupId)
         {
-            var result = await dbContext.Group/*.Cacheable()*/.FirstOrDefaultAsync(i => i.Id == groupId);
+            var result = await dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId);
             if (result != null)
             {
                 dbContext.Entry(result).State = EntityState.Detached;
@@ -54,7 +54,7 @@ namespace hjudge.WebHost.Services
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                if (!await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId)/*.Cacheable()*/.AnyAsync())
+                if (!await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).AnyAsync())
                 {
                     await dbContext.GroupJoin.AddAsync(new GroupJoin
                     {
@@ -74,7 +74,7 @@ namespace hjudge.WebHost.Services
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                var info = await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId)/*.Cacheable()*/.FirstOrDefaultAsync();
+                var info = await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).FirstOrDefaultAsync();
                 if (info != null)
                 {
                     dbContext.GroupJoin.Remove(info);
@@ -119,7 +119,7 @@ namespace hjudge.WebHost.Services
 
         public async Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests)
         {
-            var oldContests = await dbContext.GroupContestConfig.Where(i => i.GroupId == groupId)/*.Cacheable()*/.ToListAsync();
+            var oldContests = await dbContext.GroupContestConfig.Where(i => i.GroupId == groupId).ToListAsync();
             dbContext.GroupContestConfig.RemoveRange(oldContests);
             var dict = oldContests.ToDictionary(i => i.ContestId);
             foreach (var i in contests.Distinct())

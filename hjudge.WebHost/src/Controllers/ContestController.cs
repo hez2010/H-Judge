@@ -90,7 +90,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
 
             if (model.GroupId == 0) contests = contests.OrderByDescending(i => i.Id);
             else model.StartId = 0; // keep original order while fetching contests in a group
@@ -107,7 +107,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
-            })/*.Cacheable()*/.ToListAsync();
+            }).ToListAsync();
 
             ret.CurrentTime = DateTime.Now;
             return ret;
@@ -141,7 +141,7 @@ namespace hjudge.WebHost.Controllers
                 return ret;
             }
 
-            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).FirstOrDefaultAsync();
 
             if (contest == null)
             {

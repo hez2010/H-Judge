@@ -273,7 +273,7 @@ namespace hjudge.WebHost.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
-        /*
+        
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             var changedEntityNames = this.GetChangedEntityNames();
@@ -307,6 +307,5 @@ namespace hjudge.WebHost.Data
             }
             return result;
         }
-        */
     }
 }
