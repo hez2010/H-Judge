@@ -115,7 +115,7 @@ namespace hjudge.JudgeHost
 
                     var filesResponse = fileService.DownloadFiles(request);
 
-                    while (await filesResponse.ResponseStream.MoveNext())
+                    while (await filesResponse.ResponseStream.MoveNext(default))
                     {
                         foreach (var i in filesResponse.ResponseStream.Current.Result)
                         {

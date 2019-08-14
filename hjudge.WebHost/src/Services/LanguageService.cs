@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace hjudge.WebHost.Services
 {
@@ -21,7 +22,9 @@ namespace hjudge.WebHost.Services
         public LocalLanguageService()
         {
             fileName = "./AppData/LanguageConfig.json";
-            languageConfigs = File.ReadAllBytes(fileName).DeserializeJson<List<LanguageConfig>>(false);
+
+            var data = File.Exists(fileName) ? File.ReadAllBytes(fileName) : Encoding.UTF8.GetBytes("[]");
+            languageConfigs = data.DeserializeJson<List<LanguageConfig>>(false);
         }
 
         public async Task<bool> AddLanguageConfigAsync(LanguageConfig config)
