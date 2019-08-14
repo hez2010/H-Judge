@@ -45,7 +45,7 @@ namespace hjudge.WebHost.Services
 
         public async Task<Contest?> GetContestAsync(int contestId)
         {
-            var result = await dbContext.Contest/*.Cacheable()*/.FirstOrDefaultAsync(i => i.Id == contestId);
+            var result = await dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId);
             if (result != null)
             {
                 dbContext.Entry(result).State = EntityState.Detached;
@@ -103,7 +103,7 @@ namespace hjudge.WebHost.Services
 
         public async Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems)
         {
-            var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId)/*.Cacheable()*/.ToListAsync();
+            var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId).ToListAsync();
             dbContext.ContestProblemConfig.RemoveRange(oldProblems);
             await dbContext.SaveChangesAsync();
 
