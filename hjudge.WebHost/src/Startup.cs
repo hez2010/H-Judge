@@ -55,7 +55,8 @@ namespace hjudge.WebHost
                     "font/woff",
                     "font/woff2",
                     "font/ttf",
-                    "font/eof" });
+                    "font/eof",
+                    "image/x-icon" });
             });
 
             services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
