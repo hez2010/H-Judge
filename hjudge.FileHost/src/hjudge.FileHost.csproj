@@ -12,7 +12,7 @@
     <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.1" />
     <PackageReference Include="Grpc.AspNetCore.Server" Version="0.1.22-pre3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview8.19405.11" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-ci.20190812.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview8" />
   </ItemGroup>
 
   <ItemGroup>
