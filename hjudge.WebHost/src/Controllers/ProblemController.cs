@@ -14,6 +14,8 @@ using EFSecondLevelCache.Core;
 using hjudge.WebHost.Utils;
 using hjudge.WebHost.Models;
 using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -212,7 +214,7 @@ namespace hjudge.WebHost.Controllers
                 var data = await dbContext.ContestProblemConfig
                     .Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id)
                     .Select(i => new { i.AcceptCount, i.SubmissionCount })
-                    
+
                     .FirstOrDefaultAsync();
                 if (data != null)
                 {
@@ -350,6 +352,42 @@ namespace hjudge.WebHost.Controllers
             ret.Config = problem.Config.DeserializeJson<ProblemConfig>(false);
 
             return ret;
+        }
+
+        [HttpPut]
+        [RequireAdmin]
+        [Route("data")]
+        public async Task<ResultModel> UploadData(int problemId, IFormFile file)
+        {
+            var ret = new ResultModel();
+            if ((await problemService.GetProblemAsync(problemId)) == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
+            var fileName = Path.Combine($"AppData/Data/{problemId}", file.FileName);
+            using var stream = System.IO.File.Exists(fileName) ? new FileStream(fileName, FileMode.Truncate) : new FileStream(fileName, FileMode.CreateNew);
+            if (file.Length > 100 * 1048576)
+            {
+                ret.ErrorCode = ErrorDescription.FileSizeExceeded;
+                return ret;
+            }
+            await file.CopyToAsync(stream);
+            return ret;
+        }
+
+        [HttpGet]
+        [RequireAdmin]
+        [Route("data")]
+        public async Task<IActionResult> GetData(int problemId)
+        {
+            var ret = new ResultModel();
+            if ((await problemService.GetProblemAsync(problemId)) == null)
+            {
+                ret.ErrorCode = ErrorDescription.ResourceNotFound;
+                return ret;
+            }
+
         }
     }
 }

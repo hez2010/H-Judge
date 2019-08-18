@@ -1,4 +1,6 @@
-﻿using hjudge.WebHost.Extensions;
+﻿using System.Threading.Tasks;
+using hjudge.WebHost.Extensions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace hjudge.WebHost.Models
 {

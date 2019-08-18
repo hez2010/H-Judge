@@ -7,6 +7,21 @@ interface StatisticsProps extends CommonProps {
   groupId?: number // unused
 }
 
+interface StatisticsItemModel {
+  problemId: number,
+  resultId: number,
+  problemName: number,
+  userId: number,
+  userName: number,
+  resultType: string,
+  time: Date
+}
+
+interface StatisticsListModel {
+  statistics: StatisticsItemModel[],
+  totalCount: number
+}
+
 interface StatisticsState {
 
 }
