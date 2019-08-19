@@ -16,6 +16,7 @@ using hjudge.WebHost.Models;
 using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.IO.Compression;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -365,14 +366,21 @@ namespace hjudge.WebHost.Controllers
                 ret.ErrorCode = ErrorDescription.ResourceNotFound;
                 return ret;
             }
-            var fileName = Path.Combine($"AppData/Data/{problemId}", file.FileName);
-            using var stream = System.IO.File.Exists(fileName) ? new FileStream(fileName, FileMode.Truncate) : new FileStream(fileName, FileMode.CreateNew);
+            if (file.ContentType != "application/x-zip-compressed" && file.ContentType != "application/zip")
+            {
+                ret.ErrorCode = ErrorDescription.FileBadFormat;
+                return ret;
+            }
+            var fileName = Path.GetTempFileName();
+            using var stream = new FileStream(fileName, FileMode.Truncate);
             if (file.Length > 100 * 1048576)
             {
                 ret.ErrorCode = ErrorDescription.FileSizeExceeded;
                 return ret;
             }
             await file.CopyToAsync(stream);
+            
+            ZipFile.ExtractToDirectory(fileName, $"AppData/Data/{problemId}");
             return ret;
         }
 
@@ -384,10 +392,28 @@ namespace hjudge.WebHost.Controllers
             var ret = new ResultModel();
             if ((await problemService.GetProblemAsync(problemId)) == null)
             {
+                return NotFound();
+            }
+            var fileName = Path.GetTempFileName();
+            ZipFile.CreateFromDirectory($"AppData/Data/{problemId}", fileName, CompressionLevel.Optimal, false);
+            var stream = new FileStream(fileName, FileMode.Open);
+            return File(stream, "application/x-zip-compressed", $"Data_{problemId}_{DateTime.Now:yyyyMMddHHmmssffff}.zip", true);
+        }
+
+        [HttpDelete]
+        [RequireAdmin]
+        [Route("data")]
+        public async Task<ResultModel> DeleteData(int problemId)
+        {
+            var ret = new ResultModel();
+            if ((await problemService.GetProblemAsync(problemId)) == null)
+            {
                 ret.ErrorCode = ErrorDescription.ResourceNotFound;
                 return ret;
             }
-
+            Directory.Delete($"AppData/Data/{problemId}", true);
+            Directory.CreateDirectory($"AppData/Data/{problemId}");
+            return ret;
         }
     }
 }
