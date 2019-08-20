@@ -301,6 +301,7 @@ namespace hjudge.WebHost.Controllers
             ret.Type = problem.Type;
             ret.Config = problem.Config.DeserializeJson<ProblemConfig>(false);
 
+            Directory.CreateDirectory($"AppData/Data/{problem.Id}");
             return ret;
         }
 
