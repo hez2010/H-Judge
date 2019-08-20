@@ -9,17 +9,19 @@ export function ReadCookie(name: string) {
   return '';
 }
 
-export function Post(url: string, data: any = {}) {
+export function Post(url: string, data: any = {}, json: boolean = true, contentType: string = 'application/json') {
   let token = ReadCookie('XSRF-TOKEN');
 
   let myInit: RequestInit = {
     method: 'POST',
     credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
+    headers: !!contentType ? {
+      'Content-Type': contentType,
       'X-XSRF-TOKEN': token
-    },
-    body: JSON.stringify(data),
+    } : {
+        'X-XSRF-TOKEN': token
+      },
+    body: json ? JSON.stringify(data) : data,
     mode: 'cors',
     cache: 'default'
   };
@@ -29,17 +31,19 @@ export function Post(url: string, data: any = {}) {
   return fetch(myRequest, myInit);
 }
 
-export function Put(url: string, data: any = {}) {
+export function Put(url: string, data: any = {}, json: boolean = true, contentType: string = 'application/json') {
   let token = ReadCookie('XSRF-TOKEN');
 
   let myInit: RequestInit = {
     method: 'PUT',
     credentials: 'same-origin',
-    headers: {
-      'Content-Type': 'application/json',
+    headers: !!contentType ? {
+      'Content-Type': contentType,
       'X-XSRF-TOKEN': token
-    },
-    body: JSON.stringify(data),
+    } : {
+        'X-XSRF-TOKEN': token
+      },
+    body: json ? JSON.stringify(data) : data,
     mode: 'cors',
     cache: 'default'
   };

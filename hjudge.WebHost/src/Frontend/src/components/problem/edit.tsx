@@ -2,15 +2,17 @@
 import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { ResultModel } from '../../interfaces/resultModel';
-import { Get, Put, Post } from '../../utils/requestHelper';
+import { Get, Put, Post, Delete } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
-import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon } from 'semantic-ui-react';
+import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon, Confirm } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 
 interface ProblemEditState {
   problem: ProblemEditModel,
   useSpecialJudge: boolean,
-  selectedTemplate: string
+  selectedTemplate: string,
+  uploadingData: boolean,
+  confirmOpen: boolean
 }
 
 interface ProblemEditProps extends CommonProps {
@@ -98,7 +100,9 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         type: 1
       },
       useSpecialJudge: false,
-      selectedTemplate: ''
+      selectedTemplate: '',
+      uploadingData: false,
+      confirmOpen: false
     };
 
     this.fetchConfig = this.fetchConfig.bind(this);
@@ -109,11 +113,16 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     this.removePoint = this.removePoint.bind(this);
     this.addPoint = this.addPoint.bind(this);
     this.applyTemplate = this.applyTemplate.bind(this);
+    this.uploadFile = this.uploadFile.bind(this);
+    this.selectFile = this.selectFile.bind(this);
+    this.deleteFile = this.deleteFile.bind(this);
+    this.downloadFile = this.downloadFile.bind(this);
   }
 
   private problemId: number = 0;
   private pointsCount: number = 0;
   private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
+  private fileLoader: React.RefObject<HTMLInputElement> = React.createRef<HTMLInputElement>();
 
 
   fetchConfig(problemId: number) {
@@ -264,6 +273,75 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       if (score !== '*') points[i].score = parseInt(score);
     }
     this.setState(this.state);
+  }
+
+  uploadFile() {
+    let ele = this.fileLoader.current;
+    if (!ele || !ele.files || ele.files.length === 0) return;
+    let file = ele.files[0];
+    if (file.type !== 'application/x-zip-compressed' && file.type !== 'application/zip') {
+      this.props.openPortal('错误', '文件格式不正确', 'red');
+      ele.value = '';
+      return;
+    }
+    if (file.size > 134217728) {
+      this.props.openPortal('错误', '文件大小不能超过 128 Mb', 'red');
+      ele.value = '';
+      return;
+    }
+    let form = new FormData();
+    form.append('problemId', this.state.problem.id.toString());
+    form.append('file', file);
+    this.setState({ uploadingData: true });
+    Put('/problem/data', form, false, '')
+      .then(res => res.json())
+      .then(data => {
+        if (data.succeeded)
+          this.props.openPortal('成功', '题目数据上传成功', 'green');
+        else this.props.openPortal('错误', `${data.errorMessage}`, 'red');
+        this.setState({ uploadingData: false });
+        let ele = this.fileLoader.current;
+        if (ele) ele.value = '';
+      })
+      .catch(() => {
+        this.props.openPortal('错误', '题目数据上传失败', 'red');
+        this.setState({ uploadingData: false });
+        let ele = this.fileLoader.current;
+        if (ele) ele.value = '';
+      });
+  }
+
+  selectFile() {
+    if (this.fileLoader.current) {
+      this.fileLoader.current.click();
+    }
+  }
+
+  downloadFile() {
+    let link = document.createElement('a');
+    link.href = `/problem/data?problemId=${this.state.problem.id}`;
+    link.target = '_blank';
+    link.click();
+    link.remove();
+  }
+
+  deleteFile() {
+    this.setState({ confirmOpen: false });
+    Delete('/problem/data', { problemId: this.state.problem.id })
+      .then(res => res.json())
+      .then(data => {
+        let result = data as ResultModel;
+        if (result.succeeded) {
+          this.props.openPortal('成功', '题目数据删除成功', 'green');
+        }
+        else {
+          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+        }
+      })
+      .catch(err => {
+        this.props.openPortal('错误', '题目数据删除失败', 'red');
+        console.log(err);
+      })
   }
 
   render() {
@@ -481,7 +559,16 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       </Form.Field>
     </Form>;
 
-    const panes = [
+    const utils = <Form>
+      <Form.Group inline>
+        <Form.Button disabled={this.state.uploadingData} type='button' primary onClick={this.selectFile}>{this.state.uploadingData ? '上传中...' : '上传 .zip 数据文件'}</Form.Button>
+        <Form.Button disabled={this.state.uploadingData} type='button' onClick={this.downloadFile}>下载数据文件</Form.Button>
+        <Form.Button disabled={this.state.uploadingData} type='button' color='red' onClick={() => this.setState({ confirmOpen: true })}>删除数据文件</Form.Button>
+        <input ref={this.fileLoader} onChange={this.uploadFile} type='file' accept="application/x-zip-compressed,application/zip" style={{ filter: 'alpha(opacity=0)', opacity: 0, width: 0, height: 0 }} />
+      </Form.Group>
+    </Form>;
+
+    let panes = [
       {
         menuItem: '基本信息', render: () => <Tab.Pane key={0} attached={false}>{basic}</Tab.Pane>
       },
@@ -494,13 +581,30 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       {
         menuItem: '高级选项', render: () => <Tab.Pane key={3} attached={false}>{advanced}</Tab.Pane>
       }
-    ]
+    ];
+
+    if (this.state.problem.id !== 0) panes =
+      [
+        ...panes,
+        {
+          menuItem: '实用工具', render: () => <Tab.Pane key={4} attached={false}>{utils}</Tab.Pane>
+        }
+      ];
 
     return <>
       <Header as='h2'>题目编辑</Header>
       <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
       <Divider />
       <Button disabled={!this.canSubmit()} primary onClick={this.submitChange}>保存</Button>
+
+      <Confirm
+        open={this.state.confirmOpen}
+        cancelButton='取消'
+        confirmButton='确定'
+        onCancel={() => this.setState({ confirmOpen: false })}
+        onConfirm={this.deleteFile}
+        content={"删除后不可恢复，确定继续？"}
+      />
     </>;
   }
 }

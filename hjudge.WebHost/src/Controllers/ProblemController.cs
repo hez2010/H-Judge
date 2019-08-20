@@ -358,7 +358,8 @@ namespace hjudge.WebHost.Controllers
         [HttpPut]
         [RequireAdmin]
         [Route("data")]
-        public async Task<ResultModel> UploadData(int problemId, IFormFile file)
+        [RequestSizeLimit(135000000)]
+        public async Task<ResultModel> UploadData([FromForm]int problemId, IFormFile file)
         {
             var ret = new ResultModel();
             if ((await problemService.GetProblemAsync(problemId)) == null)
@@ -371,15 +372,15 @@ namespace hjudge.WebHost.Controllers
                 ret.ErrorCode = ErrorDescription.FileBadFormat;
                 return ret;
             }
-            var fileName = Path.GetTempFileName();
-            using var stream = new FileStream(fileName, FileMode.Truncate);
-            if (file.Length > 100 * 1048576)
+            if (file.Length > 134217728)
             {
                 ret.ErrorCode = ErrorDescription.FileSizeExceeded;
                 return ret;
             }
-            await file.CopyToAsync(stream);
-            
+            var fileName = Path.GetTempFileName();
+            using (var stream = new FileStream(fileName, FileMode.Truncate)) await file.CopyToAsync(stream);
+
+            Directory.CreateDirectory($"AppData/Data/{problemId}");
             ZipFile.ExtractToDirectory(fileName, $"AppData/Data/{problemId}");
             return ret;
         }
@@ -395,6 +396,7 @@ namespace hjudge.WebHost.Controllers
                 return NotFound();
             }
             var fileName = Path.GetTempFileName();
+            System.IO.File.Delete(fileName);
             ZipFile.CreateFromDirectory($"AppData/Data/{problemId}", fileName, CompressionLevel.Optimal, false);
             var stream = new FileStream(fileName, FileMode.Open);
             return File(stream, "application/x-zip-compressed", $"Data_{problemId}_{DateTime.Now:yyyyMMddHHmmssffff}.zip", true);
