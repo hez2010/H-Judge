@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace smartbox.SeaweedFs.Client.Core.Http
 {
     public class PreAllocateVolumesResult
     {
-        [JsonProperty("count")]
+        [JsonPropertyName("count")]
         public int Count { get; set; }
 
         public override string ToString()

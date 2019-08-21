@@ -23,33 +23,33 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class Volume
     {
-        [JsonProperty("Id")]
+        [JsonPropertyName("Id")]
         public long Id { get; private set; }
-        [JsonProperty("Size")]
+        [JsonPropertyName("Size")]
         public long Size { get; private set; }
-        [JsonProperty("ReplicaPlacement")]
+        [JsonPropertyName("ReplicaPlacement")]
         public ReplicaPlacement ReplicaPlacement { get; private set; }
-        [JsonProperty("Ttl")]
+        [JsonPropertyName("Ttl")]
         [JsonConverter(typeof(ArrayJsonConverter))]
         public List<string> TTL { get; private set; }
-        [JsonProperty("Collection")]
+        [JsonPropertyName("Collection")]
         public string Collection { get; private set; }
-        [JsonProperty("Version")]
+        [JsonPropertyName("Version")]
         public long Version { get; private set; }
-        [JsonProperty("FileCount")]
+        [JsonPropertyName("FileCount")]
         public long FileCount { get; private set; }
-        [JsonProperty("DeleteCount")]
+        [JsonPropertyName("DeleteCount")]
         public long DeleteCount { get; private set; }
-        [JsonProperty("DeletedByteCount")]
+        [JsonPropertyName("DeletedByteCount")]
         public long DeletedByteCount { get; private set; }
-        [JsonProperty("ReadOnly")]
+        [JsonPropertyName("ReadOnly")]
         public bool ReadOnly { get; private set; }
 
         public override string ToString()

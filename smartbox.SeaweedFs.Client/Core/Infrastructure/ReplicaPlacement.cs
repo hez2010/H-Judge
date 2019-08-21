@@ -22,17 +22,17 @@
  * SOFTWARE.
  */
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class ReplicaPlacement
     {       
-        [JsonProperty("SameRackCount")]
+        [JsonPropertyName("SameRackCount")]
         public int SameRackCount { get; private set; }
-        [JsonProperty("DiffRackCount")]
+        [JsonPropertyName("DiffRackCount")]
         public int DiffRackCount { get; private set; }
-        [JsonProperty("DiffDataCenterCount")]
+        [JsonPropertyName("DiffDataCenterCount")]
         public int DiffDataCenterCount { get; private set; }
 
         public override string ToString()

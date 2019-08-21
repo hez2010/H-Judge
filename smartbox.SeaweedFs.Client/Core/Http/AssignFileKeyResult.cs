@@ -23,20 +23,20 @@
  */
 
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Http
 {
     public class AssignFileKeyResult
     {
-        [JsonProperty("Count")]
+        [JsonPropertyName("Count")]
         public int Count { get; private set; }
-        [JsonProperty("Url")]
+        [JsonPropertyName("Url")]
         public string Url { get; private set; }
-        [JsonProperty("Public Url")]
+        [JsonPropertyName("Public Url")]
         public string PublicUrl { get; private set; }
-        [JsonProperty("FId")]
+        [JsonPropertyName("FId")]
         public string FileId { get; private set; }
 
         [OnDeserialized]

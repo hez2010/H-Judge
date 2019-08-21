@@ -23,19 +23,19 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class Topology
     {
-        [JsonProperty("DataCenters")]
+        [JsonPropertyName("DataCenters")]
         public List<DataCenter> DataCenters { get; private set; }
-        [JsonProperty("Free")]
+        [JsonPropertyName("Free")]
         public int Free { get; private set; }
-        [JsonProperty("Max")]
+        [JsonPropertyName("Max")]
         public int Max { get; private set; }
-        [JsonProperty("layouts")]
+        [JsonPropertyName("layouts")]
         public List<Layout> Layouts { get; private set; }
 
         public override string ToString()

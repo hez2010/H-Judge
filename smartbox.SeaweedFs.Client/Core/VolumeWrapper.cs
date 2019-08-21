@@ -26,9 +26,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using smartbox.SeaweedFs.Client.Core.Http;
 using smartbox.SeaweedFs.Client.Exception;
 
@@ -73,9 +72,9 @@ namespace smartbox.SeaweedFs.Client.Core
 
             ConvertResponseStatusToException((int)jsonResponse.StatusCode, url, fileId, false, false, false, false);
 
-            var obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
-            var jToken = obj.GetValue("size");
-            return jToken.Value<long>();
+            var obj = JsonSerializer.Deserialize<dynamic>(jsonResponse.Json);
+            var jToken = obj.Size;
+            return (long)jToken;
         }
 
         /// <summary>

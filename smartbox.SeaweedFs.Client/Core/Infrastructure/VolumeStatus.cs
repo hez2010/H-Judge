@@ -23,16 +23,16 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class VolumeStatus
     {
         public string Url { get; set; }
-        [JsonProperty("Version")]
+        [JsonPropertyName("Version")]
         public string Version { get; private set; }
-        [JsonProperty("Volumes")]
+        [JsonPropertyName("Volumes")]
         public List<Volume> Volumes { get; private set; }
         
         public override string ToString()

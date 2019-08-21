@@ -23,16 +23,16 @@
  */
 
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Http
 {
     public class LocationResult
     {
-        [JsonProperty("Url")]
+        [JsonPropertyName("Url")]
         public string Url { get; private set; }
-        [JsonProperty("PublicUrl")]
+        [JsonPropertyName("PublicUrl")]
         public string PublicUrl { get; private set; }
 
         [OnDeserialized]

@@ -23,22 +23,22 @@
  */
 
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class DataNode
     {
-        [JsonProperty("Url")]
+        [JsonPropertyName("Url")]
         public string Url { get; private set; }
-        [JsonProperty("PublicUrl")]
+        [JsonPropertyName("PublicUrl")]
         public string PublicUrl { get; private set; }
-        [JsonProperty("Volumes")]
+        [JsonPropertyName("Volumes")]
         public int Volumes { get; private set; }
-        [JsonProperty("Free")]
+        [JsonPropertyName("Free")]
         public int Free { get; private set; }
-        [JsonProperty("Max")]
+        [JsonPropertyName("Max")]
         public int Max { get; private set; }
 
         [OnDeserialized]

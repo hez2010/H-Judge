@@ -29,8 +29,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using smartbox.SeaweedFs.Client.Core.Http;
 using smartbox.SeaweedFs.Client.Core.Infrastructure;
@@ -194,7 +194,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 new Uri(url + RequestPathStrategy.CheckVolumeStatus)
             );
             var jsonResponse = await FetchJsonResultByRequest(request);
-            var volumeStatus = JsonConvert.DeserializeObject<VolumeStatus>(jsonResponse.Json, Settings.JsonSerializerSettings);
+            var volumeStatus = JsonSerializer.Deserialize<VolumeStatus>(jsonResponse.Json, Settings.JsonSerializerSettings);
             volumeStatus.Url = url;
             return volumeStatus;
         }
@@ -221,8 +221,8 @@ namespace smartbox.SeaweedFs.Client.Core
 
             if (jsonResponse.Json.Contains("\"error\":\""))
             {
-                var obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
-                var jToken = obj.GetValue("error");
+                var obj = JsonSerializer.Deserialize<dynamic>(jsonResponse.Json);
+                var jToken = obj.Error;
                 if (jToken != null)
                     throw new SeaweedFsException(jToken.Value<string>());
             }
@@ -347,25 +347,25 @@ namespace smartbox.SeaweedFs.Client.Core
                 new Uri(masterUrl + RequestPathStrategy.CheckClusterStatus)
             );
             var jsonResponse = await FetchJsonResultByRequest(request);
-            var obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
+            var obj = JsonSerializer.Deserialize<dynamic>(jsonResponse.Json);
 
-            var jToken = obj.GetValue("Leader");
+            var jToken = obj.Leader;
             if (jToken != null)
-                leader = new MasterStatus(ConnectionUtil.ConvertUrlWithScheme(jToken.Value<string>()));
+                leader = new MasterStatus(ConnectionUtil.ConvertUrlWithScheme((string)jToken));
             else
                 throw new SeaweedFsException("not found seaweedfs core leader");
 
             var peers = new List<MasterStatus>();
 
-            jToken = obj.GetValue("Peers");
+            jToken = obj.Peers;
             if (jToken != null)
             {
-                var rawPeerList = jToken.Value<string[]>();
+                var rawPeerList = (string[])jToken;
                 peers.AddRange(rawPeerList.Select(url => new MasterStatus(url)));
             }
-
-            jToken = obj.GetValue("IsLeader");
-            if (jToken == null || jToken.Type != JTokenType.Boolean)
+            
+            jToken = obj.IsLeader;
+            if (jToken == null)
             {
                 peers.Add(new MasterStatus(masterUrl));
                 peers.Remove(leader);
@@ -412,21 +412,21 @@ namespace smartbox.SeaweedFs.Client.Core
                     new Uri(item.Url + RequestPathStrategy.CheckClusterStatus)
                 );
 
-                JObject obj;
+                dynamic obj;
                 try
                 {
                     var jsonResponse = await FetchJsonResultByRequest(request);
-                    obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
+                    obj = JsonSerializer.Deserialize<dynamic>(jsonResponse.Json);
                 }
                 catch (System.Exception)
                 {
                     continue;
                 }
 
-                var jToken = obj.GetValue("Leader");
+                var jToken = obj.Leader;
                 if (jToken != null)
                 {
-                    var result = jToken.Value<string>();
+                    var result = (string)jToken;
                     if (await ConnectionUtil.CheckUriAlive(HttpClient, result))
                         return result;
                 }
@@ -447,7 +447,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 new Uri(masterUrl + RequestPathStrategy.CheckTopologyStatus)
             );
             var jsonResponse = await FetchJsonResultByRequest(request);
-            var system = JsonConvert.DeserializeObject<SystemTopology>(jsonResponse.Json, Settings.JsonSerializerSettings);
+            var system = JsonSerializer.Deserialize<SystemTopology>(jsonResponse.Json, Settings.JsonSerializerSettings);
             var systemTopologyStatus = new SystemTopologyStatus
             (
                 system.Topology.Max,

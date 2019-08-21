@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace smartbox.SeaweedFs.Client.Core.Http
 {
@@ -32,9 +32,9 @@ namespace smartbox.SeaweedFs.Client.Core.Http
     {
         private static readonly Random Random = new Random();
 
-        [JsonProperty("VolumeId")]
+        [JsonPropertyName("VolumeId")]
         public long VolumeId { get; set; }
-        [JsonProperty("Locations")]
+        [JsonPropertyName("Locations")]
         public List<LocationResult> Locations { get; set; }
 
         public LocationResult GetRandomLocation()
