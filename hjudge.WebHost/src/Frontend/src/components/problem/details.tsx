@@ -1,7 +1,7 @@
 ﻿import * as React from 'reactn';
 import { Item, Placeholder, Popup, Dropdown, Label, Header, Button, Rating } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
-import { ResultModel } from '../../interfaces/resultModel';
+import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { NavLink } from 'react-router-dom';
 import { isTeacher } from '../../utils/privilegeHelper';
@@ -9,6 +9,7 @@ import { CommonProps } from '../../interfaces/commonProps';
 import CodeEditor from '../editor/code';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
+import { tryJson } from '../../utils/responseHelper';
 
 interface ProblemDetailsProps extends CommonProps {
   problemId?: number,
@@ -19,10 +20,11 @@ interface ProblemDetailsProps extends CommonProps {
 interface ProblemDetailsState {
   problem: ProblemModel,
   languageChoice: number,
-  languageValue: string
+  languageValue: string,
+  loaded: boolean
 }
 
-export interface ProblemModel extends ResultModel {
+export interface ProblemModel {
   id: number,
   name: string,
   creationTime: Date,
@@ -62,8 +64,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         creationTime: new Date(),
         description: "",
         downvote: 0,
-        errorCode: 0,
-        errorMessage: "",
         hidden: false,
         id: 0,
         languages: [],
@@ -71,14 +71,14 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         name: "",
         status: 0,
         submissionCount: 0,
-        succeeded: false,
         type: 0,
         upvote: 0,
         userId: "",
         userName: ""
       },
       languageChoice: 0,
-      languageValue: 'plain_text'
+      languageValue: 'plain_text',
+      loaded: false
     };
   }
 
@@ -95,22 +95,23 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       contestId: contestId,
       groupId: groupId
     })
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ProblemModel;
-        if (result.succeeded) {
-          result.creationTime = new Date(result.creationTime.toString());
-          let lang = 'plain_text';
-          if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
-          this.setState({
-            problem: result,
-            languageValue: lang
-          } as ProblemDetailsState);
-          setTitle(result.name);
-        }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        result.creationTime = new Date(result.creationTime.toString());
+        let lang = 'plain_text';
+        if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
+        this.setState({
+          problem: result,
+          languageValue: lang,
+          loaded: true
+        } as ProblemDetailsState);
+        setTitle(result.name);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '题目信息加载失败', 'red');
@@ -175,17 +176,16 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       content: editor.getInstance().getValue(),
       language: this.languageOptions[this.state.languageChoice].text
     })
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
         this.submitting = false;
-        let result = data as ResultModel;
-        if (result.succeeded) {
-          this.global.commonFuncs.openPortal('成功', '提交成功', 'green');
-          //TODO: jump to result page
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
         }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        this.global.commonFuncs.openPortal('成功', '提交成功', 'green');
+        //TODO: jump to result page
       }).catch(err => {
         this.submitting = false;
         this.global.commonFuncs.openPortal('错误', '提交失败', 'red');
@@ -202,8 +202,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
-    if (!this.state.problem.succeeded) return placeHolder;
-
+    if (!this.state.loaded) return placeHolder;
 
     this.languageOptions = this.state.problem.languages.map((v, i) => ({
       key: i,
@@ -252,13 +251,13 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
             <div style={{ float: 'right' }}>
               <Button.Group>
                 <Button>状态</Button>
-                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(this.state.problem.id)}>编辑</Button> : null}
+                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(this.state.problem.id)}>编辑</Button> : null}
               </Button.Group>
             </div>
           </Item.Header>
 
           <Item.Description>
-            <div style={{overflow: 'auto', scrollBehavior: 'auto', width: '100%'}}>
+            <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%' }}>
               <MarkdownViewer content={this.state.problem.description} />
             </div>
           </Item.Description>

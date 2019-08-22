@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Problem
 {
-    public class ProblemModel : ResultModel
+    public class ProblemModel
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

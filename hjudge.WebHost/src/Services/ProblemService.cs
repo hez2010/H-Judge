@@ -1,6 +1,7 @@
 ﻿using EFSecondLevelCache.Core;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -73,11 +74,11 @@ namespace hjudge.WebHost.Services
             var user = await userManager.FindByIdAsync(userId);
 
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
+            if (contest == null) throw new NotFoundException("找不到该比赛");
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
-                if (contest.Hidden) throw new InvalidOperationException("") { HResult = (int)ErrorDescription.NoEnoughPrivilege };
+                if (contest.Hidden) throw new ForbiddenException();
             }
 
             IQueryable<Problem> problems = dbContext.ContestProblemConfig
@@ -94,21 +95,21 @@ namespace hjudge.WebHost.Services
             var user = await userManager.FindByIdAsync(userId);
 
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
+            if (contest == null) throw new NotFoundException("找不到该比赛");
 
             var group = await groupService.GetGroupAsync(groupId);
-            if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
+            if (group == null) throw new NotFoundException("找不到该小组");
 
             if (!dbContext.GroupContestConfig.Any(i => i.GroupId == groupId && i.ContestId == contestId))
-                throw new InvalidOperationException("找不到比赛") { HResult = (int)ErrorDescription.ResourceNotFound };
+                throw new NotFoundException("找不到该比赛");
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
-                if (contest.Hidden) throw new InvalidOperationException("") { HResult = (int)ErrorDescription.NoEnoughPrivilege };
+                if (contest.Hidden) throw new ForbiddenException();
 
                 // user was not in this private group
                 if (group.IsPrivate && !dbContext.GroupJoin.Any(i => i.GroupId == groupId && i.UserId == userId))
-                    throw new InvalidOperationException("未参加此小组") { HResult = (int)ErrorDescription.AuthenticationFailed };
+                    throw new ForbiddenException("未参加该小组");
             }
 
             IQueryable<Problem> problems = dbContext.ContestProblemConfig

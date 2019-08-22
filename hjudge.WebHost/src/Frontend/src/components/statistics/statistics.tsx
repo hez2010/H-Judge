@@ -1,11 +1,12 @@
 import * as React from 'reactn';
 import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';
-import { ResultModel } from '../../interfaces/resultModel';
+import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { Table, Button, Placeholder, Form, Label, Input, Select, Pagination } from 'semantic-ui-react';
+import { tryJson } from '../../utils/responseHelper';
 
 interface StatisticsProps extends CommonProps {
   problemId?: number, // unused
@@ -23,7 +24,7 @@ interface StatisticsItemModel {
   time: Date
 }
 
-interface StatisticsListModel extends ResultModel {
+interface StatisticsListModel {
   statistics: StatisticsItemModel[],
   totalCount: number
 }
@@ -31,7 +32,8 @@ interface StatisticsListModel extends ResultModel {
 interface StatisticsState {
   statisticsList: StatisticsListModel,
   statusFilter: number[],
-  page: number
+  page: number,
+  loaded: boolean
 }
 
 export default class Statistics extends React.Component<StatisticsProps, StatisticsState, GlobalState> {
@@ -48,7 +50,8 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
         totalCount: 0
       },
       statusFilter: [0, 1, 2],
-      page: 0
+      page: 0,
+      loaded: false
     };
   }
 
@@ -73,24 +76,25 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
     Post('/statistics/list', req)
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as StatisticsListModel;
-        if (result.succeeded) {
-          let countBackup = this.state.statisticsList.totalCount;
-          if (!requireTotalCount) result.totalCount = countBackup;
+        let countBackup = this.state.statisticsList.totalCount;
+        if (!requireTotalCount) result.totalCount = countBackup;
 
-          if (result.statistics.length > 0)
-            this.idRecord.set(page + 1, result.statistics[result.statistics.length - 1].resultId);
+        if (result.statistics.length > 0)
+          this.idRecord.set(page + 1, result.statistics[result.statistics.length - 1].resultId);
 
-          this.setState({
-            statisticsList: result,
-            page: page
-          } as StatisticsState);
-        }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        this.setState({
+          statisticsList: result,
+          page: page,
+          loaded: true
+        } as StatisticsState);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '状态列表加载失败', 'red');
@@ -186,7 +190,7 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
         </Form.Group>
       </Form>
       {this.renderStatisticsList()}
-      {this.state.statisticsList.succeeded ? (this.state.statisticsList.statistics.length === 0 ? <p>没有数据</p> : null) : placeHolder}
+      {this.state.loaded ? (this.state.statisticsList.statistics.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.page}

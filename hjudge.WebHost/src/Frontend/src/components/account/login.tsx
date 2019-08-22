@@ -2,12 +2,13 @@ import * as React from 'react';
 import { Modal, Input, Button, Form, Label, Checkbox } from 'semantic-ui-react';
 import { SerializeForm } from '../../utils/formHelper';
 import { Post } from '../../utils/requestHelper';
-import { ResultModel } from '../../interfaces/resultModel';
 import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { useGlobal } from 'reactn';
 import { getTargetState } from '../../utils/reactnHelper';
 import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';
+import { ErrorModel } from '../../interfaces/errorModel';
+import { tryJson } from '../../utils/responseHelper';
 
 interface LoginProps {
   modalOpen: boolean,
@@ -23,18 +24,17 @@ const Login = (props: CommonProps & LoginProps) => {
     if (form.reportValidity()) {
       element.disabled = true;
       Post('/user/login', SerializeForm(form))
-        .then(res => res.json())
+        .then(res => tryJson(res))
         .then(data => {
-          let result = data as ResultModel;
-          if (result.succeeded) {
-            commonFuncs.refreshUserInfo();
-            props.closeModal();
-            commonFuncs.openPortal('提示', '登录成功', 'green');
-          }
-          else {
-            commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-          }
           element.disabled = false;
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
+          }
+          commonFuncs.refreshUserInfo();
+          props.closeModal();
+          commonFuncs.openPortal('提示', '登录成功', 'green');
         })
         .catch(err => {
           commonFuncs.openPortal('错误', '登录失败', 'red');

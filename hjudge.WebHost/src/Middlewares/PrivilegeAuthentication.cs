@@ -1,7 +1,6 @@
 ﻿using hjudge.WebHost.Data;
-using hjudge.WebHost.Models;
+using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Utils;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,23 +21,9 @@ namespace hjudge.WebHost.Middlewares
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
 
-                if (userInfo == null)
-                {
-                    context.Result = new JsonResult(new ResultModel
-                    {
-                        ErrorCode = ErrorDescription.NotSignedIn
-                    });
-                    return;
-                }
+                if (userInfo == null) throw new AuthenticationException("没有登录账户");
 
-                if (userInfo.Privilege == 5)
-                {
-                    context.Result = new JsonResult(new ResultModel
-                    {
-                        ErrorCode = ErrorDescription.AuthenticationFailed
-                    });
-                    return;
-                }
+                if (userInfo.Privilege == 5) throw new AuthenticationException("账户已被加入黑名单");
 
                 await next();
             }
@@ -54,14 +39,7 @@ namespace hjudge.WebHost.Middlewares
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
 
-                if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0))
-                {
-                    context.Result = new JsonResult(new ResultModel
-                    {
-                        ErrorCode = ErrorDescription.NoEnoughPrivilege
-                    });
-                    return;
-                }
+                if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0)) throw new ForbiddenException();
 
                 await next();
             }
@@ -77,14 +55,7 @@ namespace hjudge.WebHost.Middlewares
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
 
-                if (!PrivilegeHelper.IsTeacher(userInfo?.Privilege ?? 0))
-                {
-                    context.Result = new JsonResult(new ResultModel
-                    {
-                        ErrorCode = ErrorDescription.NoEnoughPrivilege
-                    });
-                    return;
-                }
+                if (!PrivilegeHelper.IsTeacher(userInfo?.Privilege ?? 0)) throw new ForbiddenException();
 
                 await next();
             }

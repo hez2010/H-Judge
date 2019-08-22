@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using hjudge.WebHost.Data;
@@ -17,6 +17,8 @@ using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.IO.Compression;
+using hjudge.WebHost.Exceptions;
+using System.Net;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -55,10 +57,10 @@ namespace hjudge.WebHost.Controllers
 
             var ret = new ProblemListModel();
 
-            var judges = await judgeService.QueryJudgesAsync(
-                userId,
-                model.GroupId == 0 ? null : (int?)model.GroupId,
-                model.ContestId == 0 ? null : (int?)model.ContestId);
+            var judges = await judgeService.QueryJudgesAsync(userId)
+                (model.GroupId == 0 ? null : (int?)model.GroupId)
+                (model.ContestId == 0 ? null : (int?)model.ContestId)
+                (0);
 
             IQueryable<Problem> problems;
 
@@ -73,12 +75,7 @@ namespace hjudge.WebHost.Controllers
             }
             catch (Exception ex)
             {
-                ret.ErrorCode = (ErrorDescription)ex.HResult;
-                if (!string.IsNullOrEmpty(ex.Message))
-                {
-                    ret.ErrorMessage = ex.Message;
-                }
-                return ret;
+                throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
             if (model.Filter.Id != 0)
@@ -110,7 +107,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).Cacheable().CountAsync();
 
             if (model.ContestId == 0) problems = problems.OrderBy(i => i.Id);
             else model.StartId = 0; // keep original order while fetching problems in a contest
@@ -132,7 +129,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).ToListAsync();
+                }).Cacheable().ToListAsync();
             }
             else
             {
@@ -148,12 +145,11 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).ToListAsync();
+                }).Cacheable().ToListAsync();
             }
 
             return ret;
         }
-
 
         [HttpPost]
         [Route("details")]
@@ -174,32 +170,23 @@ namespace hjudge.WebHost.Controllers
             }
             catch (Exception ex)
             {
-                ret.ErrorCode = (ErrorDescription)ex.HResult;
-                if (!string.IsNullOrEmpty(ex.Message))
-                {
-                    ret.ErrorMessage = ex.Message;
-                }
-                return ret;
+                throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var problem = await problems.Where(i => i.Id == model.ProblemId).FirstOrDefaultAsync();
-            if (problem == null)
-            {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
+            var problem = await problems.Where(i => i.Id == model.ProblemId).Cacheable().FirstOrDefaultAsync();
+            if (problem == null) throw new NotFoundException("找不到该题目");
 
-            var judges = await judgeService.QueryJudgesAsync(
-                userId,
-                model.GroupId == 0 ? null : (int?)model.GroupId,
-                model.ContestId == 0 ? null : (int?)model.ContestId);
+            var judges = await judgeService.QueryJudgesAsync(userId)
+                (model.GroupId == 0 ? null : (int?)model.GroupId)
+                (model.ContestId == 0 ? null : (int?)model.ContestId)
+                (0);
 
             if (await judges.Where(i => i.ProblemId == problem.Id)
-                            .AnyAsync())
+                    .Cacheable().AnyAsync())
             {
                 ret.Status = 1;
                 if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                                .AnyAsync())
+                        .Cacheable().AnyAsync())
                 {
                     ret.Status = 2;
                 }
@@ -213,7 +200,7 @@ namespace hjudge.WebHost.Controllers
                 var data = await dbContext.ContestProblemConfig
                     .Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id)
                     .Select(i => new { i.AcceptCount, i.SubmissionCount })
-
+                    .Cacheable()
                     .FirstOrDefaultAsync();
                 if (data != null)
                 {
@@ -224,11 +211,11 @@ namespace hjudge.WebHost.Controllers
 
             if (!string.IsNullOrEmpty(userId))
             {
-                if (await judges.Where(i => i.ProblemId == problem.Id).AnyAsync())
+                if (await judges.Where(i => i.ProblemId == problem.Id).Cacheable().AnyAsync())
                 {
                     ret.Status = 1;
                     if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                                    .AnyAsync())
+                            .Cacheable().AnyAsync())
                     {
                         ret.Status = 2;
                     }
@@ -261,12 +248,9 @@ namespace hjudge.WebHost.Controllers
         [HttpDelete]
         [RequireAdmin]
         [Route("edit")]
-        public async Task<ResultModel> RemoveProblem(int problemId)
+        public Task RemoveProblem(int problemId)
         {
-            var ret = new ResultModel();
-
-            await problemService.RemoveProblemAsync(problemId);
-            return ret;
+            return problemService.RemoveProblemAsync(problemId);
         }
 
         [HttpPut]
@@ -275,7 +259,6 @@ namespace hjudge.WebHost.Controllers
         public async Task<ProblemEditModel> CreateProblem([FromBody]ProblemEditModel model)
         {
             var userId = userManager.GetUserId(User);
-            var ret = new ProblemEditModel();
 
             var problem = new Problem
             {
@@ -290,32 +273,27 @@ namespace hjudge.WebHost.Controllers
             };
 
             problem.Id = await problemService.CreateProblemAsync(problem);
-
-            ret.Description = problem.Description;
-            ret.Hidden = problem.Hidden;
-            ret.Id = problem.Id;
-            ret.Level = problem.Level;
-            ret.Name = problem.Name;
-            ret.Type = problem.Type;
-            ret.Config = problem.Config.DeserializeJson<ProblemConfig>(false);
-
             Directory.CreateDirectory($"AppData/Data/{problem.Id}");
-            return ret;
+
+            return new ProblemEditModel
+            {
+                Description = problem.Description,
+                Hidden = problem.Hidden,
+                Id = problem.Id,
+                Level = problem.Level,
+                Name = problem.Name,
+                Type = problem.Type,
+                Config = problem.Config.DeserializeJson<ProblemConfig>(false)
+            };
         }
 
         [HttpPost]
         [RequireAdmin]
         [Route("edit")]
-        public async Task<ResultModel> UpdateProblem([FromBody]ProblemEditModel model)
+        public async Task UpdateProblem([FromBody]ProblemEditModel model)
         {
-            var ret = new ResultModel();
-
             var problem = await problemService.GetProblemAsync(model.Id);
-            if (problem == null)
-            {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
+            if (problem == null) throw new NotFoundException("找不到该题目");
 
             problem.Description = model.Description;
             problem.Hidden = model.Hidden;
@@ -325,8 +303,6 @@ namespace hjudge.WebHost.Controllers
             problem.Config = model.Config.SerializeJsonAsString(false);
 
             await problemService.UpdateProblemAsync(problem);
-
-            return ret;
         }
 
         [HttpGet]
@@ -334,54 +310,35 @@ namespace hjudge.WebHost.Controllers
         [Route("edit")]
         public async Task<ProblemEditModel> GetProblem(int problemId)
         {
-            var ret = new ProblemEditModel();
-
             var problem = await problemService.GetProblemAsync(problemId);
-            if (problem == null)
+            if (problem == null) throw new NotFoundException("找不到该题目");
+
+            return new ProblemEditModel
             {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
-
-            ret.Description = problem.Description;
-            ret.Hidden = problem.Hidden;
-            ret.Id = problem.Id;
-            ret.Level = problem.Level;
-            ret.Name = problem.Name;
-            ret.Type = problem.Type;
-            ret.Config = problem.Config.DeserializeJson<ProblemConfig>(false);
-
-            return ret;
+                Description = problem.Description,
+                Hidden = problem.Hidden,
+                Id = problem.Id,
+                Level = problem.Level,
+                Name = problem.Name,
+                Type = problem.Type,
+                Config = problem.Config.DeserializeJson<ProblemConfig>(false)
+            };
         }
 
         [HttpPut]
         [RequireAdmin]
         [Route("data")]
         [RequestSizeLimit(135000000)]
-        public async Task<ResultModel> UploadData([FromForm]int problemId, IFormFile file)
+        public async Task UploadData([FromForm]int problemId, IFormFile file)
         {
-            var ret = new ResultModel();
-            if ((await problemService.GetProblemAsync(problemId)) == null)
-            {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
-            if (file.ContentType != "application/x-zip-compressed" && file.ContentType != "application/zip")
-            {
-                ret.ErrorCode = ErrorDescription.FileBadFormat;
-                return ret;
-            }
-            if (file.Length > 134217728)
-            {
-                ret.ErrorCode = ErrorDescription.FileSizeExceeded;
-                return ret;
-            }
+            if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
+            if (file.ContentType != "application/x-zip-compressed" && file.ContentType != "application/zip") throw new BadRequestException("文件格式不正确");
+            if (file.Length > 134217728) throw new BadRequestException("文件大小不能超过 128 Mb");
             var fileName = Path.GetTempFileName();
             using (var stream = new FileStream(fileName, FileMode.Truncate)) await file.CopyToAsync(stream);
 
             Directory.CreateDirectory($"AppData/Data/{problemId}");
             ZipFile.ExtractToDirectory(fileName, $"AppData/Data/{problemId}");
-            return ret;
         }
 
         [HttpGet]
@@ -389,11 +346,7 @@ namespace hjudge.WebHost.Controllers
         [Route("data")]
         public async Task<IActionResult> GetData(int problemId)
         {
-            var ret = new ResultModel();
-            if ((await problemService.GetProblemAsync(problemId)) == null)
-            {
-                return NotFound();
-            }
+            if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
             var fileName = Path.GetTempFileName();
             System.IO.File.Delete(fileName);
             ZipFile.CreateFromDirectory($"AppData/Data/{problemId}", fileName, CompressionLevel.Optimal, false);
@@ -404,17 +357,11 @@ namespace hjudge.WebHost.Controllers
         [HttpDelete]
         [RequireAdmin]
         [Route("data")]
-        public async Task<ResultModel> DeleteData(int problemId)
+        public async Task DeleteData(int problemId)
         {
-            var ret = new ResultModel();
-            if ((await problemService.GetProblemAsync(problemId)) == null)
-            {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
+            if ((await problemService.GetProblemAsync(problemId)) == null) return;
             Directory.Delete($"AppData/Data/{problemId}", true);
             Directory.CreateDirectory($"AppData/Data/{problemId}");
-            return ret;
         }
     }
 }

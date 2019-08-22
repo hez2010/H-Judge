@@ -24,7 +24,7 @@ namespace hjudge.WebHost.Controllers
         [HttpPost]
         public async Task<StatisticsListModel> StatisticsList([FromBody]StatisticsListQueryModel model)
         {
-            judgeService.QueryJudgesAsync
+            throw new NotImplementedException();
         }
     }
 }

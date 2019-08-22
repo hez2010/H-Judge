@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="2.0.0-beta-1629" />
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.1" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="2.0.0-beta-1629" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview8.19405.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview8.19405.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0-preview8.19405.11" />
@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\hjudge.WebHost.csproj" />
+    <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
   </ItemGroup>
 
 </Project>

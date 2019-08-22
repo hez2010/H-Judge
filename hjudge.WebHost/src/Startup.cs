@@ -24,8 +24,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using CacheManager.Core;
-using hjudge.Shared.Caching;
 using hjudge.WebHost.Models;
+using hjudge.WebHost.Middlewares;
 
 namespace hjudge.WebHost
 {
@@ -78,7 +78,7 @@ namespace hjudge.WebHost
             services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
-                    .WithSerializer(typeof(CacheItemJsonSerializer))
+                    .WithJsonSerializer()
                     .WithRedisConfiguration(configuration["Redis:Configuration"], config =>
                     {
                         config.WithAllowAdmin()
@@ -126,11 +126,13 @@ namespace hjudge.WebHost
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.AddSingleton<ExceptionMiddleware>();
+
             services.AddMvc()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
-                });
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+            });
 
             if (environment.IsProduction())
             {
@@ -165,31 +167,24 @@ namespace hjudge.WebHost
             {
                 app.UseExceptionHandler(config =>
                 {
-                    config.Run(async context =>
+                    config.Run(context => ExceptionMiddleware.WriteExceptionAsync(context, new ErrorModel
                     {
-                        context.Response.ContentType = "application/json";
-                        await context.Response.Body.WriteAsync(new ResultModel
-                        {
-                            Succeeded = false,
-                            ErrorCode = ErrorDescription.InternalServerException
-                        }.SerializeJson(true));
-                    });
+                        ErrorCode = System.Net.HttpStatusCode.InternalServerError,
+                        ErrorMessage = "服务器内部异常"
+                    }));
                 });
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
-            app.UseStatusCodePages(new Func<StatusCodeContext, Task>(async context =>
-            {
-                context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.Body.WriteAsync(
-                    new ResultModel
-                    {
-                        Succeeded = false,
-                        ErrorCode = (ErrorDescription)context.HttpContext.Response.StatusCode,
-                        ErrorMessage = "请求失败"
-                    }.SerializeJson(true));
-            }));
+            app.UseMiddleware<ExceptionMiddleware>(); // must be placed after app.UseExceptionHandler()
+
+            app.UseStatusCodePages(new Func<StatusCodeContext, Task>(context =>
+                ExceptionMiddleware.WriteExceptionAsync(context.HttpContext, new ErrorModel
+                {
+                    ErrorCode = (System.Net.HttpStatusCode)context.HttpContext.Response.StatusCode,
+                    ErrorMessage = "请求失败"
+                })));
 
             app.UseResponseCaching();
             app.UseResponseCompression();

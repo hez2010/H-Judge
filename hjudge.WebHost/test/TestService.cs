@@ -1,6 +1,5 @@
 using CacheManager.Core;
 using EFSecondLevelCache.Core;
-using hjudge.Shared.Caching;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Services;
@@ -22,7 +21,7 @@ namespace hjudge.WebHost.Test
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                new ConfigurationBuilder()
-                       .WithSerializer(typeof(CacheItemJsonSerializer))
+                       .WithJsonSerializer()
                        .WithMicrosoftMemoryCacheHandle(instanceName: "test")
                        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromHours(4))
                        .Build());

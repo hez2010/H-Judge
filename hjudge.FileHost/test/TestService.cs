@@ -37,7 +37,7 @@ namespace hjudge.FileHost.Test
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                new ConfigurationBuilder()
-                       .WithSerializer(typeof(CacheItemJsonSerializer))
+                       .WithJsonSerializer()
                        .WithMicrosoftMemoryCacheHandle(instanceName: "test")
                        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromHours(4))
                        .Build());

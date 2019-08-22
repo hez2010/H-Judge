@@ -1,5 +1,5 @@
 import * as React from 'reactn';
-import { ResultModel } from '../../interfaces/resultModel';
+import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Get, Put, Post } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
@@ -7,6 +7,7 @@ import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, La
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';
+import { tryJson } from '../../utils/responseHelper';
 
 enum ContestType {
   Generic,
@@ -43,7 +44,7 @@ interface ContestConfig {
   canDiscussion: boolean
 }
 
-interface ContestEditModel extends ResultModel {
+interface ContestEditModel {
   id: number,
   name: string,
   startTime: Date,
@@ -60,6 +61,7 @@ interface ContestEditProps extends CommonProps {
 }
 
 interface ContestEditState {
+  loaded: boolean,
   contest: ContestEditModel
 }
 
@@ -68,10 +70,8 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
     super();
 
     this.state = {
+      loaded: false,
       contest: {
-        succeeded: false,
-        errorCode: 0,
-        errorMessage: '',
         config: {
           type: ContestType.Generic,
           submissionLimit: 0,
@@ -108,25 +108,24 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
 
   fetchConfig(contestId: number) {
     if (contestId === 0) {
-      this.state.contest.succeeded = true;
-      this.setState(this.state as ContestEditState);
+      this.setState({ loaded: true });
       return;
     }
 
     Get('/contest/edit', { contestId: contestId })
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ContestEditModel;
-        if (result.succeeded) {
-          result.startTime = new Date(result.startTime.toString());
-          result.endTime = new Date(result.endTime.toString());
-          this.setState({
-            contest: result
-          } as ContestEditState);
-        }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        result.startTime = new Date(result.startTime.toString());
+        result.endTime = new Date(result.endTime.toString());
+        this.setState({
+          contest: result
+        } as ContestEditState);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '比赛配置加载失败', 'red');
@@ -163,21 +162,21 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
     }
     if (this.state.contest.id === 0) {
       Put('/contest/edit', this.state.contest)
-        .then(res => res.json())
+        .then(res => tryJson(res))
         .then(data => {
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
+          }
           let result = data as ContestEditModel;
-          if (result.succeeded) {
-            result.startTime = new Date(result.startTime.toString());
-            result.endTime = new Date(result.endTime.toString());
-            this.setState({
-              contest: result
-            } as ContestEditState);
-            this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
-            this.props.history.replace(`/edit/contest/${result.id}`);
-          }
-          else {
-            this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-          }
+          result.startTime = new Date(result.startTime.toString());
+          result.endTime = new Date(result.endTime.toString());
+          this.setState({
+            contest: result
+          } as ContestEditState);
+          this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
+          this.props.history.replace(`/edit/contest/${result.id}`);
         })
         .catch(err => {
           this.global.commonFuncs.openPortal('错误', '比赛保存失败', 'red');
@@ -186,15 +185,14 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
     }
     else {
       Post('/contest/edit', this.state.contest)
-        .then(res => res.json())
+        .then(res => tryJson(res))
         .then(data => {
-          let result = data as ContestEditModel;
-          if (result.succeeded) {
-            this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
           }
-          else {
-            this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-          }
+          this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
         })
         .catch(err => {
           this.global.commonFuncs.openPortal('错误', '比赛配置加载失败', 'red');
@@ -223,7 +221,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
-    if (!this.state.contest.succeeded) return placeHolder;
+    if (!this.state.loaded) return placeHolder;
 
     const basic = <Form>
       <Form.Field error={!this.state.contest.name}>

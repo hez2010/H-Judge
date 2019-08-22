@@ -1,6 +1,5 @@
 ﻿import * as React from 'reactn';
 import { CommonProps } from '../../interfaces/commonProps';
-import { ResultModel } from '../../interfaces/resultModel';
 import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form, Label } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { isTeacher } from '../../utils/privilegeHelper';
@@ -9,6 +8,8 @@ import Problem from '../problem/problem';
 import { Post } from '../../utils/requestHelper';
 import { setTitle } from '../../utils/titleHelper';
 import { GlobalState } from '../../interfaces/globalState';
+import { ErrorModel } from '../../interfaces/errorModel';
+import { tryJson } from '../../utils/responseHelper';
 
 interface ContestDetailsProps extends CommonProps {
   contestId?: number,
@@ -39,7 +40,7 @@ interface ContestConfig {
   canDiscussion: boolean
 }
 
-export interface ContestModel extends ResultModel {
+export interface ContestModel {
   id: number,
   name: string,
   startTime: Date,
@@ -59,7 +60,8 @@ interface ContestDetailsState {
   contest: ContestModel,
   progress: number,
   status: number,
-  inputPassword: string
+  inputPassword: string,
+  loaded: boolean
 }
 
 export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState, GlobalState> {
@@ -93,7 +95,8 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       },
       progress: 0,
       status: 0,
-      inputPassword: ''
+      inputPassword: '',
+      loaded: false
     }
 
     this.editContest = this.editContest.bind(this);
@@ -149,25 +152,26 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       contestId: contestId,
       groupId: groupId
     })
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ContestModel;
-        if (result.succeeded) {
-          result.startTime = new Date(result.startTime.toString());
-          result.endTime = new Date(result.endTime.toString());
-          result.currentTime = new Date(result.currentTime.toString());
+        result.startTime = new Date(result.startTime.toString());
+        result.endTime = new Date(result.endTime.toString());
+        result.currentTime = new Date(result.currentTime.toString());
 
-          this.setState({
-            contest: result,
-            inputPassword: window.sessionStorage.getItem(`contest_${this.contestId}`)
-          } as ContestDetailsState);
-          setTitle(result.name);
-          this.currentTime = Date.now();
-          this.timer = setInterval(this.updateProgressBar, 1000);
-        }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        this.setState({
+          contest: result,
+          inputPassword: window.sessionStorage.getItem(`contest_${this.contestId}`),
+          loaded: true
+        } as ContestDetailsState);
+        setTitle(result.name);
+        this.currentTime = Date.now();
+        this.timer = setInterval(this.updateProgressBar, 1000);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '比赛信息加载失败', 'red');
@@ -224,7 +228,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
-    if (!this.state.contest.succeeded) return placeHolder;
+    if (!this.state.loaded) return placeHolder;
 
     return <>
       <Item>
@@ -238,7 +242,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
               <Button.Group>
                 <Button>状态</Button>
                 <Button>排名</Button>
-                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
+                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
               </Button.Group>
             </div>
           </Item.Header>

@@ -4,13 +4,14 @@ import { Container, Menu, Icon, Responsive, Header, Button, Visibility, Segment,
 import Login from '../account/login';
 import Register from '../account/register';
 import { Post } from '../../utils/requestHelper';
-import { ResultModel } from '../../interfaces/resultModel';
+import { ErrorModel } from '../../interfaces/errorModel';
 import { useGlobal } from 'reactn';
 import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { UserInfo } from '../../interfaces/userInfo';
 import { getTargetState } from '../../utils/reactnHelper';
 import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';
+import { tryJson } from '../../utils/responseHelper';
 
 const getWidth = () => {
   const isSSR = typeof window === 'undefined';
@@ -181,15 +182,14 @@ const Layout = (props: CommonProps & React.Props<never>) => {
   const register = () => setRegisterModalOpen(true);
 
   const logout = () => {
-    Post('/user/logout').then(res => res.json()).then(data => {
-      let result = data as ResultModel;
-      if (result.succeeded) {
-        commonFuncs.openPortal('提示', '退出成功', 'green');
-        commonFuncs.refreshUserInfo();
+    Post('/user/logout').then(res => tryJson(res)).then(data => {
+      let error = data as ErrorModel;
+      if (error.errorCode) {
+        commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+        return;
       }
-      else {
-        commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-      }
+      commonFuncs.openPortal('提示', '退出成功', 'green');
+      commonFuncs.refreshUserInfo();
     })
       .catch(err => {
         commonFuncs.openPortal('错误', '退出失败', 'red');

@@ -3,10 +3,11 @@ import { setTitle } from '../../utils/titleHelper';
 import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
-import { ResultModel } from '../../interfaces/resultModel';
+import { ErrorModel } from '../../interfaces/errorModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 import { GlobalState } from '../../interfaces/globalState';
+import { tryJson } from '../../utils/responseHelper';
 
 interface ProblemProps extends CommonProps {
   contestId?: number,
@@ -25,7 +26,7 @@ export interface ProblemListItemModel {
   downvote: number
 }
 
-interface ProblemListModel extends ResultModel {
+interface ProblemListModel {
   problems: ProblemListItemModel[],
   totalCount: number
 }
@@ -34,7 +35,8 @@ interface ProblemState {
   problemList: ProblemListModel,
   statusFilter: number[],
   deleteItem: number,
-  page: number
+  page: number,
+  loaded: boolean
 }
 
 export default class Problem extends React.Component<ProblemProps, ProblemState, GlobalState> {
@@ -53,7 +55,8 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
       },
       statusFilter: [0, 1, 2],
       deleteItem: 0,
-      page: 0
+      page: 0,
+      loaded: false
     };
   }
 
@@ -86,23 +89,24 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
     Post('/problem/list', req)
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ProblemListModel;
-        if (result.succeeded) {
-          let countBackup = this.state.problemList.totalCount;
-          if (!requireTotalCount) result.totalCount = countBackup;
+        let countBackup = this.state.problemList.totalCount;
+        if (!requireTotalCount) result.totalCount = countBackup;
 
-          if (result.problems.length > 0)
-            this.idRecord.set(page + 1, result.problems[result.problems.length - 1].id);
-          this.setState({
-            problemList: result,
-            page: page
-          } as ProblemState);
-        }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        if (result.problems.length > 0)
+          this.idRecord.set(page + 1, result.problems[result.problems.length - 1].id);
+        this.setState({
+          problemList: result,
+          page: page,
+          loaded: true
+        } as ProblemState);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '题目列表加载失败', 'red');
@@ -135,17 +139,15 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
   deleteProblem(id: number) {
     this.setState({ deleteItem: 0 } as ProblemState);
     Delete('/problem/edit', { problemId: id })
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
-        let result = data as ResultModel;
-        if (result.succeeded) {
-          this.global.commonFuncs.openPortal('成功', '删除成功', 'green');
-
-          this.fetchProblemList(true, this.state.page);
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
         }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        this.global.commonFuncs.openPortal('成功', '题目删除成功', 'green');
+        this.fetchProblemList(true, this.state.page);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '题目删除失败', 'red');
@@ -165,7 +167,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
             <Table.HeaderCell>评分</Table.HeaderCell>
             <Table.HeaderCell>通过量/提交量</Table.HeaderCell>
             <Table.HeaderCell>通过率</Table.HeaderCell>
-            {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
+            {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -183,7 +185,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
                 }
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
-                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -220,13 +222,13 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
             <Label>题目操作</Label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchProblemList(true, 1)}>筛选</Button>
-              {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
+              {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>
       </Form>
       {this.renderProblemList()}
-      {this.state.problemList.succeeded ? (this.state.problemList.problems.length === 0 ? <p>没有数据</p> : null) : placeHolder}
+      {this.state.loaded ? (this.state.problemList.problems.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.page}

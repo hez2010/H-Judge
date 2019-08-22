@@ -3,7 +3,7 @@ using static hjudge.WebHost.Data.Identity.IdentityHelper;
 
 namespace hjudge.WebHost.Models.Account
 {
-    public class UserInfoModel : ResultModel
+    public class UserInfoModel
     {
         public bool SignedIn { get; set; }
         public string? Name { get; set; } = string.Empty;

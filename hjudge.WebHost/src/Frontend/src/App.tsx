@@ -21,6 +21,8 @@ import ContestEdit from './components/contest/edit';
 import { getTargetState } from './utils/reactnHelper';
 import { GlobalState } from './interfaces/globalState';
 import { CommonProps } from './interfaces/commonProps';
+import { ErrorModel } from './interfaces/errorModel';
+import { tryJson } from './utils/responseHelper';
 
 interface PortalState {
   open: boolean,
@@ -38,7 +40,7 @@ const App = (props: any) => {
   const openPortal = (header: string, message: string, color: SemanticCOLORS) => {
     if (portal.open) {
       portal.open = false;
-      setPortal({...portal});
+      setPortal({ ...portal });
     }
     process.nextTick(() => {
       portal.open = true;
@@ -46,19 +48,24 @@ const App = (props: any) => {
       portal.message = message;
       portal.color = color;
 
-      setPortal({...portal});
+      setPortal({ ...portal });
     })
   }
 
   const closePortal = () => {
     portal.open = false;
-    setPortal({...portal});
+    setPortal({ ...portal });
   }
 
   const refreshUserInfo = () => {
     Get('/user/profiles')
-      .then(response => response.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as UserInfo;
         setUserInfo(result);
       })

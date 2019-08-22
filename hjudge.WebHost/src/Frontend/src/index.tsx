@@ -6,6 +6,7 @@ import * as PromisePolyfill from 'es6-promise';
 import { setGlobal } from 'reactn';
 import { UserInfo } from './interfaces/userInfo';
 import { GlobalState } from './interfaces/globalState';
+import "regenerator-runtime/runtime";
 
 PromisePolyfill.polyfill();
 

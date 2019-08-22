@@ -3,10 +3,11 @@ import { setTitle } from '../../utils/titleHelper';
 import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
-import { ResultModel } from '../../interfaces/resultModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 import { GlobalState } from '../../interfaces/globalState';
+import { ErrorModel } from '../../interfaces/errorModel';
+import { tryJson } from '../../utils/responseHelper';
 
 interface ContestProps extends CommonProps {
   groupId?: number
@@ -22,7 +23,7 @@ interface ContestListItemModel {
   downvote: number
 }
 
-interface ContestListModel extends ResultModel {
+interface ContestListModel {
   contests: ContestListItemModel[],
   totalCount: number,
   currentTime: Date
@@ -32,7 +33,8 @@ interface ContestState {
   contestList: ContestListModel,
   statusFilter: number[],
   page: number,
-  deleteItem: number
+  deleteItem: number,
+  loaded: boolean
 }
 
 export default class Contest extends React.Component<ContestProps, ContestState, GlobalState> {
@@ -53,7 +55,8 @@ export default class Contest extends React.Component<ContestProps, ContestState,
       },
       statusFilter: [0, 1, 2],
       page: 0,
-      deleteItem: 0
+      deleteItem: 0,
+      loaded: false
     };
   }
 
@@ -84,28 +87,29 @@ export default class Contest extends React.Component<ContestProps, ContestState,
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
     Post('/contest/list', req)
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ContestListModel;
-        if (result.succeeded) {
-          let countBackup = this.state.contestList.totalCount;
-          if (!requireTotalCount) result.totalCount = countBackup;
-          result.currentTime = new Date(result.currentTime.toString());
-          for (let c in result.contests) {
-            result.contests[c].startTime = new Date(result.contests[c].startTime.toString());
-            result.contests[c].endTime = new Date(result.contests[c].endTime.toString());
-          }
+        let countBackup = this.state.contestList.totalCount;
+        if (!requireTotalCount) result.totalCount = countBackup;
+        result.currentTime = new Date(result.currentTime.toString());
+        for (let c in result.contests) {
+          result.contests[c].startTime = new Date(result.contests[c].startTime.toString());
+          result.contests[c].endTime = new Date(result.contests[c].endTime.toString());
+        }
 
-          if (result.contests.length > 0)
-            this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
-          this.setState({
-            contestList: result,
-            page: page
-          } as ContestState);
-        }
-        else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        if (result.contests.length > 0)
+          this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
+        this.setState({
+          contestList: result,
+          page: page,
+          loaded: true
+        } as ContestState);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '比赛列表加载失败', 'red');
@@ -136,16 +140,15 @@ export default class Contest extends React.Component<ContestProps, ContestState,
   deleteContest(id: number) {
     this.setState({ deleteItem: 0 } as ContestState);
     Delete('/contest/edit', { contestId: id })
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
-        let result = data as ResultModel;
-        if (result.succeeded) {
-          this.global.commonFuncs.openPortal('成功', '删除成功', 'green');
-
-          this.fetchContestList(true, this.state.page);
+        let result = data as ErrorModel;
+        if (result.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
         else {
-          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal('成功', '删除成功', 'green');
+          this.fetchContestList(true, this.state.page);
         }
       })
       .catch(err => {
@@ -171,7 +174,7 @@ export default class Contest extends React.Component<ContestProps, ContestState,
             <Table.HeaderCell>评分</Table.HeaderCell>
             <Table.HeaderCell>开始时间</Table.HeaderCell>
             <Table.HeaderCell>结束时间</Table.HeaderCell>
-            {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
+            {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -189,7 +192,7 @@ export default class Contest extends React.Component<ContestProps, ContestState,
                 }
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
-                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ContestState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ContestState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>;
             })
           }
@@ -227,13 +230,13 @@ export default class Contest extends React.Component<ContestProps, ContestState,
             <Label>比赛操作</Label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchContestList(true, 1)}>筛选</Button>
-              {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editContest(0)}>添加</Button> : null}
+              {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editContest(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>
       </Form>
       {this.renderContestList()}
-      {this.state.contestList.succeeded ? (this.state.contestList.contests.length === 0 ? <p>没有数据</p> : null) : placeHolder}
+      {this.state.loaded ? (this.state.contestList.contests.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.page}

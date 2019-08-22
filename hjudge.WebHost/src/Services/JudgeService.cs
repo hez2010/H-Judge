@@ -14,7 +14,7 @@ namespace hjudge.WebHost.Services
 {
     public interface IJudgeService
     {
-        Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = "", int? groupId = 0, int? contestId = 0, int problemId = 0);
+        Func<int?, Func<int?, Func<int?, Task<IQueryable<Judge>>>>> QueryJudgesAsync(string? userId = null);
         Task<Judge?> GetJudgeAsync(int judgeId);
         Task QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
@@ -47,25 +47,52 @@ namespace hjudge.WebHost.Services
             return result;
         }
 
-        public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId, int? groupId = 0, int? contestId = 0, int problemId = 0)
+        public Func<int?, Func<int?, Func<int?, Task<IQueryable<Judge>>>>> QueryJudgesAsync(string? userId = null)
         {
-            return Task.FromResult((userId, groupId, contestId, problemId) switch
+            Task<IQueryable<Judge>> QueryByProblemId(int? problemId)
             {
-                (null, 0, 0, 0) => dbContext.Judge,
-                (null, null, 0, 0) => dbContext.Judge.Where(i => i.GroupId == groupId),
-                (null, null, null, 0) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == contestId),
-                (null, null, null, _) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId),
-                (null, null, _, 0) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == i.ContestId),
-                (null, _, 0, 0) => dbContext.Judge.Where(i => i.GroupId == groupId),
-                (null, _, _, _) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId),
-                (_, 0, 0, 0) => dbContext.Judge.Where(i => i.UserId == userId),
-                (_, null, 0, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId),
-                (_, null, null, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId),
-                (_, null, null, _) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId),
-                (_, null, _, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == i.ContestId),
-                (_, _, 0, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId),
-                (_, _, _, _) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId)
-            });
+                var judges = problemId switch
+                {
+                    0 => dbContext.Judge,
+                    _ => dbContext.Judge.Where(i => i.ProblemId == problemId)
+                };
+                return Task.FromResult(judges);
+            }
+
+            Func<int?, Task<IQueryable<Judge>>> QueryByContestId(int? contestId) => async problemId =>
+              {
+                  var judges = await QueryByProblemId(problemId);
+
+                  return contestId switch
+                  {
+                      0 => judges,
+                      _ => judges.Where(i => i.ContestId == contestId)
+                  };
+              };
+
+            Func<int?, Func<int?, Task<IQueryable<Judge>>>> QueryByGroupId(int? groupId) => contestId => async problemId =>
+               {
+                   var judges = await QueryByContestId(contestId)(problemId);
+
+                   return groupId switch
+                   {
+                       0 => judges,
+                       _ => judges.Where(i => i.GroupId == groupId)
+                   };
+               };
+
+            Func<int?, Func<int?, Func<int?, Task<IQueryable<Judge>>>>> QueryByUserId(string? userId) => groupId => contestId => async problemId =>
+                {
+                    var judges = await QueryByGroupId(groupId)(contestId)(problemId);
+
+                    return userId switch
+                    {
+                        null => judges,
+                        _ => judges.Where(i => i.UserId == userId)
+                    };
+                };
+
+            return QueryByUserId(userId);
         }
 
         public async Task QueueJudgeAsync(Judge judge)

@@ -2,7 +2,6 @@
 using EFSecondLevelCache.Core;
 using hjudgeFileHost.Data;
 using hjudgeFileHost.Services;
-using hjudge.Shared.Caching;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +50,7 @@ namespace hjudgeFileHost
             services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
-                    .WithSerializer(typeof(CacheItemJsonSerializer))
+                    .WithJsonSerializer()
                     .WithRedisConfiguration(Configuration["Redis:Configuration"], config =>
                     {
                         config.WithAllowAdmin()

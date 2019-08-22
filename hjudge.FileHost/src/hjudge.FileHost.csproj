@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.1" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="2.0.0-beta-1629" />
     <PackageReference Include="Grpc.AspNetCore.Server" Version="0.1.22-pre3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview8.19405.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview8" />
@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\hjudge.RpcInterface\hjudge.RpcInterface.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
     <ProjectReference Include="..\..\smartbox.SeaweedFs.Client\smartbox.SeaweedFs.Client.csproj" />
+    <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
   </ItemGroup>
 
 </Project>

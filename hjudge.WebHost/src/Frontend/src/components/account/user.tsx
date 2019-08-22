@@ -2,7 +2,6 @@ import { Item, Popup, Input, Divider, Header, Icon, Table, Label, Form, Placehol
 import { OtherInfo, UserInfo } from '../../interfaces/userInfo';
 import { setTitle } from '../../utils/titleHelper';
 import { Post, Get } from '../../utils/requestHelper';
-import { ResultModel } from '../../interfaces/resultModel';
 import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { NavLink } from 'react-router-dom';
 import * as React from 'react';
@@ -10,8 +9,10 @@ import { useGlobal } from 'reactn';
 import { GlobalState } from '../../interfaces/globalState';
 import { getTargetState } from '../../utils/reactnHelper';
 import { CommonProps } from '../../interfaces/commonProps';
+import { ErrorModel } from '../../interfaces/errorModel';
+import { tryJson } from '../../utils/responseHelper';
 
-interface ProblemStatisticsModel extends ResultModel {
+interface ProblemStatisticsModel {
   solvedProblems: number[],
   triedProblems: number[],
   loaded: boolean
@@ -62,16 +63,15 @@ const User = (props: CommonProps) => {
     }
 
     Post('/user/profiles', info)
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
-        let result = data as ResultModel;
-        if (result.succeeded) {
-          commonFuncs.openPortal('提示', '信息更新成功', 'green');
-          commonFuncs.refreshUserInfo();
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
         }
-        else {
-          commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        commonFuncs.openPortal('提示', '信息更新成功', 'green');
+        commonFuncs.refreshUserInfo();
       })
       .catch(err => {
         commonFuncs.openPortal('错误', '信息更新失败', 'red');
@@ -81,17 +81,17 @@ const User = (props: CommonProps) => {
 
   const loadProblems = () => {
     Get('/user/stats')
-      .then(res => res.json())
+      .then(res => tryJson(res))
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ProblemStatisticsModel;
-        if (result.succeeded) {
-          setSolvedProblems(result.solvedProblems);
-          setTiredProblems(result.triedProblems);
-          setLoaded(true);
-        }
-        else {
-          commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        setSolvedProblems(result.solvedProblems);
+        setTiredProblems(result.triedProblems);
+        setLoaded(true);
       })
       .catch(err => {
         commonFuncs.openPortal('错误', '做题记录加载失败', 'red');
@@ -245,7 +245,7 @@ const User = (props: CommonProps) => {
     loadProblems();
   }, []);
 
-  return userInfo.succeeded ? ((!userInfo.signedIn) ? notSignedIn : showUserInfo()) : loading;
+  return userInfo.userId ? ((!userInfo.signedIn) ? notSignedIn : showUserInfo()) : loading;
 };
 
 export default User;

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>Library</OutputType>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
@@ -11,7 +11,7 @@
     <PackageReference Include="CacheManager.Core" Version="2.0.0-beta-1629" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview8.19405.4" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
-    <PackageReference Include="System.Text.Json" Version="4.6.0-preview8.19405.3" />
+    <!-- <PackageReference Include="System.Text.Json" Version="4.6.0-preview8.19405.3" /> -->
     <ProjectReference Include="..\hjudge.Core\src\hjudge.Core.csproj" />
   </ItemGroup>
 

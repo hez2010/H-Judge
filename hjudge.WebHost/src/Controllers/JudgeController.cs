@@ -27,9 +27,8 @@ namespace hjudge.WebHost.Controllers
         [PrivilegeAuthentication.RequireSignedIn]
         [HttpPost]
         [Route("submit")]
-        public async Task<ResultModel> SubmitSolution([FromBody]SubmitModel model)
+        public async Task SubmitSolution([FromBody]SubmitModel model)
         {
-            var ret = new ResultModel();
             var userId = userManager.GetUserId(User);
             //TODO: validate
 
@@ -42,7 +41,6 @@ namespace hjudge.WebHost.Controllers
                 GroupId = model.GroupId == 0 ? null : (int?)model.GroupId,
                 UserId = userId
             });
-            return ret;
         }
     }
 }

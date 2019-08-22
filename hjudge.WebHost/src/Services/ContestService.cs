@@ -1,6 +1,7 @@
 ﻿using EFSecondLevelCache.Core;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections;
@@ -71,14 +72,13 @@ namespace hjudge.WebHost.Services
             var user = await userManager.FindByIdAsync(userId);
 
             var group = await groupService.GetGroupAsync(groupId);
-            if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
+            if (group == null) throw new NotFoundException("找不到该小组");
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 if (group.IsPrivate)
                 {
-                    if (!dbContext.GroupJoin.Any(i => i.GroupId == groupId && i.UserId == userId))
-                        throw new InvalidOperationException("未参加此小组") { HResult = (int)ErrorDescription.NoEnoughPrivilege };
+                    if (!dbContext.GroupJoin.Any(i => i.GroupId == groupId && i.UserId == userId)) throw new ForbiddenException("未参加该小组");
                 }
             }
 
