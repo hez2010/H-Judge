@@ -1,6 +1,5 @@
 ﻿using CacheManager.Core;
 using EFSecondLevelCache.Core;
-using hjudge.Shared.Caching;
 using hjudgeFileHost.Data;
 using hjudgeFileHost.Services;
 using Microsoft.EntityFrameworkCore;
