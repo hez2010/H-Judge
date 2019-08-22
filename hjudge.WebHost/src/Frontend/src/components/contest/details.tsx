@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { CommonProps } from '../../interfaces/commonProps';
 import { ResultModel } from '../../interfaces/resultModel';
 import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form, Label } from 'semantic-ui-react';
@@ -8,6 +8,7 @@ import { NavLink } from 'react-router-dom';
 import Problem from '../problem/problem';
 import { Post } from '../../utils/requestHelper';
 import { setTitle } from '../../utils/titleHelper';
+import { GlobalState } from '../../interfaces/globalState';
 
 interface ContestDetailsProps extends CommonProps {
   contestId?: number,
@@ -61,9 +62,9 @@ interface ContestDetailsState {
   inputPassword: string
 }
 
-export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState> {
-  constructor(props: ContestDetailsProps) {
-    super(props);
+export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState, GlobalState> {
+  constructor() {
+    super();
     this.state = {
       contest: {
         id: 0,
@@ -165,11 +166,11 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
           this.timer = setInterval(this.updateProgressBar, 1000);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '比赛信息加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '比赛信息加载失败', 'red');
         console.log(err);
       });
   }
@@ -237,7 +238,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
               <Button.Group>
                 <Button>状态</Button>
                 <Button>排名</Button>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
+                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
               </Button.Group>
             </div>
           </Item.Header>

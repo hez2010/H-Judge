@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { setTitle } from '../../utils/titleHelper';
 import { Button, Pagination, Table, Form, Label, Input, Placeholder, Select } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
@@ -6,6 +6,7 @@ import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
+import { GlobalState } from '../../interfaces/globalState';
 
 interface GroupProps extends CommonProps { }
 
@@ -29,9 +30,9 @@ interface GroupState {
   page: number
 }
 
-export default class Group extends React.Component<GroupProps, GroupState> {
-  constructor(props: GroupProps) {
-    super(props);
+export default class Group extends React.Component<GroupProps, GroupState, GlobalState> {
+  constructor() {
+    super();
 
     this.renderGroupList = this.renderGroupList.bind(this);
     this.fetchGroupList = this.fetchGroupList.bind(this);
@@ -46,14 +47,15 @@ export default class Group extends React.Component<GroupProps, GroupState> {
       statusFilter: [0, 1],
       page: 0
     };
-
-    this.idRecord = new Map<number, number>();
   }
-  private idRecord: Map<number, number>;
-  private disableNavi = false;
 
-  componentWillUpdate(nextProps: any, nextState: any) {
-    if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
+  private idRecord = new Map<number, number>();
+  private disableNavi = false;
+  private userId = this.global.userInfo.userId;
+
+  componentWillUpdate(_nextProps: GroupProps, _nextState: GroupState) {
+    if (this.userId !== this.global.userInfo.userId) {
+      this.userId = this.global.userInfo.userId;
       this.idRecord.clear();
       if (!this.props.match.params.page) this.fetchGroupList(true, 1);
       else this.fetchGroupList(true, this.props.match.params.page);
@@ -90,11 +92,11 @@ export default class Group extends React.Component<GroupProps, GroupState> {
           } as GroupState);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '小组列表加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '小组列表加载失败', 'red');
         console.log(err);
       })
   }
@@ -128,7 +130,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
             <Table.HeaderCell>创建者</Table.HeaderCell>
             <Table.HeaderCell>创建时间</Table.HeaderCell>
             <Table.HeaderCell>公开性</Table.HeaderCell>
-            {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
+            {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -140,7 +142,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
                 <Table.Cell>{v.userName}</Table.Cell>
                 <Table.Cell>{v.creationTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.isPrivate ? '公开' : '私有'}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editGroup(v.id)} color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editGroup(v.id)} color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -177,7 +179,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
             <Label>小组操作</Label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchGroupList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editGroup(0)}>添加</Button> : null}
+              {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editGroup(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>

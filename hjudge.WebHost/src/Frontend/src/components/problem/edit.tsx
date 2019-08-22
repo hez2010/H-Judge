@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { ResultModel } from '../../interfaces/resultModel';
@@ -6,6 +6,7 @@ import { Get, Put, Post, Delete } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
 import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon, Confirm } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
+import { GlobalState } from '../../interfaces/globalState';
 
 interface ProblemEditState {
   problem: ProblemEditModel,
@@ -63,9 +64,9 @@ interface ProblemEditModel extends ResultModel {
   config: ProblemConfig
 }
 
-export default class ProblemEdit extends React.Component<ProblemEditProps, ProblemEditState> {
-  constructor(props: ProblemEditProps) {
-    super(props);
+export default class ProblemEdit extends React.Component<ProblemEditProps, ProblemEditState, GlobalState> {
+  constructor() {
+    super();
 
     this.state = {
       problem: {
@@ -119,11 +120,10 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     this.downloadFile = this.downloadFile.bind(this);
   }
 
-  private problemId: number = 0;
-  private pointsCount: number = 0;
-  private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
-  private fileLoader: React.RefObject<HTMLInputElement> = React.createRef<HTMLInputElement>();
-
+  private problemId = 0;
+  private pointsCount = 0;
+  private editor = React.createRef<CodeEditor>();
+  private fileLoader = React.createRef<HTMLInputElement>();
 
   fetchConfig(problemId: number) {
     if (problemId === 0) {
@@ -144,11 +144,11 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
           } as ProblemEditState);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目配置加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '题目配置加载失败', 'red');
         console.log(err);
       });
   }
@@ -177,7 +177,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
 
   submitChange() {
     if (!this.canSubmit()) {
-      this.props.openPortal('错误', '题目信息填写不完整', 'red');
+      this.global.commonFuncs.openPortal('错误', '题目信息填写不完整', 'red');
       return;
     }
     if (this.state.problem.id === 0) {
@@ -191,15 +191,15 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
               problem: result,
               useSpecialJudge: !!result.config.specialJudge
             } as ProblemEditState);
-            this.props.openPortal('成功', '题目保存成功', 'green');
+            this.global.commonFuncs.openPortal('成功', '题目保存成功', 'green');
             this.props.history.replace(`/edit/problem/${result.id}`);
           }
           else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+            this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
           }
         })
         .catch(err => {
-          this.props.openPortal('错误', '题目保存失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '题目保存失败', 'red');
           console.log(err);
         });
     }
@@ -209,14 +209,14 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         .then(data => {
           let result = data as ProblemEditModel;
           if (result.succeeded) {
-            this.props.openPortal('成功', '题目保存成功', 'green');
+            this.global.commonFuncs.openPortal('成功', '题目保存成功', 'green');
           }
           else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+            this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
           }
         })
         .catch(err => {
-          this.props.openPortal('错误', '题目配置加载失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '题目配置加载失败', 'red');
           console.log(err);
         });
     }
@@ -259,7 +259,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
   applyTemplate() {
     let fields = this.state.selectedTemplate.split('|');
     if (fields.length !== 5) {
-      this.props.openPortal('错误', '快速套用模板格式错误', 'red');
+      this.global.commonFuncs.openPortal('错误', '快速套用模板格式错误', 'red');
       return;
     }
     let [input, output, time, memory, score] = fields;
@@ -280,12 +280,12 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     if (!ele || !ele.files || ele.files.length === 0) return;
     let file = ele.files[0];
     if (file.type !== 'application/x-zip-compressed' && file.type !== 'application/zip') {
-      this.props.openPortal('错误', '文件格式不正确', 'red');
+      this.global.commonFuncs.openPortal('错误', '文件格式不正确', 'red');
       ele.value = '';
       return;
     }
     if (file.size > 134217728) {
-      this.props.openPortal('错误', '文件大小不能超过 128 Mb', 'red');
+      this.global.commonFuncs.openPortal('错误', '文件大小不能超过 128 Mb', 'red');
       ele.value = '';
       return;
     }
@@ -296,15 +296,14 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     Put('/problem/data', form, false, '')
       .then(res => res.json())
       .then(data => {
-        if (data.succeeded)
-          this.props.openPortal('成功', '题目数据上传成功', 'green');
-        else this.props.openPortal('错误', `${data.errorMessage}`, 'red');
+        if (data.succeeded) this.global.commonFuncs.openPortal('成功', '题目数据上传成功', 'green');
+        else this.global.commonFuncs.openPortal('错误', `${data.errorMessage}`, 'red');
         this.setState({ uploadingData: false });
         let ele = this.fileLoader.current;
         if (ele) ele.value = '';
       })
       .catch(() => {
-        this.props.openPortal('错误', '题目数据上传失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '题目数据上传失败', 'red');
         this.setState({ uploadingData: false });
         let ele = this.fileLoader.current;
         if (ele) ele.value = '';
@@ -332,14 +331,14 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       .then(data => {
         let result = data as ResultModel;
         if (result.succeeded) {
-          this.props.openPortal('成功', '题目数据删除成功', 'green');
+          this.global.commonFuncs.openPortal('成功', '题目数据删除成功', 'green');
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目数据删除失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '题目数据删除失败', 'red');
         console.log(err);
       })
   }

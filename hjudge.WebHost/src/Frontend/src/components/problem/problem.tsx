@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'reactn';
 import { setTitle } from '../../utils/titleHelper';
 import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
@@ -6,6 +6,7 @@ import { SerializeForm } from '../../utils/formHelper';
 import { ResultModel } from '../../interfaces/resultModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
+import { GlobalState } from '../../interfaces/globalState';
 
 interface ProblemProps extends CommonProps {
   contestId?: number,
@@ -36,9 +37,9 @@ interface ProblemState {
   page: number
 }
 
-export default class Problem extends React.Component<ProblemProps, ProblemState> {
-  constructor(props: ProblemProps) {
-    super(props);
+export default class Problem extends React.Component<ProblemProps, ProblemState, GlobalState> {
+  constructor() {
+    super();
     this.renderProblemList = this.renderProblemList.bind(this);
     this.fetchProblemList = this.fetchProblemList.bind(this);
     this.gotoDetails = this.gotoDetails.bind(this);
@@ -54,15 +55,15 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
       deleteItem: 0,
       page: 0
     };
-
-    this.idRecord = new Map<number, number>();
   }
 
-  private idRecord: Map<number, number>;
+  private idRecord = new Map<number, number>();
   private disableNavi = false;
+  private userId = this.global.userInfo.userId;
 
-  componentWillUpdate(nextProps: any, nextState: any) {
-    if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
+  componentWillUpdate(_nextProps: ProblemProps, _nextState: ProblemState) {
+    if (this.userId !== this.global.userInfo.userId) {
+      this.userId = this.global.userInfo.userId;
       this.idRecord.clear();
       if (!this.props.match.params.page) this.fetchProblemList(true, 1);
       else this.fetchProblemList(true, this.props.match.params.page);
@@ -100,11 +101,11 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
           } as ProblemState);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目列表加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '题目列表加载失败', 'red');
         console.log(err);
       })
   }
@@ -138,16 +139,16 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
       .then(data => {
         let result = data as ResultModel;
         if (result.succeeded) {
-          this.props.openPortal('成功', '删除成功', 'green');
+          this.global.commonFuncs.openPortal('成功', '删除成功', 'green');
 
           this.fetchProblemList(true, this.state.page);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目删除失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '题目删除失败', 'red');
         console.log(err);
       })
   }
@@ -164,7 +165,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
             <Table.HeaderCell>评分</Table.HeaderCell>
             <Table.HeaderCell>通过量/提交量</Table.HeaderCell>
             <Table.HeaderCell>通过率</Table.HeaderCell>
-            {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
+            {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -182,7 +183,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
                 }
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -219,7 +220,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState>
             <Label>题目操作</Label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchProblemList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
+              {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>

@@ -1,4 +1,5 @@
 ﻿import * as React from 'react';
+import { useGlobal, setGlobal } from 'reactn';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
 import NotFound from './components/notfound/notfound';
@@ -12,11 +13,14 @@ import Problem from './components/problem/problem';
 import Contest from './components/contest/contest';
 import ProblemDetails from './components/problem/details';
 import Group from './components/group/group';
-import { CommonProps } from './interfaces/commonProps';
+import { CommonFuncs } from './interfaces/commonFuncs';
 import ContestDetails from './components/contest/details';
 import Statistics from './components/statistics/statistics';
 import ProblemEdit from './components/problem/edit';
 import ContestEdit from './components/contest/edit';
+import { getTargetState } from './utils/reactnHelper';
+import { GlobalState } from './interfaces/globalState';
+import { CommonProps } from './interfaces/commonProps';
 
 interface PortalState {
   open: boolean,
@@ -25,152 +29,106 @@ interface PortalState {
   color: SemanticCOLORS
 }
 
-interface AppState {
-  userInfo: UserInfo,
-  portal: PortalState
-}
+const App = (props: any) => {
+  const [userInfo, setUserInfo] = getTargetState<UserInfo>(useGlobal<GlobalState>('userInfo'));
+  const [, setCommonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
 
-export default class App extends React.Component<any, AppState> {
-  constructor(props: any) {
-    super(props);
+  const [portal, setPortal] = React.useState<PortalState>({ open: false, header: '', message: '', color: 'green' });
 
-    this.state = {
-      portal: {
-        open: false,
-        header: '',
-        message: '',
-        color: 'black'
-      },
-      userInfo:
-        this.props.userInfo ?
-          this.props.userInfo :
-          {
-            userId: "",
-            userName: "",
-            privilege: 4,
-            name: "",
-            email: "",
-            signedIn: false,
-            emailConfirmed: false,
-            coins: 0,
-            experience: 0,
-            otherInfo: [],
-            phoneNumber: "",
-            phoneNumberConfirmed: false
-          }
-    };
-
-    this.refreshUserInfo = this.refreshUserInfo.bind(this);
-    this.openPortal = this.openPortal.bind(this);
-    this.closePortal = this.closePortal.bind(this);
-
-    if (!this.props.userInfo) this.refreshUserInfo();
-  }
-
-  openPortal(header: string, message: string, color: SemanticCOLORS) {
-    if (this.state.portal.open) {
-      this.setState({
-        portal: {
-          open: false
-        }
-      } as AppState);
+  const openPortal = (header: string, message: string, color: SemanticCOLORS) => {
+    if (portal.open) {
+      portal.open = false;
+      setPortal({...portal});
     }
     process.nextTick(() => {
-      this.setState({
-        portal: {
-          open: true,
-          header: header,
-          message: message,
-          color: color
-        }
-      } as AppState);
+      portal.open = true;
+      portal.header = header;
+      portal.message = message;
+      portal.color = color;
+
+      setPortal({...portal});
     })
   }
 
-  closePortal() {
-    this.setState({
-      portal: {
-        open: false
-      }
-    } as AppState);
+  const closePortal = () => {
+    portal.open = false;
+    setPortal({...portal});
   }
 
-  refreshUserInfo() {
+  const refreshUserInfo = () => {
     Get('/user/profiles')
       .then(response => response.json())
       .then(data => {
-        this.setState({
-          userInfo: data
-        } as AppState);
+        let result = data as UserInfo;
+        setUserInfo(result);
       })
       .catch(err => {
-        this.openPortal('错误', '用户信息加载失败', 'red');
+        openPortal('错误', '用户信息加载失败', 'red');
         console.error(err);
       });
   }
 
-  renderContent() {
-    let commonProps = {
-      openPortal: this.openPortal,
-      refreshUserInfo: this.refreshUserInfo,
-      userInfo: this.state.userInfo
-    } as CommonProps;
+  React.useEffect(() => {
+    setCommonFuncs({ openPortal: openPortal, refreshUserInfo: refreshUserInfo });
+    if (!userInfo.userId) refreshUserInfo();
+  }, []);
 
+  const renderContent = (props: CommonProps) => {
     return <>
-      <Layout {...commonProps}>
+      <Layout {...props}>
         <Switch>
           <Route
             exact
             path='/'
-            render={props => <Home {...Object.assign(commonProps, props)} />}>
+            component={Home}>
           </Route>
           <Route
             path='/problem/:page?'
-            render={props => <Problem {...Object.assign(commonProps, props)}></Problem>}>
+            component={Problem}>
           </Route>
           <Route
             path='/details/problem/:problemId/:contestId?/:groupId?'
-            render={props => <ProblemDetails {...Object.assign(commonProps, props)}></ProblemDetails>}>
+            component={ProblemDetails}>
           </Route>
           <Route
             path='/edit/problem/:problemId'
-            render={props => <ProblemEdit {...Object.assign(commonProps, props)}></ProblemEdit>}>
+            component={ProblemEdit}>
           </Route>
           <Route
             path='/contest/:page?'
-            render={props => <Contest {...Object.assign(commonProps, props)}></Contest>}>
+            component={Contest}>
           </Route>
           <Route
             path='/details/contest/:contestId/:groupId?'
-            render={props => <ContestDetails {...Object.assign(commonProps, props)}></ContestDetails>}>
+            component={ContestDetails}>
           </Route>
           <Route
             path='/edit/contest/:contestId'
-            render={props => <ContestEdit {...Object.assign(commonProps, props)}></ContestEdit>}>
+            component={ContestEdit}>
           </Route>
           <Route
             path='/group/:page?'
-            render={props => <Group {...Object.assign(commonProps, props)}></Group>}>
+            component={Group}>
           </Route>
           <Route
             path='/message'
-            render={props => <p>message</p>}>
+            component={() => <p>message</p>}>
           </Route>
           <Route
             path='/statistics'
-            render={props => <Statistics {...Object.assign(commonProps, props)}></Statistics>}>
+            component={Statistics}>
           </Route>
           <Route
             path='/rank'
-            render={props => <p>rank</p>}>
+            component={() => <p>rank</p>}>
           </Route>
           <Route
             path='/discussion'
-            render={props => <p>discussion</p>}>
+            component={() => <p>discussion</p>}>
           </Route>
           <Route
             path='/article'
-            render={props => <p>article</p>}>
+            component={() => <p>article</p>}>
           </Route>
           <Route
             exact
@@ -179,30 +137,30 @@ export default class App extends React.Component<any, AppState> {
           </Route>
           <Route
             path='/user'
-            render={props => <User {...Object.assign(commonProps, props)} />}>
+            component={User}>
           </Route>
           <Route
             component={NotFound}>
           </Route>
         </Switch>
       </Layout>
-      <TransitionablePortal open={this.state.portal.open} onClose={this.closePortal} transition={{ animation: 'drop', duration: 500 }}>
-        <Segment style={{ bottom: '5em', position: 'fixed', right: '2em', zIndex: 1048576 }} color={this.state.portal.color} inverted>
+      <TransitionablePortal open={portal.open} onClose={closePortal} transition={{ animation: 'drop', duration: 500 }}>
+        <Segment style={{ bottom: '5em', position: 'fixed', right: '2em', zIndex: 1048576 }} color={portal.color} inverted>
           <Header>
-            {this.state.portal.header}
-            <div style={{ display: 'inline', cursor: 'pointer', float: 'right' }} onClick={this.closePortal}>
+            {portal.header}
+            <div style={{ display: 'inline', cursor: 'pointer', float: 'right' }} onClick={closePortal}>
               <Icon name='close' size='small'></Icon>
             </div>
           </Header>
           <Divider />
-          <pre style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{this.state.portal.message}</pre>
+          <pre style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{portal.message}</pre>
         </Segment>
       </TransitionablePortal>
     </>;
   }
 
-  render() {
-    if (typeof window === 'undefined') return <StaticRouter context={this.props.context} location={this.props.location}>{this.renderContent()}</StaticRouter>;
-    return <BrowserRouter>{this.renderContent()}</BrowserRouter>;
-  }
-}
+  if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent(props)}</StaticRouter>;
+  return <BrowserRouter>{renderContent(props)}</BrowserRouter>;
+};
+
+export default App;

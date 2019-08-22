@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { Item, Placeholder, Popup, Dropdown, Label, Header, Button, Rating } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { ResultModel } from '../../interfaces/resultModel';
@@ -8,6 +8,7 @@ import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 import CodeEditor from '../editor/code';
 import MarkdownViewer from '../viewer/markdown';
+import { GlobalState } from '../../interfaces/globalState';
 
 interface ProblemDetailsProps extends CommonProps {
   problemId?: number,
@@ -47,9 +48,9 @@ interface LanguageOptions {
   highlight: string
 }
 
-export default class ProblemDetails extends React.Component<ProblemDetailsProps, ProblemDetailsState> {
-  constructor(props: ProblemDetailsProps) {
-    super(props);
+export default class ProblemDetails extends React.Component<ProblemDetailsProps, ProblemDetailsState, GlobalState> {
+  constructor() {
+    super();
     this.fetchDetail = this.fetchDetail.bind(this);
     this.renderProblemInfo = this.renderProblemInfo.bind(this);
     this.editProblem = this.editProblem.bind(this);
@@ -81,11 +82,11 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     };
   }
 
-  private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
-  private submitting: boolean = false;
-  private problemId: number = 0;
-  private contestId: number = 0;
-  private groupId: number = 0;
+  private editor = React.createRef<CodeEditor>();
+  private submitting = false;
+  private problemId = 0;
+  private contestId = 0;
+  private groupId = 0;
   private languageOptions: LanguageOptions[] = [];
 
   fetchDetail(problemId: number, contestId: number, groupId: number) {
@@ -108,11 +109,11 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           setTitle(result.name);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目信息加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '题目信息加载失败', 'red');
         console.log(err);
       });
   }
@@ -157,11 +158,11 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
 
   submit() {
     if (this.submitting) {
-      this.props.openPortal('提示', '正在提交中，请稍等', 'orange');
+      this.global.commonFuncs.openPortal('提示', '正在提交中，请稍等', 'orange');
       return;
     }
     if (!this.languageOptions[this.state.languageChoice]) {
-      this.props.openPortal('提示', '请选择语言', 'orange');
+      this.global.commonFuncs.openPortal('提示', '请选择语言', 'orange');
       return;
     }
     let editor = this.editor.current;
@@ -179,15 +180,15 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         this.submitting = false;
         let result = data as ResultModel;
         if (result.succeeded) {
-          this.props.openPortal('成功', '提交成功', 'green');
+          this.global.commonFuncs.openPortal('成功', '提交成功', 'green');
           //TODO: jump to result page
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       }).catch(err => {
         this.submitting = false;
-        this.props.openPortal('错误', '提交失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '提交失败', 'red');
         console.log(err);
       });
   }
@@ -251,7 +252,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
             <div style={{ float: 'right' }}>
               <Button.Group>
                 <Button>状态</Button>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(this.state.problem.id)}>编辑</Button> : null}
+                {this.global.userInfo.succeeded && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(this.state.problem.id)}>编辑</Button> : null}
               </Button.Group>
             </div>
           </Item.Header>

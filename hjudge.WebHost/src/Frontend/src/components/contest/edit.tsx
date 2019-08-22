@@ -1,11 +1,12 @@
-import * as React from 'react';
+import * as React from 'reactn';
 import { ResultModel } from '../../interfaces/resultModel';
-import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { Get, Put, Post } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
 import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
+import { GlobalState } from '../../interfaces/globalState';
+import { CommonProps } from '../../interfaces/commonProps';
 
 enum ContestType {
   Generic,
@@ -62,9 +63,9 @@ interface ContestEditState {
   contest: ContestEditModel
 }
 
-export default class ContestEdit extends React.Component<ContestEditProps, ContestEditState> {
-  constructor(props: ContestEditProps) {
-    super(props);
+export default class ContestEdit extends React.Component<ContestEditProps, ContestEditState, GlobalState> {
+  constructor() {
+    super();
 
     this.state = {
       contest: {
@@ -124,11 +125,11 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
           } as ContestEditState);
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '比赛配置加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '比赛配置加载失败', 'red');
         console.log(err);
       });
   }
@@ -157,7 +158,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
 
   submitChange() {
     if (!this.canSubmit()) {
-      this.props.openPortal('错误', '比赛信息填写不完整', 'red');
+      this.global.commonFuncs.openPortal('错误', '比赛信息填写不完整', 'red');
       return;
     }
     if (this.state.contest.id === 0) {
@@ -171,15 +172,15 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
             this.setState({
               contest: result
             } as ContestEditState);
-            this.props.openPortal('成功', '比赛保存成功', 'green');
+            this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
             this.props.history.replace(`/edit/contest/${result.id}`);
           }
           else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+            this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
           }
         })
         .catch(err => {
-          this.props.openPortal('错误', '比赛保存失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '比赛保存失败', 'red');
           console.log(err);
         });
     }
@@ -189,14 +190,14 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         .then(data => {
           let result = data as ContestEditModel;
           if (result.succeeded) {
-            this.props.openPortal('成功', '比赛保存成功', 'green');
+            this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
           }
           else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+            this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
           }
         })
         .catch(err => {
-          this.props.openPortal('错误', '比赛配置加载失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '比赛配置加载失败', 'red');
           console.log(err);
         });
     }
