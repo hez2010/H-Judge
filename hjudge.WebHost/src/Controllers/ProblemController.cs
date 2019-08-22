@@ -58,8 +58,7 @@ namespace hjudge.WebHost.Controllers
             var judges = await judgeService.QueryJudgesAsync(
                 userId,
                 model.GroupId == 0 ? null : (int?)model.GroupId,
-                model.ContestId == 0 ? null : (int?)model.ContestId,
-                null);
+                model.ContestId == 0 ? null : (int?)model.ContestId);
 
             IQueryable<Problem> problems;
 
@@ -193,8 +192,7 @@ namespace hjudge.WebHost.Controllers
             var judges = await judgeService.QueryJudgesAsync(
                 userId,
                 model.GroupId == 0 ? null : (int?)model.GroupId,
-                model.ContestId == 0 ? null : (int?)model.ContestId,
-                null);
+                model.ContestId == 0 ? null : (int?)model.ContestId);
 
             if (await judges.Where(i => i.ProblemId == problem.Id)
                             .AnyAsync())

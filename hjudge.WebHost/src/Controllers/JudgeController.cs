@@ -3,6 +3,7 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models;
+using hjudge.WebHost.Models.Judge;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,14 +23,6 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
-        public class SubmitModel
-        {
-            public int ProblemId;
-            public int ContestId;
-            public int GroupId;
-            public string Language = string.Empty;
-            public string Content = string.Empty;
-        }
 
         [PrivilegeAuthentication.RequireSignedIn]
         [HttpPost]

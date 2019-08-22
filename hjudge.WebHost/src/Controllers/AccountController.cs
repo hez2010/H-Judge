@@ -257,7 +257,7 @@ namespace hjudge.WebHost.Controllers
                 return ret;
             }
 
-            var judges = await judgeService.QueryAllJudgesAsync(userId);
+            var judges = await judgeService.QueryJudgesAsync(userId);
 
             ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();
             ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();

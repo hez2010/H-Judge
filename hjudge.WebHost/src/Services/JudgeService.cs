@@ -14,9 +14,7 @@ namespace hjudge.WebHost.Services
 {
     public interface IJudgeService
     {
-        Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId);
-        Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId);
-        Task<IQueryable<Judge>> QueryAllJudgesAsync(string userId);
+        Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = "", int? groupId = 0, int? contestId = 0, int problemId = 0);
         Task<Judge?> GetJudgeAsync(int judgeId);
         Task QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
@@ -49,26 +47,24 @@ namespace hjudge.WebHost.Services
             return result;
         }
 
-        public Task<IQueryable<Judge>> QueryAllJudgesAsync(string userId)
+        public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId, int? groupId = 0, int? contestId = 0, int problemId = 0)
         {
-            return Task.FromResult(dbContext.Judge.Where(i => i.UserId == userId));
-        }
-
-        public Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId)
-        {
-            return Task.FromResult(problemId switch
+            return Task.FromResult((userId, groupId, contestId, problemId) switch
             {
-                null => dbContext.Judge.Where(i => i.GroupId == null && i.ContestId == null),
-                _ => dbContext.Judge.Where(i => i.GroupId == null && i.ContestId == null && i.ProblemId == problemId)
-            });
-        }
-
-        public Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId)
-        {
-            return Task.FromResult(problemId switch
-            {
-                null => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId),
-                _ => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId)
+                (null, 0, 0, 0) => dbContext.Judge,
+                (null, null, 0, 0) => dbContext.Judge.Where(i => i.GroupId == groupId),
+                (null, null, null, 0) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == contestId),
+                (null, null, null, _) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId),
+                (null, null, _, 0) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == i.ContestId),
+                (null, _, 0, 0) => dbContext.Judge.Where(i => i.GroupId == groupId),
+                (null, _, _, _) => dbContext.Judge.Where(i => i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId),
+                (_, 0, 0, 0) => dbContext.Judge.Where(i => i.UserId == userId),
+                (_, null, 0, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId),
+                (_, null, null, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId),
+                (_, null, null, _) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId),
+                (_, null, _, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == i.ContestId),
+                (_, _, 0, 0) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId),
+                (_, _, _, _) => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId)
             });
         }
 
