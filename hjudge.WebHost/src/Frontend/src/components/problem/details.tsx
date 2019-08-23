@@ -21,7 +21,8 @@ interface ProblemDetailsState {
   problem: ProblemModel,
   languageChoice: number,
   languageValue: string,
-  loaded: boolean
+  loaded: boolean,
+  submitting: boolean
 }
 
 export interface ProblemModel {
@@ -48,6 +49,11 @@ interface LanguageOptions {
   text: string,
   information: string,
   highlight: string
+}
+
+interface SubmitResultModel {
+  jump: boolean,
+  resultId: number
 }
 
 export default class ProblemDetails extends React.Component<ProblemDetailsProps, ProblemDetailsState, GlobalState> {
@@ -78,12 +84,12 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       },
       languageChoice: 0,
       languageValue: 'plain_text',
-      loaded: false
+      loaded: false,
+      submitting: false
     };
   }
 
   private editor = React.createRef<CodeEditor>();
-  private submitting = false;
   private problemId = 0;
   private contestId = 0;
   private groupId = 0;
@@ -158,7 +164,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
   }
 
   submit() {
-    if (this.submitting) {
+    if (this.state.submitting) {
       this.global.commonFuncs.openPortal('提示', '正在提交中，请稍等', 'orange');
       return;
     }
@@ -168,7 +174,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     }
     let editor = this.editor.current;
     if (!editor) return;
-    this.submitting = true;
+    this.setState({ submitting: true });
     Post('/judge/submit', {
       problemId: this.problemId,
       contestId: this.contestId,
@@ -178,16 +184,18 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     })
       .then(res => tryJson(res))
       .then(data => {
-        this.submitting = false;
+        this.setState({ submitting: false });
         let error = data as ErrorModel;
         if (error.errorCode) {
           this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
           return;
         }
         this.global.commonFuncs.openPortal('成功', '提交成功', 'green');
-        //TODO: jump to result page
+
+        let result = data as SubmitResultModel;
+        if (result.jump) this.props.history.push(`/result/${result.resultId}`);
       }).catch(err => {
-        this.submitting = false;
+        this.setState({ submitting: false });
         this.global.commonFuncs.openPortal('错误', '提交失败', 'red');
         console.log(err);
       });
@@ -213,32 +221,30 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     } as LanguageOptions));
     const { languageChoice } = this.state;
 
-    let submitModal = <>
-      <Header as='h2'>提交</Header>
-      <div>
-        <Dropdown
-          placeholder='代码语言'
-          fluid
-          search
-          selection
-          options={this.languageOptions}
-          value={languageChoice}
-          onChange={(_, { value }) => {
-            let lang = this.languageOptions[value as number] ? this.languageOptions[value as number].highlight : 'plain_text';
-            this.setState({ languageChoice: value, languageValue: lang } as ProblemDetailsState);
-          }}
-        />
-        <Label pointing>{this.languageOptions[languageChoice] ? this.languageOptions[languageChoice].information : '请选择语言'}</Label>
-      </div>
+    const submitComponent = this.global.userInfo.signedIn ? <><div>
+      <Dropdown
+        placeholder='代码语言'
+        fluid
+        search
+        selection
+        options={this.languageOptions}
+        value={languageChoice}
+        onChange={(_, { value }) => {
+          let lang = this.languageOptions[value as number] ? this.languageOptions[value as number].highlight : 'plain_text';
+          this.setState({ languageChoice: value, languageValue: lang } as ProblemDetailsState);
+        }}
+      />
+      <Label pointing>{this.languageOptions[languageChoice] ? this.languageOptions[languageChoice].information : '请选择语言'}</Label>
+    </div>
       <br />
       <div style={{ width: '100%', height: '30em' }}>
         <CodeEditor ref={this.editor} language={this.state.languageValue}></CodeEditor>
       </div>
       <br />
       <div style={{ textAlign: 'right' }}>
-        <Button primary onClick={this.submit}>提交</Button>
-      </div>
-    </>;
+        <Button disabled={this.state.submitting} primary onClick={this.submit}>提交</Button>
+      </div></>
+      : <p>请先登录账户</p>;
 
     return <>
       <Item>
@@ -266,7 +272,8 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
           </Item.Extra>
         </Item.Content>
       </Item>
-      {submitModal}
+      <Header as='h2'>提交</Header>
+      {submitComponent}
     </>;
   }
 }

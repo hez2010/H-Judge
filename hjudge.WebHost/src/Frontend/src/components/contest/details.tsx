@@ -240,7 +240,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
             </Popup>
             <div style={{ float: 'right' }}>
               <Button.Group>
-                <Button>状态</Button>
+                <Button onClick={() => this.props.history.push(`/statistics/-1/${this.groupId ? `${this.groupId}` : '-1'}/${this.contestId}/0`)}>状态</Button>
                 <Button>排名</Button>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
               </Button.Group>

@@ -169,11 +169,11 @@ export default class Group extends React.Component<GroupProps, GroupState, Globa
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
             <Label>小组编号</Label>
-            <Input fluid name='id' type='number' onChange={this.idRecord.clear}></Input>
+            <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>小组名称</Label>
-            <Input fluid name='name' onChange={this.idRecord.clear}></Input>
+            <Input fluid name='name' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>小组状态</Label>

@@ -208,11 +208,11 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
             <Label>题目编号</Label>
-            <Input fluid name='id' type='number' onChange={this.idRecord.clear}></Input>
+            <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>题目名称</Label>
-            <Input fluid name='name' onChange={this.idRecord.clear}></Input>
+            <Input fluid name='name' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
             <Label>题目状态</Label>

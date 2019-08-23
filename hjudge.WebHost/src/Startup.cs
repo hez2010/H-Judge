@@ -25,6 +25,7 @@ using EFSecondLevelCache.Core;
 using CacheManager.Core;
 using hjudge.WebHost.Models;
 using hjudge.WebHost.Middlewares;
+using Newtonsoft.Json;
 
 namespace hjudge.WebHost
 {
@@ -75,10 +76,16 @@ namespace hjudge.WebHost
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
                 .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
+            var jss = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
             services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
-                    .WithJsonSerializer()
+                    .WithJsonSerializer(jss, jss)
                     .WithRedisConfiguration(configuration["Redis:Configuration"], config =>
                     {
                         config.WithAllowAdmin()

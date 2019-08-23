@@ -122,7 +122,11 @@ const App = (props: any) => {
             component={() => <p>message</p>}>
           </Route>
           <Route
-            path='/statistics'
+            path='/statistics/:userId/:groupId/:contestId/:problemId/:page?'
+            component={Statistics}>
+          </Route>
+          <Route
+            path='/statistics/:page?'
             component={Statistics}>
           </Route>
           <Route

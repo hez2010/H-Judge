@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EFSecondLevelCache.Core;
+using Microsoft.EntityFrameworkCore;
+using hjudge.WebHost.Data;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -24,7 +27,36 @@ namespace hjudge.WebHost.Controllers
         [HttpPost]
         public async Task<StatisticsListModel> StatisticsList([FromBody]StatisticsListQueryModel model)
         {
-            throw new NotImplementedException();
+            var judges = await judgeService.QueryJudgesAsync(model.UserId)
+                (model.GroupId)
+                (model.ContestId)
+                (model.ProblemId);
+
+            IQueryable<Judge> query = judges.Include(i => i.UserInfo).Include(i => i.Problem);
+
+            var ret = new StatisticsListModel();
+
+            if (model.RequireTotalCount) ret.TotalCount = await query.Select(i => i.Id).Cacheable().CountAsync();
+
+            query = query.OrderByDescending(i => i.Id);
+
+            if (model.StartId != 0) query = query.Where(i => i.Id <= model.StartId);
+            else query = query.Skip(model.Start);
+
+            ret.Statistics = await query.Take(model.Count).Select(i => new StatisticsListModel.StatisticsListItemModel
+            {
+                ContestId = i.ContestId,
+                GroupId = i.GroupId,
+                ProblemId = i.ProblemId,
+                ResultId = i.Id,
+                ResultType = i.ResultType,
+                Time = i.JudgeTime,
+                UserId = i.UserId,
+                UserName = i.UserInfo.UserName,
+                ProblemName = i.Problem.Name
+            }).Cacheable().ToListAsync();
+
+            return ret;
         }
     }
 }

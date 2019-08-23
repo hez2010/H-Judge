@@ -14,6 +14,11 @@ namespace hjudge.WebHost.Services
 {
     public interface IJudgeService
     {
+        /// <summary>
+        /// Query judges by userId, groupId, contestId and problemId one by one
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         Func<int?, Func<int?, Func<int?, Task<IQueryable<Judge>>>>> QueryJudgesAsync(string? userId = null);
         Task<Judge?> GetJudgeAsync(int judgeId);
         Task QueueJudgeAsync(Judge judge);

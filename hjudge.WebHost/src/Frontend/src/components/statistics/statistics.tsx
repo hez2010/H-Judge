@@ -9,18 +9,22 @@ import { Table, Button, Placeholder, Form, Label, Input, Select, Pagination } fr
 import { tryJson } from '../../utils/responseHelper';
 
 interface StatisticsProps extends CommonProps {
-  problemId?: number, // unused
-  contestId?: number, // unused
-  groupId?: number // unused
+  problemId?: number,
+  contestId?: number,
+  groupId?: number,
+  userId?: string
 }
 
 interface StatisticsItemModel {
   problemId: number,
+  contestId: number,
+  groupId: number,
   resultId: number,
-  problemName: number,
+  problemName: string,
   userId: number,
   userName: number,
-  resultType: string,
+  result: string,
+  resultType: number,
   time: Date
 }
 
@@ -31,7 +35,6 @@ interface StatisticsListModel {
 
 interface StatisticsState {
   statisticsList: StatisticsListModel,
-  statusFilter: number[],
   page: number,
   loaded: boolean
 }
@@ -43,13 +46,14 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
     this.renderStatisticsList = this.renderStatisticsList.bind(this);
     this.fetchStatisticsList = this.fetchStatisticsList.bind(this);
     this.gotoDetails = this.gotoDetails.bind(this);
+    this.getNumber = this.getNumber.bind(this);
+    this.getString = this.getString.bind(this);
 
     this.state = {
       statisticsList: {
         statistics: [],
         totalCount: 0
       },
-      statusFilter: [0, 1, 2],
       page: 0,
       loaded: false
     };
@@ -57,22 +61,28 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
 
   private idRecord = new Map<number, number>();
   private disableNavi = false;
-  private userId = this.global.userInfo.userId;
+  private expandParamsInUri = false;
+  private prevUserId = this.global.userInfo.userId;
+  private userId = '';
+  private problemId = 0;
+  private contestId = -1;
+  private groupId = -1;
 
   fetchStatisticsList(requireTotalCount: boolean, page: number) {
-    if (!this.props.groupId && !this.props.problemId && !this.props.contestId && page.toString() !== this.props.match.params.page)
-      this.props.history.replace(`/statistics/${page}`);
-    let form = document.querySelector('#filterForm') as HTMLFormElement;
+    if (!this.props.groupId && !this.props.problemId && !this.props.contestId && page.toString() !== this.props.match.params.page) {
+      if (this.expandParamsInUri)
+        this.props.history.replace(`/statistics/${!!this.userId ? this.userId : '-1'}/${this.groupId}/${this.contestId}/${this.problemId}/${page}`);
+      else
+        this.props.history.replace(`/statistics/${page}`);
+    }
     let req: any = {};
-    req.filter = SerializeForm(form);
-    if (!req.filter.id) req.filter.id = 0;
-    req.filter.status = this.state.statusFilter;
     req.start = (page - 1) * 10;
     req.count = 10;
     req.requireTotalCount = requireTotalCount;
-    req.problemId = this.props.problemId;
-    req.contestId = this.props.contestId;
-    req.groupId = this.props.groupId;
+    req.problemId = this.problemId === -1 ? null : this.problemId;
+    req.contestId = this.contestId === -1 ? null : this.contestId;
+    req.groupId = this.groupId === -1 ? null : this.groupId;
+    req.userId = !!this.userId ? this.userId : null;
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
     Post('/statistics/list', req)
@@ -87,9 +97,13 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
         let countBackup = this.state.statisticsList.totalCount;
         if (!requireTotalCount) result.totalCount = countBackup;
 
+        result.statistics = result.statistics.map(v => {
+          v.time = new Date(v.time);
+          return v;
+        });
+
         if (result.statistics.length > 0)
           this.idRecord.set(page + 1, result.statistics[result.statistics.length - 1].resultId);
-
         this.setState({
           statisticsList: result,
           page: page,
@@ -103,8 +117,29 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
   }
 
   componentDidMount() {
+    console.log(this.props.match.params);
     if (!this.props.problemId && !this.props.contestId && !this.props.groupId) setTitle('状态');
 
+    if (this.props.groupId) this.groupId = this.props.groupId;
+    else if (this.props.match.params.groupId) {
+      this.groupId = parseInt(this.props.match.params.groupId);
+      this.expandParamsInUri = true;
+    }
+    if (this.props.contestId) this.contestId = this.props.contestId;
+    else if (this.props.match.params.contestId) {
+      this.contestId = parseInt(this.props.match.params.contestId);
+      this.expandParamsInUri = true;
+    }
+    if (this.props.problemId) this.problemId = this.props.problemId;
+    else if (this.props.match.params.problemId) {
+      this.problemId = parseInt(this.props.match.params.problemId);
+      this.expandParamsInUri = true;
+    }
+    if (this.props.userId) this.userId = this.props.userId;
+    else if (!!this.props.match.params.userId && this.props.match.params.userId !== '-1') {
+      this.userId = this.props.match.params.userId;
+      this.expandParamsInUri = true;
+    }
     if (!this.props.match.params.page) this.fetchStatisticsList(true, 1);
     else this.fetchStatisticsList(true, this.props.match.params.page);
   }
@@ -118,8 +153,8 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
   }
 
   componentWillUpdate(_nextProps: StatisticsProps, _nextState: StatisticsState) {
-    if (this.userId !== this.global.userInfo.userId) {
-      this.userId = this.global.userInfo.userId;
+    if (this.prevUserId !== this.global.userInfo.userId) {
+      this.prevUserId = this.global.userInfo.userId;
       this.idRecord.clear();
       if (!this.props.match.params.page) this.fetchStatisticsList(true, 1);
       else this.fetchStatisticsList(true, this.props.match.params.page);
@@ -131,20 +166,22 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
       <Table color='black' selectable>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell>编号</Table.HeaderCell>
-            <Table.HeaderCell>用户</Table.HeaderCell>
-            <Table.HeaderCell>题目</Table.HeaderCell>
-            <Table.HeaderCell>结果</Table.HeaderCell>
+            <Table.HeaderCell>提交编号</Table.HeaderCell>
+            <Table.HeaderCell>提交用户</Table.HeaderCell>
+            <Table.HeaderCell>题目名称</Table.HeaderCell>
+            <Table.HeaderCell>提交时间</Table.HeaderCell>
+            <Table.HeaderCell>评测结果</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {
             this.state.statisticsList.statistics.map((v, i) =>
               <Table.Row key={i} onClick={() => this.gotoDetails(v.resultId)} style={{ cursor: 'pointer' }}>
-                <Table.Cell>{v.resultId}</Table.Cell>
+                <Table.Cell>#{v.resultId}</Table.Cell>
                 <Table.Cell>{v.userName}</Table.Cell>
                 <Table.Cell>{v.problemName}</Table.Cell>
-                <Table.Cell>{v.resultType}</Table.Cell>
+                <Table.Cell>{v.time.toLocaleString()}</Table.Cell>
+                <Table.Cell>{v.result}</Table.Cell>
               </Table.Row>)
           }
         </Table.Body>
@@ -152,8 +189,16 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
     </>;
   }
 
+  getString(value: number) {
+    return value === -1 ? '0' : (value === 0 ? '' : value.toString());
+  }
+
+  getNumber(value: string) {
+    return value ? (value === '0' ? -1 : parseInt(value)) : 0;
+  }
+
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />
@@ -165,23 +210,27 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
     return <>
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
-          <Form.Field width={4}>
+          <Form.Field width={2}>
             <Label>提交编号</Label>
-            <Input fluid name='id' type='number' onChange={this.idRecord.clear}></Input>
+            <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
-          <Form.Field width={4}>
-            <Label>题目名称</Label>
-            <Input fluid name='problemName' onChange={this.idRecord.clear}></Input>
+          <Form.Field width={2}>
+            <Label>题目编号</Label>
+            <Input fluid name='problemId' defaultValue={this.state.loaded ? this.getString(this.problemId) : ''} onChange={e => { this.idRecord.clear(); this.problemId = this.getNumber(e.target.value) }}></Input>
           </Form.Field>
-          <Form.Field width={4}>
-            <Label>比赛名称</Label>
-            <Input fluid name='contestName' onChange={this.idRecord.clear}></Input>
+          <Form.Field width={2}>
+            <Label>比赛编号</Label>
+            <Input fluid name='contestId' defaultValue={this.state.loaded ? this.getString(this.contestId) : ''} onChange={e => { this.idRecord.clear(); this.contestId = this.getNumber(e.target.value) }}></Input>
           </Form.Field>
-          <Form.Field width={8}>
-            <Label>提交来源</Label>
-            <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as StatisticsState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1]} options={[{ text: '我的提交', value: 0 }, { text: '全部提交', value: 1 }]}></Select>
+          <Form.Field width={2}>
+            <Label>小组编号</Label>
+            <Input fluid name='groupId' defaultValue={this.state.loaded ? this.getString(this.groupId) : ''} onChange={e => { this.idRecord.clear(); this.groupId = this.getNumber(e.target.value) }}></Input>
           </Form.Field>
-          <Form.Field width={4}>
+          <Form.Field width={10}>
+            <Label>用户编号</Label>
+            <Input fluid name='userId' defaultValue={this.state.loaded ? this.userId : ''} onChange={e => { this.idRecord.clear(); this.userId = e.target.value; }}></Input>
+          </Form.Field>
+          <Form.Field width={2}>
             <Label>题目操作</Label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchStatisticsList(true, 1)}>筛选</Button>
