@@ -22,36 +22,36 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace smartbox.SeaweedFs.Client.Utils
 {
-    internal class ArrayJsonConverter : JsonConverter<object>
+    internal class ArrayJsonConverter : JsonConverter
     {
-        public override bool CanConvert(Type objectType)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return objectType == typeof(List<>);
-        }
-
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
-        {
-            JsonSerializer.Serialize(writer, value, options);
-        }
-
-        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (reader.TokenType == JsonTokenType.StartArray)
+            if (reader.TokenType == JsonToken.StartArray)
             {
-                return JsonSerializer.Deserialize(reader.ValueSpan, typeToConvert, options);
+                return serializer.Deserialize(reader, objectType);
             }
-            if (reader.TokenType == JsonTokenType.StartObject)
+
+            if (reader.TokenType == JsonToken.StartObject)
             {
-                JsonSerializer.Deserialize<object>(reader.ValueSpan, options); // NOTE : value must be consumed otherwise an exception will be thrown
+                serializer.Deserialize(reader); // NOTE : value must be consumed otherwise an exception will be thrown
                 return null;
             }
 
             throw new NotSupportedException("Should not occur, check JSON for a new type of malformed syntax");
+        }
+    
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value);
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(List<>);
         }
     }
 

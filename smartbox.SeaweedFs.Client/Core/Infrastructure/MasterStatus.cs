@@ -23,7 +23,7 @@
  */
 
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
@@ -37,10 +37,10 @@ namespace smartbox.SeaweedFs.Client.Core.Infrastructure
             Url = ConnectionUtil.ConvertUrlWithScheme(url);
         }
 
-        [JsonPropertyName("Url")]
+        [JsonProperty("Url")]
         public string Url { get; private set; }
 
-        [JsonPropertyName("IsActive")]
+        [JsonProperty("IsActive")]
         public bool IsActive
         {
             get { return _isActive; }
@@ -63,7 +63,10 @@ namespace smartbox.SeaweedFs.Client.Core.Infrastructure
         {
             if (this == obj) return true;
 
-            return !(obj is MasterStatus that) ? false : Url.Equals(that.Url);
+            var that = obj as MasterStatus;
+            if (that == null) return false;
+            
+            return Url.Equals(that.Url);
         }
 
         public override string ToString()

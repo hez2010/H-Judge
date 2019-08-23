@@ -19,6 +19,9 @@ using System.IO;
 using System.IO.Compression;
 using hjudge.WebHost.Exceptions;
 using System.Net;
+using Google.Protobuf;
+using System.Collections.Generic;
+using System.Text;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -31,6 +34,7 @@ namespace hjudge.WebHost.Controllers
         private readonly IProblemService problemService;
         private readonly IJudgeService judgeService;
         private readonly ILanguageService languageService;
+        private readonly IFileService fileService;
         private readonly WebHostDbContext dbContext;
 
         public ProblemController(
@@ -38,12 +42,14 @@ namespace hjudge.WebHost.Controllers
             IProblemService problemService,
             IJudgeService judgeService,
             ILanguageService languageService,
+            IFileService fileService,
             WebHostDbContext dbContext)
         {
             this.userManager = userManager;
             this.problemService = problemService;
             this.judgeService = judgeService;
             this.languageService = languageService;
+            this.fileService = fileService;
             this.dbContext = dbContext;
         }
 
@@ -329,16 +335,32 @@ namespace hjudge.WebHost.Controllers
         [RequireAdmin]
         [Route("data")]
         [RequestSizeLimit(135000000)]
-        public async Task UploadData([FromForm]int problemId, IFormFile file)
+        public async Task<ProblemDataUploadModel> UploadData([FromForm]int problemId, IFormFile file)
         {
             if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
             if (file.ContentType != "application/x-zip-compressed" && file.ContentType != "application/zip") throw new BadRequestException("文件格式不正确");
             if (file.Length > 134217728) throw new BadRequestException("文件大小不能超过 128 Mb");
-            var fileName = Path.GetTempFileName();
-            using (var stream = new FileStream(fileName, FileMode.Truncate)) await file.CopyToAsync(stream);
 
-            Directory.CreateDirectory($"AppData/Data/{problemId}");
-            ZipFile.ExtractToDirectory(fileName, $"AppData/Data/{problemId}");
+            using var stream = file.OpenReadStream();
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
+            var list = new List<UploadInfo>();
+            var failedList = new ProblemDataUploadModel();
+            long size = 0;
+            foreach (var i in zip.Entries.Where(i => !i.FullName.EndsWith("/")))
+            {
+                var entryStream = i.Open();
+                size += i.Length;
+                if (size > 140 * 1048576)
+                {
+                    await foreach (var j in fileService.UploadFilesAsync(list)) if (!j.Succeeded) failedList.FailedFiles.Add(j.FileName);
+                    list.Clear();
+                    list.Add(new UploadInfo { FileName = $"Data/{problemId}/{i.FullName}", Content = await ByteString.FromStreamAsync(entryStream) });
+                    size = i.Length;
+                }
+                else list.Add(new UploadInfo { FileName = $"Data/{problemId}/{i.FullName}", Content = await ByteString.FromStreamAsync(entryStream) });
+            }
+            await foreach (var j in fileService.UploadFilesAsync(list)) if (!j.Succeeded) failedList.FailedFiles.Add(j.FileName);
+            return failedList;
         }
 
         [HttpGet]
@@ -347,10 +369,20 @@ namespace hjudge.WebHost.Controllers
         public async Task<IActionResult> GetData(int problemId)
         {
             if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
-            var fileName = Path.GetTempFileName();
-            System.IO.File.Delete(fileName);
-            ZipFile.CreateFromDirectory($"AppData/Data/{problemId}", fileName, CompressionLevel.Optimal, false);
-            var stream = new FileStream(fileName, FileMode.Open);
+
+            var files = await fileService.ListFilesAsync($"Data/{problemId}/");
+            var downloadedFiles = fileService.DownloadFilesAsync(files);
+            var stream = new MemoryStream();
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
+            {
+                await foreach (var i in downloadedFiles)
+                {
+                    var entry = zip.CreateEntry(i.FileName);
+                    using var entryStream = entry.Open();
+                    i.Content.WriteTo(entryStream);
+                }
+            }
+            stream.Seek(0, SeekOrigin.Begin);
             return File(stream, "application/x-zip-compressed", $"Data_{problemId}_{DateTime.Now:yyyyMMddHHmmssffff}.zip", true);
         }
 
@@ -360,8 +392,9 @@ namespace hjudge.WebHost.Controllers
         public async Task DeleteData(int problemId)
         {
             if ((await problemService.GetProblemAsync(problemId)) == null) return;
-            Directory.Delete($"AppData/Data/{problemId}", true);
-            Directory.CreateDirectory($"AppData/Data/{problemId}");
+
+            var files = await fileService.ListFilesAsync($"Data/{problemId}/");
+            _ = await fileService.DeleteFilesAsync(files);
         }
     }
 }

@@ -25,21 +25,26 @@ namespace hjudgeFileHost
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGrpc();
+            services.AddGrpc(options =>
+            {
+                options.ReceiveMaxMessageSize = 2147483647;
+                options.SendMaxMessageSize = 150 * 1048576;
+            });
 
             services.AddDbContext<FileHostDbContext>(options =>
             {
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
-#if DEBUG
-                options.EnableDetailedErrors(true);
-                options.EnableSensitiveDataLogging(true);
-#endif
+// #if DEBUG
+//                 options.EnableDetailedErrors(true);
+//                 options.EnableSensitiveDataLogging(true);
+// #endif
                 options.EnableServiceProviderCaching(true);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
             services.AddEntityFrameworkNpgsql();
-
+            
+            services.AddScoped<FileService>();
             services.AddScoped<SeaweedFsService>()
                 .Configure<SeaweedFsOptions>(options =>
                 {
@@ -62,6 +67,8 @@ namespace hjudgeFileHost
                     .WithRedisCacheHandle(Configuration["Redis:Configuration"])
                     .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
                     .Build());
+                    
+            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

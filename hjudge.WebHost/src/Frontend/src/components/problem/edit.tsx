@@ -4,7 +4,7 @@ import { setTitle } from '../../utils/titleHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { Get, Put, Post, Delete } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
-import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon, Confirm } from 'semantic-ui-react';
+import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon, Confirm, Loader } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
@@ -13,7 +13,7 @@ interface ProblemEditState {
   problem: ProblemEditModel,
   useSpecialJudge: boolean,
   selectedTemplate: string,
-  uploadingData: boolean,
+  processingData: boolean,
   confirmOpen: boolean,
   loaded: boolean
 }
@@ -101,7 +101,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       },
       useSpecialJudge: false,
       selectedTemplate: '',
-      uploadingData: false,
+      processingData: false,
       confirmOpen: false,
       loaded: false
     };
@@ -294,19 +294,19 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     let form = new FormData();
     form.append('problemId', this.state.problem.id.toString());
     form.append('file', file);
-    this.setState({ uploadingData: true });
+    this.setState({ processingData: true });
     Put('/problem/data', form, false, '')
       .then(res => tryJson(res))
       .then(data => {
         if (data.succeeded) this.global.commonFuncs.openPortal('成功', '题目数据上传成功', 'green');
         else this.global.commonFuncs.openPortal('错误', `${data.errorMessage}`, 'red');
-        this.setState({ uploadingData: false });
+        this.setState({ processingData: false });
         let ele = this.fileLoader.current;
         if (ele) ele.value = '';
       })
       .catch(() => {
         this.global.commonFuncs.openPortal('错误', '题目数据上传失败', 'red');
-        this.setState({ uploadingData: false });
+        this.setState({ processingData: false });
         let ele = this.fileLoader.current;
         if (ele) ele.value = '';
       });
@@ -327,7 +327,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
   }
 
   deleteFile() {
-    this.setState({ confirmOpen: false });
+    this.setState({ confirmOpen: false, processingData: true });
     Delete('/problem/data', { problemId: this.state.problem.id })
       .then(res => tryJson(res))
       .then(data => {
@@ -337,9 +337,11 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
           return;
         }
         this.global.commonFuncs.openPortal('成功', '题目数据删除成功', 'green');
+        this.setState({ processingData: false });
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '题目数据删除失败', 'red');
+        this.setState({ processingData: false });
         console.log(err);
       })
   }
@@ -560,12 +562,14 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     </Form>;
 
     const utils = <Form>
-      <Form.Group inline>
-        <Form.Button disabled={this.state.uploadingData} type='button' primary onClick={this.selectFile}>{this.state.uploadingData ? '上传中...' : '上传 .zip 数据文件'}</Form.Button>
-        <Form.Button disabled={this.state.uploadingData} type='button' onClick={this.downloadFile}>下载数据文件</Form.Button>
-        <Form.Button disabled={this.state.uploadingData} type='button' color='red' onClick={() => this.setState({ confirmOpen: true })}>删除数据文件</Form.Button>
-        <input ref={this.fileLoader} onChange={this.uploadFile} type='file' accept="application/x-zip-compressed,application/zip" style={{ filter: 'alpha(opacity=0)', opacity: 0, width: 0, height: 0 }} />
-      </Form.Group>
+      <input ref={this.fileLoader} onChange={this.uploadFile} type='file' accept="application/x-zip-compressed,application/zip" style={{ filter: 'alpha(opacity=0)', opacity: 0, width: 0, height: 0 }} />
+      {
+        !this.state.processingData ? <Form.Group inline>
+        <Form.Button type='button' primary onClick={this.selectFile}>上传 .zip 数据文件</Form.Button>
+        <Form.Button type='button' onClick={this.downloadFile}>下载数据文件</Form.Button>
+        <Form.Button type='button' color='red' onClick={() => this.setState({ confirmOpen: true })}>删除数据文件</Form.Button>
+      </Form.Group> : <Loader active inline>处理中...</Loader>
+      }
     </Form>;
 
     let panes = [

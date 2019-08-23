@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace hjudge.FileHost.Test
 {
-    //[TestClass]
+    [TestClass]
     public class FileInterfaceTest
     {
         private readonly SeaweedFsService service = TestService.Provider.GetService<SeaweedFsService>();
@@ -23,9 +23,9 @@ namespace hjudge.FileHost.Test
                 await m.WriteAsync(Encoding.UTF8.GetBytes("test"));
                 await m.FlushAsync();
                 m.Seek(0, SeekOrigin.Begin);
-                await service.Upload("{datadir:2}/test.jpg", m);
+                await service.UploadAsync("{datadir:2}/test.jpg", m);
 
-                var r = await service.Download("{datadir:2}/test.jpg");
+                var r = await service.DownloadAsync("{datadir:2}/test.jpg");
                 Assert.IsNotNull(r);
                 if (r == null) return;
 
@@ -40,9 +40,9 @@ namespace hjudge.FileHost.Test
                 await m.WriteAsync(Encoding.UTF8.GetBytes("test2"));
                 await m.FlushAsync();
                 m.Seek(0, SeekOrigin.Begin);
-                await service.Upload("{datadir:2}/test.jpg", m);
+                await service.UploadAsync("{datadir:2}/test.jpg", m);
 
-                var r = await service.Download("{datadir:2}/test.jpg");
+                var r = await service.DownloadAsync("{datadir:2}/test.jpg");
                 Assert.IsNotNull(r);
                 if (r == null) return;
 
@@ -52,10 +52,10 @@ namespace hjudge.FileHost.Test
                 Assert.AreEqual("test2", Encoding.UTF8.GetString(buffer));
             }
 
-            var d = await service.Delete("{datadir:2}/test.jpg");
+            var d = await service.DeleteAsync("{datadir:2}/test.jpg");
             Assert.IsTrue(d);
 
-            Assert.IsNull(await service.Download("{datadir:2}/test.jpg"));
+            Assert.IsNull(await service.DownloadAsync("{datadir:2}/test.jpg"));
         }
     }
 }

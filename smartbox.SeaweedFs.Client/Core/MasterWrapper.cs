@@ -25,10 +25,10 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using smartbox.SeaweedFs.Client.Core.Http;
 using smartbox.SeaweedFs.Client.Exception;
 using smartbox.SeaweedFs.Client.Utils;
-using System.Text.Json;
 
 namespace smartbox.SeaweedFs.Client.Core
 {
@@ -58,7 +58,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 new Uri(url)
             );
             var jsonResponse = await _connection.FetchJsonResultByRequest(request);
-            var obj = JsonSerializer.Deserialize<AssignFileKeyResult>(jsonResponse.Json, Settings.JsonSerializerSettings);
+            var obj = JsonConvert.DeserializeObject<AssignFileKeyResult>(jsonResponse.Json, Settings.JsonSerializerSettings);
             return obj;
         }
 
@@ -91,7 +91,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 new Uri(url)
             );
             var jsonResponse = await _connection.FetchJsonResultByRequest(request);
-            var obj = JsonSerializer.Deserialize<PreAllocateVolumesResult>(jsonResponse.Json, Settings.JsonSerializerSettings);
+            var obj = JsonConvert.DeserializeObject<PreAllocateVolumesResult>(jsonResponse.Json, Settings.JsonSerializerSettings);
             return obj;
         }
 
@@ -132,7 +132,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 new Uri(url)
             );
             var jsonResponse = await _connection.FetchJsonResultByRequest(request);
-            var obj = JsonSerializer.Deserialize<LookupVolumeResult>(jsonResponse.Json, Settings.JsonSerializerSettings);
+            var obj = JsonConvert.DeserializeObject<LookupVolumeResult>(jsonResponse.Json, Settings.JsonSerializerSettings);
             return obj;
         }
 

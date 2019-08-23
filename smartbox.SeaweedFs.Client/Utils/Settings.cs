@@ -20,16 +20,15 @@
  * SOFTWARE.
  */
 
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace smartbox.SeaweedFs.Client.Utils
 {
     internal static class Settings
     {
-        internal static readonly JsonSerializerOptions JsonSerializerSettings = new JsonSerializerOptions
+        internal static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {
-            IgnoreNullValues = true,
-            AllowTrailingCommas = true
+            MissingMemberHandling = MissingMemberHandling.Ignore
         };
     }
 }

@@ -23,33 +23,28 @@
  */
 
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class Volume
     {
-        [JsonPropertyName("Id")]
+        [JsonProperty("Id")]
         public long Id { get; private set; }
-        [JsonPropertyName("Size")]
+        [JsonProperty("Size")]
         public long Size { get; private set; }
-        [JsonPropertyName("ReplicaPlacement")]
-        public ReplicaPlacement ReplicaPlacement { get; private set; }
-        [JsonPropertyName("Ttl")]
-        [JsonConverter(typeof(ArrayJsonConverter))]
-        public List<string> TTL { get; private set; }
-        [JsonPropertyName("Collection")]
-        public string Collection { get; private set; }
-        [JsonPropertyName("Version")]
+        [JsonProperty("RepType")]
+        public string ReplicaPlacementType { get; private set; }
+        [JsonProperty("Version")]
         public long Version { get; private set; }
-        [JsonPropertyName("FileCount")]
+        [JsonProperty("FileCount")]
         public long FileCount { get; private set; }
-        [JsonPropertyName("DeleteCount")]
+        [JsonProperty("DeleteCount")]
         public long DeleteCount { get; private set; }
-        [JsonPropertyName("DeletedByteCount")]
+        [JsonProperty("DeletedByteCount")]
         public long DeletedByteCount { get; private set; }
-        [JsonPropertyName("ReadOnly")]
+        [JsonProperty("ReadOnly")]
         public bool ReadOnly { get; private set; }
 
         public override string ToString()
@@ -57,9 +52,7 @@ namespace smartbox.SeaweedFs.Client.Core.Infrastructure
             return "Volume{" +
                    "id=" + Id +
                    ", size=" + Size +
-                   ", replicaPlacement=" + ReplicaPlacement +
-                   ", ttl=" + TTL +
-                   ", collection='" + Collection + "\'" +
+                   ", replicaPlacementType=" + ReplicaPlacementType +
                    ", version=" + Version +
                    ", fileCount=" + FileCount +
                    ", deleteCount=" + DeleteCount +

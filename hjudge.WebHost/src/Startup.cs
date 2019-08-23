@@ -1,5 +1,4 @@
 ﻿using hjudge.Shared.MessageQueue;
-using hjudge.Shared.Utils;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Extensions;
@@ -67,6 +66,7 @@ namespace hjudge.WebHost
             services.AddScoped<IJudgeService, JudgeService>();
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IVoteService, VoteService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 

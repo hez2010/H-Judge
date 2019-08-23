@@ -22,15 +22,15 @@
  * SOFTWARE.
  */
 
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class SystemTopology
     {
-        [JsonPropertyName("Topology")]
+        [JsonProperty("Topology")]
         public Topology Topology { get; private set; }
-        [JsonPropertyName("Version")]
+        [JsonProperty("Version")]
         public string Version { get; private set; }
         
         public override string ToString()

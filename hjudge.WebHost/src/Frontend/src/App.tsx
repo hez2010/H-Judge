@@ -152,7 +152,7 @@ const App = (props: any) => {
         </Switch>
       </Layout>
       <TransitionablePortal open={portal.open} onClose={closePortal} transition={{ animation: 'drop', duration: 500 }}>
-        <Segment style={{ bottom: '5em', position: 'fixed', right: '2em', zIndex: 1048576 }} color={portal.color} inverted>
+        <Segment style={{ bottom: '5em', position: 'fixed', right: '2em', zIndex: 1048576, height: '10em', width: '20em' }} color={portal.color} inverted>
           <Header>
             {portal.header}
             <div style={{ display: 'inline', cursor: 'pointer', float: 'right' }} onClick={closePortal}>
@@ -160,7 +160,7 @@ const App = (props: any) => {
             </div>
           </Header>
           <Divider />
-          <pre style={{ wordBreak: 'break-all', wordWrap: 'break-word', 'overflow': 'hidden', width: '20em' }}>{portal.message}</pre>
+          <pre style={{ wordBreak: 'break-all', wordWrap: 'break-word', overflow: 'auto', scrollBehavior: 'auto', width: '18em', height: '5em' }}>{portal.message}</pre>
         </Segment>
       </TransitionablePortal>
     </>;

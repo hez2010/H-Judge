@@ -59,7 +59,9 @@ namespace smartbox.SeaweedFs.Client.Utils
 
         public static string ConvertUrlWithScheme(string serverUrl)
         {
-            return serverUrl.StartsWith("http") ? serverUrl : "http://" + serverUrl;
+            if (serverUrl.StartsWith("http"))
+                return serverUrl;
+            return "http://" + serverUrl;
         }
     }
 }

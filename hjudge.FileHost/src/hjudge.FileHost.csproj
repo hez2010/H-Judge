@@ -12,14 +12,16 @@
     <PackageReference Include="CacheManager.Serialization.Json" Version="2.0.0-beta-1629" />
     <PackageReference Include="Grpc.AspNetCore.Server" Version="0.1.22-pre3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview8.19405.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0-preview8.19405.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview8" />
+    <PackageReference Include="System.Interactive.Async" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\hjudge.RpcInterface\hjudge.RpcInterface.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
-    <ProjectReference Include="..\..\smartbox.SeaweedFs.Client\smartbox.SeaweedFs.Client.csproj" />
     <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
+    <ProjectReference Include="..\..\smartbox.SeaweedFs.Client\smartbox.SeaweedFs.Client.csproj" />
   </ItemGroup>
 
 </Project>

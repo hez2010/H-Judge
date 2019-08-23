@@ -42,6 +42,7 @@
     <ProjectReference Include="..\..\hjudge.Core\src\hjudge.Core.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
     <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
+    <ProjectReference Include="..\..\hjudge.RpcInterface\hjudge.RpcInterface.csproj" />
   </ItemGroup>
 
   <ItemGroup>

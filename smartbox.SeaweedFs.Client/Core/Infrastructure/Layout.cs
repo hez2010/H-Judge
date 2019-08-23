@@ -23,19 +23,19 @@
  */
 
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
     public class Layout
     {
-        [JsonPropertyName("Collection")]
+        [JsonProperty("Collection")]
         public string Collection { get; private set; }
-        [JsonPropertyName("Replication")]
+        [JsonProperty("Replication")]
         public string Replication { get; private set; }
-        [JsonPropertyName("Ttl")]
+        [JsonProperty("Ttl")]
         public string TTL { get; private set; }
-        [JsonPropertyName("Writables")]
+        [JsonProperty("Writables")]
         public List<int> Writables { get; private set; }
 
         public override string ToString()

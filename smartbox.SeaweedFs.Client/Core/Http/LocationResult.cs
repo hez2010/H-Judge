@@ -23,16 +23,16 @@
  */
 
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Http
 {
     public class LocationResult
     {
-        [JsonPropertyName("Url")]
+        [JsonProperty("url")]
         public string Url { get; private set; }
-        [JsonPropertyName("PublicUrl")]
+        [JsonProperty("publicUrl")]
         public string PublicUrl { get; private set; }
 
         [OnDeserialized]
@@ -54,9 +54,11 @@ namespace smartbox.SeaweedFs.Client.Core.Http
         {
             if (this == obj) return true;
 
-            if (!(obj is LocationResult that)) return false;
+            var that = obj as LocationResult;
+            if (that == null) return false;
 
-            return !Url.Equals(that.Url) ? false : PublicUrl.Equals(that.PublicUrl);
+            if (!Url.Equals(that.Url)) return false;
+            return PublicUrl.Equals(that.PublicUrl);
         }
 
         public override int GetHashCode()

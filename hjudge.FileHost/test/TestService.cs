@@ -32,7 +32,7 @@ namespace hjudge.FileHost.Test
                     options.Port = 9333;
                 });
 
-            //services.AddEFSecondLevelCache();
+            services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                new ConfigurationBuilder()
