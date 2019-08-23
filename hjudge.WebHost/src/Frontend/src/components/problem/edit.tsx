@@ -18,6 +18,10 @@ interface ProblemEditState {
   loaded: boolean
 }
 
+interface ProblemDataUploadModel {
+  failedFiles: string[]
+}
+
 interface ProblemEditProps extends CommonProps {
   problemId?: number
 }
@@ -298,8 +302,14 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     Put('/problem/data', form, false, '')
       .then(res => tryJson(res))
       .then(data => {
-        if (data.succeeded) this.global.commonFuncs.openPortal('成功', '题目数据上传成功', 'green');
-        else this.global.commonFuncs.openPortal('错误', `${data.errorMessage}`, 'red');
+        let error = data as ErrorModel;
+        if (error.errorCode) this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+        else {
+          let result = data as ProblemDataUploadModel;
+          if (result.failedFiles && result.failedFiles.length !== 0)
+            this.global.commonFuncs.openPortal('警告', `部分题目数据上传失败：\n${result.failedFiles.reduce((accu, next) => accu + '\n' + next)}`, 'orange');
+          else this.global.commonFuncs.openPortal('成功', '题目数据上传成功', 'green');
+        }
         this.setState({ processingData: false });
         let ele = this.fileLoader.current;
         if (ele) ele.value = '';
@@ -332,11 +342,8 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       .then(res => tryJson(res))
       .then(data => {
         let error = data as ErrorModel;
-        if (error.errorCode) {
-          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
-          return;
-        }
-        this.global.commonFuncs.openPortal('成功', '题目数据删除成功', 'green');
+        if (error.errorCode) this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+        else this.global.commonFuncs.openPortal('成功', '题目数据删除成功', 'green');
         this.setState({ processingData: false });
       })
       .catch(err => {

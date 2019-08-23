@@ -20,14 +20,11 @@ namespace hjudgeFileHost.Services
         public override async Task<UploadResponse> UploadFiles(IAsyncStreamReader<UploadRequest> requestStream, ServerCallContext context)
         {
             var result = new UploadResponse();
-            var cnt = 0;
             while (await requestStream.MoveNext())
             {
                 Console.WriteLine($"Count: {requestStream.Current.Infos.Count}");
-                cnt = 0;
                 foreach (var i in requestStream.Current.Infos)
                 {
-                    Console.WriteLine($"{++cnt}: {i.FileName}");
                     using var stream = new MemoryStream();
                     i.Content.WriteTo(stream);
                     stream.Seek(0, SeekOrigin.Begin);

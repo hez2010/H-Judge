@@ -42,7 +42,7 @@ namespace hjudgeFileHost.Services
             {
                 if (await template.CheckFileExists(fileRecord.FileId)) result = await template.UpdateFileByStream(fileRecord.FileId, hash, content);
                 else result = await template.SaveFileByStream(hash, content);
-                fileRecord.ContentType = result.ContentType;
+                fileRecord.ContentType = string.IsNullOrEmpty(result.ContentType) ? "application/octet-stream" : result.ContentType;
                 fileRecord.FileSize = length;
                 fileRecord.LastModified = new DateTime(result.LastModified);
                 fileRecord.FileName = hash;

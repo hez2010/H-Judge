@@ -73,7 +73,7 @@ namespace smartbox.SeaweedFs.Client.Core
             ConvertResponseStatusToException((int)jsonResponse.StatusCode, url, fileId, false, false, false, false);
 
             var obj = JObject.Parse(jsonResponse.Json);
-            return obj["size"].Value<long>();
+            return obj["size"]?.Value<long>() ?? 0;
         }
 
         /// <summary>
