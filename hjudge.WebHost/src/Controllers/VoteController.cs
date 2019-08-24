@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
-using hjudge.WebHost.Models;
+using hjudge.WebHost.Models.Vote;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Mvc;
 

@@ -16,7 +16,7 @@ namespace hjudge.WebHost.Services
     {
         Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null);
         Task<Judge?> GetJudgeAsync(int judgeId);
-        Task QueueJudgeAsync(Judge judge);
+        Task<int> QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
     }
     public class JudgeService : IJudgeService
@@ -64,7 +64,7 @@ namespace hjudge.WebHost.Services
             return Task.FromResult(judges);
         }
 
-        public async Task QueueJudgeAsync(Judge judge)
+        public async Task<int> QueueJudgeAsync(Judge judge)
         {
             judge.ResultType = (int)ResultCode.Pending;
             judge.JudgeTime = DateTime.Now;
@@ -90,6 +90,7 @@ namespace hjudge.WebHost.Services
                     JudgeOptions = judgeOptions,
                     BuildOptions = buildOptions
                 }.SerializeJson(false));
+            return judge.Id;
         }
 
         public async Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? result)

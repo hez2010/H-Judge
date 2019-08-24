@@ -1,24 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost
 {
     public class VarsProcessor
     {
-        public static string ProcessString(string str, IDictionary<string, string> varsTable)
-        {
-            foreach (var i in varsTable)
-            {
-                str = Regex.Replace(str, i.Key, i.Value);
-            }
-            return str;
-        }
-
-        public static async Task<IEnumerable<string>> FillinVarsAndFetchFiles(object? target, IDictionary<string, string> varsTable)
+        public static async Task<IEnumerable<string>> FillinWorkingDirAndGetRequiredFiles(object? target, string workingDir)
         {
             if (target == null) return new string[0];
             var type = target.GetType();
@@ -33,9 +22,13 @@ namespace hjudge.JudgeHost
                     if (value == null) continue;
                     if (value is string str)
                     {
-                        var newStr = ProcessString(str, varsTable);
+                        var newStr = str.Replace("${workingdir}", workingDir);
+                        if (newStr.StartsWith("R:"))
+                        {
+                            newStr = newStr[2..];
+                            fileList.Add(newStr);
+                        }
                         if (p.CanRead && p.CanWrite) p.SetValue(target, newStr);
-                        if (newStr.Contains("${datadir")) fileList.Add(newStr);
                     }
                     else if (value is Array arr)
                     {
@@ -46,14 +39,19 @@ namespace hjudge.JudgeHost
                             {
                                 if (!arr.IsReadOnly)
                                 {
-                                    var newStr = ProcessString(strItem, varsTable);
+                                    var newStr = strItem.Replace("${workingdir}", workingDir);
+                                    if (newStr.StartsWith("R:"))
+                                    {
+                                        newStr = newStr[2..];
+                                        fileList.Add(newStr);
+                                    }
                                     arr.SetValue(newStr, cnt);
                                     if (newStr.Contains("${datadir")) fileList.Add(newStr);
                                 }
                             }
                             else
                             {
-                                fileList.AddRange(await FillinVarsAndFetchFiles(obj, varsTable));
+                                fileList.AddRange(await FillinWorkingDirAndGetRequiredFiles(obj, workingDir));
                             }
                         }
                     }
@@ -66,18 +64,23 @@ namespace hjudge.JudgeHost
                             {
                                 if (!list.IsReadOnly)
                                 {
-                                    var newStr = ProcessString(strItem, varsTable);
+                                    var newStr = strItem.Replace("${workingdir}", workingDir);
+                                    if (newStr.StartsWith("R:"))
+                                    {
+                                        newStr = newStr[2..];
+                                        fileList.Add(newStr);
+                                    }
                                     list[cnt] = newStr;
                                     if (newStr.Contains("${datadir")) fileList.Add(newStr);
                                 }
                             }
                             else
                             {
-                                fileList.AddRange(await FillinVarsAndFetchFiles(obj, varsTable));
+                                fileList.AddRange(await FillinWorkingDirAndGetRequiredFiles(obj, workingDir));
                             }
                         }
                     }
-                    else fileList.AddRange(await FillinVarsAndFetchFiles(p.GetValue(target), varsTable));
+                    else fileList.AddRange(await FillinWorkingDirAndGetRequiredFiles(p.GetValue(target), workingDir));
                 }
             }
             return fileList;

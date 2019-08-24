@@ -251,7 +251,17 @@ namespace hjudge.WebHost.Controllers
             var config = problem.Config.DeserializeJson<ProblemConfig>(false);
 
             var langConfig = await languageService.GetLanguageConfigAsync();
-            var langs = config?.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            var langs = config.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            if (model.ContestId != 0)
+            {
+                var contest = await contestService.GetContestAsync(model.ContestId);
+                if (contest != null)
+                {
+                    var contestConfig = contest.Config.DeserializeJson<ContestConfig>();
+                    var contestLangs = config.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);
+                    langs = langs.Intersect(contestLangs).ToArray();
+                }
+            }
 
             ret.Languages = LanguageConfigHelper.GenerateLanguageConfig(langConfig, langs).ToList();
 

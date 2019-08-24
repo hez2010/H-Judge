@@ -1,4 +1,4 @@
-namespace hjudge.WebHost.Models
+namespace hjudge.WebHost.Models.Vote
 {
     public class CancelVoteModel
     {

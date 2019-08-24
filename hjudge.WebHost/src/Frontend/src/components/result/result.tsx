@@ -166,14 +166,14 @@ const Result = (props: CommonProps) => {
   const compileLogs = () => !!result.judgeResult.compileLog ? <>
     <Header as='h2'>编译日志</Header>
     <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
-      <MarkdownViewer content={'```\n' + result.judgeResult.compileLog + '```'} />
+      <MarkdownViewer content={'```\n' + result.judgeResult.compileLog + '\n```'} />
     </div>
   </> : null;
 
   const staticCheckLogs = () => !!result.judgeResult.staticCheckLog ? <>
     <Header as='h2'>静态检查日志</Header>
     <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
-      <MarkdownViewer content={'```\n' + result.judgeResult.staticCheckLog + '```'} />
+      <MarkdownViewer content={'```\n' + result.judgeResult.staticCheckLog + '\n```'} />
     </div>
   </> : null;
 
@@ -202,6 +202,12 @@ const Result = (props: CommonProps) => {
       </Item.Header>
 
       <Item.Description>
+          {
+            !!result.content ? <><Header as='h2'>提交内容</Header>
+              <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
+                <MarkdownViewer content={'```\n' + result.content + '\n```'} />
+              </div></> : null
+          }
         <Loader active inline>评测中...</Loader>
       </Item.Description>
     </Item.Content>
@@ -226,7 +232,7 @@ const Result = (props: CommonProps) => {
           {
             !!result.content ? <><Header as='h2'>提交内容</Header>
               <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
-                <MarkdownViewer content={'```\n' + result.content + '```'} />
+                <MarkdownViewer content={'```\n' + result.content + '\n```'} />
               </div></> : null
           }
         </Item.Description>

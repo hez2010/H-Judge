@@ -41,11 +41,13 @@ namespace hjudge.WebHost.Controllers
 
         [PrivilegeAuthentication.RequireSignedIn]
         [HttpPost]
+        [RequestSizeLimit(10485760)]
         [Route("submit")]
-        public async Task SubmitSolution([FromBody]SubmitModel model)
+        public async Task<SubmitSuccessModel> SubmitSolution([FromBody]SubmitModel model)
         {
             var user = await userManager.GetUserAsync(User);
             var now = DateTime.Now;
+            var allowJumpToResult = true;
 
             if (model.GroupId != 0)
             {
@@ -78,11 +80,12 @@ namespace hjudge.WebHost.Controllers
                         if (contestConfig.SubmissionLimit <= await judges.Cacheable().CountAsync())
                             throw new ForbiddenException("超出提交次数限制");
                     }
+                    if (contestConfig.ResultMode != ResultDisplayMode.Intime) allowJumpToResult = false;
                 }
             }
             else if (problem.Hidden && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该题目不存在");
 
-            await judgeService.QueueJudgeAsync(new Judge
+            var id = await judgeService.QueueJudgeAsync(new Judge
             {
                 Content = model.Content,
                 Language = model.Language,
@@ -91,6 +94,12 @@ namespace hjudge.WebHost.Controllers
                 GroupId = model.GroupId == 0 ? null : (int?)model.GroupId,
                 UserId = user.Id
             });
+
+            return new SubmitSuccessModel
+            {
+                Jump = false,
+                ResultId = id
+            };
         }
 
         [Route("result")]

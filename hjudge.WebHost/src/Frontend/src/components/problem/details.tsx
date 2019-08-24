@@ -179,6 +179,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     let editor = this.editor.current;
     if (!editor) return;
     this.setState({ submitting: true });
+    console.log(this);
     Post('/judge/submit', {
       problemId: this.problemId,
       contestId: this.contestId,
