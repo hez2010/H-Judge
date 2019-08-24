@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using hjudge.Core;
 using hjudge.Shared.Utils;
@@ -12,6 +13,8 @@ using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Judge;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using EFSecondLevelCache.Core;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -21,13 +24,17 @@ namespace hjudge.WebHost.Controllers
     public class JudgeController : ControllerBase
     {
         private readonly IJudgeService judgeService;
+        private readonly IProblemService problemService;
         private readonly IContestService contestService;
+        private readonly IGroupService groupService;
         private readonly CachedUserManager<UserInfo> userManager;
 
-        public JudgeController(IJudgeService judgeService, IContestService contestService, CachedUserManager<UserInfo> userManager)
+        public JudgeController(IJudgeService judgeService, IProblemService problemService, IContestService contestService, IGroupService groupService, CachedUserManager<UserInfo> userManager)
         {
             this.judgeService = judgeService;
+            this.problemService = problemService;
             this.contestService = contestService;
+            this.groupService = groupService;
             this.userManager = userManager;
         }
 
@@ -37,8 +44,43 @@ namespace hjudge.WebHost.Controllers
         [Route("submit")]
         public async Task SubmitSolution([FromBody]SubmitModel model)
         {
-            var userId = userManager.GetUserId(User);
-            //TODO: validate
+            var user = await userManager.GetUserAsync(User);
+            var now = DateTime.Now;
+
+            if (model.GroupId != 0)
+            {
+                var inGroup = await groupService.IsInGroupAsync(user.Id, model.GroupId);
+                if (!inGroup) throw new ForbiddenException("未参加该小组");
+            }
+
+            var problem = await problemService.GetProblemAsync(model.ProblemId);
+            if (problem == null) throw new NotFoundException("该题目不存在");
+            var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
+
+            if (problemConfig.CodeSizeLimit != 0 && problemConfig.CodeSizeLimit < Encoding.UTF8.GetByteCount(model.Content))
+                throw new BadRequestException("提交内容长度超出限制");
+
+            if (model.ContestId != 0)
+            {
+                var contest = await contestService.GetContestAsync(model.ContestId);
+                if (contest != null)
+                {
+                    if (contest.StartTime > now || now > contest.EndTime) throw new ForbiddenException("当前不允许提交");
+                    if (contest.Hidden && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该比赛不存在");
+
+                    var contestConfig = contest.Config.DeserializeJson<ContestConfig>(false);
+                    if (contestConfig.SubmissionLimit != 0)
+                    {
+                        var judges = await judgeService.QueryJudgesAsync(user.Id,
+                                model.GroupId == 0 ? null : (int?)model.GroupId,
+                                model.ContestId,
+                                model.ProblemId);
+                        if (contestConfig.SubmissionLimit <= await judges.Cacheable().CountAsync())
+                            throw new ForbiddenException("超出提交次数限制");
+                    }
+                }
+            }
+            else if (problem.Hidden && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该题目不存在");
 
             await judgeService.QueueJudgeAsync(new Judge
             {
@@ -47,7 +89,7 @@ namespace hjudge.WebHost.Controllers
                 ProblemId = model.ProblemId,
                 ContestId = model.ContestId == 0 ? null : (int?)model.ContestId,
                 GroupId = model.GroupId == 0 ? null : (int?)model.GroupId,
-                UserId = userId
+                UserId = user.Id
             });
         }
 

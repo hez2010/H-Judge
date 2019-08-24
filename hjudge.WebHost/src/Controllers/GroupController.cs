@@ -45,7 +45,7 @@ namespace hjudge.WebHost.Controllers
                 groups = groups.Where(i => i.Name.Contains(model.Filter.Name));
             }
 
-            var groupJoin = await groupService.QueryGroupJoinRecords();
+            var groupJoin = await groupService.QueryGroupJoinRecordsAsync();
 
             if (model.Filter.Status.Count < 2)
             {

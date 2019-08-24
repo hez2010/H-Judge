@@ -36,8 +36,8 @@ namespace hjudge.WebHost.Utils
                 var ext = languageConfig.FirstOrDefault(i => i.Name == judge.Language)?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim() ?? string.Empty;
                 buildOptionsBuilder.UseExtensionName(ext);
 
-                var datadir = $"${{datadir:{problem.Id}}}";
-                var workingdir = $"{{workingdir:{judgeOptionsBuilder.GuidStr}}}";
+                var datadir = $"R:Data/{problem.Id}"; // R: remote
+                var workingdir = $"L:{judgeOptionsBuilder.GuidStr}"; // L: local
                 var file = $"{workingdir}/{judgeOptionsBuilder.GuidStr}{ext}";
                 var outputfile = $"{workingdir}/{judgeOptionsBuilder.GuidStr}.exe";
                 var name = AlphaNumberFilter(problem.Name);
@@ -222,8 +222,8 @@ namespace hjudge.WebHost.Utils
             else
             {
                 var judgeOptionsBuilder = new AnswerJudgeOptionsBuilder();
-                var datadir = $"${{datadir:{problem.Id}}}";
-                var workingdir = $"{{workingdir:{judgeOptionsBuilder.GuidStr}}}";
+                var datadir = $"R:Data/{problem.Id}"; // R: remote
+                var workingdir = $"L:{judgeOptionsBuilder.GuidStr}"; // L: local
                 var file = $"{workingdir}/{judgeOptionsBuilder.GuidStr}";
                 var name = AlphaNumberFilter(problem.Name);
 
