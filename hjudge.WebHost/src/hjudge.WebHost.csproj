@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <NullableContextOptions>enable</NullableContextOptions>
     <IsPackable>false</IsPackable>
-    <LangVersion>8.0</LangVersion>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <SpaRoot>.\Frontend\</SpaRoot>
   </PropertyGroup>
