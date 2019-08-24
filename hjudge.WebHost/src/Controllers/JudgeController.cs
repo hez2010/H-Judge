@@ -38,6 +38,16 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
+        [PrivilegeAuthentication.RequireSignedIn]
+        [HttpPost]
+        [Route("rejudge")]
+        public async Task Rejudge([FromBody]RejudgeModel model)
+        {
+            var judge = await judgeService.GetJudgeAsync(model.ResultId);
+            if (judge == null) throw new NotFoundException("该提交不存在");
+
+            await judgeService.QueueJudgeAsync(judge);
+        }
 
         [PrivilegeAuthentication.RequireSignedIn]
         [HttpPost]
@@ -97,7 +107,7 @@ namespace hjudge.WebHost.Controllers
 
             return new SubmitSuccessModel
             {
-                Jump = false,
+                Jump = allowJumpToResult,
                 ResultId = id
             };
         }

@@ -3,7 +3,7 @@ import { useGlobal } from 'reactn';
 import { Header, Placeholder, Item, Popup, Button, Card, Segment, Grid, Label, Loader, Responsive } from 'semantic-ui-react';
 import { NavLink } from 'react-router-dom';
 import MarkdownViewer from '../viewer/markdown';
-import { Get } from '../../utils/requestHelper';
+import { Get, Post } from '../../utils/requestHelper';
 import { tryJson } from '../../utils/responseHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { GlobalState } from '../../interfaces/globalState';
@@ -96,7 +96,24 @@ const Result = (props: CommonProps) => {
   };
 
   const reJudge = () => { 
-    commonFuncs.openPortal('提示', '此功能正在开发中，敬请期待', 'blue');
+    Post('/judge/rejudge', {
+      resultId: result.resultId
+    })
+    .then(res => tryJson(res))
+    .then(data => {
+      let error = data as ErrorModel;
+      if (error.errorCode) {
+        commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+        return;
+      }
+      commonFuncs.openPortal('成功', '重新评测请求成功', 'green');
+      setLoaded(false);
+      loadResult(parseInt(props.match.params.resultId));
+    })
+    .catch(err => {
+      commonFuncs.openPortal('错误', '重新评测请求失败', 'red');
+      console.log(err);
+    })
   }
 
   const renderSubmissionInfo = () => {

@@ -68,7 +68,8 @@ namespace hjudge.WebHost.Services
         {
             judge.ResultType = (int)ResultCode.Pending;
             judge.JudgeTime = DateTime.Now;
-            await dbContext.Judge.AddAsync(judge);
+            if (judge.Id != 0) dbContext.Judge.Update(judge);
+            else await dbContext.Judge.AddAsync(judge);
             await dbContext.SaveChangesAsync();
 
             var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, await languageService.GetLanguageConfigAsync());
