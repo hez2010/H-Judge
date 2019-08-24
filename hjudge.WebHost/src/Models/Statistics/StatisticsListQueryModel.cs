@@ -10,5 +10,6 @@ namespace hjudge.WebHost.Models.Statistics
         public int? ContestId { get; set; }
         public int? GroupId { get; set; }
         public string? UserId { get; set; }
+        public string? Result { get; set; }
     }
 }

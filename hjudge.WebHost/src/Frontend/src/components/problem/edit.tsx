@@ -218,7 +218,6 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
             this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
             return;
           }
-          let result = data as ProblemEditModel;
           this.global.commonFuncs.openPortal('成功', '题目保存成功', 'green');
         })
         .catch(err => {
@@ -365,16 +364,16 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     if (!this.state.loaded) return placeHolder;
 
     const basic = <Form>
-      <Form.Field error={!this.state.problem.name}>
-        <Label>题目名称</Label>
+      <Form.Field required error={!this.state.problem.name}>
+        <label>题目名称</label>
         <Form.Input required defaultValue={this.state.problem.name} onChange={e => this.handleChange(this.state.problem, 'name', e.target.value)} />
       </Form.Field>
       <Form.Field>
-        <Label>题目难度</Label>
+        <label>题目难度</label>
         <Rating icon='star' defaultRating={this.state.problem.level} maxRating={10} onRate={(_, data) => this.handleChange(this.state.problem, 'level', data.rating)} />
       </Form.Field>
       <Form.Group inline>
-        <Label>题目类型</Label>
+        <label>题目类型</label>
         <Form.Radio
           label='提交代码'
           value={1}
@@ -389,7 +388,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>可见性</Label>
+        <label>可见性</label>
         <Form.Radio
           label='显示题目'
           checked={!this.state.problem.hidden}
@@ -402,7 +401,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>输入输出类型</Label>
+        <label>输入输出类型</label>
         <Form.Radio
           label='标准输入输出'
           checked={this.state.problem.config.useStdIO}
@@ -416,13 +415,13 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       </Form.Group>
       {
         this.state.problem.config.useStdIO ? null :
-          <Form.Group inline widths='equal'>
+          <Form.Group required inline widths='equal'>
             <Form.Field error={!this.state.problem.config.inputFileName}>
-              <Label>输入文件名</Label>
+              <label>输入文件名</label>
               <Form.Input fluid required defaultValue={this.state.problem.config.inputFileName} onChange={e => this.handleChange(this.state.problem.config, 'inputFileName', e.target.value)} />
             </Form.Field>
             <Form.Field error={!this.state.problem.config.outputFileName}>
-              <Label>输出文件名</Label>
+              <label>输出文件名</label>
               <Form.Input fluid required defaultValue={this.state.problem.config.outputFileName} onChange={e => this.handleChange(this.state.problem.config, 'outputFileName', e.target.value)} />
             </Form.Field>
           </Form.Group>
@@ -465,27 +464,27 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
                   <Label color='teal' ribbon><span>数据点 #{i + 1}&nbsp;</span><a onClick={this.removePoint(i)}><Icon name='delete' color='red' /></a></Label>
 
                   <Form.Group inline widths='equal'>
-                    <Form.Field error={!v.stdInFile}>
-                      <Label>输入文件</Label>
+                    <Form.Field required error={!v.stdInFile}>
+                      <label>输入文件</label>
                       <Form.Input fluid required defaultValue={v.stdInFile} onChange={e => this.handleChange(v, 'stdInFile', e.target.value)} />
                     </Form.Field>
-                    <Form.Field error={!v.stdOutFile}>
-                      <Label>输出文件</Label>
+                    <Form.Field required error={!v.stdOutFile}>
+                      <label>输出文件</label>
                       <Form.Input fluid required defaultValue={v.stdOutFile} onChange={e => this.handleChange(v, 'stdOutFile', e.target.value)} />
                     </Form.Field>
                   </Form.Group>
 
                   <Form.Group inline widths='equal'>
-                    <Form.Field>
-                      <Label>时间限制</Label>
+                    <Form.Field required>
+                      <label>时间限制</label>
                       <Form.Input fluid required min={0} placeholder='单位：ms' type='number' defaultValue={v.timeLimit.toString()} onChange={e => this.handleChange(v, 'timeLimit', e.target.valueAsNumber)} />
                     </Form.Field>
-                    <Form.Field>
-                      <Label>内存限制</Label>
+                    <Form.Field required>
+                      <label>内存限制</label>
                       <Form.Input fluid required min={0} placeholder='单位：kb' type='number' defaultValue={v.memoryLimit.toString()} onChange={e => this.handleChange(v, 'memoryLimit', e.target.valueAsNumber)} />
                     </Form.Field>
-                    <Form.Field>
-                      <Label>该点得分</Label>
+                    <Form.Field required>
+                      <label>该点得分</label>
                       <Form.Input fluid required min={0} type='number' defaultValue={v.score.toString()} onChange={e => this.handleChange(v, 'score', e.target.valueAsNumber)} />
                     </Form.Field>
                   </Form.Group>
@@ -495,12 +494,12 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
           )}
         </List></> :
         <>
-          <Form.Field error={!this.state.problem.config.answer.answerFile}>
-            <Label>答案文件</Label>
+          <Form.Field required error={!this.state.problem.config.answer.answerFile}>
+            <label>答案文件</label>
             <Form.Input required defaultValue={this.state.problem.config.answer.answerFile} onChange={e => this.handleChange(this.state.problem.config.answer, 'answerFile', e.target.value)} />
           </Form.Field>
-          <Form.Field>
-            <Label>该题得分</Label>
+          <Form.Field required>
+            <label>该题得分</label>
             <Form.Input required min={0} type='number' defaultValue={this.state.problem.config.answer.score.toString()} onChange={e => this.handleChange(this.state.problem.config.answer, 'score', e.target.valueAsNumber)} />
           </Form.Field>
         </>
@@ -509,7 +508,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
 
     const advanced = <Form>
       <Form.Group inline>
-        <Label>比较程序</Label>
+        <label>比较程序</label>
         <Form.Radio
           label='默认'
           checked={!this.state.useSpecialJudge}
@@ -523,12 +522,12 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       </Form.Group>
       {
         this.state.useSpecialJudge ?
-          <Form.Field error={!this.state.problem.config.specialJudge}>
-            <Label>自定义比较程序</Label>
+          <Form.Field required error={!this.state.problem.config.specialJudge}>
+            <label>自定义比较程序</label>
             <Form.Input required defaultValue={this.state.problem.config.specialJudge} onChange={e => this.handleChange(this.state.problem.config, 'specialJudge', e.target.value)} />
           </Form.Field> :
           <Form.Group inline>
-            <Label>比较选项</Label>
+            <label>比较选项</label>
             <Form.Checkbox
               label='忽略行末空格'
               checked={this.state.problem.config.comparingOptions.ignoreLineTailWhiteSpaces}
@@ -542,29 +541,29 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
           </Form.Group>
       }
       <Form.Field>
-        <Label>自定义提交文件名</Label>
+        <label>自定义提交文件名</label>
         <Form.Input placeholder='留空保持默认' defaultValue={this.state.problem.config.submitFileName} onChange={e => this.handleChange(this.state.problem.config, 'submitFileName', e.target.value)} />
       </Form.Field>
       {
         this.state.problem.type === 1 ?
           <>
             <Form.Field>
-              <Label>提交语言限制</Label>
+              <label>提交语言限制</label>
               <Form.Input placeholder='多个用英文半角分号 ; 分隔，留空为不限' defaultValue={this.state.problem.config.languages} onChange={e => this.handleChange(this.state.problem.config, 'languages', e.target.value)} />
             </Form.Field>
             <Form.Field>
-              <Label>自定义编译参数</Label>
+              <label>自定义编译参数</label>
               <Form.TextArea placeholder='一行一个，格式：[语言]参数' defaultValue={this.state.problem.config.compileArgs} onChange={(_, data) => this.handleChange(this.state.problem.config, 'compileArgs', data.value)} />
             </Form.Field>
           </> : null
       }
       <Form.Field>
-        <Label>附加文件</Label>
+        <label>附加文件</label>
         <Form.TextArea placeholder='一行一个' defaultValue={this.state.problem.config.extraFiles.length === 0 ? '' : this.state.problem.config.extraFiles.reduce((accu, next) => `${accu}\n${next}`)} onChange={(_, data) => this.handleChange(this.state.problem.config, 'extraFiles', data.value ? data.value.toString().split('\n') : [])} />
       </Form.Field>
       <Form.Field>
-        <Label>提交长度限制</Label>
-        <Form.Input type='number' placeholder='单位：byte' defaultValue={this.state.problem.config.codeSizeLimit} onChange={(_, data) => this.handleChange(this.state.problem.config, 'codeSizeLimit', data.value)} />
+        <label>提交长度限制（单位：byte，0 为不限）</label>
+        <Form.Input type='number' defaultValue={this.state.problem.config.codeSizeLimit} onChange={(_, data) => this.handleChange(this.state.problem.config, 'codeSizeLimit', data.value)} />
       </Form.Field>
     </Form>;
 

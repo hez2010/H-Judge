@@ -51,23 +51,23 @@ const Register = (props: CommonProps & RegisterProps) => {
         <Modal.Content>
           <Form id='registerForm'>
             <Form.Field required>
-              <Label>用户名</Label>
+              <label>用户名</label>
               <Input name='userName' required></Input>
             </Form.Field>
             <Form.Field required>
-              <Label>邮箱</Label>
+              <label>邮箱</label>
               <Input name='email' required type='email'></Input>
             </Form.Field>
             <Form.Field required>
-              <Label>姓名</Label>
+              <label>姓名</label>
               <Input name='name' required></Input>
             </Form.Field>
             <Form.Field required>
-              <Label>密码</Label>
+              <label>密码</label>
               <Input id='password' name='password' required type='password' placeholder='至少 6 位，包含大小写字母及数字'></Input>
             </Form.Field>
             <Form.Field required>
-              <Label>再次输入密码</Label>
+              <label>再次输入密码</label>
               <Input id='confirmPassword' name='confirmPassword' error required type='password'></Input>
             </Form.Field>
 

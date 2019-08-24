@@ -50,11 +50,11 @@ const Login = (props: CommonProps & LoginProps) => {
         <Modal.Content>
           <Form id='loginForm'>
             <Form.Field required>
-              <Label>用户名</Label>
+              <label>用户名</label>
               <Input name='userName' required></Input>
             </Form.Field>
             <Form.Field required>
-              <Label>密码</Label>
+              <label>密码</label>
               <Input name='password' required type='password'></Input>
             </Form.Field>
             <Form.Field>

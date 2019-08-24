@@ -122,7 +122,7 @@ const App = (props: any) => {
             component={() => <p>message</p>}>
           </Route>
           <Route
-            path='/statistics/:userId/:groupId/:contestId/:problemId/:page?'
+            path='/statistics/:userId/:groupId/:contestId/:problemId/:result/:page?'
             component={Statistics}>
           </Route>
           <Route
@@ -147,7 +147,7 @@ const App = (props: any) => {
             component={About}>
           </Route>
           <Route
-            path='/user'
+            path='/user/:userId?'
             component={User}>
           </Route>
           <Route

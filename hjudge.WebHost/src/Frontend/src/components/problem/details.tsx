@@ -63,6 +63,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     this.renderProblemInfo = this.renderProblemInfo.bind(this);
     this.editProblem = this.editProblem.bind(this);
     this.submit = this.submit.bind(this);
+    this.gotoStatistics = this.gotoStatistics.bind(this);
 
     this.state = {
       problem: {
@@ -147,7 +148,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     return <div>
       <small>添加时间：{this.state.problem.creationTime.toLocaleString(undefined, { hour12: false })}</small>
       <br />
-      <small>出题用户：<NavLink to='/'>{this.state.problem.userName}</NavLink></small>
+      <small>出题用户：<NavLink to={`/user/${this.state.problem.userId}`}>{this.state.problem.userName}</NavLink></small>
       <br />
       <small>题目难度：<Rating icon='star' defaultRating={this.state.problem.level} maxRating={10} disabled={true} /></small>
       <br />
@@ -199,6 +200,10 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         this.global.commonFuncs.openPortal('错误', '提交失败', 'red');
         console.log(err);
       });
+  }
+
+  gotoStatistics() {
+    this.props.history.push(`/statistics/-1/${this.groupId === 0 ? '-1' : this.groupId}/${this.contestId === 0 ? '-1' : this.contestId}/${this.problemId === 0 ? '-1' : this.problemId}/-1`);
   }
 
   render() {
@@ -256,7 +261,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
             </Popup>
             <div style={{ float: 'right' }}>
               <Button.Group>
-                <Button>状态</Button>
+                <Button onClick={this.gotoStatistics}>状态</Button>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(this.state.problem.id)}>编辑</Button> : null}
               </Button.Group>
             </div>

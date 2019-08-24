@@ -168,19 +168,19 @@ export default class Group extends React.Component<GroupProps, GroupState, Globa
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
-            <Label>小组编号</Label>
+            <label>小组编号</label>
             <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>小组名称</Label>
+            <label>小组名称</label>
             <Input fluid name='name' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>小组状态</Label>
+            <label>小组状态</label>
             <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as GroupState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1]} options={[{ text: '已加入', value: 0 }, { text: '未加入', value: 1 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
-            <Label>小组操作</Label>
+            <label>小组操作</label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchGroupList(true, 1)}>筛选</Button>
               {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editGroup(0)}>添加</Button> : null}

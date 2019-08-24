@@ -91,7 +91,7 @@ namespace hjudge.WebHost.Controllers
             return signInManager.SignOutAsync();
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("avatar")]
         [PrivilegeAuthentication.RequireSignedIn]
         public async Task UserAvatar(IFormFile avatar)
@@ -198,6 +198,7 @@ namespace hjudge.WebHost.Controllers
             userInfoRet.Privilege = user.Privilege;
             userInfoRet.Coins = user.Coins;
             userInfoRet.Experience = user.Experience;
+            userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
 
             if (userInfoRet.SignedIn)
             {
@@ -205,7 +206,6 @@ namespace hjudge.WebHost.Controllers
                 userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
                 userInfoRet.Email = user.Email;
                 userInfoRet.PhoneNumber = user.PhoneNumber;
-                userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
             }
 
             return userInfoRet;
@@ -220,7 +220,7 @@ namespace hjudge.WebHost.Controllers
             var user = await userManager.FindByIdAsync(userId);
             if (userId == null || user == null) return new ProblemStatisticsModel();
 
-            var judges = await judgeService.QueryJudgesAsync(userId)(0)(0)(0);
+            var judges = await judgeService.QueryJudgesAsync(userId);
 
             ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();
             ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();

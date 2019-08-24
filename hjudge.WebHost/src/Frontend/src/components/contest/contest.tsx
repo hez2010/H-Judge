@@ -215,19 +215,19 @@ export default class Contest extends React.Component<ContestProps, ContestState,
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
-            <Label>比赛编号</Label>
+            <label>比赛编号</label>
             <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>比赛名称</Label>
+            <label>比赛名称</label>
             <Input fluid name='name' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>比赛状态</Label>
+            <label>比赛状态</label>
             <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ContestState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未开始', value: 0 }, { text: '进行中', value: 1 }, { text: '已结束', value: 2 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
-            <Label>比赛操作</Label>
+            <label>比赛操作</label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchContestList(true, 1)}>筛选</Button>
               {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editContest(0)}>添加</Button> : null}

@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using Microsoft.EntityFrameworkCore;
 using hjudge.WebHost.Data;
+using System.Text;
+using hjudge.Core;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -23,14 +25,21 @@ namespace hjudge.WebHost.Controllers
             this.judgeService = judgeService;
         }
 
+        enum LastNamingState
+        {
+            Start, Blank, Other
+        }
+
         [Route("list")]
         [HttpPost]
         public async Task<StatisticsListModel> StatisticsList([FromBody]StatisticsListQueryModel model)
         {
-            var judges = await judgeService.QueryJudgesAsync(model.UserId)
-                (model.GroupId)
-                (model.ContestId)
-                (model.ProblemId);
+            int? resultType = null;
+            if (!string.IsNullOrEmpty(model.Result))
+            {
+                if (Enum.TryParse<ResultCode>(model.Result.Trim().Replace(" ", "_"), true, out var type)) resultType = (int?)type;
+            }
+            var judges = await judgeService.QueryJudgesAsync(model.UserId, model.GroupId, model.ContestId, model.ProblemId, resultType);
 
             IQueryable<Judge> query = judges.Include(i => i.UserInfo).Include(i => i.Problem);
 

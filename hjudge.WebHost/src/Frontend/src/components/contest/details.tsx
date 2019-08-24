@@ -189,7 +189,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
 
   renderContestInfo() {
     return <div>
-      <small>创建用户：<NavLink to='/'>{this.state.contest.userName}</NavLink></small>
+      <small>创建用户：<NavLink to={`/user/${this.state.contest.userId}`}>{this.state.contest.userName}</NavLink></small>
       <br />
       <small>比赛类型：{this.state.contest.config.type === ContestType.generic ? '一般计时赛' : this.state.contest.config.type === ContestType.lastSubmit ? '最后提交赛' : '罚时计时赛'}</small>
       <br />
@@ -213,7 +213,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
     return authed ? <Problem {...props} /> :
       <Form>
         <Form.Field>
-          <Label>比赛密码</Label>
+          <label>比赛密码</label>
           <Form.Input type='password' defaultValue={this.state.inputPassword} error={this.state.inputPassword !== this.state.contest.password} onChange={(_, data) => { this.setState({ inputPassword: data.value }) }} />
         </Form.Field>
       </Form>;
@@ -240,7 +240,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
             </Popup>
             <div style={{ float: 'right' }}>
               <Button.Group>
-                <Button onClick={() => this.props.history.push(`/statistics/-1/${this.groupId ? `${this.groupId}` : '-1'}/${this.contestId}/0`)}>状态</Button>
+                <Button onClick={() => this.props.history.push(`/statistics/-1/${this.groupId ? `${this.groupId}` : '-1'}/${this.contestId}/0/-1`)}>状态</Button>
                 <Button>排名</Button>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
               </Button.Group>

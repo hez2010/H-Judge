@@ -4,15 +4,16 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Post } from '../../utils/requestHelper';
-import { SerializeForm } from '../../utils/formHelper';
 import { Table, Button, Placeholder, Form, Label, Input, Select, Pagination } from 'semantic-ui-react';
 import { tryJson } from '../../utils/responseHelper';
+import { NavLink } from 'react-router-dom';
 
 interface StatisticsProps extends CommonProps {
   problemId?: number,
   contestId?: number,
   groupId?: number,
-  userId?: string
+  userId?: string,
+  result?: string
 }
 
 interface StatisticsItemModel {
@@ -67,11 +68,12 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
   private problemId = 0;
   private contestId = -1;
   private groupId = -1;
+  private result = '';
 
   fetchStatisticsList(requireTotalCount: boolean, page: number) {
     if (!this.props.groupId && !this.props.problemId && !this.props.contestId && page.toString() !== this.props.match.params.page) {
       if (this.expandParamsInUri)
-        this.props.history.replace(`/statistics/${!!this.userId ? this.userId : '-1'}/${this.groupId}/${this.contestId}/${this.problemId}/${page}`);
+        this.props.history.replace(`/statistics/${!!this.userId ? this.userId : '-1'}/${this.groupId}/${this.contestId}/${this.problemId}/${!!this.result ? this.result : '-1'}/${page}`);
       else
         this.props.history.replace(`/statistics/${page}`);
     }
@@ -83,6 +85,7 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
     req.contestId = this.contestId === -1 ? null : this.contestId;
     req.groupId = this.groupId === -1 ? null : this.groupId;
     req.userId = !!this.userId ? this.userId : null;
+    req.result = this.result;
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
     Post('/statistics/list', req)
@@ -117,7 +120,6 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
   }
 
   componentDidMount() {
-    console.log(this.props.match.params);
     if (!this.props.problemId && !this.props.contestId && !this.props.groupId) setTitle('状态');
 
     if (this.props.groupId) this.groupId = this.props.groupId;
@@ -138,6 +140,11 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
     if (this.props.userId) this.userId = this.props.userId;
     else if (!!this.props.match.params.userId && this.props.match.params.userId !== '-1') {
       this.userId = this.props.match.params.userId;
+      this.expandParamsInUri = true;
+    }
+    if (this.props.result) this.result = this.props.result;
+    else if (!!this.props.match.params.result && this.props.match.params.result !== '-1') {
+      this.result = this.props.match.params.result;
       this.expandParamsInUri = true;
     }
     if (!this.props.match.params.page) this.fetchStatisticsList(true, 1);
@@ -178,8 +185,8 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
             this.state.statisticsList.statistics.map((v, i) =>
               <Table.Row key={i} onClick={() => this.gotoDetails(v.resultId)} style={{ cursor: 'pointer' }}>
                 <Table.Cell>#{v.resultId}</Table.Cell>
-                <Table.Cell>{v.userName}</Table.Cell>
-                <Table.Cell>{v.problemName}</Table.Cell>
+                <Table.Cell><NavLink onClick={() => this.disableNavi = true} to={`/user/${v.userId}`}>{v.userName}</NavLink></Table.Cell>
+                <Table.Cell><NavLink onClick={() => this.disableNavi = true} to={`/details/problem/${v.problemId}${!v.contestId ? '' : `/${v.contestId}`}${!v.groupId ? '' : `/${v.groupId}`}`}>{v.problemName}</NavLink></Table.Cell>
                 <Table.Cell>{v.time.toLocaleString()}</Table.Cell>
                 <Table.Cell>{v.result}</Table.Cell>
               </Table.Row>)
@@ -211,29 +218,29 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
           <Form.Field width={2}>
-            <Label>提交编号</Label>
-            <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
-          </Form.Field>
-          <Form.Field width={2}>
-            <Label>题目编号</Label>
+            <label>题目编号</label>
             <Input fluid name='problemId' defaultValue={this.state.loaded ? this.getString(this.problemId) : ''} onChange={e => { this.idRecord.clear(); this.problemId = this.getNumber(e.target.value) }}></Input>
           </Form.Field>
           <Form.Field width={2}>
-            <Label>比赛编号</Label>
+            <label>比赛编号</label>
             <Input fluid name='contestId' defaultValue={this.state.loaded ? this.getString(this.contestId) : ''} onChange={e => { this.idRecord.clear(); this.contestId = this.getNumber(e.target.value) }}></Input>
           </Form.Field>
           <Form.Field width={2}>
-            <Label>小组编号</Label>
+            <label>小组编号</label>
             <Input fluid name='groupId' defaultValue={this.state.loaded ? this.getString(this.groupId) : ''} onChange={e => { this.idRecord.clear(); this.groupId = this.getNumber(e.target.value) }}></Input>
           </Form.Field>
-          <Form.Field width={10}>
-            <Label>用户编号</Label>
+          <Form.Field width={8}>
+            <label>用户编号</label>
             <Input fluid name='userId' defaultValue={this.state.loaded ? this.userId : ''} onChange={e => { this.idRecord.clear(); this.userId = e.target.value; }}></Input>
           </Form.Field>
+          <Form.Field width={4}>
+            <label>评测结果</label>
+            <Input fluid name='result' defaultValue={this.state.loaded ? this.result : ''} onChange={e => { this.idRecord.clear(); this.result = e.target.value; }}></Input>
+          </Form.Field>
           <Form.Field width={2}>
-            <Label>题目操作</Label>
+            <label>题目操作</label>
             <Button.Group fluid>
-              <Button type='button' primary onClick={() => this.fetchStatisticsList(true, 1)}>筛选</Button>
+              <Button type='button' primary onClick={() => { this.props.match.params.page = 0; this.expandParamsInUri = true; this.fetchStatisticsList(true, 1); }}>筛选</Button>
             </Button.Group>
           </Form.Field>
         </Form.Group>
