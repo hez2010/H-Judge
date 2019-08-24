@@ -8,7 +8,7 @@ This is the official repository for [H::Judge](https://hjudge.com).
 | ------ | ------- |
 | [![Build Status](https://dev.azure.com/hez2010/H-Judge/_apis/build/status/H-Judge-CI?branchName=master)](https://dev.azure.com/hez2010/H-Judge/_build/latest?definitionId=5&branchName=master) | [![Build Status](https://dev.azure.com/hez2010/H-Judge/_apis/build/status/H-Judge-CI?branchName=develop)](https://dev.azure.com/hez2010/H-Judge/_build/latest?definitionId=5&branchName=develop) |
 
-**Currently master branch is only being maintained, and all new features are being developed in develop branch.**
+**This branch is only being maintained for bug fixes.**
 
 ## Frontend
 - [Vue.js](https://vuejs.org/)
