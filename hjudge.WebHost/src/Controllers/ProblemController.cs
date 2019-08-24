@@ -32,24 +32,30 @@ namespace hjudge.WebHost.Controllers
     {
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IProblemService problemService;
+        private readonly IContestService contestService;
         private readonly IJudgeService judgeService;
         private readonly ILanguageService languageService;
         private readonly IFileService fileService;
+        private readonly IVoteService voteService;
         private readonly WebHostDbContext dbContext;
 
         public ProblemController(
             CachedUserManager<UserInfo> userManager,
             IProblemService problemService,
+            IContestService contestService,
             IJudgeService judgeService,
             ILanguageService languageService,
             IFileService fileService,
+            IVoteService voteService,
             WebHostDbContext dbContext)
         {
             this.userManager = userManager;
             this.problemService = problemService;
+            this.contestService = contestService;
             this.judgeService = judgeService;
             this.languageService = languageService;
             this.fileService = fileService;
+            this.voteService = voteService;
             this.dbContext = dbContext;
         }
 
@@ -136,7 +142,12 @@ namespace hjudge.WebHost.Controllers
             }
             else
             {
-                ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
+                var contest = await contestService.GetContestAsync(model.ContestId);
+                if (contest != null && DateTime.Now < contest.StartTime)
+                {
+                    ret.Problems = new List<ProblemListModel.ProblemListItemModel>();
+                }
+                else ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
@@ -234,6 +245,8 @@ namespace hjudge.WebHost.Controllers
             ret.CreationTime = problem.CreationTime;
             ret.Upvote = problem.Upvote;
             ret.Downvote = problem.Downvote;
+            var vote = await voteService.GetVoteAsync(userId, model.ProblemId, model.ContestId == 0 ? null : (int?)model.ContestId);
+            ret.MyVote = vote?.VoteType ?? 0;
 
             var config = problem.Config.DeserializeJson<ProblemConfig>(false);
 

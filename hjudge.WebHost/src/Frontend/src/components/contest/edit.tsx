@@ -214,7 +214,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />

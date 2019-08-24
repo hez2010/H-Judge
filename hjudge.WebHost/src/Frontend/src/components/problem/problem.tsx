@@ -194,7 +194,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />

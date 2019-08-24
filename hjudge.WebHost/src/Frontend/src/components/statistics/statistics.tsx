@@ -187,7 +187,7 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
                 <Table.Cell>#{v.resultId}</Table.Cell>
                 <Table.Cell><NavLink onClick={() => this.disableNavi = true} to={`/user/${v.userId}`}>{v.userName}</NavLink></Table.Cell>
                 <Table.Cell><NavLink onClick={() => this.disableNavi = true} to={`/details/problem/${v.problemId}${!v.contestId ? '' : `/${v.contestId}`}${!v.groupId ? '' : `/${v.groupId}`}`}>{v.problemName}</NavLink></Table.Cell>
-                <Table.Cell>{v.time.toLocaleString()}</Table.Cell>
+                <Table.Cell>{v.time.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.result}</Table.Cell>
               </Table.Row>)
           }

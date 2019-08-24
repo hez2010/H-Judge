@@ -353,7 +353,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />

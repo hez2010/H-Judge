@@ -202,7 +202,7 @@ export default class Contest extends React.Component<ContestProps, ContestState,
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />

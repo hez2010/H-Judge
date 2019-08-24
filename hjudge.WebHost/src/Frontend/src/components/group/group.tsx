@@ -155,7 +155,7 @@ export default class Group extends React.Component<GroupProps, GroupState, Globa
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />

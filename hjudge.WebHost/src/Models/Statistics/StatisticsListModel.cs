@@ -18,7 +18,7 @@ namespace hjudge.WebHost.Models.Statistics
             public string UserId { get; set; } = string.Empty;
             public string UserName { get; set; } = string.Empty;
             public int ResultType { get; set; } = -1;
-            public string Result => (Enum.GetName(typeof(ResultCode), ResultType) ?? "Pending").Replace("_", " ");
+            public string Result => Enum.GetName(typeof(ResultCode), ResultType)?.Replace("_", " ") ?? "Unknown Error";
             public DateTime Time { get; set; }
         }
         public List<StatisticsListItemModel>? Statistics { get; set; }

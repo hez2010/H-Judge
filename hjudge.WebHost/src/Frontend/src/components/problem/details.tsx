@@ -1,5 +1,5 @@
 ﻿import * as React from 'reactn';
-import { Item, Placeholder, Popup, Dropdown, Label, Header, Button, Rating } from 'semantic-ui-react';
+import { Item, Placeholder, Popup, Dropdown, Label, Header, Button, Rating, Icon } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
@@ -40,7 +40,8 @@ export interface ProblemModel {
   status: number,
   hidden: boolean,
   upvote: number,
-  downvote: number
+  downvote: number,
+  myVote: number
 }
 
 interface LanguageOptions {
@@ -64,6 +65,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     this.editProblem = this.editProblem.bind(this);
     this.submit = this.submit.bind(this);
     this.gotoStatistics = this.gotoStatistics.bind(this);
+    this.voteProblem = this.voteProblem.bind(this);
 
     this.state = {
       problem: {
@@ -81,7 +83,8 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         type: 0,
         upvote: 0,
         userId: "",
-        userName: ""
+        userName: "",
+        myVote: 0
       },
       languageChoice: 0,
       languageValue: 'plain_text',
@@ -206,8 +209,54 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     this.props.history.push(`/statistics/-1/${this.groupId === 0 ? '-1' : this.groupId}/${this.contestId === 0 ? '-1' : this.contestId}/${this.problemId === 0 ? '-1' : this.problemId}/-1`);
   }
 
+  voteProblem(voteType: number) {
+    if (this.state.problem.myVote !== 0) {
+      Post('/vote/cancel', {
+        problemId: this.state.problem.id
+      })
+        .then(res => tryJson(res))
+        .then(data => {
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
+          }
+          this.global.commonFuncs.openPortal('成功', '评价取消成功', 'green');
+          let problem = { ...this.state.problem };
+          problem.myVote = 0;
+          this.setState({ problem: problem });
+        })
+        .catch(err => {
+          this.global.commonFuncs.openPortal('错误', '评价取消失败', 'red');
+          console.log(err);
+        })
+      return;
+    }
+    
+    Post('/vote/problem', {
+      problemId: this.state.problem.id,
+      voteType: voteType
+    })
+      .then(res => tryJson(res))
+      .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
+        this.global.commonFuncs.openPortal('成功', '评价成功', 'green');
+        let problem = { ...this.state.problem };
+        problem.myVote = voteType;
+        this.setState({ problem: problem });
+      })
+      .catch(err => {
+        this.global.commonFuncs.openPortal('错误', '评价失败', 'red');
+        console.log(err);
+      })
+  }
+
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />
@@ -261,6 +310,12 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
             </Popup>
             <div style={{ float: 'right' }}>
               <Button.Group>
+                <Button icon onClick={() => this.voteProblem(1)}>
+                  <Icon name='thumbs up' color={this.state.problem.myVote === 1 ? 'orange' : 'black'}></Icon>
+                </Button>
+                <Button icon onClick={() => this.voteProblem(2)}>
+                  <Icon name='thumbs down' color={this.state.problem.myVote === 2 ? 'orange' : 'black'}></Icon>
+                </Button>
                 <Button onClick={this.gotoStatistics}>状态</Button>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editProblem(this.state.problem.id)}>编辑</Button> : null}
               </Button.Group>
@@ -272,9 +327,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
               <MarkdownViewer content={this.state.problem.description} />
             </div>
           </Item.Description>
-          <Item.Extra>
-
-          </Item.Extra>
         </Item.Content>
       </Item>
       <Header as='h2'>提交</Header>

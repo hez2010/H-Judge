@@ -40,7 +40,9 @@ namespace hjudge.WebHost.Services
 
         public async Task<Group?> GetGroupAsync(int groupId)
         {
-            var result = await dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId);
+            var result = await dbContext.Group
+                .Include(i => i.UserInfo)
+                .Where(i => i.Id == groupId).Cacheable().FirstOrDefaultAsync();
             if (result != null)
             {
                 dbContext.Entry(result).State = EntityState.Detached;

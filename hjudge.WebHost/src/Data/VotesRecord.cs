@@ -11,7 +11,7 @@ namespace hjudge.WebHost.Data
         public string UserId { get; set; } = string.Empty;
         public DateTime VoteTime { get; set; }
         /// <summary>
-        /// 0 -- upvote, 1 -- downvote
+        /// 1 -- upvote, 2 -- downvote
         /// </summary>
         public int VoteType { get; set; }
         public string Title { get; set; } = string.Empty;

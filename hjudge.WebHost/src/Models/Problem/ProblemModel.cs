@@ -21,5 +21,6 @@ namespace hjudge.WebHost.Models.Problem
         public bool Hidden { get; set; }
         public int Upvote { get; set; }
         public int Downvote { get; set; }
+        public int MyVote { get; set; }
     }
 }

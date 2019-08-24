@@ -39,7 +39,12 @@ namespace hjudge.WebHost.Services
 
         public async Task<Judge?> GetJudgeAsync(int judgeId)
         {
-            var result = await dbContext.Judge.FirstOrDefaultAsync(i => i.Id == judgeId);
+            var result = await dbContext.Judge
+                .Include(i => i.Problem)
+                .Include(i => i.UserInfo)
+                .Include(i => i.Contest)
+                .Include(i => i.Group)
+                .Where(i => i.Id == judgeId).Cacheable().FirstOrDefaultAsync();
             if (result != null)
             {
                 dbContext.Entry(result).State = EntityState.Detached;

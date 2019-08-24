@@ -25,15 +25,18 @@ namespace hjudge.WebHost.Controllers
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IContestService contestService;
         private readonly IProblemService problemService;
+        private readonly IVoteService voteService;
 
         public ContestController(
             CachedUserManager<UserInfo> userManager,
             IContestService contestService,
-            IProblemService problemService)
+            IProblemService problemService,
+            IVoteService voteService)
         {
             this.userManager = userManager;
             this.contestService = contestService;
             this.problemService = problemService;
+            this.voteService = voteService;
         }
 
         private readonly static int[] allStatus = new[] { 0, 1, 2 };
@@ -138,6 +141,8 @@ namespace hjudge.WebHost.Controllers
 
             var user = await userManager.FindByIdAsync(contest.UserId);
 
+            var vote = await voteService.GetVoteAsync(userId, null, model.ContestId);
+
             return new ContestModel
             {
                 Description = contest.Description,
@@ -152,7 +157,8 @@ namespace hjudge.WebHost.Controllers
                 UserId = contest.UserId,
                 UserName = contest.UserInfo.UserName,
                 Config = contest.Config.DeserializeJson<ContestConfig>(false),
-                CurrentTime = DateTime.Now
+                CurrentTime = DateTime.Now,
+                MyVote = vote?.VoteType ?? 0
             };
         }
 

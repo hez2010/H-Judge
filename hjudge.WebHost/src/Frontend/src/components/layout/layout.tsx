@@ -12,11 +12,7 @@ import { getTargetState } from '../../utils/reactnHelper';
 import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';
 import { tryJson } from '../../utils/responseHelper';
-
-const getWidth = () => {
-  const isSSR = typeof window === 'undefined';
-  return isSSR ? Responsive.onlyTablet.minWidth as number : window.innerWidth;
-}
+import { getWidth } from '../../utils/windowHelper';
 
 const DesktopContainer = (props: ContainerProps & React.Props<never>) => {
   const [fixed, setFixed] = React.useState<boolean>(false);
@@ -201,7 +197,7 @@ const Layout = (props: CommonProps & React.Props<never>) => {
 
   const closeRegisterModal = () => setRegisterModalOpen(false);
 
-  let content = <>
+  const content = <>
     <Container style={{ paddingTop: '3em', paddingBottom: '3em' }}>
       {props.children}
     </Container>
