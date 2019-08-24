@@ -45,10 +45,6 @@ namespace hjudge.WebHost.Services
                 .Include(i => i.Contest)
                 .Include(i => i.Group)
                 .Where(i => i.Id == judgeId).Cacheable().FirstOrDefaultAsync();
-            if (result != null)
-            {
-                dbContext.Entry(result).State = EntityState.Detached;
-            }
             return result;
         }
 

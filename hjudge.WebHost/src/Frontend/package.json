@@ -48,6 +48,7 @@
     "webpack-dev-server": "3.8.0"
   },
   "dependencies": {
+    "@aspnet/signalr": "^1.1.4",
     "es6-promise": "4.2.8",
     "fetch-ponyfill": "6.1.0",
     "highlight.js": "9.15.10",

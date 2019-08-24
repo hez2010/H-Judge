@@ -1,14 +1,19 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace hjudge.WebHost
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static IServiceProvider? RootServiceProvider;
+        public static Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            RootServiceProvider = host.Services;
+            return host.RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

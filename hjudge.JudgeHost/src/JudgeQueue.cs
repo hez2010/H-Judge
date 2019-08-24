@@ -14,7 +14,7 @@ namespace hjudge.JudgeHost
     class JudgeQueue
     {
         private static readonly ConcurrentPriorityQueue<JudgeInfo> pools = new ConcurrentPriorityQueue<JudgeInfo>();
-        private static readonly ConcurrentDictionary<string, DateTime> fileCache = new ConcurrentDictionary<string, DateTime>();
+        private static readonly ConcurrentDictionary<(string DataCacheDir, string FileName), DateTime> fileCache = new ConcurrentDictionary<(string DataCacheDir, string FileName), DateTime>();
         public static SemaphoreSlim? Semaphore { get; set; }
         public static Task QueueJudgeAsync(JudgeInfo info)
         {
@@ -41,7 +41,6 @@ namespace hjudge.JudgeHost
             channel.BasicPublish(options.Exchange, options.RoutingKey, false, props, result.SerializeJson(false));
             return Task.CompletedTask;
         }
-
 
         public static async Task JudgeQueueExecuter(string dataCacheDir, CancellationToken cancellationToken)
         {
@@ -83,16 +82,16 @@ namespace hjudge.JudgeHost
                     var timeoutThreshold = TimeSpan.FromMinutes(1);
                     foreach (var i in filesRequired)
                     {
-                        var cache = fileCache.Where(j => j.Key == i);
+                        var cache = fileCache.Where(j => j.Key == (dataCacheDir, i));
                         if (!cache.Any())
                         {
                             request.FileNames.Add(i);
-                            fileCache[i] = now;
+                            fileCache[(dataCacheDir, i)] = now;
                         }
                         else if (now - cache.FirstOrDefault().Value > timeoutThreshold)
                         {
                             request.FileNames.Add(i);
-                            fileCache[i] = now;
+                            fileCache[(dataCacheDir, i)] = now;
                         }
                     }
 
@@ -133,13 +132,14 @@ namespace hjudge.JudgeHost
                         Console.WriteLine("-------------------");
                         Console.WriteLine(ex.StackTrace);
                     }
+                    Console.WriteLine($"Finished judge #{judgeInfo.JudgeId}");
                     await ReportJudgeResultAsync(new JudgeReportInfo
                     {
                         JudgeId = judgeInfo.JudgeId,
                         JudgeResult = result,
                         Type = JudgeReportInfo.ReportType.PostJudge
                     });
-                    Console.WriteLine($"Finished judge #{judgeInfo.JudgeId}");
+                    Console.WriteLine($"Reported judge #{judgeInfo.JudgeId}");
                     if (cancellationToken.IsCancellationRequested) break;
                 }
             }

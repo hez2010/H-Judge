@@ -159,7 +159,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       <br />
       <small>提交统计：{this.state.problem.acceptCount} / {this.state.problem.submissionCount}</small>
       <br />
-      <small>题目评分：{this.state.problem.upvote + this.state.problem.downvote === 0 ? <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /> : <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(this.state.problem.upvote * 5 / (this.state.problem.upvote + this.state.problem.downvote))} />}</small>
+      <small>题目评分：{this.state.problem.upvote + this.state.problem.downvote === 0 ? <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /> : <Rating icon='star' maxRating={5} disabled={true} rating={Math.round(this.state.problem.upvote * 5 / (this.state.problem.upvote + this.state.problem.downvote))} />}</small>
     </div>;
   }
 
@@ -179,7 +179,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
     let editor = this.editor.current;
     if (!editor) return;
     this.setState({ submitting: true });
-    console.log(this);
     Post('/judge/submit', {
       problemId: this.problemId,
       contestId: this.contestId,

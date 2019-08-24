@@ -26,6 +26,8 @@ using CacheManager.Core;
 using hjudge.WebHost.Models;
 using hjudge.WebHost.Middlewares;
 using Newtonsoft.Json;
+using hjudge.WebHost.Hubs;
+using System.Threading;
 
 namespace hjudge.WebHost
 {
@@ -33,6 +35,7 @@ namespace hjudge.WebHost
     {
         private readonly IConfiguration configuration;
         private readonly IWebHostEnvironment environment;
+        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
@@ -71,8 +74,6 @@ namespace hjudge.WebHost
             services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
-            services.AddMessageHandlers();
-
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
                 .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
@@ -103,11 +104,6 @@ namespace hjudge.WebHost
             services.AddDbContext<WebHostDbContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-                if (environment.IsDevelopment())
-                {
-                    options.EnableDetailedErrors(true);
-                    options.EnableSensitiveDataLogging(true);
-                }
                 options.EnableServiceProviderCaching(true);
             });
 
@@ -135,6 +131,8 @@ namespace hjudge.WebHost
 
             services.AddSingleton<ExceptionMiddleware>();
 
+            services.AddSignalR();
+
             services.AddMvc()
             .AddJsonOptions(options =>
             {
@@ -155,6 +153,8 @@ namespace hjudge.WebHost
                     options.RootPath = "wwwroot/dist";
                 });
             }
+
+            services.RecordServiceCollection();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -162,7 +162,8 @@ namespace hjudge.WebHost
         {
             if (lifetime.ApplicationStopped.IsCancellationRequested)
             {
-                var mqService = MessageHandlersServiceExtensions.ServiceProvider.GetService<IMessageQueueService>();
+                cancellationTokenSource.Cancel();
+                var mqService = Program.RootServiceProvider?.GetService<IMessageQueueService>();
                 mqService?.Dispose();
             }
 
@@ -223,6 +224,8 @@ namespace hjudge.WebHost
             {
                 endpoints.MapDefaultControllerRoute();
 
+                endpoints.MapHub<JudgeHub>("/hub/judge");
+
                 if (environment.IsProduction())
                 {
                     endpoints.MapControllerRoute(
@@ -277,20 +280,23 @@ namespace hjudge.WebHost
             cnt = -1;
             while (configuration.GetSection($"MessageQueue:Consumers:{++cnt}").Exists())
             {
-                factory.CreateConsumer(new MessageQueueFactory.ConsumerOptions
+                var consumer = new MessageQueueFactory.ConsumerOptions
                 {
                     Queue = configuration[$"MessageQueue:Consumers:{cnt}:Queue"],
                     Durable = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:Durable"]),
                     AutoAck = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:AutoAck"]),
                     Exclusive = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:Exclusive"]),
                     Exchange = configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
-                    RoutingKey = configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"],
-                    OnReceived = configuration[$"MessageQueue:Consumers:{cnt}:Queue"] switch
-                    {
-                        "JudgeReport" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received),
-                        _ => null
-                    }
-                });
+                    RoutingKey = configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"]
+                };
+                switch (configuration[$"MessageQueue:Consumers:{cnt}:Queue"])
+                {
+                    case "JudgeReport":
+                        consumer.OnReceived = new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received);
+                        Task.Run(() => JudgeReport.QueueExecutor(cancellationTokenSource.Token));
+                        break;
+                }
+                factory.CreateConsumer(consumer);
             }
 
             return factory;

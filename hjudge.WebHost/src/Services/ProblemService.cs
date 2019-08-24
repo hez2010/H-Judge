@@ -52,10 +52,6 @@ namespace hjudge.WebHost.Services
                 .Where(i => i.Id == problemId)
                 .Cacheable()
                 .FirstOrDefaultAsync();
-            if (result != null)
-            {
-                dbContext.Entry(result).State = EntityState.Detached;
-            }
             return result;
         }
 

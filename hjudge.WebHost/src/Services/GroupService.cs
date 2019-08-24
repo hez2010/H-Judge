@@ -44,10 +44,6 @@ namespace hjudge.WebHost.Services
             var result = await dbContext.Group
                 .Include(i => i.UserInfo)
                 .Where(i => i.Id == groupId).Cacheable().FirstOrDefaultAsync();
-            if (result != null)
-            {
-                dbContext.Entry(result).State = EntityState.Detached;
-            }
             return result;
         }
 

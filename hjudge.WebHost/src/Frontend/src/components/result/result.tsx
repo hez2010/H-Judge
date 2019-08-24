@@ -12,6 +12,7 @@ import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { getWidth } from '../../utils/windowHelper';
+import * as SignalR from '@aspnet/signalr';
 
 interface JudgePointModel {
   score: number,
@@ -48,9 +49,12 @@ interface ResultModel {
   judgeResult: JudgeResultModel
 }
 
+let connection: SignalR.HubConnection;
+
 const Result = (props: CommonProps) => {
   const [loaded, setLoaded] = React.useState<boolean>(false);
   const [commonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
+
   const [result, setResult] = React.useState<ResultModel>({
     resultId: 0,
     userId: '',
@@ -75,7 +79,6 @@ const Result = (props: CommonProps) => {
   });
 
   const loadResult = (resultId: number) => {
-    console.log(resultId);
     Get(`/judge/result?id=${resultId}`)
       .then(res => tryJson(res))
       .then(data => {
@@ -95,25 +98,25 @@ const Result = (props: CommonProps) => {
       })
   };
 
-  const reJudge = () => { 
+  const reJudge = () => {
     Post('/judge/rejudge', {
       resultId: result.resultId
     })
-    .then(res => tryJson(res))
-    .then(data => {
-      let error = data as ErrorModel;
-      if (error.errorCode) {
-        commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
-        return;
-      }
-      commonFuncs.openPortal('成功', '重新评测请求成功', 'green');
-      setLoaded(false);
-      loadResult(parseInt(props.match.params.resultId));
-    })
-    .catch(err => {
-      commonFuncs.openPortal('错误', '重新评测请求失败', 'red');
-      console.log(err);
-    })
+      .then(res => tryJson(res))
+      .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
+        commonFuncs.openPortal('成功', '重新评测请求成功', 'green');
+        setLoaded(false);
+        loadResult(parseInt(props.match.params.resultId));
+      })
+      .catch(err => {
+        commonFuncs.openPortal('错误', '重新评测请求失败', 'red');
+        console.log(err);
+      })
   }
 
   const renderSubmissionInfo = () => {
@@ -196,7 +199,26 @@ const Result = (props: CommonProps) => {
 
   React.useEffect(() => {
     setTitle('评测结果');
-    loadResult(parseInt(props.match.params.resultId));
+    connection = new SignalR.HubConnectionBuilder()
+      .withUrl('/hub/judge')
+      .build();
+
+    connection.on('JudgeCompleteSignalReceived', (resultId: number) => {
+      loadResult(resultId);
+    });
+
+    connection.start()
+      .then(() => connection.invoke("SubscribeJudgeResult", parseInt(props.match.params.resultId))
+        .then(() => loadResult(parseInt(props.match.params.resultId)))
+        .catch(err => {
+          loadResult(parseInt(props.match.params.resultId));
+          console.log(err);
+        }))
+      .catch(err => console.log(err));
+
+    return () => {
+      if (connection.state === SignalR.HubConnectionState.Connected) connection.stop();
+    }
   }, []);
 
   const placeHolder = <Placeholder>
@@ -219,12 +241,12 @@ const Result = (props: CommonProps) => {
       </Item.Header>
 
       <Item.Description>
-          {
-            !!result.content ? <><Header as='h2'>提交内容</Header>
-              <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
-                <MarkdownViewer content={'```\n' + result.content + '\n```'} />
-              </div></> : null
-          }
+        {
+          !!result.content ? <><Header as='h2'>提交内容</Header>
+            <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
+              <MarkdownViewer content={'```\n' + result.content + '\n```'} />
+            </div></> : null
+        }
         <Loader active inline>评测中...</Loader>
       </Item.Description>
     </Item.Content>
