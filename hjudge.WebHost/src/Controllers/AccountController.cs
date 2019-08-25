@@ -185,14 +185,15 @@ namespace hjudge.WebHost.Controllers
         [Route("profiles")]
         public async Task<UserInfoModel> UserInfo(string? userId = null)
         {
+            var signedIn = signInManager.IsSignedIn(User);
             var userInfoRet = new UserInfoModel
             {
-                SignedIn = signInManager.IsSignedIn(User)
+                SignedIn = string.IsNullOrEmpty(userId) ? signedIn : false
             };
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
+            var currentUser = string.IsNullOrEmpty(userId) ? user : await userManager.GetUserAsync(User);
             if (userId == null || user == null) return new UserInfoModel();
-            userInfoRet.Name = user.Name;
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;
             userInfoRet.Privilege = user.Privilege;
@@ -200,8 +201,9 @@ namespace hjudge.WebHost.Controllers
             userInfoRet.Experience = user.Experience;
             userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
 
-            if (userInfoRet.SignedIn)
+            if (userInfoRet.SignedIn || PrivilegeHelper.IsTeacher(currentUser?.Privilege))
             {
+                userInfoRet.Name = user.Name;
                 userInfoRet.EmailConfirmed = user.EmailConfirmed;
                 userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
                 userInfoRet.Email = user.Email;

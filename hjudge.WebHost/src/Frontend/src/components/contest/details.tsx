@@ -187,7 +187,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
   }
 
   rankModal() {
-    return <Modal open={this.state.rankOpened} onClose={() => this.setState({ rankOpened: false })} closeIcon>
+    return <Modal size='fullscreen' open={this.state.rankOpened} onClose={() => this.setState({ rankOpened: false })} closeIcon>
       <Header icon='list ol' content='比赛排名' />
       <Modal.Content>
         <Modal.Description>

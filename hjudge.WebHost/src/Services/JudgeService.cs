@@ -64,6 +64,7 @@ namespace hjudge.WebHost.Services
         {
             judge.ResultType = (int)ResultCode.Pending;
             judge.JudgeTime = DateTime.Now;
+            judge.JudgeCount++;
             var isRejudge = judge.Id != 0;
             if (isRejudge) dbContext.Judge.Update(judge);
             else await dbContext.Judge.AddAsync(judge);

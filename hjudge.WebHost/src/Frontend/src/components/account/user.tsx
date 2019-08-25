@@ -259,28 +259,45 @@ export default class User extends React.Component<CommonProps, UserState, Global
                 <Grid.Column>
                   <Form id='infoForm'>
                     {
-                      otherUser ? null : <><Divider horizontal>
-                        <Header as='h4'>
-                          <Icon name='tag'></Icon>
-                          基本信息
-                      </Header>
-                      </Divider>
-                        <Table definition>
-                          <Table.Body>
-                            <Table.Row>
-                              <Table.Cell textAlign='center' width={4}>姓名</Table.Cell>
-                              <Table.Cell><Input name='name' onBlur={this.handleChange} fluid defaultValue={this.state.userInfo.name} /></Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                              <Table.Cell textAlign='center' width={4}>邮箱</Table.Cell>
-                              <Table.Cell><Input name='email' onBlur={this.handleChange} fluid defaultValue={this.state.userInfo.email} type='email' action={this.state.userInfo.emailConfirmed ? null : { primary: true, content: '验证', onClick: this.confirmEmail }} /></Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                              <Table.Cell textAlign='center' width={4}>手机</Table.Cell>
-                              <Table.Cell><Input name='phoneNumber' onBlur={this.handleChange} fluid defaultValue={this.state.userInfo.phoneNumber} action={this.state.userInfo.phoneNumberConfirmed ? null : { primary: true, content: '验证', onClick: this.confirmPhoneNumber }} /></Table.Cell>
-                            </Table.Row>
-                          </Table.Body>
-                        </Table></>
+                      otherUser ? (!!this.state.userInfo.name ?
+                        <><Divider horizontal>
+                          <Header as='h4'><Icon name='tag'></Icon>基本信息</Header>
+                        </Divider>
+                          <Table definition>
+                            <Table.Body>
+                              <Table.Row>
+                                <Table.Cell textAlign='center' width={4}>姓名</Table.Cell>
+                                <Table.Cell><p>{this.state.userInfo.name}</p></Table.Cell>
+                              </Table.Row>
+                              <Table.Row>
+                                <Table.Cell textAlign='center' width={4}>邮箱</Table.Cell>
+                                <Table.Cell><p style={{ color: `${this.state.userInfo.emailConfirmed ? 'green' : 'red'}` }}>{this.state.userInfo.email}</p></Table.Cell>
+                              </Table.Row>
+                              <Table.Row>
+                                <Table.Cell textAlign='center' width={4}>手机</Table.Cell>
+                                <Table.Cell><p style={{ color: `${this.state.userInfo.phoneNumberConfirmed ? 'green' : 'red'}` }}>{this.state.userInfo.phoneNumber}</p></Table.Cell>
+                              </Table.Row>
+                            </Table.Body>
+                          </Table></>
+                        : null) : <><Divider horizontal>
+                          <Header as='h4'><Icon name='tag'></Icon>基本信息</Header>
+                        </Divider>
+                          <Table definition>
+                            <Table.Body>
+                              <Table.Row>
+                                <Table.Cell textAlign='center' width={4}>姓名</Table.Cell>
+                                <Table.Cell><Input name='name' onBlur={this.handleChange} fluid defaultValue={this.state.userInfo.name} /></Table.Cell>
+                              </Table.Row>
+                              <Table.Row>
+                                <Table.Cell textAlign='center' width={4}>邮箱</Table.Cell>
+                                <Table.Cell><Input name='email' onBlur={this.handleChange} fluid defaultValue={this.state.userInfo.email} type='email' action={this.state.userInfo.emailConfirmed ? null : { primary: true, content: '验证', onClick: this.confirmEmail }} /></Table.Cell>
+                              </Table.Row>
+                              <Table.Row>
+                                <Table.Cell textAlign='center' width={4}>手机</Table.Cell>
+                                <Table.Cell><Input name='phoneNumber' onBlur={this.handleChange} fluid defaultValue={this.state.userInfo.phoneNumber} action={this.state.userInfo.phoneNumberConfirmed ? null : { primary: true, content: '验证', onClick: this.confirmPhoneNumber }} /></Table.Cell>
+                              </Table.Row>
+                            </Table.Body>
+                          </Table></>
                     }
                     <Divider horizontal>
                       <Header as='h4'>

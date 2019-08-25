@@ -12,7 +12,6 @@ using EFSecondLevelCache.Core;
 using Microsoft.EntityFrameworkCore;
 using hjudge.WebHost.Configurations;
 using hjudge.Core;
-using System.Diagnostics.CodeAnalysis;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -119,8 +118,13 @@ namespace hjudge.WebHost.Controllers
                 ret.RankInfos[i.UserId][i.ProblemId].Time += time;
                 ret.RankInfos[i.UserId][i.ProblemId].Score = score;
 
+                ret.RankInfos[i.UserId][i.ProblemId].SubmissionCount++;
                 ret.ProblemInfos[i.ProblemId].SubmissionCount++;
-                if (i.ResultType == (int)ResultCode.Accepted) ret.ProblemInfos[i.ProblemId].AcceptCount++;
+                if (i.ResultType == (int)ResultCode.Accepted)
+                {
+                    ret.RankInfos[i.UserId][i.ProblemId].AcceptCount++;
+                    ret.ProblemInfos[i.ProblemId].AcceptCount++;
+                }
 
                 ret.UserInfos[i.UserId].Penalty += penalty;
                 ret.UserInfos[i.UserId].Time += time;
