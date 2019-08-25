@@ -45,7 +45,7 @@ namespace hjudge.WebHost.Controllers
                 groups = groups.Where(i => i.Name.Contains(model.Filter.Name));
             }
 
-            var groupJoin = await groupService.QueryGroupJoinRecords();
+            var groupJoin = await groupService.QueryGroupJoinRecordsAsync();
 
             if (model.Filter.Status.Count < 2)
             {
@@ -66,7 +66,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).Cacheable().CountAsync();
 
             groups = groups.OrderByDescending(i => i.Id);
             if (model.StartId == 0) groups = groups.Skip(model.Start);
@@ -80,7 +80,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 UserId = i.UserId,
                 UserName = i.UserInfo.UserName
-            }).ToListAsync();
+            }).Cacheable().ToListAsync();
 
             return ret;
         }

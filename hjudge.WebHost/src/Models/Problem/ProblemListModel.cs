@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Problem
 {
-    public class ProblemListModel : ResultModel
+    public class ProblemListModel
     {
         public class ProblemListItemModel
         {

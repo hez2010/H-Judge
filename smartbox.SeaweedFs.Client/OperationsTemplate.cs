@@ -281,7 +281,8 @@ namespace smartbox.SeaweedFs.Client
                     .Parse(cpString)
                     .FileName
                     .Trim('"');
-                if (!long.TryParse(headerResponse.GetLastHeader("Content-Length"), out long fileSize))
+                long fileSize;
+                if (!long.TryParse(headerResponse.GetLastHeader("Content-Length"), out fileSize))
                     fileSize = 0;
 
                 return new FileHandleStatus(fileId,

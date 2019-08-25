@@ -1,11 +1,13 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
-import { ResultModel } from '../../interfaces/resultModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
+import { GlobalState } from '../../interfaces/globalState';
+import { ErrorModel } from '../../interfaces/errorModel';
+import { tryJson } from '../../utils/responseHelper';
 
 interface ContestProps extends CommonProps {
   groupId?: number
@@ -21,7 +23,7 @@ interface ContestListItemModel {
   downvote: number
 }
 
-interface ContestListModel extends ResultModel {
+interface ContestListModel {
   contests: ContestListItemModel[],
   totalCount: number,
   currentTime: Date
@@ -31,12 +33,13 @@ interface ContestState {
   contestList: ContestListModel,
   statusFilter: number[],
   page: number,
-  deleteItem: number
+  deleteItem: number,
+  loaded: boolean
 }
 
-export default class Contest extends React.Component<ContestProps, ContestState> {
-  constructor(props: ContestProps) {
-    super(props);
+export default class Contest extends React.Component<ContestProps, ContestState, GlobalState> {
+  constructor() {
+    super();
 
     this.renderContestList = this.renderContestList.bind(this);
     this.fetchContestList = this.fetchContestList.bind(this);
@@ -52,17 +55,18 @@ export default class Contest extends React.Component<ContestProps, ContestState>
       },
       statusFilter: [0, 1, 2],
       page: 0,
-      deleteItem: 0
+      deleteItem: 0,
+      loaded: false
     };
-
-    this.idRecord = new Map<number, number>();
   }
-  private idRecord: Map<number, number>;
-  private disableNavi = false;
 
-  componentWillUpdate(nextProps: any, nextState: any) {
-    if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
-      this.idRecord.clear();
+  private idRecord = new Map<number, number>();
+  private disableNavi = false;
+  private userId = this.global.userInfo.userId;
+
+  componentWillUpdate(_nextProps: ContestProps, _nextState: ContestState) {
+    if (this.userId !== this.global.userInfo.userId) {
+      this.userId = this.global.userInfo.userId;
       if (!this.props.match.params.page) this.fetchContestList(true, 1);
       else this.fetchContestList(true, this.props.match.params.page);
     }
@@ -83,31 +87,32 @@ export default class Contest extends React.Component<ContestProps, ContestState>
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
     Post('/contest/list', req)
-      .then(res => res.json())
+      .then(tryJson)
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ContestListModel;
-        if (result.succeeded) {
-          let countBackup = this.state.contestList.totalCount;
-          if (!requireTotalCount) result.totalCount = countBackup;
-          result.currentTime = new Date(result.currentTime.toString());
-          for (let c in result.contests) {
-            result.contests[c].startTime = new Date(result.contests[c].startTime.toString());
-            result.contests[c].endTime = new Date(result.contests[c].endTime.toString());
-          }
+        let countBackup = this.state.contestList.totalCount;
+        if (!requireTotalCount) result.totalCount = countBackup;
+        result.currentTime = new Date(result.currentTime.toString());
+        for (let c in result.contests) {
+          result.contests[c].startTime = new Date(result.contests[c].startTime.toString());
+          result.contests[c].endTime = new Date(result.contests[c].endTime.toString());
+        }
 
-          if (result.contests.length > 0)
-            this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
-          this.setState({
-            contestList: result,
-            page: page
-          } as ContestState);
-        }
-        else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        if (result.contests.length > 0)
+          this.idRecord.set(page + 1, result.contests[result.contests.length - 1].id);
+        this.setState({
+          contestList: result,
+          page: page,
+          loaded: true
+        } as ContestState);
       })
       .catch(err => {
-        this.props.openPortal('错误', '比赛列表加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '比赛列表加载失败', 'red');
         console.log(err);
       })
   }
@@ -135,20 +140,19 @@ export default class Contest extends React.Component<ContestProps, ContestState>
   deleteContest(id: number) {
     this.setState({ deleteItem: 0 } as ContestState);
     Delete('/contest/edit', { contestId: id })
-      .then(res => res.json())
+      .then(tryJson)
       .then(data => {
-        let result = data as ResultModel;
-        if (result.succeeded) {
-          this.props.openPortal('成功', '删除成功', 'green');
-
-          this.fetchContestList(true, this.state.page);
+        let result = data as ErrorModel;
+        if (result.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
         }
         else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
+          this.global.commonFuncs.openPortal('成功', '删除成功', 'green');
+          this.fetchContestList(true, this.state.page);
         }
       })
       .catch(err => {
-        this.props.openPortal('错误', '比赛删除失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '比赛删除失败', 'red');
         console.log(err);
       })
   }
@@ -170,7 +174,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
             <Table.HeaderCell>评分</Table.HeaderCell>
             <Table.HeaderCell>开始时间</Table.HeaderCell>
             <Table.HeaderCell>结束时间</Table.HeaderCell>
-            {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
+            {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -184,11 +188,11 @@ export default class Contest extends React.Component<ContestProps, ContestState>
                 {
                   v.upvote + v.downvote === 0 ?
                     <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /></Table.Cell> :
-                    <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
+                    <Table.Cell><Rating icon='star' maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
                 }
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ContestState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ContestState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>;
             })
           }
@@ -198,7 +202,7 @@ export default class Contest extends React.Component<ContestProps, ContestState>
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />
@@ -211,28 +215,28 @@ export default class Contest extends React.Component<ContestProps, ContestState>
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
-            <Label>比赛编号</Label>
-            <Input fluid name='id' type='number' onChange={this.idRecord.clear}></Input>
+            <label>比赛编号</label>
+            <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>比赛名称</Label>
-            <Input fluid name='name' onChange={this.idRecord.clear}></Input>
+            <label>比赛名称</label>
+            <Input fluid name='name' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>比赛状态</Label>
+            <label>比赛状态</label>
             <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ContestState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未开始', value: 0 }, { text: '进行中', value: 1 }, { text: '已结束', value: 2 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
-            <Label>比赛操作</Label>
+            <label>比赛操作</label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchContestList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editContest(0)}>添加</Button> : null}
+              {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editContest(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>
       </Form>
       {this.renderContestList()}
-      {this.state.contestList.succeeded ? (this.state.contestList.contests.length === 0 ? <p>没有数据</p> : null) : placeHolder}
+      {this.state.loaded ? (this.state.contestList.contests.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.page}

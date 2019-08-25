@@ -17,9 +17,10 @@ namespace hjudge.WebHost.Services
         Task UpdateGroupAsync(Group group);
         Task RemoveGroupAsync(int groupId);
         Task UpdateGroupContestAsync(int groupId, IEnumerable<int> contests);
-        Task<bool> OptInGroup(string userId, int groupId);
-        Task<bool> OptOutGroup(string userId, int groupId);
-        Task<DbSet<GroupJoin>> QueryGroupJoinRecords();
+        Task<bool> OptInGroupAsync(string userId, int groupId);
+        Task<bool> OptOutGroupAsync(string userId, int groupId);
+        Task<IQueryable<GroupJoin>> QueryGroupJoinRecordsAsync();
+        Task<bool> IsInGroupAsync(string userId, int groupId);
     }
     public class GroupService : IGroupService
     {
@@ -40,15 +41,18 @@ namespace hjudge.WebHost.Services
 
         public async Task<Group?> GetGroupAsync(int groupId)
         {
-            var result = await dbContext.Group.FirstOrDefaultAsync(i => i.Id == groupId);
-            if (result != null)
-            {
-                dbContext.Entry(result).State = EntityState.Detached;
-            }
+            var result = await dbContext.Group
+                .Include(i => i.UserInfo)
+                .Where(i => i.Id == groupId).Cacheable().FirstOrDefaultAsync();
             return result;
         }
 
-        public async Task<bool> OptInGroup(string userId, int groupId)
+        public Task<bool> IsInGroupAsync(string userId, int groupId)
+        {
+            return dbContext.GroupJoin.Where(i => i.UserId == userId && i.GroupId == groupId).Cacheable().AnyAsync();
+        }
+
+        public async Task<bool> OptInGroupAsync(string userId, int groupId)
         {
             var user = await userManager.FindByIdAsync(userId);
             var group = await GetGroupAsync(groupId);
@@ -68,7 +72,7 @@ namespace hjudge.WebHost.Services
             }
             return false;
         }
-        public async Task<bool> OptOutGroup(string userId, int groupId)
+        public async Task<bool> OptOutGroupAsync(string userId, int groupId)
         {
             var user = await userManager.FindByIdAsync(userId);
             var group = await GetGroupAsync(groupId);
@@ -99,9 +103,10 @@ namespace hjudge.WebHost.Services
             return groups;
         }
 
-        public Task<DbSet<GroupJoin>> QueryGroupJoinRecords()
+        public Task<IQueryable<GroupJoin>> QueryGroupJoinRecordsAsync()
         {
-            return Task.FromResult(dbContext.GroupJoin);
+            IQueryable<GroupJoin> groups = dbContext.GroupJoin;
+            return Task.FromResult(groups);
         }
 
         public async Task RemoveGroupAsync(int groupId)

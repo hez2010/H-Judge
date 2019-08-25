@@ -22,7 +22,6 @@ namespace hjudge.WebHost.Utils
                     };
                 }
             }
-            yield break;
         }
 
     }

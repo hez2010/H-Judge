@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Problem
 {
-    public class ProblemModel : ResultModel
+    public class ProblemModel
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -21,5 +21,6 @@ namespace hjudge.WebHost.Models.Problem
         public bool Hidden { get; set; }
         public int Upvote { get; set; }
         public int Downvote { get; set; }
+        public int MyVote { get; set; }
     }
 }

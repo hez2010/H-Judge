@@ -32,9 +32,7 @@ namespace smartbox.SeaweedFs.Client.Core.Http
     {
         private static readonly Random Random = new Random();
 
-        [JsonProperty("VolumeId")]
-        public long VolumeId { get; set; }
-        [JsonProperty("Locations")]
+        [JsonProperty("locations")]
         public List<LocationResult> Locations { get; set; }
 
         public LocationResult GetRandomLocation()
@@ -45,8 +43,7 @@ namespace smartbox.SeaweedFs.Client.Core.Http
         public override string ToString()
         {
             return "LookupVolumeResult{" +
-                   "volumeId='" + VolumeId + "\'" +
-                   ", locations=" + Locations +
+                   "locations=" + Locations +
                    '}';
         }
     }

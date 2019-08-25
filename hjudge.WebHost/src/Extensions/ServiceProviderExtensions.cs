@@ -3,12 +3,12 @@ using System;
 
 namespace hjudge.WebHost.Extensions
 {
-    public static class MessageHandlersServiceExtensions
+    public static class ServiceProviderExtensions
     {
         private static IServiceCollection? serviceCollection;
         private static IServiceProvider? serviceProvider;
         public static IServiceProvider? ServiceProvider => serviceProvider ?? GetServiceProvider();
-        public static IServiceCollection AddMessageHandlers(this IServiceCollection collection)
+        public static IServiceCollection RecordServiceCollection(this IServiceCollection collection)
         {
             serviceCollection = collection;
             return collection;

@@ -1,16 +1,25 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
-import { ResultModel } from '../../interfaces/resultModel';
-import { Get, Put, Post } from '../../utils/requestHelper';
+import { ErrorModel } from '../../interfaces/errorModel';
+import { Get, Put, Post, Delete } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
-import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon } from 'semantic-ui-react';
+import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon, Confirm, Loader } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
+import { GlobalState } from '../../interfaces/globalState';
+import { tryJson } from '../../utils/responseHelper';
 
 interface ProblemEditState {
   problem: ProblemEditModel,
   useSpecialJudge: boolean,
-  selectedTemplate: string
+  selectedTemplate: string,
+  processingData: boolean,
+  confirmOpen: boolean,
+  loaded: boolean
+}
+
+interface ProblemDataUploadModel {
+  failedFiles: string[]
 }
 
 interface ProblemEditProps extends CommonProps {
@@ -51,7 +60,7 @@ interface ProblemConfig {
   codeSizeLimit: number
 }
 
-interface ProblemEditModel extends ResultModel {
+interface ProblemEditModel {
   id: number,
   name: string,
   level: number,
@@ -61,15 +70,12 @@ interface ProblemEditModel extends ResultModel {
   config: ProblemConfig
 }
 
-export default class ProblemEdit extends React.Component<ProblemEditProps, ProblemEditState> {
-  constructor(props: ProblemEditProps) {
-    super(props);
+export default class ProblemEdit extends React.Component<ProblemEditProps, ProblemEditState, GlobalState> {
+  constructor() {
+    super();
 
     this.state = {
       problem: {
-        succeeded: false,
-        errorCode: 0,
-        errorMessage: '',
         config: {
           answer: {
             answerFile: '',
@@ -98,7 +104,10 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         type: 1
       },
       useSpecialJudge: false,
-      selectedTemplate: ''
+      selectedTemplate: '',
+      processingData: false,
+      confirmOpen: false,
+      loaded: false
     };
 
     this.fetchConfig = this.fetchConfig.bind(this);
@@ -109,37 +118,43 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     this.removePoint = this.removePoint.bind(this);
     this.addPoint = this.addPoint.bind(this);
     this.applyTemplate = this.applyTemplate.bind(this);
+    this.uploadFile = this.uploadFile.bind(this);
+    this.selectFile = this.selectFile.bind(this);
+    this.deleteFile = this.deleteFile.bind(this);
+    this.downloadFile = this.downloadFile.bind(this);
   }
 
-  private problemId: number = 0;
-  private pointsCount: number = 0;
-  private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
-
+  private problemId = 0;
+  private pointsCount = 0;
+  private editor = React.createRef<CodeEditor>();
+  private fileLoader = React.createRef<HTMLInputElement>();
 
   fetchConfig(problemId: number) {
     if (problemId === 0) {
-      this.state.problem.succeeded = true;
-      this.setState(this.state as ProblemEditState);
+      let state = { ...this.state };
+      state.loaded = true;
+      this.setState(state);
       return;
     }
 
     Get('/problem/edit', { problemId: problemId })
-      .then(res => res.json())
+      .then(tryJson)
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ProblemEditModel;
-        if (result.succeeded) {
-          result.config.points = result.config.points.map(v => { v.index = ++this.pointsCount; return v; });
-          this.setState({
-            problem: result,
-            useSpecialJudge: !!result.config.specialJudge
-          } as ProblemEditState);
-        }
-        else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        result.config.points = result.config.points.map(v => { v.index = ++this.pointsCount; return v; });
+        this.setState({
+          problem: result,
+          useSpecialJudge: !!result.config.specialJudge,
+          loaded: true
+        } as ProblemEditState);
       })
       .catch(err => {
-        this.props.openPortal('错误', '题目配置加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '题目配置加载失败', 'red');
         console.log(err);
       });
   }
@@ -168,46 +183,45 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
 
   submitChange() {
     if (!this.canSubmit()) {
-      this.props.openPortal('错误', '题目信息填写不完整', 'red');
+      this.global.commonFuncs.openPortal('错误', '题目信息填写不完整', 'red');
       return;
     }
     if (this.state.problem.id === 0) {
       Put('/problem/edit', this.state.problem)
-        .then(res => res.json())
+        .then(tryJson)
         .then(data => {
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
+          }
           let result = data as ProblemEditModel;
-          if (result.succeeded) {
-            result.config.points = result.config.points.map(v => { v.index = ++this.pointsCount; return v; });
-            this.setState({
-              problem: result,
-              useSpecialJudge: !!result.config.specialJudge
-            } as ProblemEditState);
-            this.props.openPortal('成功', '题目保存成功', 'green');
-            this.props.history.replace(`/edit/problem/${result.id}`);
-          }
-          else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-          }
+          result.config.points = result.config.points.map(v => { v.index = ++this.pointsCount; return v; });
+          this.setState({
+            problem: result,
+            useSpecialJudge: !!result.config.specialJudge
+          } as ProblemEditState);
+          this.global.commonFuncs.openPortal('成功', '题目保存成功', 'green');
+          this.props.history.replace(`/edit/problem/${result.id}`);
         })
         .catch(err => {
-          this.props.openPortal('错误', '题目保存失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '题目保存失败', 'red');
           console.log(err);
         });
     }
     else {
       Post('/problem/edit', this.state.problem)
-        .then(res => res.json())
+        .then(tryJson)
         .then(data => {
-          let result = data as ProblemEditModel;
-          if (result.succeeded) {
-            this.props.openPortal('成功', '题目保存成功', 'green');
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
           }
-          else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-          }
+          this.global.commonFuncs.openPortal('成功', '题目保存成功', 'green');
         })
         .catch(err => {
-          this.props.openPortal('错误', '题目配置加载失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '题目配置加载失败', 'red');
           console.log(err);
         });
     }
@@ -250,7 +264,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
   applyTemplate() {
     let fields = this.state.selectedTemplate.split('|');
     if (fields.length !== 5) {
-      this.props.openPortal('错误', '快速套用模板格式错误', 'red');
+      this.global.commonFuncs.openPortal('错误', '快速套用模板格式错误', 'red');
       return;
     }
     let [input, output, time, memory, score] = fields;
@@ -266,8 +280,80 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     this.setState(this.state);
   }
 
+  uploadFile() {
+    let ele = this.fileLoader.current;
+    if (!ele || !ele.files || ele.files.length === 0) return;
+    let file = ele.files[0];
+    if (file.type !== 'application/x-zip-compressed' && file.type !== 'application/zip') {
+      this.global.commonFuncs.openPortal('错误', '文件格式不正确', 'red');
+      ele.value = '';
+      return;
+    }
+    if (file.size > 134217728) {
+      this.global.commonFuncs.openPortal('错误', '文件大小不能超过 128 Mb', 'red');
+      ele.value = '';
+      return;
+    }
+    let form = new FormData();
+    form.append('problemId', this.state.problem.id.toString());
+    form.append('file', file);
+    this.setState({ processingData: true });
+    Put('/problem/data', form, false, '')
+      .then(tryJson)
+      .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+        else {
+          let result = data as ProblemDataUploadModel;
+          if (result.failedFiles && result.failedFiles.length !== 0)
+            this.global.commonFuncs.openPortal('警告', `部分题目数据上传失败：\n${result.failedFiles.reduce((accu, next) => accu + '\n' + next)}`, 'orange');
+          else this.global.commonFuncs.openPortal('成功', '题目数据上传成功', 'green');
+        }
+        this.setState({ processingData: false });
+        let ele = this.fileLoader.current;
+        if (ele) ele.value = '';
+      })
+      .catch(() => {
+        this.global.commonFuncs.openPortal('错误', '题目数据上传失败', 'red');
+        this.setState({ processingData: false });
+        let ele = this.fileLoader.current;
+        if (ele) ele.value = '';
+      });
+  }
+
+  selectFile() {
+    if (this.fileLoader.current) {
+      this.fileLoader.current.click();
+    }
+  }
+
+  downloadFile() {
+    let link = document.createElement('a');
+    link.href = `/problem/data?problemId=${this.state.problem.id}`;
+    link.target = '_blank';
+    link.click();
+    link.remove();
+  }
+
+  deleteFile() {
+    this.setState({ confirmOpen: false, processingData: true });
+    Delete('/problem/data', { problemId: this.state.problem.id })
+      .then(tryJson)
+      .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+        else this.global.commonFuncs.openPortal('成功', '题目数据删除成功', 'green');
+        this.setState({ processingData: false });
+      })
+      .catch(err => {
+        this.global.commonFuncs.openPortal('错误', '题目数据删除失败', 'red');
+        this.setState({ processingData: false });
+        console.log(err);
+      })
+  }
+
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />
@@ -275,19 +361,19 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
-    if (!this.state.problem.succeeded) return placeHolder;
+    if (!this.state.loaded) return placeHolder;
 
     const basic = <Form>
-      <Form.Field error={!this.state.problem.name}>
-        <Label>题目名称</Label>
+      <Form.Field required error={!this.state.problem.name}>
+        <label>题目名称</label>
         <Form.Input required defaultValue={this.state.problem.name} onChange={e => this.handleChange(this.state.problem, 'name', e.target.value)} />
       </Form.Field>
       <Form.Field>
-        <Label>题目难度</Label>
+        <label>题目难度</label>
         <Rating icon='star' defaultRating={this.state.problem.level} maxRating={10} onRate={(_, data) => this.handleChange(this.state.problem, 'level', data.rating)} />
       </Form.Field>
       <Form.Group inline>
-        <Label>题目类型</Label>
+        <label>题目类型</label>
         <Form.Radio
           label='提交代码'
           value={1}
@@ -302,7 +388,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>可见性</Label>
+        <label>可见性</label>
         <Form.Radio
           label='显示题目'
           checked={!this.state.problem.hidden}
@@ -315,7 +401,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>输入输出类型</Label>
+        <label>输入输出类型</label>
         <Form.Radio
           label='标准输入输出'
           checked={this.state.problem.config.useStdIO}
@@ -329,13 +415,13 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       </Form.Group>
       {
         this.state.problem.config.useStdIO ? null :
-          <Form.Group inline widths='equal'>
+          <Form.Group required inline widths='equal'>
             <Form.Field error={!this.state.problem.config.inputFileName}>
-              <Label>输入文件名</Label>
+              <label>输入文件名</label>
               <Form.Input fluid required defaultValue={this.state.problem.config.inputFileName} onChange={e => this.handleChange(this.state.problem.config, 'inputFileName', e.target.value)} />
             </Form.Field>
             <Form.Field error={!this.state.problem.config.outputFileName}>
-              <Label>输出文件名</Label>
+              <label>输出文件名</label>
               <Form.Input fluid required defaultValue={this.state.problem.config.outputFileName} onChange={e => this.handleChange(this.state.problem.config, 'outputFileName', e.target.value)} />
             </Form.Field>
           </Form.Group>
@@ -378,27 +464,27 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
                   <Label color='teal' ribbon><span>数据点 #{i + 1}&nbsp;</span><a onClick={this.removePoint(i)}><Icon name='delete' color='red' /></a></Label>
 
                   <Form.Group inline widths='equal'>
-                    <Form.Field error={!v.stdInFile}>
-                      <Label>输入文件</Label>
+                    <Form.Field required error={!v.stdInFile}>
+                      <label>输入文件</label>
                       <Form.Input fluid required defaultValue={v.stdInFile} onChange={e => this.handleChange(v, 'stdInFile', e.target.value)} />
                     </Form.Field>
-                    <Form.Field error={!v.stdOutFile}>
-                      <Label>输出文件</Label>
+                    <Form.Field required error={!v.stdOutFile}>
+                      <label>输出文件</label>
                       <Form.Input fluid required defaultValue={v.stdOutFile} onChange={e => this.handleChange(v, 'stdOutFile', e.target.value)} />
                     </Form.Field>
                   </Form.Group>
 
                   <Form.Group inline widths='equal'>
-                    <Form.Field>
-                      <Label>时间限制</Label>
+                    <Form.Field required>
+                      <label>时间限制</label>
                       <Form.Input fluid required min={0} placeholder='单位：ms' type='number' defaultValue={v.timeLimit.toString()} onChange={e => this.handleChange(v, 'timeLimit', e.target.valueAsNumber)} />
                     </Form.Field>
-                    <Form.Field>
-                      <Label>内存限制</Label>
+                    <Form.Field required>
+                      <label>内存限制</label>
                       <Form.Input fluid required min={0} placeholder='单位：kb' type='number' defaultValue={v.memoryLimit.toString()} onChange={e => this.handleChange(v, 'memoryLimit', e.target.valueAsNumber)} />
                     </Form.Field>
-                    <Form.Field>
-                      <Label>该点得分</Label>
+                    <Form.Field required>
+                      <label>该点得分</label>
                       <Form.Input fluid required min={0} type='number' defaultValue={v.score.toString()} onChange={e => this.handleChange(v, 'score', e.target.valueAsNumber)} />
                     </Form.Field>
                   </Form.Group>
@@ -408,12 +494,12 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
           )}
         </List></> :
         <>
-          <Form.Field error={!this.state.problem.config.answer.answerFile}>
-            <Label>答案文件</Label>
+          <Form.Field required error={!this.state.problem.config.answer.answerFile}>
+            <label>答案文件</label>
             <Form.Input required defaultValue={this.state.problem.config.answer.answerFile} onChange={e => this.handleChange(this.state.problem.config.answer, 'answerFile', e.target.value)} />
           </Form.Field>
-          <Form.Field>
-            <Label>该题得分</Label>
+          <Form.Field required>
+            <label>该题得分</label>
             <Form.Input required min={0} type='number' defaultValue={this.state.problem.config.answer.score.toString()} onChange={e => this.handleChange(this.state.problem.config.answer, 'score', e.target.valueAsNumber)} />
           </Form.Field>
         </>
@@ -422,7 +508,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
 
     const advanced = <Form>
       <Form.Group inline>
-        <Label>比较程序</Label>
+        <label>比较程序</label>
         <Form.Radio
           label='默认'
           checked={!this.state.useSpecialJudge}
@@ -436,12 +522,12 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       </Form.Group>
       {
         this.state.useSpecialJudge ?
-          <Form.Field error={!this.state.problem.config.specialJudge}>
-            <Label>自定义比较程序</Label>
+          <Form.Field required error={!this.state.problem.config.specialJudge}>
+            <label>自定义比较程序</label>
             <Form.Input required defaultValue={this.state.problem.config.specialJudge} onChange={e => this.handleChange(this.state.problem.config, 'specialJudge', e.target.value)} />
           </Form.Field> :
           <Form.Group inline>
-            <Label>比较选项</Label>
+            <label>比较选项</label>
             <Form.Checkbox
               label='忽略行末空格'
               checked={this.state.problem.config.comparingOptions.ignoreLineTailWhiteSpaces}
@@ -455,33 +541,44 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
           </Form.Group>
       }
       <Form.Field>
-        <Label>自定义提交文件名</Label>
+        <label>自定义提交文件名</label>
         <Form.Input placeholder='留空保持默认' defaultValue={this.state.problem.config.submitFileName} onChange={e => this.handleChange(this.state.problem.config, 'submitFileName', e.target.value)} />
       </Form.Field>
       {
         this.state.problem.type === 1 ?
           <>
             <Form.Field>
-              <Label>提交语言限制</Label>
+              <label>提交语言限制</label>
               <Form.Input placeholder='多个用英文半角分号 ; 分隔，留空为不限' defaultValue={this.state.problem.config.languages} onChange={e => this.handleChange(this.state.problem.config, 'languages', e.target.value)} />
             </Form.Field>
             <Form.Field>
-              <Label>自定义编译参数</Label>
+              <label>自定义编译参数</label>
               <Form.TextArea placeholder='一行一个，格式：[语言]参数' defaultValue={this.state.problem.config.compileArgs} onChange={(_, data) => this.handleChange(this.state.problem.config, 'compileArgs', data.value)} />
             </Form.Field>
           </> : null
       }
       <Form.Field>
-        <Label>附加文件</Label>
+        <label>附加文件</label>
         <Form.TextArea placeholder='一行一个' defaultValue={this.state.problem.config.extraFiles.length === 0 ? '' : this.state.problem.config.extraFiles.reduce((accu, next) => `${accu}\n${next}`)} onChange={(_, data) => this.handleChange(this.state.problem.config, 'extraFiles', data.value ? data.value.toString().split('\n') : [])} />
       </Form.Field>
       <Form.Field>
-        <Label>提交长度限制</Label>
-        <Form.Input type='number' placeholder='单位：byte' defaultValue={this.state.problem.config.codeSizeLimit} onChange={(_, data) => this.handleChange(this.state.problem.config, 'codeSizeLimit', data.value)} />
+        <label>提交长度限制（单位：byte，0 为不限）</label>
+        <Form.Input type='number' defaultValue={this.state.problem.config.codeSizeLimit} onChange={(_, data) => this.handleChange(this.state.problem.config, 'codeSizeLimit', data.value)} />
       </Form.Field>
     </Form>;
 
-    const panes = [
+    const utils = <Form>
+      <input ref={this.fileLoader} onChange={this.uploadFile} type='file' accept="application/x-zip-compressed,application/zip" style={{ filter: 'alpha(opacity=0)', opacity: 0, width: 0, height: 0 }} />
+      {
+        !this.state.processingData ? <Form.Group inline>
+        <Form.Button type='button' primary onClick={this.selectFile}>上传 .zip 数据文件</Form.Button>
+        <Form.Button type='button' onClick={this.downloadFile}>下载数据文件</Form.Button>
+        <Form.Button type='button' color='red' onClick={() => this.setState({ confirmOpen: true })}>删除数据文件</Form.Button>
+      </Form.Group> : <Loader active inline>处理中...</Loader>
+      }
+    </Form>;
+
+    let panes = [
       {
         menuItem: '基本信息', render: () => <Tab.Pane key={0} attached={false}>{basic}</Tab.Pane>
       },
@@ -494,13 +591,30 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
       {
         menuItem: '高级选项', render: () => <Tab.Pane key={3} attached={false}>{advanced}</Tab.Pane>
       }
-    ]
+    ];
+
+    if (this.state.problem.id !== 0) panes =
+      [
+        ...panes,
+        {
+          menuItem: '实用工具', render: () => <Tab.Pane key={4} attached={false}>{utils}</Tab.Pane>
+        }
+      ];
 
     return <>
       <Header as='h2'>题目编辑</Header>
       <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
       <Divider />
       <Button disabled={!this.canSubmit()} primary onClick={this.submitChange}>保存</Button>
+
+      <Confirm
+        open={this.state.confirmOpen}
+        cancelButton='取消'
+        confirmButton='确定'
+        onCancel={() => this.setState({ confirmOpen: false })}
+        onConfirm={this.deleteFile}
+        content={"删除后不可恢复，确定继续？"}
+      />
     </>;
   }
 }

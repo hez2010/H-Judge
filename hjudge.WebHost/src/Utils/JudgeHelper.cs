@@ -27,19 +27,19 @@ namespace hjudge.WebHost.Utils
         public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, IEnumerable<LanguageConfig> languageConfig)
         {
             var problem = await problemService.GetProblemAsync(judge.ProblemId);
-            if (problem == null) throw new InvalidOperationException("Problem is null");
+            if (problem == null) throw new InvalidOperationException("Problem doesn't exists.");
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
             var buildOptionsBuilder = new BuildOptionsBuilder();
+            buildOptionsBuilder.UseSource(judge.Content);
             if (problem.Type == 1)
             {
                 var judgeOptionsBuilder = new CodeJudgeOptionsBuilder();
                 var ext = languageConfig.FirstOrDefault(i => i.Name == judge.Language)?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim() ?? string.Empty;
                 buildOptionsBuilder.UseExtensionName(ext);
 
-                var datadir = $"${{datadir:{problem.Id}}}";
-                var workingdir = $"{{workingdir:{judgeOptionsBuilder.GuidStr}}}";
-                var file = $"{workingdir}/{judgeOptionsBuilder.GuidStr}{ext}";
-                var outputfile = $"{workingdir}/{judgeOptionsBuilder.GuidStr}.exe";
+                var datadir = $"R:Data/{problem.Id}"; // R: remote
+                var file = $"${{workingdir}}/{judgeOptionsBuilder.GuidStr}{ext}";
+                var outputfile = $"${{workingdir}}/{judgeOptionsBuilder.GuidStr}.exe";
                 var name = AlphaNumberFilter(problem.Name);
 
                 if (string.IsNullOrWhiteSpace(problemConfig.SubmitFileName))
@@ -49,7 +49,7 @@ namespace hjudge.WebHost.Utils
                 else
                 {
                     buildOptionsBuilder.UseCustomSubmitFileName(problemConfig.SubmitFileName);
-                    file = $"{workingdir}/{problemConfig.SubmitFileName}{ext}";
+                    file = $"${{workingdir}}/{problemConfig.SubmitFileName}{ext}";
                 }
 
                 judgeOptionsBuilder.UseComparingOptions(options =>
@@ -63,7 +63,6 @@ namespace hjudge.WebHost.Utils
                     judgeOptionsBuilder.UseExtraFiles(problemConfig.ExtraFiles.Select(
                         i => i
                             .Replace("${datadir}", datadir)
-                            .Replace("${workingdir}", workingdir)
                             .Replace("${file}", file)
                             .Replace("${outputfile}", outputfile)
                             .Replace("${name}", name))
@@ -76,7 +75,6 @@ namespace hjudge.WebHost.Utils
                     {
                         options.Exec = problemConfig.SpecialJudge
                             .Replace("${datadir}", datadir)
-                            .Replace("${workingdir}", workingdir)
                             .Replace("${file}", file)
                             .Replace("${outputfile}", outputfile)
                             .Replace("${name}", name);
@@ -97,7 +95,6 @@ namespace hjudge.WebHost.Utils
                         TimeLimit = point.TimeLimit,
                         StdInFile = point.StdInFile
                                 ?.Replace("${datadir}", datadir)
-                                ?.Replace("${workingdir}", workingdir)
                                 ?.Replace("${file}", file)
                                 ?.Replace("${outputfile}", outputfile)
                                 ?.Replace("${name}", name)
@@ -105,7 +102,6 @@ namespace hjudge.WebHost.Utils
                                 ?.Replace("${index}", (i + 1).ToString()) ?? string.Empty,
                         StdOutFile = point.StdOutFile
                                 ?.Replace("${datadir}", datadir)
-                                ?.Replace("${workingdir}", workingdir)
                                 ?.Replace("${file}", file)
                                 ?.Replace("${outputfile}", outputfile)
                                 ?.Replace("${name}", name)
@@ -134,13 +130,11 @@ namespace hjudge.WebHost.Utils
                         {
                             options.Exec = (string.IsNullOrWhiteSpace(lang.RunExec) ? null : lang.RunExec)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
                             options.Args = (string.IsNullOrWhiteSpace(lang.RunArgs) ? null : lang.RunArgs)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
@@ -152,20 +146,17 @@ namespace hjudge.WebHost.Utils
                         {
                             options.Args = (string.IsNullOrWhiteSpace(args) ? null : args)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name)
                                 ??
                                 (string.IsNullOrWhiteSpace(lang.CompilerArgs) ? null : lang.CompilerArgs)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
                             options.Exec = (string.IsNullOrWhiteSpace(lang.CompilerExec) ? null : lang.CompilerExec)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
@@ -189,14 +180,12 @@ namespace hjudge.WebHost.Utils
                         {
                             options.Args = (string.IsNullOrWhiteSpace(lang.StaticCheckArgs) ? null : lang.StaticCheckArgs)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
 
                             options.Exec = (string.IsNullOrWhiteSpace(lang.StaticCheckExec) ? null : lang.StaticCheckExec)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${workingdir}", workingdir)
                                     ?.Replace("${file}", file)
                                     ?.Replace("${outputfile}", outputfile)
                                     ?.Replace("${name}", name) ?? string.Empty;
@@ -222,8 +211,8 @@ namespace hjudge.WebHost.Utils
             else
             {
                 var judgeOptionsBuilder = new AnswerJudgeOptionsBuilder();
-                var datadir = $"${{datadir:{problem.Id}}}";
-                var workingdir = $"{{workingdir:{judgeOptionsBuilder.GuidStr}}}";
+                var datadir = $"R:Data/{problem.Id}"; // R: remote
+                var workingdir = judgeOptionsBuilder.GuidStr;
                 var file = $"{workingdir}/{judgeOptionsBuilder.GuidStr}";
                 var name = AlphaNumberFilter(problem.Name);
 
@@ -249,10 +238,11 @@ namespace hjudge.WebHost.Utils
                 {
                     AnswerFile = (string.IsNullOrWhiteSpace(problemConfig.Answer.AnswerFile) ? null : problemConfig.Answer.AnswerFile)
                             ?.Replace("${datadir}", datadir)
-                            ?.Replace("${workingdir}", workingdir)
                             ?.Replace("${file}", file)
                             ?.Replace("${outputfile}", outputfile)
-                            ?.Replace("${name}", name) ?? string.Empty,
+                            ?.Replace("${name}", name)
+                            ?.Replace("${index0}", "0")
+                            ?.Replace("${index}", "1") ?? string.Empty,
                     Score = problemConfig.Answer.Score
                 });
 
@@ -261,7 +251,6 @@ namespace hjudge.WebHost.Utils
                     judgeOptionsBuilder.UseExtraFiles(problemConfig.ExtraFiles.Select(
                         i => i
                             .Replace("${datadir}", datadir)
-                            .Replace("${workingdir}", workingdir)
                             .Replace("${file}", file)
                             .Replace("${outputfile}", outputfile)
                             .Replace("${name}", name))
@@ -274,7 +263,6 @@ namespace hjudge.WebHost.Utils
                     {
                         options.Exec = problemConfig.SpecialJudge
                             .Replace("${datadir}", datadir)
-                            .Replace("${workingdir}", workingdir)
                             .Replace("${file}", file)
                             .Replace("${outputfile}", outputfile)
                             .Replace("${name}", name);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Group
 {
-    public class GroupListModel : ResultModel
+    public class GroupListModel
     {
         public class GroupListItemModel
         {

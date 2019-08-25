@@ -3,7 +3,7 @@ using hjudge.WebHost.Utils;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Middlewares;
-using hjudge.WebHost.Models;
+using EFSecondLevelCache.Core;
 using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using hjudge.Core;
+using hjudge.WebHost.Exceptions;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -37,30 +38,24 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<ResultModel> Login([FromBody]LoginModel model)
+        public async Task Login([FromBody]LoginModel model)
         {
-            var ret = new ResultModel();
             if (TryValidateModel(model))
             {
                 await signInManager.SignOutAsync();
                 var result = await signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
                 if (!result.Succeeded)
                 {
-                    ret.ErrorCode = ErrorDescription.AuthenticationFailed;
+                    throw new AuthenticationException("用户名或密码不正确");
                 }
             }
-            else
-            {
-                ret.ErrorCode = ErrorDescription.ArgumentError;
-            }
-            return ret;
+            else throw new BadRequestException();
         }
 
         [HttpPut]
         [Route("register")]
-        public async Task<ResultModel> Register([FromBody]RegisterModel model)
+        public async Task Register([FromBody]RegisterModel model)
         {
-            var ret = new ResultModel();
             if (TryValidateModel(model))
             {
                 await signInManager.SignOutAsync();
@@ -74,54 +69,41 @@ namespace hjudge.WebHost.Controllers
                 var result = await userManager.CreateAsync(user, model.Password);
                 if (!result.Succeeded)
                 {
-                    ret.ErrorCode = ErrorDescription.ArgumentError;
-                    if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
+                    throw result.Errors.Any() ?
+                        new BadRequestException(result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next))
+                        : new BadRequestException();
                 }
                 else await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
             }
             else
             {
-                ret.ErrorCode = ErrorDescription.ArgumentError;
                 var errors = ModelState.ToList().SelectMany(i => i.Value.Errors, (i, j) => j.ErrorMessage);
-                if (errors.Any()) ret.ErrorMessage = errors.Aggregate((accu, next) => accu + "\n" + next);
+                throw errors.Any() ?
+                    new BadRequestException(errors.Aggregate((accu, next) => accu + "\n" + next))
+                    : new BadRequestException();
             }
-            return ret;
         }
 
         [HttpPost]
         [Route("logout")]
-        public async Task<ResultModel> Logout()
+        public Task Logout()
         {
-            await signInManager.SignOutAsync();
-            return new ResultModel();
+            return signInManager.SignOutAsync();
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("avatar")]
         [PrivilegeAuthentication.RequireSignedIn]
-        public async Task<ResultModel> UserAvatar(IFormFile avatar)
+        public async Task UserAvatar(IFormFile avatar)
         {
             var userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            var result = new ResultModel();
 
-            if (avatar == null)
-            {
-                result.ErrorCode = ErrorDescription.FileBadFormat;
-                return result;
-            }
+            if (avatar == null) throw new BadRequestException("文件格式不正确");
 
-            if (!avatar.ContentType.StartsWith("image/"))
-            {
-                result.ErrorCode = ErrorDescription.FileBadFormat;
-                return result;
-            }
+            if (!avatar.ContentType.StartsWith("image/")) throw new BadRequestException("文件格式不正确");
 
-            if (avatar.Length > 1048576)
-            {
-                result.ErrorCode = ErrorDescription.FileSizeExceeded;
-                return result;
-            }
+            if (avatar.Length > 1048576) throw new BadRequestException("文件大小不能超过 1 Mb");
 
             using var stream = new System.IO.MemoryStream();
 
@@ -131,8 +113,6 @@ namespace hjudge.WebHost.Controllers
             await stream.ReadAsync(buffer);
             user.Avatar = buffer;
             await userManager.UpdateAsync(user);
-
-            return result;
         }
 
         [HttpGet]
@@ -141,11 +121,7 @@ namespace hjudge.WebHost.Controllers
         {
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return user.Avatar == null || user.Avatar.Length == 0
+            return user?.Avatar == null || user.Avatar.Length == 0
                 ? File(ImageScaler.ScaleImage(Properties.Resource.DefaultAvatar, 128, 128), "image/png")
                 : File(ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
         }
@@ -153,9 +129,8 @@ namespace hjudge.WebHost.Controllers
         [HttpPost]
         [Route("profiles")]
         [PrivilegeAuthentication.RequireSignedIn]
-        public async Task<ResultModel> UserInfo([FromBody]UserInfoModel model)
+        public async Task UserInfo([FromBody]UserInfoModel model)
         {
-            var ret = new ResultModel();
             var userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
 
@@ -166,9 +141,9 @@ namespace hjudge.WebHost.Controllers
                 var result = await userManager.SetEmailAsync(user, model.Email);
                 if (!result.Succeeded)
                 {
-                    ret.ErrorCode = ErrorDescription.ArgumentError;
-                    if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
-                    return ret;
+                    throw result.Errors.Any() ?
+                        new BadRequestException(result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next))
+                        : new BadRequestException();
                 }
             }
             if (model.PhoneNumber != null && user.PhoneNumber != model.PhoneNumber)
@@ -176,9 +151,9 @@ namespace hjudge.WebHost.Controllers
                 var result = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
                 if (!result.Succeeded)
                 {
-                    ret.ErrorCode = ErrorDescription.ArgumentError;
-                    if (result.Errors.Any()) ret.ErrorMessage = result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next);
-                    return ret;
+                    throw result.Errors.Any() ?
+                        new BadRequestException(result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next))
+                        : new BadRequestException();
                 }
             }
             if (model.OtherInfo != null)
@@ -195,9 +170,7 @@ namespace hjudge.WebHost.Controllers
                         }
                         catch
                         {
-                            ret.ErrorCode = ErrorDescription.ArgumentError;
-                            ret.ErrorMessage = "请填写正确的信息";
-                            return ret;
+                            throw new BadRequestException("信息填写不正确");
                         }
                     }
                 }
@@ -205,8 +178,6 @@ namespace hjudge.WebHost.Controllers
             }
 
             await userManager.UpdateAsync(user);
-
-            return ret;
         }
 
         [HttpGet]
@@ -214,31 +185,29 @@ namespace hjudge.WebHost.Controllers
         [Route("profiles")]
         public async Task<UserInfoModel> UserInfo(string? userId = null)
         {
+            var signedIn = signInManager.IsSignedIn(User);
             var userInfoRet = new UserInfoModel
             {
-                SignedIn = signInManager.IsSignedIn(User)
+                SignedIn = string.IsNullOrEmpty(userId) ? signedIn : false
             };
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (userId == null || user == null)
-            {
-                if (!string.IsNullOrEmpty(userId)) userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
-                return userInfoRet;
-            }
-            userInfoRet.Name = user.Name;
+            var currentUser = string.IsNullOrEmpty(userId) ? user : await userManager.GetUserAsync(User);
+            if (userId == null || user == null) return new UserInfoModel();
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;
             userInfoRet.Privilege = user.Privilege;
             userInfoRet.Coins = user.Coins;
             userInfoRet.Experience = user.Experience;
+            userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
 
-            if (userInfoRet.SignedIn)
+            if (userInfoRet.SignedIn || PrivilegeHelper.IsTeacher(currentUser?.Privilege))
             {
+                userInfoRet.Name = user.Name;
                 userInfoRet.EmailConfirmed = user.EmailConfirmed;
                 userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
                 userInfoRet.Email = user.Email;
                 userInfoRet.PhoneNumber = user.PhoneNumber;
-                userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
             }
 
             return userInfoRet;
@@ -251,16 +220,12 @@ namespace hjudge.WebHost.Controllers
             var ret = new ProblemStatisticsModel();
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (userId == null || user == null)
-            {
-                if (!string.IsNullOrEmpty(userId)) ret.ErrorCode = ErrorDescription.UserNotExist;
-                return ret;
-            }
+            if (userId == null || user == null) return new ProblemStatisticsModel();
 
-            var judges = await judgeService.QueryAllJudgesAsync(userId);
+            var judges = await judgeService.QueryJudgesAsync(userId);
 
-            ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();
-            ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();
+            ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();
+            ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();
 
             return ret;
         }

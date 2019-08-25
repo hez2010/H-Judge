@@ -81,7 +81,7 @@ export default class CodeEditor extends React.Component<CodeEditorProps, CodeEdi
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />

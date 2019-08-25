@@ -3,7 +3,6 @@ using hjudge.Shared.Judge;
 using hjudge.Shared.Utils;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -14,11 +13,12 @@ namespace hjudge.JudgeHost
     class JudgeQueue
     {
         private static readonly ConcurrentPriorityQueue<JudgeInfo> pools = new ConcurrentPriorityQueue<JudgeInfo>();
-        private static readonly ConcurrentDictionary<string, DateTime> fileCache = new ConcurrentDictionary<string, DateTime>();
+        private static readonly ConcurrentDictionary<(string DataCacheDir, string FileName), DateTime> fileCache = new ConcurrentDictionary<(string DataCacheDir, string FileName), DateTime>();
         public static SemaphoreSlim? Semaphore { get; set; }
         public static Task QueueJudgeAsync(JudgeInfo info)
         {
             if (Semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
+            Console.WriteLine($"{DateTime.Now}: Received judge request");
             pools.Enqueue(info, info.Priority);
             try
             {
@@ -41,15 +41,16 @@ namespace hjudge.JudgeHost
             return Task.CompletedTask;
         }
 
-
         public static async Task JudgeQueueExecuter(string dataCacheDir, CancellationToken cancellationToken)
         {
+            if (!Directory.Exists(dataCacheDir)) Directory.CreateDirectory(dataCacheDir);
             if (Semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Semaphore.WaitAsync();
                 if (pools.TryDequeue(out var judgeInfo))
                 {
+                    Console.WriteLine($"{DateTime.Now}: Started judge #{judgeInfo.JudgeId}");
                     await ReportJudgeResultAsync(new JudgeReportInfo
                     {
                         JudgeId = judgeInfo.JudgeId,
@@ -67,49 +68,29 @@ namespace hjudge.JudgeHost
                         });
                         continue;
                     }
-                    var workingdir = JudgeMain.GetWorkingDir(Path.GetTempPath(), judgeInfo.JudgeOptions.GuidStr);
-                    var varsTable = new Dictionary<string, string>
-                    {
-                        ["\\${workingdir:(.*?)}"] = workingdir
-                    };
-                    if (judgeInfo.JudgeOptions != null)
-                    {
-                        for (var i = 0; i < judgeInfo.JudgeOptions.DataPoints.Count; i++)
-                        {
-                            judgeInfo.JudgeOptions.DataPoints[i].StdInFile = judgeInfo.JudgeOptions.DataPoints[i].StdInFile
-                                .Replace("${index0}", i.ToString())
-                                .Replace("${index}", (i + 1).ToString());
-                            judgeInfo.JudgeOptions.DataPoints[i].StdOutFile = judgeInfo.JudgeOptions.DataPoints[i].StdOutFile
-                                .Replace("${index0}", i.ToString())
-                                .Replace("${index}", (i + 1).ToString());
-                        }
-                        if (judgeInfo.JudgeOptions.AnswerPoint != null)
-                        {
-                            judgeInfo.JudgeOptions.AnswerPoint.AnswerFile = judgeInfo.JudgeOptions.AnswerPoint.AnswerFile
-                                .Replace("${index0}", "0")
-                                .Replace("${index}", "1");
-                        }
-                    }
-                    var filesRequired = (await VarsProcessor.FillinVarsAndFetchFiles(judgeInfo, varsTable)).Distinct();
+                    var workingDir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeInfo.JudgeOptions.GuidStr);
 
+                    var filesRequired = (await VarsProcessor.FillinWorkingDirAndGetRequiredFiles(judgeInfo, workingDir)).Distinct();
+
+                    Console.WriteLine($"{DateTime.Now}: Started downloading files for #{judgeInfo.JudgeId}");
                     var fileService = new Files.FilesClient(Program.FileHostChannel);
 
                     var request = new DownloadRequest();
                     var now = DateTime.Now;
 
-                    var timeoutThreshold = TimeSpan.FromMinutes(10);
+                    var timeoutThreshold = TimeSpan.FromMinutes(1);
                     foreach (var i in filesRequired)
                     {
-                        var cache = fileCache.Where(j => j.Key == i);
+                        var cache = fileCache.Where(j => j.Key == (dataCacheDir, i));
                         if (!cache.Any())
                         {
-                            request.Info.Add(new DownloadInfo { FileName = i });
-                            fileCache[i] = now;
+                            request.FileNames.Add(i);
+                            fileCache[(dataCacheDir, i)] = now;
                         }
                         else if (now - cache.FirstOrDefault().Value > timeoutThreshold)
                         {
-                            request.Info.Add(new DownloadInfo { FileName = i });
-                            fileCache[i] = now;
+                            request.FileNames.Add(i);
+                            fileCache[(dataCacheDir, i)] = now;
                         }
                     }
 
@@ -137,23 +118,32 @@ namespace hjudge.JudgeHost
                         }
                     }
 
+                    Console.WriteLine($"{DateTime.Now}: Finished downloading files for #{judgeInfo.JudgeId}");
+
                     var result = new JudgeResult { JudgePoints = null };
                     try
                     {
-                        //TODO: remove !
-                        result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions!, Path.GetTempPath(), dataCacheDir);
+                        result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions, workingDir, dataCacheDir);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // ignored
+                        Console.WriteLine($"{DateTime.Now}: {ex.Message}");
+                        Console.WriteLine("-------------------");
+                        Console.WriteLine(ex.StackTrace);
                     }
+                    Console.WriteLine($"Finished judge #{judgeInfo.JudgeId}");
                     await ReportJudgeResultAsync(new JudgeReportInfo
                     {
                         JudgeId = judgeInfo.JudgeId,
                         JudgeResult = result,
                         Type = JudgeReportInfo.ReportType.PostJudge
                     });
-                    if (cancellationToken.IsCancellationRequested) break;
+                    Console.WriteLine($"Reported judge #{judgeInfo.JudgeId}");
+                    if (cancellationToken.IsCancellationRequested) 
+                    {
+                        Directory.Delete(dataCacheDir, true);
+                        break;
+                    }
                 }
             }
         }

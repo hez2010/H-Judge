@@ -4,14 +4,11 @@ service Files {
     rpc DownloadFiles (DownloadRequest) returns (stream DownloadResponse) {};
     rpc UploadFiles (stream UploadRequest) returns (UploadResponse) {};
     rpc DeleteFiles (DeleteRequest) returns (DeleteResponse) {};
+    rpc ListFiles (ListRequest) returns (ListResponse) {};
 }
 
 message DownloadRequest {
-    repeated DownloadInfo info = 1;
-}
-
-message DownloadInfo {
-    string fileName = 1;
+    repeated string fileNames = 1;
 }
 
 message DownloadResponse {
@@ -25,7 +22,7 @@ message DownloadResult {
 }
 
 message UploadRequest {
-    repeated UploadInfo info = 1;
+    repeated UploadInfo infos = 1;
 }
 
 message UploadInfo {
@@ -34,7 +31,7 @@ message UploadInfo {
 }
 
 message UploadResponse {
-    repeated UploadResult result = 1;
+    repeated UploadResult results = 1;
 }
 
 message UploadResult {
@@ -43,18 +40,22 @@ message UploadResult {
 }
 
 message DeleteRequest {
-    repeated DeleteInfo info = 1;
-}
-
-message DeleteInfo {
-    string fileName = 1;
+    repeated string fileNames = 1;
 }
 
 message DeleteResponse {
-    repeated DeleteResult result = 1;
+    repeated DeleteResult results = 1;
 }
 
 message DeleteResult {
     string fileName = 1;
     bool succeeded = 2;
+}
+
+message ListRequest {
+    string prefix = 1;
+}
+
+message ListResponse {
+    repeated string fileNames = 1;
 }

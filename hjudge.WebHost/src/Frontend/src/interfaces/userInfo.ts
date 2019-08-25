@@ -1,6 +1,4 @@
-﻿import { ResultModel } from './resultModel';
-
-export interface UserInfo extends ResultModel {
+﻿export interface UserInfo {
   userId: string,
   userName: string,
   privilege: number,

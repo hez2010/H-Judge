@@ -13,6 +13,9 @@
 # Map files
 *.map
 
+# Data files
+AppData/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

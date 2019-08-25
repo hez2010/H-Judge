@@ -50,12 +50,14 @@ namespace smartbox.SeaweedFs.Client.Core.Http
 
         public string GetLastHeader(string name)
         {
-            return Headers.TryGetValue(name, out IEnumerable<string> result) ? result.LastOrDefault() : null;
+            IEnumerable<string> result;
+            return Headers.TryGetValue(name, out result) ? result.LastOrDefault() : null;
         }
 
         public string GetFirstHeader(string name)
         {
-            return Headers.TryGetValue(name, out IEnumerable<string> result) ? result.FirstOrDefault() : null;
+            IEnumerable<string> result;
+            return Headers.TryGetValue(name, out result) ? result.FirstOrDefault() : null;
         }
 
         public override string ToString()

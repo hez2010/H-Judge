@@ -59,7 +59,9 @@ namespace smartbox.SeaweedFs.Client.Core.Http
 
         public long GetLength()
         {
-            return OutputStream == null ? 0 : OutputStream.Length;
+            if (OutputStream == null)
+                return 0;
+            return OutputStream.Length;
         }
 
         public override string ToString()

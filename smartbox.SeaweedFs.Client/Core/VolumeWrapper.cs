@@ -27,7 +27,6 @@ using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using smartbox.SeaweedFs.Client.Core.Http;
 using smartbox.SeaweedFs.Client.Exception;
@@ -66,16 +65,15 @@ namespace smartbox.SeaweedFs.Client.Core
             JsonResponse jsonResponse;
             using (var content = new MultipartFormDataContent("Upload----" + DateTime.Now.ToString(CultureInfo.InvariantCulture)))
             {
-                content.Add(new StreamContent(inputStream), Path.GetFileNameWithoutExtension(filename), filename);
+                content.Add(new StreamContent(inputStream), "file", filename);
                 request.Content = content;
                 jsonResponse = await _connection.FetchJsonResultByRequest(request);
             }
 
             ConvertResponseStatusToException((int)jsonResponse.StatusCode, url, fileId, false, false, false, false);
 
-            var obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
-            var jToken = obj.GetValue("size");
-            return jToken.Value<long>();
+            var obj = JObject.Parse(jsonResponse.Json);
+            return obj["size"]?.Value<long>() ?? 0;
         }
 
         /// <summary>

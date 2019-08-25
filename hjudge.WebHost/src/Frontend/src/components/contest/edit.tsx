@@ -1,11 +1,13 @@
-import * as React from 'react';
-import { ResultModel } from '../../interfaces/resultModel';
-import { CommonProps } from '../../interfaces/commonProps';
+import * as React from 'reactn';
+import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Get, Put, Post } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
-import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon } from 'semantic-ui-react';
+import { Placeholder, Tab, Grid, Form, Header, Button, Divider } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
+import { GlobalState } from '../../interfaces/globalState';
+import { CommonProps } from '../../interfaces/commonProps';
+import { tryJson } from '../../utils/responseHelper';
 
 enum ContestType {
   Generic,
@@ -42,7 +44,7 @@ interface ContestConfig {
   canDiscussion: boolean
 }
 
-interface ContestEditModel extends ResultModel {
+interface ContestEditModel {
   id: number,
   name: string,
   startTime: Date,
@@ -59,18 +61,17 @@ interface ContestEditProps extends CommonProps {
 }
 
 interface ContestEditState {
+  loaded: boolean,
   contest: ContestEditModel
 }
 
-export default class ContestEdit extends React.Component<ContestEditProps, ContestEditState> {
-  constructor(props: ContestEditProps) {
-    super(props);
+export default class ContestEdit extends React.Component<ContestEditProps, ContestEditState, GlobalState> {
+  constructor() {
+    super();
 
     this.state = {
+      loaded: false,
       contest: {
-        succeeded: false,
-        errorCode: 0,
-        errorMessage: '',
         config: {
           type: ContestType.Generic,
           submissionLimit: 0,
@@ -107,28 +108,28 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
 
   fetchConfig(contestId: number) {
     if (contestId === 0) {
-      this.state.contest.succeeded = true;
-      this.setState(this.state as ContestEditState);
+      this.setState({ loaded: true });
       return;
     }
 
     Get('/contest/edit', { contestId: contestId })
-      .then(res => res.json())
+      .then(tryJson)
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ContestEditModel;
-        if (result.succeeded) {
-          result.startTime = new Date(result.startTime.toString());
-          result.endTime = new Date(result.endTime.toString());
-          this.setState({
-            contest: result
-          } as ContestEditState);
-        }
-        else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        result.startTime = new Date(result.startTime.toString());
+        result.endTime = new Date(result.endTime.toString());
+        this.setState({
+          contest: result,
+          loaded: true
+        } as ContestEditState);
       })
       .catch(err => {
-        this.props.openPortal('错误', '比赛配置加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '比赛配置加载失败', 'red');
         console.log(err);
       });
   }
@@ -157,46 +158,45 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
 
   submitChange() {
     if (!this.canSubmit()) {
-      this.props.openPortal('错误', '比赛信息填写不完整', 'red');
+      this.global.commonFuncs.openPortal('错误', '比赛信息填写不完整', 'red');
       return;
     }
     if (this.state.contest.id === 0) {
       Put('/contest/edit', this.state.contest)
-        .then(res => res.json())
+        .then(tryJson)
         .then(data => {
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
+          }
           let result = data as ContestEditModel;
-          if (result.succeeded) {
-            result.startTime = new Date(result.startTime.toString());
-            result.endTime = new Date(result.endTime.toString());
-            this.setState({
-              contest: result
-            } as ContestEditState);
-            this.props.openPortal('成功', '比赛保存成功', 'green');
-            this.props.history.replace(`/edit/contest/${result.id}`);
-          }
-          else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-          }
+          result.startTime = new Date(result.startTime.toString());
+          result.endTime = new Date(result.endTime.toString());
+          this.setState({
+            contest: result
+          } as ContestEditState);
+          this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
+          this.props.history.replace(`/edit/contest/${result.id}`);
         })
         .catch(err => {
-          this.props.openPortal('错误', '比赛保存失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '比赛保存失败', 'red');
           console.log(err);
         });
     }
     else {
       Post('/contest/edit', this.state.contest)
-        .then(res => res.json())
+        .then(tryJson)
         .then(data => {
-          let result = data as ContestEditModel;
-          if (result.succeeded) {
-            this.props.openPortal('成功', '比赛保存成功', 'green');
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
           }
-          else {
-            this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-          }
+          this.global.commonFuncs.openPortal('成功', '比赛保存成功', 'green');
         })
         .catch(err => {
-          this.props.openPortal('错误', '比赛配置加载失败', 'red');
+          this.global.commonFuncs.openPortal('错误', '比赛配置加载失败', 'red');
           console.log(err);
         });
     }
@@ -214,7 +214,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />
@@ -222,27 +222,27 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
-    if (!this.state.contest.succeeded) return placeHolder;
+    if (!this.state.loaded) return placeHolder;
 
     const basic = <Form>
-      <Form.Field error={!this.state.contest.name}>
-        <Label>比赛名称</Label>
+      <Form.Field required error={!this.state.contest.name}>
+        <label>比赛名称</label>
         <Form.Input required defaultValue={this.state.contest.name} onChange={e => this.handleChange(this.state.contest, 'name', e.target.value)} />
       </Form.Field>
-      <Form.Field error={!this.state.contest.startTime.getTime()}>
-        <Label>开始时间</Label>
+      <Form.Field required error={!this.state.contest.startTime.getTime()}>
+        <label>开始时间</label>
         <Form.Input required defaultValue={this.state.contest.startTime.toLocaleString(undefined, { hour12: false })} onChange={e => this.handleChange(this.state.contest, 'startTime', new Date(e.target.value))} />
       </Form.Field>
-      <Form.Field error={!this.state.contest.endTime.getTime()}>
-        <Label>结束时间</Label>
+      <Form.Field required error={!this.state.contest.endTime.getTime()}>
+        <label>结束时间</label>
         <Form.Input required defaultValue={this.state.contest.endTime.toLocaleString(undefined, { hour12: false })} onChange={e => this.handleChange(this.state.contest, 'endTime', new Date(e.target.value))} />
       </Form.Field>
       <Form.Field>
-        <Label>进入密码</Label>
+        <label>进入密码</label>
         <Form.Input placeholder='留空代表无需密码' defaultValue={this.state.contest.password} onChange={e => this.handleChange(this.state.contest, 'password', e.target.value)} />
       </Form.Field>
       <Form.Group inline>
-        <Label>可见性</Label>
+        <label>可见性</label>
         <Form.Radio
           label='显示比赛'
           checked={!this.state.contest.hidden}
@@ -255,7 +255,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         />
       </Form.Group>
       <Form.Field>
-        <Label>题目列表</Label>
+        <label>题目列表</label>
         <Form.Input placeholder='填写题目编号，多个用英文半角分号 ; 分隔' defaultValue={this.state.contest.problems.length === 0 ? '' : this.state.contest.problems.map(v => v.toString()).reduce((accu, next) => `${accu}; ${next}`)} onChange={e => this.handleChange(this.state.contest, 'problems', e.target.value.split(';').filter(v => !!v.trim()).map(v => parseInt(v.trim())))} />
       </Form.Field>
     </Form>;
@@ -277,7 +277,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
 
     const advanced = <Form>
       <Form.Group inline>
-        <Label>比赛类型</Label>
+        <label>比赛类型</label>
         <Form.Radio
           label='普通计时赛'
           checked={this.state.contest.config.type === ContestType.Generic}
@@ -295,7 +295,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>结果反馈</Label>
+        <label>结果反馈</label>
         <Form.Radio
           label='即时反馈'
           checked={this.state.contest.config.resultMode === ResultDisplayMode.Intime}
@@ -313,7 +313,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>结果显示</Label>
+        <label>结果显示</label>
         <Form.Radio
           label='详细结果'
           checked={this.state.contest.config.resultType === ResultDisplayType.Detailed}
@@ -326,7 +326,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>计分模式</Label>
+        <label>计分模式</label>
         <Form.Radio
           label='全部计分'
           checked={this.state.contest.config.scoreMode === ScoreCountingMode.All}
@@ -339,7 +339,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>比赛功能</Label>
+        <label>比赛功能</label>
         <Form.Checkbox
           label='显示排名'
           checked={this.state.contest.config.showRank}
@@ -352,7 +352,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         />
       </Form.Group>
       <Form.Group inline>
-        <Label>用户功能</Label>
+        <label>用户功能</label>
         <Form.Checkbox
           label='允许公开代码'
           checked={this.state.contest.config.canMakeResultPublic}
@@ -365,11 +365,11 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
         />
       </Form.Group>
       <Form.Field>
-        <Label>提交次数限制（0 代表不限）</Label>
+        <label>提交次数限制（0 代表不限）</label>
         <Form.Input type='number' min={0} defaultValue={this.state.contest.config.submissionLimit} onChange={e => this.handleChange(this.state.contest.config, 'submissionLimit', e.target.valueAsNumber)} />
       </Form.Field>
       <Form.Field>
-        <Label>提交语言限制</Label>
+        <label>提交语言限制</label>
         <Form.Input placeholder='多个用英文半角分号 ; 分隔，留空为不限' defaultValue={this.state.contest.config.languages} onChange={e => this.handleChange(this.state.contest.config, 'languages', e.target.value)} />
       </Form.Field>
     </Form>;

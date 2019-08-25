@@ -1,11 +1,13 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Placeholder, Select } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Input, Placeholder, Select } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
-import { ResultModel } from '../../interfaces/resultModel';
+import { ErrorModel } from '../../interfaces/errorModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
+import { GlobalState } from '../../interfaces/globalState';
+import { tryJson } from '../../utils/responseHelper';
 
 interface GroupProps extends CommonProps { }
 
@@ -18,7 +20,7 @@ interface GroupListItemModel {
   isPrivate: boolean
 }
 
-interface GroupListModel extends ResultModel {
+interface GroupListModel {
   groups: GroupListItemModel[],
   totalCount: number
 }
@@ -26,12 +28,13 @@ interface GroupListModel extends ResultModel {
 interface GroupState {
   groupList: GroupListModel,
   statusFilter: number[],
-  page: number
+  page: number,
+  loaded: boolean
 }
 
-export default class Group extends React.Component<GroupProps, GroupState> {
-  constructor(props: GroupProps) {
-    super(props);
+export default class Group extends React.Component<GroupProps, GroupState, GlobalState> {
+  constructor() {
+    super();
 
     this.renderGroupList = this.renderGroupList.bind(this);
     this.fetchGroupList = this.fetchGroupList.bind(this);
@@ -44,16 +47,18 @@ export default class Group extends React.Component<GroupProps, GroupState> {
         totalCount: 0
       },
       statusFilter: [0, 1],
-      page: 0
+      page: 0,
+      loaded: false
     };
-
-    this.idRecord = new Map<number, number>();
   }
-  private idRecord: Map<number, number>;
-  private disableNavi = false;
 
-  componentWillUpdate(nextProps: any, nextState: any) {
-    if (nextProps.userInfo.userId !== this.props.userInfo.userId) {
+  private idRecord = new Map<number, number>();
+  private disableNavi = false;
+  private userId = this.global.userInfo.userId;
+
+  componentWillUpdate(_nextProps: GroupProps, _nextState: GroupState) {
+    if (this.userId !== this.global.userInfo.userId) {
+      this.userId = this.global.userInfo.userId;
       this.idRecord.clear();
       if (!this.props.match.params.page) this.fetchGroupList(true, 1);
       else this.fetchGroupList(true, this.props.match.params.page);
@@ -73,28 +78,29 @@ export default class Group extends React.Component<GroupProps, GroupState> {
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
     Post('/group/list', req)
-      .then(res => res.json())
+      .then(tryJson)
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as GroupListModel;
-        if (result.succeeded) {
-          let countBackup = this.state.groupList.totalCount;
-          if (!requireTotalCount) result.totalCount = countBackup;
-          for (let c in result.groups) {
-            result.groups[c].creationTime = new Date(result.groups[c].creationTime.toString());
-          }
-          if (result.groups.length > 0)
-            this.idRecord.set(page + 1, result.groups[result.groups.length - 1].id);
-          this.setState({
-            groupList: result,
-            page: page
-          } as GroupState);
+        let countBackup = this.state.groupList.totalCount;
+        if (!requireTotalCount) result.totalCount = countBackup;
+        for (let c in result.groups) {
+          result.groups[c].creationTime = new Date(result.groups[c].creationTime.toString());
         }
-        else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        if (result.groups.length > 0)
+          this.idRecord.set(page + 1, result.groups[result.groups.length - 1].id);
+        this.setState({
+          groupList: result,
+          page: page,
+          loaded: true
+        } as GroupState);
       })
       .catch(err => {
-        this.props.openPortal('错误', '小组列表加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '小组列表加载失败', 'red');
         console.log(err);
       })
   }
@@ -128,7 +134,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
             <Table.HeaderCell>创建者</Table.HeaderCell>
             <Table.HeaderCell>创建时间</Table.HeaderCell>
             <Table.HeaderCell>公开性</Table.HeaderCell>
-            {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
+            {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -140,7 +146,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
                 <Table.Cell>{v.userName}</Table.Cell>
                 <Table.Cell>{v.creationTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.isPrivate ? '公开' : '私有'}</Table.Cell>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editGroup(v.id)} color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editGroup(v.id)} color='grey'>编辑</Button><Button color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -149,7 +155,7 @@ export default class Group extends React.Component<GroupProps, GroupState> {
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />
@@ -162,28 +168,28 @@ export default class Group extends React.Component<GroupProps, GroupState> {
       <Form id='filterForm'>
         <Form.Group widths={'equal'}>
           <Form.Field width={4}>
-            <Label>小组编号</Label>
-            <Input fluid name='id' type='number' onChange={this.idRecord.clear}></Input>
+            <label>小组编号</label>
+            <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>小组名称</Label>
-            <Input fluid name='name' onChange={this.idRecord.clear}></Input>
+            <label>小组名称</label>
+            <Input fluid name='name' onChange={() => this.idRecord.clear()}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <Label>小组状态</Label>
+            <label>小组状态</label>
             <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as GroupState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1]} options={[{ text: '已加入', value: 0 }, { text: '未加入', value: 1 }]}></Select>
           </Form.Field>
           <Form.Field width={4}>
-            <Label>小组操作</Label>
+            <label>小组操作</label>
             <Button.Group fluid>
               <Button type='button' primary onClick={() => this.fetchGroupList(true, 1)}>筛选</Button>
-              {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editGroup(0)}>添加</Button> : null}
+              {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editGroup(0)}>添加</Button> : null}
             </Button.Group>
           </Form.Field>
         </Form.Group>
       </Form>
       {this.renderGroupList()}
-      {this.state.groupList.succeeded ? (this.state.groupList.groups.length === 0 ? <p>没有数据</p> : null) : placeHolder}
+      {this.state.loaded ? (this.state.groupList.groups.length === 0 ? <p>没有数据</p> : null) : placeHolder}
       <div style={{ textAlign: 'center' }}>
         <Pagination
           activePage={this.state.page}

@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <NullableContextOptions>enable</NullableContextOptions>
     <IsPackable>false</IsPackable>
-    <LangVersion>8.0</LangVersion>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <SpaRoot>.\Frontend\</SpaRoot>
   </PropertyGroup>
@@ -12,12 +12,13 @@
   <ItemGroup>
     <PackageReference Include="BundlerMinifier.Core" Version="2.9.406" />
     <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.1" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="2.0.0-beta-1629" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore" Version="3.1.7" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore.Native.linux-x64" Version="3.1.7" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore.Native.win-x64" Version="3.1.7" />
     <PackageReference Include="JavaScriptEngineSwitcher.Extensions.MsDependencyInjection" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0-preview8.19405.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0-preview8.19405.7" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0-preview8.19405.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview8.19405.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0-preview8.19405.11">
@@ -33,18 +34,28 @@
     <PackageReference Include="React.AspNet" Version="5.0.0" />
     <PackageReference Include="React.Router" Version="5.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Resources.Extensions" Version="4.6.0-preview8.19405.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\hjudge.Core\src\hjudge.Core.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
+    <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
+    <ProjectReference Include="..\..\hjudge.RpcInterface\hjudge.RpcInterface.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\avatar.png" />
+    <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Compile Remove="Frontend\build\**" />
+    <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Frontend\build\**" />
+    <EmbeddedResource Remove="Frontend\build\**" />
+    <None Remove="$(SpaRoot)**" />
+    <None Remove="Frontend\build\**" />
+    <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Update="Properties\Resource.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -58,17 +69,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Don't publish the SPA source files, but do show them in the project files list -->
-    <Compile Remove="Frontend\build\**" />
-    <Content Remove="$(SpaRoot)**" />
-    <Content Remove="Frontend\build\**" />
-    <EmbeddedResource Remove="Frontend\build\**" />
-    <None Remove="$(SpaRoot)**" />
-    <None Remove="Frontend\build\**" />
-    <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

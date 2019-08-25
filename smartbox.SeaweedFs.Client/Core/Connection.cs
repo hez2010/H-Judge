@@ -221,7 +221,7 @@ namespace smartbox.SeaweedFs.Client.Core
 
             if (jsonResponse.Json.Contains("\"error\":\""))
             {
-                var obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
+                var obj = JObject.Parse(jsonResponse.Json);
                 var jToken = obj.GetValue("error");
                 if (jToken != null)
                     throw new SeaweedFsException(jToken.Value<string>());
@@ -347,7 +347,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 new Uri(masterUrl + RequestPathStrategy.CheckClusterStatus)
             );
             var jsonResponse = await FetchJsonResultByRequest(request);
-            var obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
+            var obj = JObject.Parse(jsonResponse.Json);
 
             var jToken = obj.GetValue("Leader");
             if (jToken != null)
@@ -416,7 +416,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 try
                 {
                     var jsonResponse = await FetchJsonResultByRequest(request);
-                    obj = JsonConvert.DeserializeObject<JObject>(jsonResponse.Json);
+                    obj = JObject.Parse(jsonResponse.Json);
                 }
                 catch (System.Exception)
                 {

@@ -11,7 +11,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
-using hjudge.WebHost.Models;
+using hjudge.WebHost.Exceptions;
+using System.Net;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -23,15 +24,18 @@ namespace hjudge.WebHost.Controllers
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly IContestService contestService;
         private readonly IProblemService problemService;
+        private readonly IVoteService voteService;
 
         public ContestController(
             CachedUserManager<UserInfo> userManager,
             IContestService contestService,
-            IProblemService problemService)
+            IProblemService problemService,
+            IVoteService voteService)
         {
             this.userManager = userManager;
             this.contestService = contestService;
             this.problemService = problemService;
+            this.voteService = voteService;
         }
 
         private readonly static int[] allStatus = new[] { 0, 1, 2 };
@@ -55,12 +59,7 @@ namespace hjudge.WebHost.Controllers
             }
             catch (Exception ex)
             {
-                ret.ErrorCode = (ErrorDescription)ex.HResult;
-                if (!string.IsNullOrEmpty(ex.Message))
-                {
-                    ret.ErrorMessage = ex.Message;
-                }
-                return ret;
+                throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
             if (model.Filter.Id != 0)
@@ -90,7 +89,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).Cacheable().CountAsync();
 
             if (model.GroupId == 0) contests = contests.OrderByDescending(i => i.Id);
             else model.StartId = 0; // keep original order while fetching contests in a group
@@ -107,7 +106,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
-            }).ToListAsync();
+            }).Cacheable().ToListAsync();
 
             ret.CurrentTime = DateTime.Now;
             return ret;
@@ -119,7 +118,6 @@ namespace hjudge.WebHost.Controllers
         {
             var userId = userManager.GetUserId(User);
 
-            var ret = new ContestModel();
 
             IQueryable<Contest> contests;
 
@@ -133,49 +131,42 @@ namespace hjudge.WebHost.Controllers
             }
             catch (Exception ex)
             {
-                ret.ErrorCode = (ErrorDescription)ex.HResult;
-                if (!string.IsNullOrEmpty(ex.Message))
-                {
-                    ret.ErrorMessage = ex.Message;
-                }
-                return ret;
+                throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).FirstOrDefaultAsync();
+            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).Cacheable().FirstOrDefaultAsync();
 
-            if (contest == null)
-            {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
+            if (contest == null) throw new NotFoundException("找不到该比赛");
 
             var user = await userManager.FindByIdAsync(contest.UserId);
-            ret.Description = contest.Description;
-            ret.Downvote = contest.Downvote;
-            ret.EndTime = contest.EndTime;
-            ret.Hidden = contest.Hidden;
-            ret.Id = contest.Id;
-            ret.Name = contest.Name;
-            ret.Password = contest.Password;
-            ret.StartTime = contest.StartTime;
-            ret.Upvote = contest.Upvote;
-            ret.UserId = contest.UserId;
-            ret.UserName = contest.UserInfo.UserName;
-            ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
 
-            ret.CurrentTime = DateTime.Now;
-            return ret;
+            var vote = await voteService.GetVoteAsync(userId, null, model.ContestId);
+
+            return new ContestModel
+            {
+                Description = contest.Description,
+                Downvote = contest.Downvote,
+                EndTime = contest.EndTime,
+                Hidden = contest.Hidden,
+                Id = contest.Id,
+                Name = contest.Name,
+                Password = contest.Password,
+                StartTime = contest.StartTime,
+                Upvote = contest.Upvote,
+                UserId = contest.UserId,
+                UserName = contest.UserInfo.UserName,
+                Config = contest.Config.DeserializeJson<ContestConfig>(false),
+                CurrentTime = DateTime.Now,
+                MyVote = vote?.VoteType ?? 0
+            };
         }
 
         [HttpDelete]
         [RequireAdmin]
         [Route("edit")]
-        public async Task<ResultModel> RemoveContest(int contestId)
+        public Task RemoveContest(int contestId)
         {
-            var ret = new ResultModel();
-
-            await contestService.RemoveContestAsync(contestId);
-            return ret;
+            return contestService.RemoveContestAsync(contestId);
         }
 
         [HttpPut]
@@ -216,16 +207,10 @@ namespace hjudge.WebHost.Controllers
         [HttpPost]
         [RequireAdmin]
         [Route("edit")]
-        public async Task<ResultModel> UpdateContest([FromBody]ContestEditModel model)
+        public async Task UpdateContest([FromBody]ContestEditModel model)
         {
-            var ret = new ResultModel();
-
             var contest = await contestService.GetContestAsync(model.Id);
-            if (contest == null)
-            {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
+            if (contest == null) throw new NotFoundException("找不到该比赛");
 
             contest.Description = model.Description;
             contest.Hidden = model.Hidden;
@@ -237,8 +222,6 @@ namespace hjudge.WebHost.Controllers
 
             await contestService.UpdateContestAsync(contest);
             await contestService.UpdateContestProblemAsync(contest.Id, model.Problems);
-
-            return ret;
         }
 
         [HttpGet]
@@ -250,11 +233,7 @@ namespace hjudge.WebHost.Controllers
             var ret = new ContestEditModel();
 
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null)
-            {
-                ret.ErrorCode = ErrorDescription.ResourceNotFound;
-                return ret;
-            }
+            if (contest == null) throw new NotFoundException("找不到该比赛");
 
             ret.Description = contest.Description;
             ret.Hidden = contest.Hidden;

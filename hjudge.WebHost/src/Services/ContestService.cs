@@ -1,11 +1,9 @@
 ﻿using EFSecondLevelCache.Core;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -45,11 +43,10 @@ namespace hjudge.WebHost.Services
 
         public async Task<Contest?> GetContestAsync(int contestId)
         {
-            var result = await dbContext.Contest.FirstOrDefaultAsync(i => i.Id == contestId);
-            if (result != null)
-            {
-                dbContext.Entry(result).State = EntityState.Detached;
-            }
+            var result = await dbContext.Contest
+                .Include(i => i.UserInfo)
+                .Where(i => i.Id == contestId)
+                .Cacheable().FirstOrDefaultAsync();
             return result;
         }
 
@@ -71,14 +68,13 @@ namespace hjudge.WebHost.Services
             var user = await userManager.FindByIdAsync(userId);
 
             var group = await groupService.GetGroupAsync(groupId);
-            if (group == null) throw new InvalidOperationException("找不到小组") { HResult = (int)ErrorDescription.ResourceNotFound };
+            if (group == null) throw new NotFoundException("找不到该小组");
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 if (group.IsPrivate)
                 {
-                    if (!dbContext.GroupJoin.Any(i => i.GroupId == groupId && i.UserId == userId))
-                        throw new InvalidOperationException("未参加此小组") { HResult = (int)ErrorDescription.NoEnoughPrivilege };
+                    if (!dbContext.GroupJoin.Any(i => i.GroupId == groupId && i.UserId == userId)) throw new ForbiddenException("未参加该小组");
                 }
             }
 

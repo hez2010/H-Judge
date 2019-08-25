@@ -1,5 +1,4 @@
 ﻿using hjudge.Shared.MessageQueue;
-using hjudge.Shared.Utils;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Extensions;
@@ -24,8 +23,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using CacheManager.Core;
-using hjudge.Shared.Caching;
 using hjudge.WebHost.Models;
+using hjudge.WebHost.Middlewares;
+using Newtonsoft.Json;
+using hjudge.WebHost.Hubs;
+using System.Threading;
+using hjudge.Shared.Utils;
 
 namespace hjudge.WebHost
 {
@@ -33,6 +36,7 @@ namespace hjudge.WebHost
     {
         private readonly IConfiguration configuration;
         private readonly IWebHostEnvironment environment;
+        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
@@ -67,18 +71,23 @@ namespace hjudge.WebHost
             services.AddScoped<IJudgeService, JudgeService>();
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IVoteService, VoteService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
-
-            services.AddMessageHandlers();
 
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
                 .Configure<MessageQueueServiceOptions>(options => options.MessageQueueFactory = CreateMessageQueueInstance());
 
+            var jss = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
             services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
-                    .WithSerializer(typeof(CacheItemJsonSerializer))
+                    .WithJsonSerializer(jss, jss)
                     .WithRedisConfiguration(configuration["Redis:Configuration"], config =>
                     {
                         config.WithAllowAdmin()
@@ -96,11 +105,6 @@ namespace hjudge.WebHost
             services.AddDbContext<WebHostDbContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-                if (environment.IsDevelopment())
-                {
-                    options.EnableDetailedErrors(true);
-                    options.EnableSensitiveDataLogging(true);
-                }
                 options.EnableServiceProviderCaching(true);
             });
 
@@ -126,11 +130,20 @@ namespace hjudge.WebHost
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.AddSingleton<ExceptionMiddleware>();
+
+            services.AddSignalR();
+
             services.AddMvc()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
-                });
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            })
+            /*.AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+                options.JsonSerializerOptions.Converters.Add(new JsonNonStringKeyDictionaryConverterFactory());
+            })*/;
 
             if (environment.IsProduction())
             {
@@ -146,6 +159,8 @@ namespace hjudge.WebHost
                     options.RootPath = "wwwroot/dist";
                 });
             }
+
+            services.RecordServiceCollection();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -153,7 +168,8 @@ namespace hjudge.WebHost
         {
             if (lifetime.ApplicationStopped.IsCancellationRequested)
             {
-                var mqService = MessageHandlersServiceExtensions.ServiceProvider.GetService<IMessageQueueService>();
+                cancellationTokenSource.Cancel();
+                var mqService = Program.RootServiceProvider?.GetService<IMessageQueueService>();
                 mqService?.Dispose();
             }
 
@@ -165,31 +181,24 @@ namespace hjudge.WebHost
             {
                 app.UseExceptionHandler(config =>
                 {
-                    config.Run(async context =>
+                    config.Run(context => ExceptionMiddleware.WriteExceptionAsync(context, new ErrorModel
                     {
-                        context.Response.ContentType = "application/json";
-                        await context.Response.Body.WriteAsync(new ResultModel
-                        {
-                            Succeeded = false,
-                            ErrorCode = ErrorDescription.InternalServerException
-                        }.SerializeJson(true));
-                    });
+                        ErrorCode = System.Net.HttpStatusCode.InternalServerError,
+                        ErrorMessage = "服务器内部异常"
+                    }));
                 });
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
-            app.UseStatusCodePages(new Func<StatusCodeContext, Task>(async context =>
-            {
-                context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.Body.WriteAsync(
-                    new ResultModel
-                    {
-                        Succeeded = false,
-                        ErrorCode = (ErrorDescription)context.HttpContext.Response.StatusCode,
-                        ErrorMessage = "请求失败"
-                    }.SerializeJson(true));
-            }));
+            app.UseMiddleware<ExceptionMiddleware>(); // must be placed after app.UseExceptionHandler()
+
+            app.UseStatusCodePages(new Func<StatusCodeContext, Task>(context =>
+                ExceptionMiddleware.WriteExceptionAsync(context.HttpContext, new ErrorModel
+                {
+                    ErrorCode = (System.Net.HttpStatusCode)context.HttpContext.Response.StatusCode,
+                    ErrorMessage = "请求失败"
+                })));
 
             app.UseResponseCaching();
             app.UseResponseCompression();
@@ -219,9 +228,9 @@ namespace hjudge.WebHost
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDefaultControllerRoute();
+
+                endpoints.MapHub<JudgeHub>("/hub/judge");
 
                 if (environment.IsProduction())
                 {
@@ -277,20 +286,23 @@ namespace hjudge.WebHost
             cnt = -1;
             while (configuration.GetSection($"MessageQueue:Consumers:{++cnt}").Exists())
             {
-                factory.CreateConsumer(new MessageQueueFactory.ConsumerOptions
+                var consumer = new MessageQueueFactory.ConsumerOptions
                 {
                     Queue = configuration[$"MessageQueue:Consumers:{cnt}:Queue"],
                     Durable = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:Durable"]),
                     AutoAck = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:AutoAck"]),
                     Exclusive = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:Exclusive"]),
                     Exchange = configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
-                    RoutingKey = configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"],
-                    OnReceived = configuration[$"MessageQueue:Consumers:{cnt}:Queue"] switch
-                    {
-                        "JudgeReport" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received),
-                        _ => null
-                    }
-                });
+                    RoutingKey = configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"]
+                };
+                switch (configuration[$"MessageQueue:Consumers:{cnt}:Queue"])
+                {
+                    case "JudgeReport":
+                        consumer.OnReceived = new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received);
+                        Task.Run(() => JudgeReport.QueueExecutor(cancellationTokenSource.Token));
+                        break;
+                }
+                factory.CreateConsumer(consumer);
             }
 
             return factory;

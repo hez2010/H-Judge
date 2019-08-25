@@ -32,8 +32,9 @@ namespace smartbox.SeaweedFs.Client.Utils
             MemoryCacheEntryOptions cacheItemPolicy, Func<Task<T>> getData) where T : class
         {
             //Returns null if the string does not exist, prevents a race condition where the cache invalidates between the contains check and the retreival.
+            var cachedData = cache.Get(cacheKey) as T;
 
-            if (cache.Get(cacheKey) is T cachedData)
+            if (cachedData != null)
             {
                 return cachedData;
             }

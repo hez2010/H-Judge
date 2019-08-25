@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Contest
 {
-    public class ContestEditModel : ResultModel
+    public class ContestEditModel
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

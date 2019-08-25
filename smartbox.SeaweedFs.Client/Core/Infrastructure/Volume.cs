@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
@@ -34,13 +32,8 @@ namespace smartbox.SeaweedFs.Client.Core.Infrastructure
         public long Id { get; private set; }
         [JsonProperty("Size")]
         public long Size { get; private set; }
-        [JsonProperty("ReplicaPlacement")]
-        public ReplicaPlacement ReplicaPlacement { get; private set; }
-        [JsonProperty("Ttl")]
-        [JsonConverter(typeof(ArrayJsonConverter))]
-        public List<string> TTL { get; private set; }
-        [JsonProperty("Collection")]
-        public string Collection { get; private set; }
+        [JsonProperty("RepType")]
+        public string ReplicaPlacementType { get; private set; }
         [JsonProperty("Version")]
         public long Version { get; private set; }
         [JsonProperty("FileCount")]
@@ -57,9 +50,7 @@ namespace smartbox.SeaweedFs.Client.Core.Infrastructure
             return "Volume{" +
                    "id=" + Id +
                    ", size=" + Size +
-                   ", replicaPlacement=" + ReplicaPlacement +
-                   ", ttl=" + TTL +
-                   ", collection='" + Collection + "\'" +
+                   ", replicaPlacementType=" + ReplicaPlacementType +
                    ", version=" + Version +
                    ", fileCount=" + FileCount +
                    ", deleteCount=" + DeleteCount +

@@ -1,6 +1,5 @@
 ﻿using CacheManager.Core;
 using EFSecondLevelCache.Core;
-using hjudge.Shared.Caching;
 using hjudgeFileHost.Data;
 using hjudgeFileHost.Services;
 using Microsoft.EntityFrameworkCore;
@@ -33,11 +32,11 @@ namespace hjudge.FileHost.Test
                     options.Port = 9333;
                 });
 
-            //services.AddEFSecondLevelCache();
+            services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
             services.AddSingleton(typeof(ICacheManagerConfiguration),
                new ConfigurationBuilder()
-                       .WithSerializer(typeof(CacheItemJsonSerializer))
+                       .WithJsonSerializer()
                        .WithMicrosoftMemoryCacheHandle(instanceName: "test")
                        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromHours(4))
                        .Build());

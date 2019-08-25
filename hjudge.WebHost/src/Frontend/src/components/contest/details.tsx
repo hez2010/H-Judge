@@ -1,13 +1,16 @@
-﻿import * as React from 'react';
+﻿import * as React from 'reactn';
 import { CommonProps } from '../../interfaces/commonProps';
-import { ResultModel } from '../../interfaces/resultModel';
-import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form, Label } from 'semantic-ui-react';
+import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form, Modal } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { NavLink } from 'react-router-dom';
 import Problem from '../problem/problem';
 import { Post } from '../../utils/requestHelper';
 import { setTitle } from '../../utils/titleHelper';
+import { GlobalState } from '../../interfaces/globalState';
+import { ErrorModel } from '../../interfaces/errorModel';
+import { tryJson } from '../../utils/responseHelper';
+import Rank from '../rank/rank';
 
 interface ContestDetailsProps extends CommonProps {
   contestId?: number,
@@ -38,7 +41,7 @@ interface ContestConfig {
   canDiscussion: boolean
 }
 
-export interface ContestModel extends ResultModel {
+export interface ContestModel {
   id: number,
   name: string,
   startTime: Date,
@@ -51,19 +54,22 @@ export interface ContestModel extends ResultModel {
   hidden: boolean,
   upvote: number,
   downvote: number,
-  currentTime: Date
+  currentTime: Date,
+  myVote: number
 }
 
 interface ContestDetailsState {
   contest: ContestModel,
   progress: number,
   status: number,
-  inputPassword: string
+  inputPassword: string,
+  loaded: boolean,
+  rankOpened: boolean
 }
 
-export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState> {
-  constructor(props: ContestDetailsProps) {
-    super(props);
+export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState, GlobalState> {
+  constructor() {
+    super();
     this.state = {
       contest: {
         id: 0,
@@ -88,11 +94,14 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         name: '',
         password: '',
         userId: '',
-        userName: ''
+        userName: '',
+        myVote: 0
       },
       progress: 0,
       status: 0,
-      inputPassword: ''
+      inputPassword: '',
+      loaded: false,
+      rankOpened: false
     }
 
     this.editContest = this.editContest.bind(this);
@@ -100,6 +109,8 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
     this.fetchDetail = this.fetchDetail.bind(this);
     this.updateProgressBar = this.updateProgressBar.bind(this);
     this.problemList = this.problemList.bind(this);
+    this.voteContest = this.voteContest.bind(this);
+    this.rankModal = this.rankModal.bind(this);
   }
 
   private contestId: number = 0;
@@ -148,30 +159,44 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       contestId: contestId,
       groupId: groupId
     })
-      .then(res => res.json())
+      .then(tryJson)
       .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
         let result = data as ContestModel;
-        if (result.succeeded) {
-          result.startTime = new Date(result.startTime.toString());
-          result.endTime = new Date(result.endTime.toString());
-          result.currentTime = new Date(result.currentTime.toString());
+        result.startTime = new Date(result.startTime.toString());
+        result.endTime = new Date(result.endTime.toString());
+        result.currentTime = new Date(result.currentTime.toString());
 
-          this.setState({
-            contest: result,
-            inputPassword: window.sessionStorage.getItem(`contest_${this.contestId}`)
-          } as ContestDetailsState);
-          setTitle(result.name);
-          this.currentTime = Date.now();
-          this.timer = setInterval(this.updateProgressBar, 1000);
-        }
-        else {
-          this.props.openPortal(`错误 (${result.errorCode})`, `${result.errorMessage}`, 'red');
-        }
+        this.setState({
+          contest: result,
+          inputPassword: window.sessionStorage.getItem(`contest_${this.contestId}`),
+          loaded: true
+        } as ContestDetailsState);
+        setTitle(result.name);
+        this.currentTime = Date.now();
+        this.timer = setInterval(this.updateProgressBar, 1000);
       })
       .catch(err => {
-        this.props.openPortal('错误', '比赛信息加载失败', 'red');
+        this.global.commonFuncs.openPortal('错误', '比赛信息加载失败', 'red');
         console.log(err);
       });
+  }
+
+  rankModal() {
+    return <Modal size='fullscreen' open={this.state.rankOpened} onClose={() => this.setState({ rankOpened: false })} closeIcon>
+      <Header icon='list ol' content='比赛排名' />
+      <Modal.Content>
+        <Modal.Description>
+          {
+            !this.state.rankOpened ? null : <Rank contestId={this.contestId} groupId={this.groupId} />
+          }
+        </Modal.Description>
+      </Modal.Content>
+    </Modal>;
   }
 
   componentWillUnmount() {
@@ -184,11 +209,13 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
 
   renderContestInfo() {
     return <div>
-      <small>创建用户：<NavLink to='/'>{this.state.contest.userName}</NavLink></small>
+      <small>创建用户：<NavLink to={`/user/${this.state.contest.userId}`}>{this.state.contest.userName}</NavLink></small>
       <br />
       <small>比赛类型：{this.state.contest.config.type === ContestType.generic ? '一般计时赛' : this.state.contest.config.type === ContestType.lastSubmit ? '最后提交赛' : '罚时计时赛'}</small>
       <br />
-      <small>比赛评分：{this.state.contest.upvote + this.state.contest.downvote === 0 ? <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /> : <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} rating={Math.round(this.state.contest.upvote * 5 / (this.state.contest.upvote + this.state.contest.downvote))} />}</small>
+      <small>提交限制：{this.state.contest.config.submissionLimit === 0 ? '无限次' : this.state.contest.config.submissionLimit}</small>
+      <br />
+      <small>比赛评分：{this.state.contest.upvote + this.state.contest.downvote === 0 ? <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /> : <Rating icon='star' maxRating={5} disabled={true} rating={Math.round(this.state.contest.upvote * 5 / (this.state.contest.upvote + this.state.contest.downvote))} />}</small>
     </div>;
   }
 
@@ -196,7 +223,54 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
     this.props.history.push(`/edit/contest/${id}`);
   }
 
+  voteContest(voteType: number) {
+    if (this.state.contest.myVote !== 0) {
+      Post('/vote/cancel', {
+        contestId: this.state.contest.id
+      })
+        .then(tryJson)
+        .then(data => {
+          let error = data as ErrorModel;
+          if (error.errorCode) {
+            this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+            return;
+          }
+          this.global.commonFuncs.openPortal('成功', '评价取消成功', 'green');
+          let contest = { ...this.state.contest };
+          contest.myVote = 0;
+          this.setState({ contest: contest });
+        })
+        .catch(err => {
+          this.global.commonFuncs.openPortal('错误', '评价取消失败', 'red');
+          console.log(err);
+        })
+      return;
+    }
+
+    Post('/vote/contest', {
+      contestId: this.state.contest.id,
+      voteType: voteType
+    })
+      .then(tryJson)
+      .then(data => {
+        let error = data as ErrorModel;
+        if (error.errorCode) {
+          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          return;
+        }
+        this.global.commonFuncs.openPortal('成功', '评价成功', 'green');
+        let contest = { ...this.state.contest };
+        contest.myVote = voteType;
+        this.setState({ contest: contest });
+      })
+      .catch(err => {
+        this.global.commonFuncs.openPortal('错误', '评价失败', 'red');
+        console.log(err);
+      })
+  }
+
   problemList() {
+    if (Date.now() < this.state.contest.startTime.getTime()) return <p>比赛未开始</p>;
     let authed = true;
     if (!!this.state.contest.password && this.state.inputPassword !== this.state.contest.password) {
       authed = false;
@@ -208,14 +282,14 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
     return authed ? <Problem {...props} /> :
       <Form>
         <Form.Field>
-          <Label>比赛密码</Label>
+          <label>比赛密码</label>
           <Form.Input type='password' defaultValue={this.state.inputPassword} error={this.state.inputPassword !== this.state.contest.password} onChange={(_, data) => { this.setState({ inputPassword: data.value }) }} />
         </Form.Field>
       </Form>;
   }
 
   render() {
-    let placeHolder = <Placeholder>
+    const placeHolder = <Placeholder>
       <Placeholder.Paragraph>
         <Placeholder.Line />
         <Placeholder.Line />
@@ -223,7 +297,8 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
-    if (!this.state.contest.succeeded) return placeHolder;
+
+    if (!this.state.loaded) return placeHolder;
 
     return <>
       <Item>
@@ -235,14 +310,21 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
             </Popup>
             <div style={{ float: 'right' }}>
               <Button.Group>
-                <Button>状态</Button>
-                <Button>排名</Button>
-                {this.props.userInfo.succeeded && isTeacher(this.props.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
+                <Button icon onClick={() => this.voteContest(1)}>
+                  <Icon name='thumbs up' color={this.state.contest.myVote === 1 ? 'orange' : 'black'}></Icon>
+                </Button>
+                <Button icon onClick={() => this.voteContest(2)}>
+                  <Icon name='thumbs down' color={this.state.contest.myVote === 2 ? 'orange' : 'black'}></Icon>
+                </Button>
+                <Button onClick={() => this.props.history.push(`/statistics/-1/${this.groupId ? `${this.groupId}` : '-1'}/${this.contestId}/0/-1`)}>状态</Button>
+                <Button onClick={() => this.setState({ rankOpened: true })}>排名</Button>
+                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
               </Button.Group>
             </div>
           </Item.Header>
 
           <Item.Description>
+            <br />
             <Progress active={this.state.status === 1} error={this.state.status === 2} success={this.state.status === 0} warning={this.state.status === 1} percent={this.state.progress / 100} inverted progress>{this.state.status === 0 ? '未开始' : this.state.status === 1 ? '进行中' : '已结束'}（{this.state.contest.startTime.toLocaleString(undefined, { hour12: false })} - {this.state.contest.endTime.toLocaleString(undefined, { hour12: false })}）</Progress>
 
             <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%' }}>
@@ -259,6 +341,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       </Header>
       </Divider>
       {this.problemList()}
+      {this.rankModal()};
     </>;
   }
 }

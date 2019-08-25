@@ -14,11 +14,9 @@ namespace hjudge.WebHost.Services
 {
     public interface IJudgeService
     {
-        Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId);
-        Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId);
-        Task<IQueryable<Judge>> QueryAllJudgesAsync(string userId);
+        Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null);
         Task<Judge?> GetJudgeAsync(int judgeId);
-        Task QueueJudgeAsync(Judge judge);
+        Task<int> QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
     }
     public class JudgeService : IJudgeService
@@ -41,42 +39,35 @@ namespace hjudge.WebHost.Services
 
         public async Task<Judge?> GetJudgeAsync(int judgeId)
         {
-            var result = await dbContext.Judge.FirstOrDefaultAsync(i => i.Id == judgeId);
-            if (result != null)
-            {
-                dbContext.Entry(result).State = EntityState.Detached;
-            }
+            var result = await dbContext.Judge
+                .Include(i => i.Problem)
+                .Include(i => i.UserInfo)
+                .Include(i => i.Contest)
+                .Include(i => i.Group)
+                .Where(i => i.Id == judgeId).Cacheable().FirstOrDefaultAsync();
             return result;
         }
 
-        public Task<IQueryable<Judge>> QueryAllJudgesAsync(string userId)
+        public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null)
         {
-            return Task.FromResult(dbContext.Judge.Where(i => i.UserId == userId));
+            IQueryable<Judge> judges = dbContext.Judge;
+            if (!string.IsNullOrEmpty(userId)) judges = judges.Where(i => i.UserId == userId);
+            if (groupId != 0) judges = judges.Where(i => i.GroupId == groupId);
+            if (contestId != 0) judges = judges.Where(i => i.ContestId == contestId);
+            if (problemId != 0) judges = judges.Where(i => i.ProblemId == problemId);
+            if (resultType != null) judges = judges.Where(i => i.ResultType == resultType);
+
+            return Task.FromResult(judges);
         }
 
-        public Task<IQueryable<Judge>> QueryJudgesAsync(int? groupId, int? contestId, int? problemId)
-        {
-            return Task.FromResult(problemId switch
-            {
-                null => dbContext.Judge.Where(i => i.GroupId == null && i.ContestId == null),
-                _ => dbContext.Judge.Where(i => i.GroupId == null && i.ContestId == null && i.ProblemId == problemId)
-            });
-        }
-
-        public Task<IQueryable<Judge>> QueryJudgesAsync(string userId, int? groupId, int? contestId, int? problemId)
-        {
-            return Task.FromResult(problemId switch
-            {
-                null => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId),
-                _ => dbContext.Judge.Where(i => i.UserId == userId && i.GroupId == groupId && i.ContestId == contestId && i.ProblemId == problemId)
-            });
-        }
-
-        public async Task QueueJudgeAsync(Judge judge)
+        public async Task<int> QueueJudgeAsync(Judge judge)
         {
             judge.ResultType = (int)ResultCode.Pending;
             judge.JudgeTime = DateTime.Now;
-            await dbContext.Judge.AddAsync(judge);
+            judge.JudgeCount++;
+            var isRejudge = judge.Id != 0;
+            if (isRejudge) dbContext.Judge.Update(judge);
+            else await dbContext.Judge.AddAsync(judge);
             await dbContext.SaveChangesAsync();
 
             var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, await languageService.GetLanguageConfigAsync());
@@ -94,10 +85,11 @@ namespace hjudge.WebHost.Services
                 new JudgeInfo
                 {
                     JudgeId = judge.Id,
-                    Priority = JudgePriority.Normal,
+                    Priority = isRejudge ? JudgePriority.Low : JudgePriority.Normal,
                     JudgeOptions = judgeOptions,
                     BuildOptions = buildOptions
                 }.SerializeJson(false));
+            return judge.Id;
         }
 
         public async Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? result)
@@ -135,7 +127,7 @@ namespace hjudge.WebHost.Services
 
             if (reportType == JudgeReportInfo.ReportType.PreJudge)
             {
-                judge.ResultType = (int)ResultCode.Judging;
+                if (judge.ResultType == (int)ResultCode.Pending) judge.ResultType = (int)ResultCode.Judging;
             }
 
             dbContext.Judge.Update(judge);

@@ -1,13 +1,13 @@
-﻿using hjudge.WebHost.Data;
-using hjudge.WebHost.Data.Identity;
+﻿using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
-using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Controllers
@@ -40,11 +40,7 @@ namespace hjudge.WebHost.Controllers
             };
             var userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                if (!string.IsNullOrEmpty(userId)) userInfoRet.ErrorCode = ErrorDescription.UserNotExist;
-                return userInfoRet;
-            }
+            if (user == null) return new UserInfoModel();
             userInfoRet.Name = user.Name;
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;
@@ -67,12 +63,7 @@ namespace hjudge.WebHost.Controllers
         [AllowAnonymous]
         public IActionResult Error()
         {
-            var ret = new ResultModel
-            {
-                ErrorCode = (ErrorDescription)HttpContext.Response.StatusCode
-            };
-            ret.ErrorMessage += $" ({Activity.Current?.Id ?? HttpContext.TraceIdentifier})";
-            return new JsonResult(ret);
+            throw new InterfaceException((HttpStatusCode)HttpContext.Response.StatusCode, Activity.Current?.Id ?? HttpContext.TraceIdentifier);
         }
     }
 }

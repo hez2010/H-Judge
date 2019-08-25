@@ -3,7 +3,7 @@ using System;
 
 namespace hjudge.WebHost.Models.Contest
 {
-    public class ContestModel : ResultModel
+    public class ContestModel
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -17,6 +17,7 @@ namespace hjudge.WebHost.Models.Contest
         public bool Hidden { get; set; }
         public int Upvote { get; set; }
         public int Downvote { get; set; }
+        public int MyVote { get; set; }
         public ContestConfig? Config { get; set; }
     }
 }

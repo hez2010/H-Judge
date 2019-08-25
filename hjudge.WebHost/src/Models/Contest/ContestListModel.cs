@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace hjudge.WebHost.Models.Contest
 {
-    public class ContestListModel : ResultModel
+    public class ContestListModel
     {
         public class ContestListItemModel
         {
