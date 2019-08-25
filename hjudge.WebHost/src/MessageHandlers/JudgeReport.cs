@@ -15,7 +15,7 @@ namespace hjudge.WebHost.MessageHandlers
 {
     public class JudgeReport
     {
-        private static ConcurrentQueue<JudgeReportInfo> queue = new ConcurrentQueue<JudgeReportInfo>();
+        private static readonly ConcurrentQueue<JudgeReportInfo> queue = new ConcurrentQueue<JudgeReportInfo>();
         public static Task JudgeReport_Received(object sender, BasicDeliverEventArgs args)
         {
             if (!(sender is AsyncEventingBasicConsumer consumer)) return Task.CompletedTask;
@@ -38,7 +38,6 @@ namespace hjudge.WebHost.MessageHandlers
 
                     var judgeHub = Program.RootServiceProvider?.GetService<IHubContext<JudgeHub, IJudgeHub>>();
                     if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
-                    var group = judgeHub.Clients.Group($"result_{info.JudgeId}");
                     await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
                 }
 

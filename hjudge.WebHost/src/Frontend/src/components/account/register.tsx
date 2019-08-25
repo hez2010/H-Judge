@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Modal, Input, Button, Form, Label } from 'semantic-ui-react';
+import { Modal, Input, Button, Form } from 'semantic-ui-react';
 import { SerializeForm } from '../../utils/formHelper';
 import { Put } from '../../utils/requestHelper';
 import { CommonFuncs } from '../../interfaces/commonFuncs';

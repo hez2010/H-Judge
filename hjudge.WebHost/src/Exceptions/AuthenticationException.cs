@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace hjudge.WebHost.Exceptions
+﻿namespace hjudge.WebHost.Exceptions
 {
     public class AuthenticationException : InterfaceException
     {

@@ -1,6 +1,6 @@
 ﻿import * as React from 'reactn';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Label, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { isTeacher } from '../../utils/privilegeHelper';

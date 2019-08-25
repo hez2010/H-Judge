@@ -3,13 +3,11 @@ using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using Microsoft.EntityFrameworkCore;
 using hjudge.WebHost.Data;
-using System.Text;
 using hjudge.Core;
 
 namespace hjudge.WebHost.Controllers

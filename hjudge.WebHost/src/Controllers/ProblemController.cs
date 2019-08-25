@@ -12,7 +12,6 @@ using hjudge.WebHost.Configurations;
 using hjudge.Shared.Utils;
 using EFSecondLevelCache.Core;
 using hjudge.WebHost.Utils;
-using hjudge.WebHost.Models;
 using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 using Microsoft.AspNetCore.Http;
 using System.IO;

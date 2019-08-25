@@ -1,5 +1,4 @@
-﻿using System;
-using EFSecondLevelCache.Core.Contracts;
+﻿using EFSecondLevelCache.Core.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EFSecondLevelCache.Core

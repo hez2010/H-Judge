@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using smartbox.SeaweedFs.Client.Utils;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {

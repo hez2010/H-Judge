@@ -1,5 +1,4 @@
 using CacheManager.Core;
-using EFSecondLevelCache.Core;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Services;

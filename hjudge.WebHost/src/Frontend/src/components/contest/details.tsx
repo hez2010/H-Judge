@@ -1,6 +1,6 @@
 ﻿import * as React from 'reactn';
 import { CommonProps } from '../../interfaces/commonProps';
-import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form, Label } from 'semantic-ui-react';
+import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { NavLink } from 'react-router-dom';

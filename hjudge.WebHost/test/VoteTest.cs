@@ -1,8 +1,6 @@
 ﻿using hjudge.WebHost.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 

@@ -11,7 +11,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
-using hjudge.WebHost.Models;
 using hjudge.WebHost.Exceptions;
 using System.Net;
 

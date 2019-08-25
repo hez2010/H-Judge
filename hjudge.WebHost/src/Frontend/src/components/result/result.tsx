@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useGlobal } from 'reactn';
-import { Header, Placeholder, Item, Popup, Button, Card, Segment, Grid, Label, Loader, Responsive } from 'semantic-ui-react';
+import { Header, Placeholder, Item, Popup, Button, Segment, Grid, Label, Loader, Responsive } from 'semantic-ui-react';
 import { NavLink } from 'react-router-dom';
 import MarkdownViewer from '../viewer/markdown';
 import { Get, Post } from '../../utils/requestHelper';

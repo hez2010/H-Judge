@@ -2,11 +2,9 @@ import { Item, Popup, Input, Divider, Header, Icon, Table, Label, Form, Placehol
 import { OtherInfo, UserInfo } from '../../interfaces/userInfo';
 import { setTitle } from '../../utils/titleHelper';
 import { Post, Get, Put } from '../../utils/requestHelper';
-import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { NavLink } from 'react-router-dom';
 import * as React from 'reactn';
 import { GlobalState } from '../../interfaces/globalState';
-import { getTargetState } from '../../utils/reactnHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';

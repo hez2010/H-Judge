@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using hjudge.Shared.Judge;
 using System.Collections.Generic;
 using Grpc.Core;
-using Microsoft.Extensions.Hosting;
 
 namespace hjudge.JudgeHost
 {

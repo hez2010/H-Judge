@@ -64,7 +64,8 @@ namespace hjudge.WebHost.Services
         {
             judge.ResultType = (int)ResultCode.Pending;
             judge.JudgeTime = DateTime.Now;
-            if (judge.Id != 0) dbContext.Judge.Update(judge);
+            var isRejudge = judge.Id != 0;
+            if (isRejudge) dbContext.Judge.Update(judge);
             else await dbContext.Judge.AddAsync(judge);
             await dbContext.SaveChangesAsync();
 
@@ -83,7 +84,7 @@ namespace hjudge.WebHost.Services
                 new JudgeInfo
                 {
                     JudgeId = judge.Id,
-                    Priority = JudgePriority.Normal,
+                    Priority = isRejudge ? JudgePriority.Low : JudgePriority.Normal,
                     JudgeOptions = judgeOptions,
                     BuildOptions = buildOptions
                 }.SerializeJson(false));
@@ -125,7 +126,7 @@ namespace hjudge.WebHost.Services
 
             if (reportType == JudgeReportInfo.ReportType.PreJudge)
             {
-                judge.ResultType = (int)ResultCode.Judging;
+                if (judge.ResultType == (int)ResultCode.Pending) judge.ResultType = (int)ResultCode.Judging;
             }
 
             dbContext.Judge.Update(judge);

@@ -3,7 +3,7 @@ import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Get, Put, Post } from '../../utils/requestHelper';
 import CodeEditor from '../editor/code';
-import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon } from 'semantic-ui-react';
+import { Placeholder, Tab, Grid, Form, Header, Button, Divider } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';

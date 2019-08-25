@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using EFSecondLevelCache.Core.Contracts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace EFSecondLevelCache.Core
 {

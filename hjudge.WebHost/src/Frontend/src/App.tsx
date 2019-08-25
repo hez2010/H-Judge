@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { useGlobal, setGlobal } from 'reactn';
+import { useGlobal } from 'reactn';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
 import NotFound from './components/notfound/notfound';

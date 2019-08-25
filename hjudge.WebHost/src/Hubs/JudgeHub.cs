@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using hjudge.WebHost.Models.Judge;
 using Microsoft.AspNetCore.SignalR;
 
 namespace hjudge.WebHost.Hubs

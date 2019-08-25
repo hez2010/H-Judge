@@ -4,7 +4,60 @@ import { setTitle } from '../../utils/titleHelper';
 
 const About = () => {
   const upgradeLogs = [{
-    version: 'Beta: v1.7',
+    version: 'Alpha: 2.0-preview5',
+    date: '2019/08/24',
+    content: [
+      '1. 完成评测结果页',
+      '2. 完成排名系统',
+      '3. 实时推送评测结果'
+    ]
+  },
+  {
+    version: 'Alpha: 2.0-preview4',
+    date: '2019/08/16',
+    content: [
+      '1. 完成比赛详情页',
+      '2. 完成题目配置和比赛配置功能',
+      '3. 支持数据上传'
+    ]
+  },
+  {
+    version: 'Alpha: 2.0-preview3',
+    date: '2019/06/18',
+    content: [
+      '1. 完成新账户门户页面',
+      '2. 支持分布式文件系统',
+      '3. 完成题目详情页'
+    ]
+  },
+  {
+    version: 'Alpha: 2.0-preview2',
+    date: '2019/06/04',
+    content: [
+      '1. 启用服务端渲染加速首屏展示',
+      '2. 切换至 PostgreSQL 数据库',
+      '3. 完成新题目列表、比赛列表和小组列表展示'
+    ]
+  },
+  {
+    version: 'Alpha: 2.0-preview1',
+    date: '2019/05/28',
+    content: [
+      '1. 完全重构',
+      '2. 后端更新至 .NET Core 3.0',
+      '3. 前端使用 TypeScript 并从 Vue 切换到 React',
+      '4. 支持分布式评测机'
+    ]
+  },
+  {
+    version: 'Stable: 1.9',
+    date: '2019/04/17',
+    content: [
+      '1. 比赛题目列表 bug 修复'
+    ]
+  },
+  {
+    version: 'Beta: 1.7',
     date: '2018/11/28',
     content: [
       '1. 全部板块上线讨论功能',
@@ -15,7 +68,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Beta: v1.6',
+    version: 'Beta: 1.6',
     date: '2018/11/21',
     content: [
       '1. 优化 UI',
@@ -28,7 +81,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Beta: v1.5',
+    version: 'Beta: 1.5',
     date: '2018/11/15',
     content: [
       '1. 添加版聊功能',
@@ -38,7 +91,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Stable: v1.4',
+    version: 'Stable: 1.4',
     date: '2018/10/21',
     content: [
       '1. 添加题目通过比率',
@@ -47,7 +100,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Stable: v1.3',
+    version: 'Stable: 1.3',
     date: '2018/10/20',
     content: [
       '1. 添加邮箱验证功能',
@@ -56,14 +109,14 @@ const About = () => {
     ]
   },
   {
-    version: 'Stable: v1.2',
+    version: 'Stable: 1.2',
     date: '2018/10/09',
     content: [
       '1. 添加密码重置功能'
     ]
   },
   {
-    version: 'Stable: v1.1',
+    version: 'Stable: 1.1',
     date: '2018/10/08',
     content: [
       '1. 修复后退页面列表不会更新的 Bug',
@@ -74,7 +127,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Stable: v1.0',
+    version: 'Stable: 1.0',
     date: '2018/10/05',
     content: [
       '1. 排名功能上线',
@@ -83,7 +136,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Beta: v0.4',
+    version: 'Beta: 1.0-preview4',
     date: '2018/10/04',
     content: [
       '1. 核心功能基本完成',
@@ -92,7 +145,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Alpha: v0.3',
+    version: 'Alpha: 1.0-preview3',
     date: '2018/10/03',
     content: [
       '1. 管理功能全部完成',
@@ -100,7 +153,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Alpha: v0.2',
+    version: 'Alpha: 1.0-preview2',
     date: '2018/10/02',
     content: [
       '1. 比赛功能上线',
@@ -109,7 +162,7 @@ const About = () => {
     ]
   },
   {
-    version: 'Alpha: v0.1',
+    version: 'Alpha: 1.0-preview1',
     date: '2018/10/01',
     content: [
       '1. 船新的 H::Judge 建造出来啦~'
