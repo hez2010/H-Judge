@@ -101,8 +101,8 @@ const Rank = (props: RankProps) => {
             {
               Array.from(iterMap<RankProblemInfoModel>(rankInfo.problemInfos)).map(r =>
                 rankInfo.rankInfos[v[0]][r[0]] as RankContestItemModel).map((r, j) =>
-                  r ? <Table.Cell textAlign='center' key={j} negative={!r.accepted} positive={r.accepted}>{r.acceptCount}/{r.submissionCount}<br />{r.score}<br />{r.time} (-{r.penalty})</Table.Cell>
-                    : <Table.Cell textAlign='center' key={j}>0/0<br />0<br />0:0:0 (-0)</Table.Cell>
+                  r ? <Table.Cell textAlign='center' key={j} negative={!r.accepted} positive={r.accepted}><strong>{r.score}</strong><br /><small>{r.acceptCount}/{r.submissionCount}<br />{r.time} (-{r.penalty})</small></Table.Cell>
+                    : <Table.Cell textAlign='center' key={j}><strong>0</strong><br /><small>0/0<br />0:0:0 (-0)</small></Table.Cell>
                 )
             }
           </Table.Row>)
