@@ -87,7 +87,7 @@ export default class Contest extends React.Component<ContestProps, ContestState,
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
     Post('/contest/list', req)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -140,7 +140,7 @@ export default class Contest extends React.Component<ContestProps, ContestState,
   deleteContest(id: number) {
     this.setState({ deleteItem: 0 } as ContestState);
     Delete('/contest/edit', { contestId: id })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let result = data as ErrorModel;
         if (result.errorCode) {

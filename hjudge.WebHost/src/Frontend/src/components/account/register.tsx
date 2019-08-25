@@ -24,7 +24,7 @@ const Register = (props: CommonProps & RegisterProps) => {
     if (form.reportValidity()) {
       element.disabled = true;
       Put('/user/register', SerializeForm(form))
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           element.disabled = false;
           let error = data as ErrorModel;

@@ -1,6 +1,6 @@
 ﻿import * as React from 'reactn';
 import { CommonProps } from '../../interfaces/commonProps';
-import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form } from 'semantic-ui-react';
+import { Item, Popup, Button, Rating, Placeholder, Divider, Header, Icon, Progress, Form, Modal } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { NavLink } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { setTitle } from '../../utils/titleHelper';
 import { GlobalState } from '../../interfaces/globalState';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
+import Rank from '../rank/rank';
 
 interface ContestDetailsProps extends CommonProps {
   contestId?: number,
@@ -62,7 +63,8 @@ interface ContestDetailsState {
   progress: number,
   status: number,
   inputPassword: string,
-  loaded: boolean
+  loaded: boolean,
+  rankOpened: boolean
 }
 
 export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState, GlobalState> {
@@ -98,7 +100,8 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       progress: 0,
       status: 0,
       inputPassword: '',
-      loaded: false
+      loaded: false,
+      rankOpened: false
     }
 
     this.editContest = this.editContest.bind(this);
@@ -107,6 +110,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
     this.updateProgressBar = this.updateProgressBar.bind(this);
     this.problemList = this.problemList.bind(this);
     this.voteContest = this.voteContest.bind(this);
+    this.rankModal = this.rankModal.bind(this);
   }
 
   private contestId: number = 0;
@@ -155,7 +159,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       contestId: contestId,
       groupId: groupId
     })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -180,6 +184,19 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         this.global.commonFuncs.openPortal('错误', '比赛信息加载失败', 'red');
         console.log(err);
       });
+  }
+
+  rankModal() {
+    return <Modal open={this.state.rankOpened} onClose={() => this.setState({ rankOpened: false })} closeIcon>
+      <Header icon='list ol' content='比赛排名' />
+      <Modal.Content>
+        <Modal.Description>
+          {
+            !this.state.rankOpened ? null : <Rank contestId={this.contestId} groupId={this.groupId} />
+          }
+        </Modal.Description>
+      </Modal.Content>
+    </Modal>;
   }
 
   componentWillUnmount() {
@@ -211,7 +228,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       Post('/vote/cancel', {
         contestId: this.state.contest.id
       })
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           let error = data as ErrorModel;
           if (error.errorCode) {
@@ -229,12 +246,12 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         })
       return;
     }
-    
+
     Post('/vote/contest', {
       contestId: this.state.contest.id,
       voteType: voteType
     })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -280,6 +297,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
         <Placeholder.Line />
       </Placeholder.Paragraph>
     </Placeholder>;
+
     if (!this.state.loaded) return placeHolder;
 
     return <>
@@ -299,7 +317,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
                   <Icon name='thumbs down' color={this.state.contest.myVote === 2 ? 'orange' : 'black'}></Icon>
                 </Button>
                 <Button onClick={() => this.props.history.push(`/statistics/-1/${this.groupId ? `${this.groupId}` : '-1'}/${this.contestId}/0/-1`)}>状态</Button>
-                <Button>排名</Button>
+                <Button onClick={() => this.setState({ rankOpened: true })}>排名</Button>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
               </Button.Group>
             </div>
@@ -323,6 +341,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
       </Header>
       </Divider>
       {this.problemList()}
+      {this.rankModal()};
     </>;
   }
 }

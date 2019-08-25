@@ -82,7 +82,7 @@ export default class User extends React.Component<CommonProps, UserState, Global
     let form = new FormData();
     form.append('avatar', file);
     Put('/user/avatar', form, false, '')
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
@@ -137,7 +137,7 @@ export default class User extends React.Component<CommonProps, UserState, Global
     }
 
     Post('/user/profiles', info)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -155,7 +155,7 @@ export default class User extends React.Component<CommonProps, UserState, Global
 
   loadUser(userId?: string) {
     Get(`/user/profiles${userId ? `?userId=${userId}` : ''}`)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -174,7 +174,7 @@ export default class User extends React.Component<CommonProps, UserState, Global
 
   loadProblems(userId?: string) {
     Get(`/user/stats${userId ? `?userId=${userId}` : ''}`)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {

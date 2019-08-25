@@ -138,7 +138,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     }
 
     Get('/problem/edit', { problemId: problemId })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -188,7 +188,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     }
     if (this.state.problem.id === 0) {
       Put('/problem/edit', this.state.problem)
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           let error = data as ErrorModel;
           if (error.errorCode) {
@@ -211,7 +211,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     }
     else {
       Post('/problem/edit', this.state.problem)
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           let error = data as ErrorModel;
           if (error.errorCode) {
@@ -299,7 +299,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     form.append('file', file);
     this.setState({ processingData: true });
     Put('/problem/data', form, false, '')
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
@@ -338,7 +338,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
   deleteFile() {
     this.setState({ confirmOpen: false, processingData: true });
     Delete('/problem/data', { problemId: this.state.problem.id })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');

@@ -47,7 +47,6 @@ const DesktopContainer = (props: ContainerProps & React.Props<never>) => {
               <NavLink to='/contest' className='item'>比赛</NavLink>
               <NavLink to='/group' className='item'>小组</NavLink>
               <NavLink to='/statistics' className='item'>状态</NavLink>
-              <NavLink to='/rank' className='item'>排名</NavLink>
               <NavLink to='/message' className='item'>消息</NavLink>
               <NavLink to='/discussion' className='item'>讨论</NavLink>
               <NavLink to='/article' className='item'>文章</NavLink>
@@ -106,7 +105,6 @@ const MobileContainer = (props: ContainerProps & React.Props<never>) => {
         <NavLink to='/contest' className='item'>比赛</NavLink>
         <NavLink to='/group' className='item'>小组</NavLink>
         <NavLink to='/statistics' className='item'>状态</NavLink>
-        <NavLink to='/rank' className='item'>排名</NavLink>
         <NavLink to='/message' className='item'>消息</NavLink>
         <NavLink to='/discussion' className='item'>讨论</NavLink>
         <NavLink to='/article' className='item'>文章</NavLink>
@@ -178,7 +176,7 @@ const Layout = (props: CommonProps & React.Props<never>) => {
   const register = () => setRegisterModalOpen(true);
 
   const logout = () => {
-    Post('/user/logout').then(res => tryJson(res)).then(data => {
+    Post('/user/logout').then(tryJson).then(data => {
       let error = data as ErrorModel;
       if (error.errorCode) {
         commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');

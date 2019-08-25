@@ -113,7 +113,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
     }
 
     Get('/contest/edit', { contestId: contestId })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -163,7 +163,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
     }
     if (this.state.contest.id === 0) {
       Put('/contest/edit', this.state.contest)
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           let error = data as ErrorModel;
           if (error.errorCode) {
@@ -186,7 +186,7 @@ export default class ContestEdit extends React.Component<ContestEditProps, Conte
     }
     else {
       Post('/contest/edit', this.state.contest)
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           let error = data as ErrorModel;
           if (error.errorCode) {

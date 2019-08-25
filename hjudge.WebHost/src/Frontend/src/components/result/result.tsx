@@ -80,7 +80,7 @@ const Result = (props: CommonProps) => {
 
   const loadResult = (resultId: number) => {
     Get(`/judge/result?id=${resultId}`)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -102,7 +102,7 @@ const Result = (props: CommonProps) => {
     Post('/judge/rejudge', {
       resultId: result.resultId
     })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {

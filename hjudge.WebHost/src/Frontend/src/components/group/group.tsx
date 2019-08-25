@@ -78,7 +78,7 @@ export default class Group extends React.Component<GroupProps, GroupState, Globa
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! - 1;
 
     Post('/group/list', req)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {

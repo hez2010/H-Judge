@@ -89,7 +89,7 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
     Post('/statistics/list', req)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {

@@ -60,7 +60,7 @@ const App = (props: any) => {
 
   const refreshUserInfo = () => {
     Get('/user/profiles')
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -135,16 +135,12 @@ const App = (props: any) => {
             component={Result}>
           </Route>
           <Route
-            path='/rank'
-            component={() => <p>rank</p>}>
-          </Route>
-          <Route
             path='/discussion'
-            component={() => <p>discussion</p>}>
+            component={() => <p>此功能正在开发中，敬请期待</p>}>
           </Route>
           <Route
             path='/article'
-            component={() => <p>article</p>}>
+            component={() => <p>此功能正在开发中，敬请期待</p>}>
           </Route>
           <Route
             exact

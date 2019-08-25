@@ -105,7 +105,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       contestId: contestId,
       groupId: groupId
     })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -186,7 +186,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       content: editor.getInstance().getValue(),
       language: this.languageOptions[this.state.languageChoice].text
     })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         this.setState({ submitting: false });
         let error = data as ErrorModel;
@@ -214,7 +214,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       Post('/vote/cancel', {
         problemId: this.state.problem.id
       })
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           let error = data as ErrorModel;
           if (error.errorCode) {
@@ -237,7 +237,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
       problemId: this.state.problem.id,
       voteType: voteType
     })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {

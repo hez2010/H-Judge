@@ -24,7 +24,7 @@ const Login = (props: CommonProps & LoginProps) => {
     if (form.reportValidity()) {
       element.disabled = true;
       Post('/user/login', SerializeForm(form))
-        .then(res => tryJson(res))
+        .then(tryJson)
         .then(data => {
           element.disabled = false;
           let error = data as ErrorModel;

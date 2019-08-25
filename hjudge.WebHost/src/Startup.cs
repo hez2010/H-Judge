@@ -28,6 +28,7 @@ using hjudge.WebHost.Middlewares;
 using Newtonsoft.Json;
 using hjudge.WebHost.Hubs;
 using System.Threading;
+using hjudge.Shared.Utils;
 
 namespace hjudge.WebHost
 {
@@ -134,10 +135,15 @@ namespace hjudge.WebHost
             services.AddSignalR();
 
             services.AddMvc()
-            .AddJsonOptions(options =>
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            })
+            /*.AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.IgnoreNullValues = true;
-            });
+                options.JsonSerializerOptions.Converters.Add(new JsonNonStringKeyDictionaryConverterFactory());
+            })*/;
 
             if (environment.IsProduction())
             {

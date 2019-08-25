@@ -89,7 +89,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
     Post('/problem/list', req)
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
@@ -139,7 +139,7 @@ export default class Problem extends React.Component<ProblemProps, ProblemState,
   deleteProblem(id: number) {
     this.setState({ deleteItem: 0 } as ProblemState);
     Delete('/problem/edit', { problemId: id })
-      .then(res => tryJson(res))
+      .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
