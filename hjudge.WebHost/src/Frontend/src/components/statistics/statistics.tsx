@@ -4,7 +4,7 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Post } from '../../utils/requestHelper';
-import { Table, Button, Placeholder, Form, Label, Input, Select, Pagination } from 'semantic-ui-react';
+import { Table, Button, Placeholder, Form, Input, Pagination } from 'semantic-ui-react';
 import { tryJson } from '../../utils/responseHelper';
 import { NavLink } from 'react-router-dom';
 

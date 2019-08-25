@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost.Test
 {
-    [TestClass]
+    //[TestClass]
     public class VarsProcessorTest
     {
     }
