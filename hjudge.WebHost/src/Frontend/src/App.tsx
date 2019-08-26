@@ -13,17 +13,16 @@ import Problem from './components/problem/problem';
 import Contest from './components/contest/contest';
 import ProblemDetails from './components/problem/details';
 import Group from './components/group/group';
-import { CommonFuncs } from './interfaces/commonFuncs';
 import ContestDetails from './components/contest/details';
 import Statistics from './components/statistics/statistics';
 import ProblemEdit from './components/problem/edit';
 import ContestEdit from './components/contest/edit';
 import { getTargetState } from './utils/reactnHelper';
 import { GlobalState } from './interfaces/globalState';
-import { CommonProps } from './interfaces/commonProps';
 import { ErrorModel } from './interfaces/errorModel';
 import { tryJson } from './utils/responseHelper';
 import Result from './components/result/result';
+import { CommonFuncs } from './interfaces/commonFuncs';
 
 interface PortalState {
   open: boolean,
@@ -35,7 +34,6 @@ interface PortalState {
 const App = (props: any) => {
   const [userInfo, setUserInfo] = getTargetState<UserInfo>(useGlobal<GlobalState>('userInfo'));
   const [, setCommonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
-
   const [portal, setPortal] = React.useState<PortalState>({ open: false, header: '', message: '', color: 'green' });
 
   const openPortal = (header: string, message: string, color: SemanticCOLORS) => {
@@ -81,9 +79,9 @@ const App = (props: any) => {
     if (!userInfo.userId) refreshUserInfo();
   }, []);
 
-  const renderContent = (props: CommonProps) => {
+  const renderContent = () => {
     return <>
-      <Layout {...props}>
+      <Layout>
         <Switch>
           <Route
             exact
@@ -120,7 +118,7 @@ const App = (props: any) => {
           </Route>
           <Route
             path='/message'
-            component={() => <p>message</p>}>
+            component={() => <p>此功能正在开发中，敬请期待</p>}>
           </Route>
           <Route
             path='/statistics/:userId/:groupId/:contestId/:problemId/:result/:page?'
@@ -171,8 +169,8 @@ const App = (props: any) => {
     </>;
   }
 
-  if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent(props)}</StaticRouter>;
-  return <BrowserRouter>{renderContent(props)}</BrowserRouter>;
+  if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent()}</StaticRouter>;
+  return <BrowserRouter>{renderContent()}</BrowserRouter>;
 };
 
 export default App;

@@ -1,6 +1,6 @@
 ﻿const path = require('path');
 const fs = require('fs');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = function (webpackEnv) {
   const appDirectory = fs.realpathSync(process.cwd());
@@ -9,12 +9,9 @@ module.exports = function (webpackEnv) {
 
   const isEnvProduction = webpackEnv === 'production';
 
-  return {
+  const baseConfig = {
     mode: isEnvProduction ? 'production' : 'development',
     bail: isEnvProduction,
-    entry: {
-      main: './src/index.tsx'
-    },
     devServer: {
       contentBase: path.join(__dirname, 'public'),
       compress: true,
@@ -25,7 +22,8 @@ module.exports = function (webpackEnv) {
     output: {
       path: path.join(__dirname, 'build'),
       filename: '[name].bundle.js',
-      globalObject: 'this'
+      globalObject: 'this',
+      publicPath: '/dist/'
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js']
@@ -76,9 +74,23 @@ module.exports = function (webpackEnv) {
         { test: /\.png$/, use: 'url-loader?mimetype=image/png' },
         { test: /\.gif$/, use: 'url-loader?mimetype=image/gif' }
       ]
+    }
+  };
+
+  return [
+    {
+      ...baseConfig,
+      target: 'web',
+      entry: {
+        server: './src/index.tsx'
+      }
     },
-    plugins: [
-      new CleanWebpackPlugin()
-    ]
-  }
+    {
+      ...baseConfig,
+      target: 'web',
+      entry: {
+        client: './src/index.tsx'
+      }
+    }
+  ]
 }

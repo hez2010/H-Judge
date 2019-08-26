@@ -6,7 +6,6 @@ import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { getTargetState } from '../../utils/reactnHelper';
 import { GlobalState } from '../../interfaces/globalState';
 import { useGlobal } from 'reactn';
-import { CommonProps } from '../../interfaces/commonProps';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
 
@@ -15,7 +14,7 @@ interface RegisterProps {
   closeModal: (() => void)
 }
 
-const Register = (props: CommonProps & RegisterProps) => {
+const Register = (props: RegisterProps) => {
   const [commonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
 
   const register = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

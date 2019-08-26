@@ -1,3 +1,4 @@
 ﻿export function setTitle(title: string) {
-  document.title = title + ' - H::Judge';
+  const isSSR = typeof window === 'undefined';
+  if (!isSSR) document.title = title + ' - H::Judge';
 }

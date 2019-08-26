@@ -28,7 +28,6 @@ using hjudge.WebHost.Middlewares;
 using Newtonsoft.Json;
 using hjudge.WebHost.Hubs;
 using System.Threading;
-using hjudge.Shared.Utils;
 
 namespace hjudge.WebHost
 {
@@ -145,6 +144,11 @@ namespace hjudge.WebHost
                 options.JsonSerializerOptions.Converters.Add(new JsonNonStringKeyDictionaryConverterFactory());
             })*/;
 
+            services.AddSpaStaticFiles(options =>
+            {
+                options.RootPath = "wwwroot/dist";
+            });
+
             if (environment.IsProduction())
             {
                 services.AddReact();
@@ -153,13 +157,8 @@ namespace hjudge.WebHost
                 {
                     options.DefaultEngineName = ChakraCoreJsEngine.EngineName;
                 }).AddChakraCore();
-
-                services.AddSpaStaticFiles(options =>
-                {
-                    options.RootPath = "wwwroot/dist";
-                });
             }
-
+            
             services.RecordServiceCollection();
         }
 
@@ -207,19 +206,18 @@ namespace hjudge.WebHost
             {
                 app.UseReact(config =>
                 {
+                    config.LoadBabel = false;
+                    config.LoadReact = false;
+                    config.ReuseJavaScriptEngines = true;
+                    config.AllowJavaScriptPrecompilation = true;
                     config.UseServerSideRendering = true;
-                    config.SetReuseJavaScriptEngines(true);
-                    config.SetUseDebugReact(environment.IsDevelopment());
-                    config.SetAllowJavaScriptPrecompilation(true);
-                    config.AddScriptWithoutTransform("~/dist/*.js");
+                    config.AddScriptWithoutTransform("~/dist/server.bundle.js");
+                    config.AddScriptWithoutTransform("~/dist/vendors~server.bundle.js");
                 });
             }
 
+            app.UseSpaStaticFiles();
             app.UseStaticFiles();
-            if (environment.IsProduction())
-            {
-                app.UseSpaStaticFiles();
-            }
 
             app.UseRouting();
 
@@ -249,11 +247,7 @@ namespace hjudge.WebHost
 
             if (environment.IsDevelopment())
             {
-                app.UseSpa(options =>
-                {
-                    options.Options.DefaultPage = "/";
-                    options.UseProxyToSpaDevelopmentServer("http://localhost:3000");
-                });
+                app.UseSpa(options => options.UseProxyToSpaDevelopmentServer("http://localhost:3000/"));
             }
         }
 

@@ -6,7 +6,6 @@ import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { useGlobal } from 'reactn';
 import { getTargetState } from '../../utils/reactnHelper';
 import { GlobalState } from '../../interfaces/globalState';
-import { CommonProps } from '../../interfaces/commonProps';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
 
@@ -15,7 +14,7 @@ interface LoginProps {
   closeModal: (() => void)
 }
 
-const Login = (props: CommonProps & LoginProps) => {
+const Login = (props: LoginProps) => {
   const [commonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
 
   const login = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
