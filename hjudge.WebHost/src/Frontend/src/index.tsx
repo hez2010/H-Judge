@@ -5,6 +5,7 @@ import App from './App';
 import * as PromisePolyfill from 'es6-promise';
 import "regenerator-runtime/runtime";
 import { UserInfo } from './interfaces/userInfo';
+import { GlobalState } from './interfaces/globalState';
 
 PromisePolyfill.polyfill();
 
@@ -29,14 +30,14 @@ const getInitUserInfo = (userInfo?: UserInfo) => userInfo ? userInfo : {
 };
 
 Global.AppComponent = (props: any) => {
-  React.setGlobal({
+  React.setGlobal<GlobalState>({
     userInfo: getInitUserInfo(props ? props.userInfo : undefined)
   });
   return <App {...props} />;
 };
 
 if (typeof window !== 'undefined') {
-  React.setGlobal({
+  React.setGlobal<GlobalState>({
     userInfo: getInitUserInfo(undefined)
   });
   ReactDOM.render(<App />, document.querySelector('main'));
