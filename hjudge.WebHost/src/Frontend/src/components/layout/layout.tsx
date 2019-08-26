@@ -10,7 +10,6 @@ import { CommonFuncs } from '../../interfaces/commonFuncs';
 import { UserInfo } from '../../interfaces/userInfo';
 import { getTargetState } from '../../utils/reactnHelper';
 import { GlobalState } from '../../interfaces/globalState';
-import { CommonProps } from '../../interfaces/commonProps';
 import { tryJson } from '../../utils/responseHelper';
 import { getWidth } from '../../utils/windowHelper';
 
@@ -165,7 +164,7 @@ const ResponsiveContainer = (props: ResponsiveContainerProps & React.Props<never
   </MobileContainer>
 </>;
 
-const Layout = (props: CommonProps & React.Props<never>) => {
+const Layout = (props: React.Props<never>) => {
   const [loginModalOpen, setLoginModalOpen] = React.useState(false);
   const [registerModalOpen, setRegisterModalOpen] = React.useState(false);
   const [userInfo] = getTargetState<UserInfo>(useGlobal<GlobalState>('userInfo'));

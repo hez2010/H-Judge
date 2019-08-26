@@ -20,7 +20,6 @@ import ProblemEdit from './components/problem/edit';
 import ContestEdit from './components/contest/edit';
 import { getTargetState } from './utils/reactnHelper';
 import { GlobalState } from './interfaces/globalState';
-import { CommonProps } from './interfaces/commonProps';
 import { ErrorModel } from './interfaces/errorModel';
 import { tryJson } from './utils/responseHelper';
 import Result from './components/result/result';
@@ -81,9 +80,9 @@ const App = (props: any) => {
     if (!userInfo.userId) refreshUserInfo();
   }, []);
 
-  const renderContent = (props: CommonProps) => {
+  const renderContent = () => {
     return <>
-      <Layout {...props}>
+      <Layout>
         <Switch>
           <Route
             exact
@@ -171,8 +170,8 @@ const App = (props: any) => {
     </>;
   }
 
-  if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent(props)}</StaticRouter>;
-  return <BrowserRouter>{renderContent(props)}</BrowserRouter>;
+  if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent()}</StaticRouter>;
+  return <BrowserRouter>{renderContent()}</BrowserRouter>;
 };
 
 export default App;
