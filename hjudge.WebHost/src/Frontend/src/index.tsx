@@ -28,17 +28,16 @@ const getInitUserInfo = (userInfo?: UserInfo) => userInfo ? userInfo : {
   phoneNumberConfirmed: false
 };
 
+Global.AppComponent = (props: any) => {
+  React.setGlobal({
+    userInfo: getInitUserInfo(props ? props.userInfo : undefined)
+  });
+  return <App {...props} />;
+};
+
 if (typeof window !== 'undefined') {
   React.setGlobal({
     userInfo: getInitUserInfo(undefined)
   });
   ReactDOM.render(<App />, document.querySelector('main'));
-}
-else {
-  Global.AppComponent = (props: any) => {
-  React.setGlobal({
-    userInfo: getInitUserInfo(props ? props.userInfo : undefined)
-  });
-  return <App {...props} />;
-  }
 }
