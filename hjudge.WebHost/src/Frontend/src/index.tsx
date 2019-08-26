@@ -8,6 +8,11 @@ import { UserInfo } from './interfaces/userInfo';
 
 PromisePolyfill.polyfill();
 
+let Global = global as any;
+Global.ReactDOM = ReactDOM;
+Global.React = React;
+Global.ReactDOMServer = ReactDOMServer;
+
 const getInitUserInfo = (userInfo?: UserInfo) => userInfo ? userInfo : {
   userId: '',
   userName: '',
@@ -30,15 +35,10 @@ if (typeof window !== 'undefined') {
   ReactDOM.render(<App />, document.querySelector('main'));
 }
 else {
-  let Global = global as any;
-
-  Global.React = React;
-  Global.ReactDOM = ReactDOM;
-  Global.ReactDOMServer = ReactDOMServer;
   Global.AppComponent = (props: any) => {
-    React.setGlobal({
-      userInfo: getInitUserInfo(props ? props.userInfo : undefined)
-    });
-    return <App {...props} />;
+  React.setGlobal({
+    userInfo: getInitUserInfo(props ? props.userInfo : undefined)
+  });
+  return <App {...props} />;
   }
 }
