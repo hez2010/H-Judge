@@ -318,6 +318,18 @@ namespace hjudge.Core
                     argsBuilder.Append($" \"{stdOutputFile}\"");
                 }
 
+                if (!File.Exists(judgeOption.SpecialJudgeOptions.Exec))
+                {
+                    try
+                    {
+                        File.Copy(GetTargetFilePath(judgeOption.SpecialJudgeOptions.Exec), judgeOption.SpecialJudgeOptions.Exec);
+                    }
+                    catch
+                    {
+                        return (ResultCode.Special_Judge_Error, 0, "Cannot find special judge");
+                    }
+                }
+
                 using var judge = new Process
                 {
                     StartInfo = new ProcessStartInfo
