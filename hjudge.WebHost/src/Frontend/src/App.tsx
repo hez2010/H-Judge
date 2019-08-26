@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { useGlobal, setGlobal } from 'reactn';
+import { useGlobal } from 'reactn';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
 import NotFound from './components/notfound/notfound';
@@ -22,6 +22,7 @@ import { GlobalState } from './interfaces/globalState';
 import { ErrorModel } from './interfaces/errorModel';
 import { tryJson } from './utils/responseHelper';
 import Result from './components/result/result';
+import { CommonFuncs } from './interfaces/commonFuncs';
 
 interface PortalState {
   open: boolean,
@@ -30,24 +31,9 @@ interface PortalState {
   color: SemanticCOLORS
 }
 
-const getInitUserInfo = (userInfo?: UserInfo) => userInfo ? userInfo : {
-  userId: '',
-  userName: '',
-  privilege: 4,
-  name: '',
-  email: '',
-  signedIn: false,
-  emailConfirmed: false,
-  coins: 0,
-  experience: 0,
-  otherInfo: [],
-  phoneNumber: '',
-  phoneNumberConfirmed: false
-};
-
 const App = (props: any) => {
   const [userInfo, setUserInfo] = getTargetState<UserInfo>(useGlobal<GlobalState>('userInfo'));
-
+  const [, setCommonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
   const [portal, setPortal] = React.useState<PortalState>({ open: false, header: '', message: '', color: 'green' });
 
   const openPortal = (header: string, message: string, color: SemanticCOLORS) => {
@@ -89,13 +75,8 @@ const App = (props: any) => {
   }
 
   React.useEffect(() => {
-    setGlobal<GlobalState>({
-      commonFuncs: { openPortal: openPortal, refreshUserInfo: refreshUserInfo },
-      userInfo: getInitUserInfo(props ? props.userInfo : undefined)
-    })
-      .then(data => {
-        if (!data.userInfo.userId) refreshUserInfo();
-      })
+    setCommonFuncs({ openPortal: openPortal, refreshUserInfo: refreshUserInfo });
+    if (!userInfo.userId) refreshUserInfo();
   }, []);
 
   const renderContent = () => {
@@ -137,7 +118,7 @@ const App = (props: any) => {
           </Route>
           <Route
             path='/message'
-            component={() => <p>message</p>}>
+            component={() => <p>此功能正在开发中，敬请期待</p>}>
           </Route>
           <Route
             path='/statistics/:userId/:groupId/:contestId/:problemId/:result/:page?'
