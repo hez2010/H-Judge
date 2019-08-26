@@ -93,8 +93,8 @@ const App = (props: any) => {
       commonFuncs: { openPortal: openPortal, refreshUserInfo: refreshUserInfo },
       userInfo: getInitUserInfo(props ? props.userInfo : undefined)
     })
-      .then(() => {
-        if (!userInfo.userId) refreshUserInfo();
+      .then(data => {
+        if (!data.userInfo.userId) refreshUserInfo();
       })
   }, []);
 
