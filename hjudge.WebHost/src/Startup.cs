@@ -206,18 +206,11 @@ namespace hjudge.WebHost
             {
                 app.UseReact(config =>
                 {
-                    config.UseServerSideRendering = true;
                     config.LoadBabel = false;
                     config.LoadReact = false;
-                    config.ExceptionHandler = (ex, arg1, arg2) =>
-                    {
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine(ex.StackTrace);
-                        Console.WriteLine(arg1);
-                        Console.WriteLine(arg2);
-                    };
-                    config.SetReuseJavaScriptEngines(true);
-                    config.SetAllowJavaScriptPrecompilation(true);
+                    config.ReuseJavaScriptEngines = true;
+                    config.AllowJavaScriptPrecompilation = true;
+                    config.UseServerSideRendering = true;
                     config.AddScriptWithoutTransform("~/dist/*.js");
                 });
             }
