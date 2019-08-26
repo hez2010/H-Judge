@@ -71,7 +71,11 @@ namespace hjudge.Core
                 ?.Replace(">", "_6_")
                 ?.Replace("|", "_7_") ?? string.Empty;
 
-        private string GetTargetFilePath(string? originalFilePath) => Path.Combine(dataCacheDir, EscapeFileName(originalFilePath));
+        private string? GetTargetFilePath(string? originalFilePath)
+        {
+            if (originalFilePath?.StartsWith("R:") ?? false) return Path.Combine(dataCacheDir, EscapeFileName(originalFilePath![2..]));
+            else return originalFilePath;
+        }
 
         public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingDir, string dataCacheDir)
         {

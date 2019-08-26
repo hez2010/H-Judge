@@ -111,7 +111,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
         });
         
         // TODO: remove it once bug in signalr was fixed
-        if (result.resultType < 1) setTimeout(this.loadResult, 3000);
+        if (result.resultType < 1) setTimeout(() => this.loadResult(resultId), 3000);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '评测结果加载失败', 'red');
