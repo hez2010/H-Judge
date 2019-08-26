@@ -211,7 +211,8 @@ namespace hjudge.WebHost
                     config.ReuseJavaScriptEngines = true;
                     config.AllowJavaScriptPrecompilation = true;
                     config.UseServerSideRendering = true;
-                    config.AddScriptWithoutTransform("~/dist/*.js");
+                    config.AddScriptWithoutTransform("~/dist/server.bundle.js");
+                    config.AddScriptWithoutTransform("~/dist/vendors~server.bundle.js");
                 });
             }
 
