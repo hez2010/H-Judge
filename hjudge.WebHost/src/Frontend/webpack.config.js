@@ -25,7 +25,8 @@ module.exports = function (webpackEnv) {
     output: {
       path: path.join(__dirname, 'build'),
       filename: '[name].bundle.js',
-      globalObject: 'this'
+      globalObject: 'this',
+      publicPath: '/dist/'
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js']
