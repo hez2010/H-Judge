@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { useGlobal } from 'reactn';
+import { useGlobal, setGlobal } from 'reactn';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
 import NotFound from './components/notfound/notfound';
@@ -13,7 +13,6 @@ import Problem from './components/problem/problem';
 import Contest from './components/contest/contest';
 import ProblemDetails from './components/problem/details';
 import Group from './components/group/group';
-import { CommonFuncs } from './interfaces/commonFuncs';
 import ContestDetails from './components/contest/details';
 import Statistics from './components/statistics/statistics';
 import ProblemEdit from './components/problem/edit';
@@ -31,9 +30,23 @@ interface PortalState {
   color: SemanticCOLORS
 }
 
+const getInitUserInfo = (userInfo?: UserInfo) => userInfo ? userInfo : {
+  userId: '',
+  userName: '',
+  privilege: 4,
+  name: '',
+  email: '',
+  signedIn: false,
+  emailConfirmed: false,
+  coins: 0,
+  experience: 0,
+  otherInfo: [],
+  phoneNumber: '',
+  phoneNumberConfirmed: false
+};
+
 const App = (props: any) => {
   const [userInfo, setUserInfo] = getTargetState<UserInfo>(useGlobal<GlobalState>('userInfo'));
-  const [, setCommonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
 
   const [portal, setPortal] = React.useState<PortalState>({ open: false, header: '', message: '', color: 'green' });
 
@@ -76,8 +89,13 @@ const App = (props: any) => {
   }
 
   React.useEffect(() => {
-    setCommonFuncs({ openPortal: openPortal, refreshUserInfo: refreshUserInfo });
-    if (!userInfo.userId) refreshUserInfo();
+    setGlobal<GlobalState>({
+      commonFuncs: { openPortal: openPortal, refreshUserInfo: refreshUserInfo },
+      userInfo: getInitUserInfo(props ? props.userInfo : undefined)
+    })
+      .then(() => {
+        if (!userInfo.userId) refreshUserInfo();
+      })
   }, []);
 
   const renderContent = () => {

@@ -227,7 +227,7 @@ const Layout = (props: React.Props<never>) => {
   </>;
 
   let account = {
-    signedIn: userInfo.signedIn,
+    signedIn: userInfo ? userInfo.signedIn : false,
     login: login,
     logout: logout,
     register: register

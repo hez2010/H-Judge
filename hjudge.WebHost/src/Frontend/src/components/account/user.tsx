@@ -367,8 +367,8 @@ export default class User extends React.Component<CommonProps, UserState, Global
       </Placeholder>
     </>;
 
+    if (this.state.loaded && !this.state.userInfo.otherUser && !this.state.userInfo.signedIn) return notSignedIn;
     if (!this.state.userInfo.userId) return loading;
-    if (!this.state.userInfo.otherUser && !this.state.userInfo.signedIn) return notSignedIn;
     return this.showUserInfo(this.state.userInfo.otherUser);
   }
 }
