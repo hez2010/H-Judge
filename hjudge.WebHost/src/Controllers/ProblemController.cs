@@ -364,7 +364,7 @@ namespace hjudge.WebHost.Controllers
             long size = 0;
             foreach (var i in zip.Entries.Where(i => !i.FullName.EndsWith("/")))
             {
-                var entryStream = i.Open();
+                using var entryStream = i.Open();
                 size += i.Length;
                 if (size > 140 * 1048576)
                 {
@@ -388,7 +388,12 @@ namespace hjudge.WebHost.Controllers
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
             var downloadedFiles = fileService.DownloadFilesAsync(files);
-            var stream = new MemoryStream();
+            var stream = new FileStream(Path.GetTempFileName(), 
+                FileMode.Open, 
+                FileAccess.ReadWrite, 
+                FileShare.None,
+                4096, 
+                FileOptions.Asynchronous | FileOptions.DeleteOnClose | FileOptions.SequentialScan);
             using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
                 await foreach (var i in downloadedFiles)
