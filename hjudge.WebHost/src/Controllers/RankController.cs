@@ -41,20 +41,20 @@ namespace hjudge.WebHost.Controllers
             if (contest == null) throw new NotFoundException("该比赛不存在");
             if (groupId != 0)
             {
-                var groups = await groupService.QueryGroupAsync(user.Id);
+                var groups = await groupService.QueryGroupAsync(user?.Id);
                 groups = groups.Where(i => i.GroupContestConfig.Any(i => i.ContestId == contestId && i.GroupId == i.GroupId)).Cacheable();
                 if (!await groups.AnyAsync()) throw new NotFoundException("该比赛不存在或未加入对应小组");
             }
 
             var config = contest.Config.DeserializeJson<ContestConfig>();
-            if (!config.ShowRank && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new ForbiddenException("不允许查看排名");
+            if (!config.ShowRank && !Utils.PrivilegeHelper.IsTeacher(user?.Privilege)) throw new ForbiddenException("不允许查看排名");
 
             var judges = await judgeService.QueryJudgesAsync(null,
                 groupId == 0 ? null : (int?)groupId,
                 contestId,
                 0);
 
-            if (config.AutoStopRank && !Utils.PrivilegeHelper.IsTeacher(user.Privilege) && DateTime.Now < contest.EndTime)
+            if (config.AutoStopRank && !Utils.PrivilegeHelper.IsTeacher(user?.Privilege) && DateTime.Now < contest.EndTime)
             {
                 var time = contest.EndTime.AddHours(-1);
                 judges = judges.Where(i => i.JudgeTime < time);
@@ -84,7 +84,7 @@ namespace hjudge.WebHost.Controllers
                 if (!ret.UserInfos.ContainsKey(i.UserId)) ret.UserInfos[i.UserId] = new RankUserInfoModel
                 {
                     UserName = i.UserName,
-                    Name = Utils.PrivilegeHelper.IsTeacher(user.Privilege) ? i.Name : string.Empty
+                    Name = Utils.PrivilegeHelper.IsTeacher(user?.Privilege) ? i.Name : string.Empty
                 };
                 if (!ret.ProblemInfos.ContainsKey(i.ProblemId)) ret.ProblemInfos[i.ProblemId] = new RankProblemInfoModel
                 {
