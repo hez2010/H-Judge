@@ -1,5 +1,4 @@
-﻿using hjudge.Core;
-using System;
+﻿using System;
 
 namespace hjudge.WebHost.Models.Rank
 {
