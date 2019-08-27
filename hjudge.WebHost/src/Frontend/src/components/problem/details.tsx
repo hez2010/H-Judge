@@ -206,7 +206,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
   }
 
   gotoStatistics() {
-    this.props.history.push(`/statistics/-1/${this.groupId === 0 ? '-1' : this.groupId}/${this.contestId === 0 ? '-1' : this.contestId}/${this.problemId === 0 ? '-1' : this.problemId}/-1`);
+    this.props.history.push(`/statistics/-1/${this.groupId === 0 ? '-1' : this.groupId}/${this.contestId === 0 ? '-1' : this.contestId}/${this.problemId === 0 ? '-1' : this.problemId}/All`);
   }
 
   voteProblem(voteType: number) {

@@ -568,7 +568,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps, Probl
     </Form>;
 
     const utils = <Form>
-      <input ref={this.fileLoader} onChange={this.uploadFile} type='file' accept="application/x-zip-compressed,application/zip" style={{ filter: 'alpha(opacity=0)', opacity: 0, width: 0, height: 0 }} />
+      <input ref={this.fileLoader} onChange={this.uploadFile} type='file' accept="application/x-zip-compressed" style={{ filter: 'alpha(opacity=0)', opacity: 0, width: 0, height: 0 }} />
       {
         !this.state.processingData ? <Form.Group inline>
         <Form.Button type='button' primary onClick={this.selectFile}>上传 .zip 数据文件</Form.Button>

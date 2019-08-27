@@ -64,10 +64,10 @@ namespace hjudgeFileHost.Services
                 catch { }
                 var succeeded = true;
                 if (stream != null) stream.Seek(0, SeekOrigin.Begin);
-                else { stream = new MemoryStream(); succeeded = false; }
+                else succeeded = false;
                 result.Result.Add(new DownloadResult
                 {
-                    Content = await ByteString.FromStreamAsync(stream),
+                    Content = succeeded ? await ByteString.FromStreamAsync(stream) : ByteString.Empty,
                     FileName = i,
                     Succeeded = succeeded
                 });
