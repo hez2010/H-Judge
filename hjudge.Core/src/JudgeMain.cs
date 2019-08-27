@@ -71,7 +71,11 @@ namespace hjudge.Core
                 ?.Replace(">", "_6_")
                 ?.Replace("|", "_7_") ?? string.Empty;
 
-        private string GetTargetFilePath(string? originalFilePath) => Path.Combine(dataCacheDir, EscapeFileName(originalFilePath));
+        private string? GetTargetFilePath(string? originalFilePath)
+        {
+            if (originalFilePath?.StartsWith("R:") ?? false) return Path.Combine(dataCacheDir, EscapeFileName(originalFilePath![2..]));
+            else return originalFilePath;
+        }
 
         public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingDir, string dataCacheDir)
         {
@@ -316,6 +320,18 @@ namespace hjudge.Core
                 if (judgeOption.SpecialJudgeOptions.UseStdOutputFile)
                 {
                     argsBuilder.Append($" \"{stdOutputFile}\"");
+                }
+
+                if (!File.Exists(judgeOption.SpecialJudgeOptions.Exec))
+                {
+                    try
+                    {
+                        File.Copy(GetTargetFilePath(judgeOption.SpecialJudgeOptions.Exec), judgeOption.SpecialJudgeOptions.Exec);
+                    }
+                    catch
+                    {
+                        return (ResultCode.Special_Judge_Error, 0, "Cannot find special judge");
+                    }
                 }
 
                 using var judge = new Process

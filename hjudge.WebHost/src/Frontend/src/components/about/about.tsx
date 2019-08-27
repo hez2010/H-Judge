@@ -4,6 +4,14 @@ import { setTitle } from '../../utils/titleHelper';
 
 const About = () => {
   const upgradeLogs = [{
+    version: 'Alpha: 2.0-preview6',
+    date: '2019/08/26',
+    content: [
+      '1. 修复服务端渲染适配',
+      '2. 修复 SPJ 评测支持'
+    ]
+  },
+  {
     version: 'Alpha: 2.0-preview5',
     date: '2019/08/24',
     content: [

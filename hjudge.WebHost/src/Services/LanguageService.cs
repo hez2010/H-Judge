@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
+using System;
 
 namespace hjudge.WebHost.Services
 {
@@ -17,22 +18,35 @@ namespace hjudge.WebHost.Services
     }
     public class LocalLanguageService : ILanguageService
     {
-        private readonly List<LanguageConfig> languageConfigs;
-        private readonly string fileName;
+        private List<LanguageConfig> languageConfigs = new List<LanguageConfig>();
+        private const string fileName = "./AppData/LanguageConfig.json";
+        private readonly FileSystemWatcher watcher = new FileSystemWatcher("./AppData");
         public LocalLanguageService()
         {
-            fileName = "./AppData/LanguageConfig.json";
+            LoadLanguageConfig();
+            watcher.IncludeSubdirectories = false;
+            watcher.Changed += (_, e) => { if (e.ChangeType == WatcherChangeTypes.Changed) LoadLanguageConfig(); };
+            watcher.EnableRaisingEvents = true;
+        }
 
-            var data = File.Exists(fileName) ? File.ReadAllBytes(fileName) : Encoding.UTF8.GetBytes("[]");
-            languageConfigs = data.DeserializeJson<List<LanguageConfig>>(false);
+        private void LoadLanguageConfig()
+        {
+            try
+            {
+                var data = File.Exists(fileName) ? File.ReadAllBytes(fileName) : Encoding.UTF8.GetBytes("[]");
+                languageConfigs.Clear();
+                languageConfigs = data.DeserializeJson<List<LanguageConfig>>(false);
+            }
+            catch { /* ignored */ }
         }
 
         public async Task<bool> AddLanguageConfigAsync(LanguageConfig config)
         {
             if (languageConfigs.Any(i => i.Name == config.Name)) return false;
-
             languageConfigs.Add(config);
+            watcher.EnableRaisingEvents = false;
             await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson(false));
+            watcher.EnableRaisingEvents = true;
             return true;
         }
 
@@ -48,7 +62,9 @@ namespace hjudge.WebHost.Services
 
             if (languageConfigs.Remove(lang))
             {
+                watcher.EnableRaisingEvents = false;
                 await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson(false));
+                watcher.EnableRaisingEvents = true;
                 return true;
             }
             return false;
@@ -62,7 +78,9 @@ namespace hjudge.WebHost.Services
             if (languageConfigs.Remove(lang))
             {
                 languageConfigs.Add(config);
+                watcher.EnableRaisingEvents = false;
                 await File.WriteAllBytesAsync(fileName, languageConfigs.SerializeJson(false));
+                watcher.EnableRaisingEvents = true;
                 return true;
             }
             return false;
