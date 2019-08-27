@@ -316,7 +316,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps,
                 <Button icon onClick={() => this.voteContest(2)}>
                   <Icon name='thumbs down' color={this.state.contest.myVote === 2 ? 'orange' : 'black'}></Icon>
                 </Button>
-                <Button onClick={() => this.props.history.push(`/statistics/-1/${this.groupId ? `${this.groupId}` : '-1'}/${this.contestId}/0/-1`)}>状态</Button>
+                <Button onClick={() => this.props.history.push(`/statistics/-1/${this.groupId ? `${this.groupId}` : '-1'}/${this.contestId}/0/All`)}>状态</Button>
                 <Button onClick={() => this.setState({ rankOpened: true })}>排名</Button>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button primary onClick={() => this.editContest(this.state.contest.id)}>编辑</Button> : null}
               </Button.Group>

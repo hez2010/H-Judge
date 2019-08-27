@@ -33,9 +33,9 @@ namespace hjudge.WebHost.Controllers
         public async Task<StatisticsListModel> StatisticsList([FromBody]StatisticsListQueryModel model)
         {
             int? resultType = null;
-            if (!string.IsNullOrEmpty(model.Result))
+            if (!string.IsNullOrEmpty(model.Result) && model.Result != "All")
             {
-                if (Enum.TryParse<ResultCode>(model.Result.Trim().Replace(" ", "_"), true, out var type)) resultType = (int?)type;
+                if (Enum.TryParse<ResultCode>(model.Result.Trim(), true, out var type)) resultType = (int?)type;
             }
             var judges = await judgeService.QueryJudgesAsync(model.UserId, model.GroupId, model.ContestId, model.ProblemId, resultType);
 

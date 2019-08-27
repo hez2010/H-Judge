@@ -40,6 +40,23 @@ interface StatisticsState {
   loaded: boolean
 }
 
+const judgeResult = [
+  { key: '-2', value: 'All', text: 'All' },
+  { key: '-1', value: 'Pending', text: 'Pending' },
+  { key: '0', value: 'Judging', text: 'Judging' },
+  { key: '1', value: 'Accepted', text: 'Accepted' },
+  { key: '2', value: 'Wrong_Answer', text: 'Wrong Answer' },
+  { key: '3', value: 'Compile_Error', text: 'Compile Error' },
+  { key: '4', value: 'Time_Limit_Exceeded', text: 'Time Limit Exceeded' },
+  { key: '5', value: 'Memory_Limit_Exceeded', text: 'Memory Limit Exceeded' },
+  { key: '6', value: 'Presentation_Error', text: 'Presentation Error' },
+  { key: '7', value: 'Runtime_Error', text: 'Runtime Error' },
+  { key: '8', value: 'Special_Judge_Error', text: 'Special Judge Error' },
+  { key: '9', value: 'Problem_Config_Error', text: 'Problem Config Error' },
+  { key: '10', value: 'Output_File_Error', text: 'Output File Error' },
+  { key: '11', value: 'Unknown_Error', text: 'Unknown Error' }
+];
+
 export default class Statistics extends React.Component<StatisticsProps, StatisticsState, GlobalState> {
   constructor() {
     super();
@@ -73,7 +90,7 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
   fetchStatisticsList(requireTotalCount: boolean, page: number) {
     if (!this.props.groupId && !this.props.problemId && !this.props.contestId && page.toString() !== this.props.match.params.page) {
       if (this.expandParamsInUri)
-        this.props.history.replace(`/statistics/${!!this.userId ? this.userId : '-1'}/${this.groupId}/${this.contestId}/${this.problemId}/${!!this.result ? this.result : '-1'}/${page}`);
+        this.props.history.replace(`/statistics/${!!this.userId ? this.userId : '-1'}/${this.groupId}/${this.contestId}/${this.problemId}/${!!this.result ? this.result : 'All'}/${page}`);
       else
         this.props.history.replace(`/statistics/${page}`);
     }
@@ -143,7 +160,7 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
       this.expandParamsInUri = true;
     }
     if (this.props.result) this.result = this.props.result;
-    else if (!!this.props.match.params.result && this.props.match.params.result !== '-1') {
+    else if (!!this.props.match.params.result) {
       this.result = this.props.match.params.result;
       this.expandParamsInUri = true;
     }
@@ -235,7 +252,12 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
           </Form.Field>
           <Form.Field width={4}>
             <label>评测结果</label>
-            <Input fluid name='result' defaultValue={this.state.loaded ? this.result : ''} onChange={e => { this.idRecord.clear(); this.result = e.target.value; }}></Input>
+            <Form.Select
+              fluid
+              defaultValue={this.state.loaded ? this.result : 'All'}
+              options={judgeResult}
+              onChange={(_, data) => { this.idRecord.clear(); this.result = data.value as string; }}
+            />
           </Form.Field>
           <Form.Field width={2}>
             <label>题目操作</label>

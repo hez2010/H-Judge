@@ -1,4 +1,5 @@
-﻿import * as React from 'react';
+﻿import { hot } from 'react-hot-loader/root';
+import * as React from 'react';
 import { useGlobal } from 'reactn';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
@@ -173,4 +174,4 @@ const App = (props: any) => {
   return <BrowserRouter>{renderContent()}</BrowserRouter>;
 };
 
-export default App;
+export default hot(App);

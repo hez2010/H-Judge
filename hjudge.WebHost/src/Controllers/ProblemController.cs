@@ -68,7 +68,8 @@ namespace hjudge.WebHost.Controllers
 
             var ret = new ProblemListModel();
 
-            var judges = await judgeService.QueryJudgesAsync(userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
+            // use an invalid value when userId is empty or null
+            var judges = await judgeService.QueryJudgesAsync(string.IsNullOrEmpty(userId) ? "-1" : userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
 
             IQueryable<Problem> problems;
 
@@ -189,7 +190,8 @@ namespace hjudge.WebHost.Controllers
             var problem = await problems.Where(i => i.Id == model.ProblemId).Cacheable().FirstOrDefaultAsync();
             if (problem == null) throw new NotFoundException("找不到该题目");
 
-            var judges = await judgeService.QueryJudgesAsync(userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
+            // use an invalid value when userId is empty or null
+            var judges = await judgeService.QueryJudgesAsync(string.IsNullOrEmpty(userId) ? "-1" : userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
 
             if (await judges.Where(i => i.ProblemId == problem.Id)
                     .Cacheable().AnyAsync())
