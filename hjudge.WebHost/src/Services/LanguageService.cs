@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
-using System;
 
 namespace hjudge.WebHost.Services
 {

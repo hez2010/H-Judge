@@ -15,12 +15,24 @@ namespace hjudge.WebHost.MessageHandlers
 {
     public class JudgeReport
     {
+        private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         private static readonly ConcurrentQueue<JudgeReportInfo> queue = new ConcurrentQueue<JudgeReportInfo>();
         public static Task JudgeReport_Received(object sender, BasicDeliverEventArgs args)
         {
             if (!(sender is AsyncEventingBasicConsumer consumer)) return Task.CompletedTask;
-
-            queue.Enqueue(args.Body.DeserializeJson<JudgeReportInfo>(false));
+            try
+            {
+                queue.Enqueue(args.Body.DeserializeJson<JudgeReportInfo>(false));
+            }
+            catch
+            {
+                consumer.Model.BasicNack(args.DeliveryTag, false, false);
+            }
+            try
+            {
+                semaphore.Release();
+            }
+            catch { /* ignored */ }
             consumer.Model.BasicAck(args.DeliveryTag, false);
             return Task.CompletedTask;
         }
@@ -29,6 +41,7 @@ namespace hjudge.WebHost.MessageHandlers
         {
             while (!token.IsCancellationRequested)
             {
+                await semaphore.WaitAsync();
                 if (queue.TryDequeue(out var info))
                 {
                     var judgeService = ServiceProviderExtensions.ServiceProvider?.GetService<IJudgeService>();
@@ -40,7 +53,6 @@ namespace hjudge.WebHost.MessageHandlers
                     if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
                     await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
                 }
-
                 if (token.IsCancellationRequested) break;
             }
         }

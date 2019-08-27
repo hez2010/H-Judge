@@ -100,7 +100,7 @@ namespace hjudge.JudgeHost
                 }
                 catch
                 {
-                    consumer.Model.BasicAck(args.DeliveryTag, false);
+                    consumer.Model.BasicNack(args.DeliveryTag, false, false);
                     return;
                 }
 

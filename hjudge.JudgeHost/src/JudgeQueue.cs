@@ -18,7 +18,7 @@ namespace hjudge.JudgeHost
         public static Task QueueJudgeAsync(JudgeInfo info)
         {
             if (Semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
-            Console.WriteLine($"{DateTime.Now}: Received judge request");
+            Console.WriteLine($"{DateTime.Now}: Received judge request #{info.JudgeId}");
             pools.Enqueue(info, info.Priority);
             try
             {
