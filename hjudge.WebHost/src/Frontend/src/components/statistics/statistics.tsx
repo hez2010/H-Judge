@@ -26,7 +26,9 @@ interface StatisticsItemModel {
   userName: number,
   result: string,
   resultType: number,
-  time: Date
+  time: Date,
+  score: number,
+  language: string
 }
 
 interface StatisticsListModel {
@@ -190,11 +192,13 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
       <Table color='black' selectable>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell>提交编号</Table.HeaderCell>
-            <Table.HeaderCell>提交用户</Table.HeaderCell>
-            <Table.HeaderCell>题目名称</Table.HeaderCell>
-            <Table.HeaderCell>提交时间</Table.HeaderCell>
-            <Table.HeaderCell>评测结果</Table.HeaderCell>
+            <Table.HeaderCell>编号</Table.HeaderCell>
+            <Table.HeaderCell>用户</Table.HeaderCell>
+            <Table.HeaderCell>题目</Table.HeaderCell>
+            <Table.HeaderCell>时间</Table.HeaderCell>
+            <Table.HeaderCell>结果</Table.HeaderCell>
+            <Table.HeaderCell>得分</Table.HeaderCell>
+            <Table.HeaderCell>语言</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -206,6 +210,8 @@ export default class Statistics extends React.Component<StatisticsProps, Statist
                 <Table.Cell><NavLink onClick={() => this.disableNavi = true} to={`/details/problem/${v.problemId}${!v.contestId ? '' : `/${v.contestId}`}${!v.groupId ? '' : `/${v.groupId}`}`}>{v.problemName}</NavLink></Table.Cell>
                 <Table.Cell>{v.time.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.result}</Table.Cell>
+                <Table.Cell>{v.score}</Table.Cell>
+                <Table.Cell>{!!v.language ? v.language : '无'}</Table.Cell>
               </Table.Row>)
           }
         </Table.Body>

@@ -20,6 +20,7 @@ namespace hjudge.WebHost.Models.Judge
         public int Type { get; set; }
         public DateTime Time { get; set; }
         public int ResultDisplayType { get; set; }
+        public string? Language { get; set; }
         public JudgeResult JudgeResult { get; set; } = new JudgeResult();
     }
 }
