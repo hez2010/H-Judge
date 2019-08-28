@@ -101,7 +101,8 @@ namespace hjudge.WebHost.Controllers
                 ProblemId = model.ProblemId,
                 ContestId = model.ContestId == 0 ? null : (int?)model.ContestId,
                 GroupId = model.GroupId == 0 ? null : (int?)model.GroupId,
-                UserId = user.Id
+                UserId = user.Id,
+                Description = "Online Judge"
             });
 
             return new SubmitSuccessModel
@@ -134,7 +135,8 @@ namespace hjudge.WebHost.Controllers
                 GroupName = judge.Group?.Name,
                 ResultType = judge.ResultType,
                 Content = judge.Content,
-                Time = judge.JudgeTime
+                Time = judge.JudgeTime,
+                Language = judge.Language
             };
             ret.JudgeResult = (string.IsNullOrWhiteSpace(judge.Result) ? "{}" : judge.Result).DeserializeJson<JudgeResult>(false);
             ret.JudgeResult.JudgePoints ??= new List<JudgePoint>();

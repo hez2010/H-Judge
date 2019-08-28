@@ -18,6 +18,8 @@ namespace hjudge.WebHost.Models.Statistics
             public int ResultType { get; set; } = -1;
             public string Result => Enum.GetName(typeof(ResultCode), ResultType)?.Replace("_", " ") ?? "Unknown Error";
             public DateTime Time { get; set; }
+            public string? Language { get; set; }
+            public float Score { get; set; }
         }
         public List<StatisticsListItemModel>? Statistics { get; set; }
         public int TotalCount { get; set; }

@@ -43,7 +43,8 @@ interface ResultModel {
   type: number,
   time: Date,
   resultDisplayType: number,
-  judgeResult: JudgeResultModel
+  judgeResult: JudgeResultModel,
+  language: string
 }
 
 interface ResultState {
@@ -77,7 +78,8 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
           judgePoints: [],
           compileLog: '',
           staticCheckLog: ''
-        }
+        },
+        language: ''
       }
     };
 
@@ -148,6 +150,8 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
       <br />
       <small>题目名称：<NavLink to={`/details/problem/${this.state.result.problemId}${!this.state.result.contestId ? '' : `/${this.state.result.contestId}`}${!this.state.result.groupId ? '' : `/${this.state.result.groupId}`}`}>{this.state.result.problemName}</NavLink></small>
       <br />
+      <small>提交语言：{!!this.state.result.language ? this.state.result.language : '无'}</small>
+      <br />
       {
         this.state.result.contestId ? <>
           <small>比赛名称：<NavLink to={`/details/contest/${this.state.result.contestId}${!this.state.result.groupId ? '' : `/${this.state.result.groupId}`}`}>{this.state.result.contestName}</NavLink></small>
@@ -194,7 +198,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
   judgeDetails() {
     return this.state.result.judgeResult.judgePoints.length === 0 ? null : <>
-      <Header as='h2'>评测详情</Header>
+      <Header as='h3'>评测详情</Header>
       <Responsive getWidth={getWidth} minWidth={Responsive.onlyTablet.minWidth}>
         <Grid columns={3}>
           {this.judgePoints()}
@@ -210,7 +214,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
   compileLogs() {
     return !!this.state.result.judgeResult.compileLog ? <>
-      <Header as='h2'>编译日志</Header>
+      <Header as='h3'>编译日志</Header>
       <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
         <MarkdownViewer content={'```\n' + this.state.result.judgeResult.compileLog + '\n```'} />
       </div>
@@ -219,7 +223,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
   staticCheckLogs() {
     return !!this.state.result.judgeResult.staticCheckLog ? <>
-      <Header as='h2'>静态检查日志</Header>
+      <Header as='h3'>静态检查日志</Header>
       <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
         <MarkdownViewer content={'```\n' + this.state.result.judgeResult.staticCheckLog + '\n```'} />
       </div>
@@ -272,7 +276,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
         <Item.Description>
           {
-            !!this.state.result.content ? <><Header as='h2'>提交内容</Header>
+            !!this.state.result.content ? <><Header as='h3'>提交内容</Header>
               <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
                 <MarkdownViewer content={'```\n' + this.state.result.content + '\n```'} />
               </div></> : null
@@ -299,7 +303,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
           <Item.Description>
             {
-              !!this.state.result.content ? <><Header as='h2'>提交内容</Header>
+              !!this.state.result.content ? <><Header as='h3'>提交内容</Header>
                 <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
                   <MarkdownViewer content={'```\n' + this.state.result.content + '\n```'} />
                 </div></> : null

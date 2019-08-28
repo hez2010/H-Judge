@@ -60,7 +60,9 @@ namespace hjudge.WebHost.Controllers
                 Time = i.JudgeTime,
                 UserId = i.UserId,
                 UserName = i.UserInfo.UserName,
-                ProblemName = i.Problem.Name
+                ProblemName = i.Problem.Name,
+                Language = i.Language,
+                Score = i.FullScore
             }).Cacheable().ToListAsync();
 
             return ret;
