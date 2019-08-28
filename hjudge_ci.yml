@@ -11,6 +11,13 @@ steps:
     packageType: 'sdk'
     version: '3.0.100-preview8-013656'
     includePreviewVersions: true
+- task: NuGetToolInstaller@1
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+    verbosityRestore: 'Normal'
 - task: VSBuild@1
   inputs:
     solution: '**\*.sln'
@@ -19,7 +26,6 @@ steps:
     configuration: 'Release'
     clean: true
     maximumCpuCount: true
-    restoreNugetPackages: true
     msbuildArchitecture: 'x64'
 - task: VSTest@2
   inputs:
