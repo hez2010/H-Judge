@@ -31,6 +31,7 @@ namespace hjudge.WebHost.MessageHandlers
                 {
                     Console.WriteLine($"{DateTime.Now}: Message fetching failed, tag: {args.DeliveryTag}");
                 }
+                return Task.CompletedTask;
             }
             try
             {
