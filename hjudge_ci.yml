@@ -1,3 +1,6 @@
+pool:
+  vmImage: 'windows-latest'
+  
 trigger:
 - master
 - develop
@@ -8,25 +11,28 @@ steps:
     packageType: 'sdk'
     version: '3.0.100-preview8-013656'
     includePreviewVersions: true
-- task: DotNetCoreCLI@2
+- task: VSBuild@1
   inputs:
-    command: 'restore'
-- task: DotNetCoreCLI@2
+    solution: '**\*.sln'
+    msbuildArgs: '/t:Build,Publish'
+    platform: 'x64'
+    configuration: 'Release'
+    clean: true
+    maximumCpuCount: true
+    restoreNugetPackages: true
+    msbuildArchitecture: 'x64'
+- task: VSTest@2
   inputs:
-    command: 'build'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'test'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '-c Release -o $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
-    modifyOutputPath: false
-- task: PublishBuildArtifacts@1
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    platform: 'x64'
+    configuration: 'Release'
+- task: PublishPipelineArtifact@1
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    targetPath: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'hjudge_artifacts'
-    publishLocation: 'Container'
