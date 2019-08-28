@@ -14,12 +14,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0-preview8.19405.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview8" />
     <PackageReference Include="System.Interactive.Async" Version="3.2.0" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\hjudge.RpcInterface\hjudge.RpcInterface.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
-    <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
     <ProjectReference Include="..\..\smartbox.SeaweedFs.Client\smartbox.SeaweedFs.Client.csproj" />
   </ItemGroup>
 

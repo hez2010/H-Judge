@@ -36,12 +36,12 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Resources.Extensions" Version="4.6.0-preview8.19405.3" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\hjudge.Core\src\hjudge.Core.csproj" />
     <ProjectReference Include="..\..\hjudge.Shared\hjudge.Shared.csproj" />
-    <ProjectReference Include="..\..\EFSecondLevelCache.Core\EFSecondLevelCache.Core.csproj" />
     <ProjectReference Include="..\..\hjudge.RpcInterface\hjudge.RpcInterface.csproj" />
   </ItemGroup>
 
