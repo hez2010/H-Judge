@@ -37,8 +37,41 @@ steps:
     searchFolder: '$(System.DefaultWorkingDirectory)'
     platform: 'x64'
     configuration: 'Release'
+- task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    rootFolderOrFile: 'hjudge.JudgeHost/src/bin/Release/netcoreapp3.0/publish'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.JudgeHost.zip'
+    replaceExistingArchive: true
+- task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    rootFolderOrFile: 'hjudge.FileHost/src/bin/Release/netcoreapp3.0/publish'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.FileHost.zip'
+    replaceExistingArchive: true
+- task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    rootFolderOrFile: 'hjudge.WebHost/src/bin/Release/netcoreapp3.0/publish'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.WebHost.zip'
+    replaceExistingArchive: true
+- task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  inputs:
+    rootFolderOrFile: 'x64/Release'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Windows.zip'
+    replaceExistingArchive: true
+
 - task: PublishPipelineArtifact@1
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   inputs:
     targetPath: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'hjudge_artifacts'
+    ArtifactName: 'hjudge_artifacts_$(Build.BuildId)'
