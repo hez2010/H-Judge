@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using hjudge.Shared.Judge;
 using System.Collections.Generic;
 using Grpc.Core;
+using RabbitMQ.Client;
 
 namespace hjudge.JudgeHost
 {
@@ -30,7 +31,6 @@ namespace hjudge.JudgeHost
             JudgeQueue.Semaphore = new SemaphoreSlim(0, config.ConcurrentJudgeTask);
 
             FileHostChannel = new Channel(config.FileHost, ChannelCredentials.Insecure);
-
             var options = config.MessageQueue;
             if (options != null)
             {
@@ -100,7 +100,11 @@ namespace hjudge.JudgeHost
                 }
                 catch
                 {
-                    consumer.Model.BasicNack(args.DeliveryTag, false, false);
+                    consumer.Model.BasicNack(args.DeliveryTag, false, !args.Redelivered);
+                    if (args.Redelivered)
+                    {
+                        Console.WriteLine($"{DateTime.Now}: Message fetching failed, tag: {args.DeliveryTag}");
+                    }
                     return;
                 }
 

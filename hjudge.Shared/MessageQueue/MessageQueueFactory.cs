@@ -31,7 +31,8 @@ namespace hjudge.Shared.MessageQueue
                 UserName = options.UserName,
                 Password = options.Password,
                 VirtualHost = options.VirtualHost,
-                DispatchConsumersAsync = true
+                DispatchConsumersAsync = true,
+                AutomaticRecoveryEnabled = true
             };
         }
 

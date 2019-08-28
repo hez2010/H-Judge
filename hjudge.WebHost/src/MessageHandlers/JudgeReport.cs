@@ -26,7 +26,12 @@ namespace hjudge.WebHost.MessageHandlers
             }
             catch
             {
-                consumer.Model.BasicNack(args.DeliveryTag, false, false);
+                consumer.Model.BasicNack(args.DeliveryTag, false, !args.Redelivered);
+                if (args.Redelivered)
+                {
+                    Console.WriteLine($"{DateTime.Now}: Message fetching failed, tag: {args.DeliveryTag}");
+                }
+                return Task.CompletedTask;
             }
             try
             {

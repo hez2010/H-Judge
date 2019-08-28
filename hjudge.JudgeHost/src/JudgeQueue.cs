@@ -127,18 +127,18 @@ namespace hjudge.JudgeHost
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"{DateTime.Now}: {ex.Message}");
+                        Console.WriteLine($"{DateTime.Now}: Judge Error! {ex.Message}");
                         Console.WriteLine("-------------------");
                         Console.WriteLine(ex.StackTrace);
                     }
-                    Console.WriteLine($"Finished judge #{judgeInfo.JudgeId}");
+                    Console.WriteLine($"{DateTime.Now}: Finished judge #{judgeInfo.JudgeId}");
                     await ReportJudgeResultAsync(new JudgeReportInfo
                     {
                         JudgeId = judgeInfo.JudgeId,
                         JudgeResult = result,
                         Type = JudgeReportInfo.ReportType.PostJudge
                     });
-                    Console.WriteLine($"Reported judge #{judgeInfo.JudgeId}");
+                    Console.WriteLine($"{DateTime.Now}: Reported judge #{judgeInfo.JudgeId}");
                     if (cancellationToken.IsCancellationRequested) 
                     {
                         Directory.Delete(dataCacheDir, true);
