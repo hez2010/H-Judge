@@ -79,6 +79,8 @@ namespace hjudge.WebHost.Controllers
                 Score = i.FullScore
             }).Cacheable();
 
+            var isAccepted = new Dictionary<(string UserId, int ProblemId), bool>();
+
             await foreach (var i in results)
             {
                 if (!ret.UserInfos.ContainsKey(i.UserId)) ret.UserInfos[i.UserId] = new RankUserInfoModel
@@ -98,11 +100,22 @@ namespace hjudge.WebHost.Controllers
                 else
                     ret.RankInfos[i.UserId][i.ProblemId].Accepted = ret.RankInfos[i.UserId][i.ProblemId].Accepted && (i.ResultType == (int)ResultCode.Accepted);
 
-                var (penalty, time) = (config.Type == ContestType.Penalty, i.ResultType) switch
+                if (!isAccepted.ContainsKey((i.UserId, i.ProblemId)))
+                    isAccepted[(i.UserId, i.ProblemId)] = false;
+
+                if (i.ResultType == (int)ResultCode.Accepted)
                 {
-                    (true, (int)ResultCode.Compile_Error) => (0, TimeSpan.Zero),
-                    (true, _) => (20, i.Time - contest.StartTime + TimeSpan.FromMinutes(20)),
-                    (false, (int)ResultCode.Compile_Error) => (0, TimeSpan.Zero),
+                    ret.RankInfos[i.UserId][i.ProblemId].AcceptCount++;
+                    ret.ProblemInfos[i.ProblemId].AcceptCount++;
+                    isAccepted[(i.UserId, i.ProblemId)] = true;
+                }
+
+                var (penalty, time) = (isAccepted[(i.UserId, i.ProblemId)], config.Type == ContestType.Penalty, i.ResultType) switch
+                {
+                    (true, _, _) => (0, TimeSpan.Zero), // if has accepted, there will be no more time accumulation and penalty
+                    (_, true, (int)ResultCode.Compile_Error) => (0, TimeSpan.Zero),
+                    (_, true, _) => (20, i.Time - contest.StartTime + TimeSpan.FromMinutes(20)),
+                    (_, false, (int)ResultCode.Compile_Error) => (0, TimeSpan.Zero),
                     _ => (0, i.Time - contest.StartTime)
                 };
 
@@ -120,11 +133,6 @@ namespace hjudge.WebHost.Controllers
 
                 ret.RankInfos[i.UserId][i.ProblemId].SubmissionCount++;
                 ret.ProblemInfos[i.ProblemId].SubmissionCount++;
-                if (i.ResultType == (int)ResultCode.Accepted)
-                {
-                    ret.RankInfos[i.UserId][i.ProblemId].AcceptCount++;
-                    ret.ProblemInfos[i.ProblemId].AcceptCount++;
-                }
 
                 ret.UserInfos[i.UserId].Penalty += penalty;
                 ret.UserInfos[i.UserId].Time += time;
