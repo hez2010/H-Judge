@@ -15,6 +15,7 @@ using hjudge.Core;
 
 namespace hjudge.WebHost.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     [ApiController]
     [Route("rank")]
     public class RankController : ControllerBase

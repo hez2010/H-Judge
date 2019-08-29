@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
-import { Header, Divider, Feed, Icon, Placeholder } from 'semantic-ui-react';
+import { Header, Divider, Feed, Placeholder } from 'semantic-ui-react';
 import { Get } from '../../utils/requestHelper';
 import { tryJson } from '../../utils/responseHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
@@ -17,8 +17,13 @@ interface ActivityModel {
   time: Date
 }
 
+interface ActivityListModel {
+  totalCount: number,
+  activities: ActivityModel[]
+}
+
 const Home = () => {
-  const [activities, setActivities] = React.useState<ActivityModel[]>([]);
+  const [activitieList, setActivitieList] = React.useState<ActivityListModel>({ totalCount: 0, activities: [] });
   const [activitiesLoaded, setActivitiesLoaded] = React.useState<boolean>(false);
   const [commonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
 
@@ -32,16 +37,17 @@ const Home = () => {
           commonFuncs.openPortal(`错误 ${error.errorCode}`, `${error.errorMessage}`, 'red');
           return;
         }
-        let result = data as ActivityModel[];
-        result = result.map(v => {
+        let result = data as ActivityListModel;
+        result.activities = result.activities.map(v => {
           v.time = new Date(v.time.toString());
           return v;
         });
-        setActivities(result);
+        setActivitieList(result);
         setActivitiesLoaded(true);
       })
       .catch(err => {
         commonFuncs.openPortal('错误', '动态加载失败', 'red');
+        console.log(err);
       })
   }, []);
 
@@ -63,7 +69,7 @@ const Home = () => {
         !activitiesLoaded ? placeHolder :
           <Feed>
             {
-              activities.length === 0 ? '现在还没有动态哦' : activities.map((v, i) =>
+              activitieList.activities.length === 0 ? '现在还没有动态哦' : activitieList.activities.map((v, i) =>
                 <Feed.Event key={i}>
                   <Feed.Label>
                     <img src={`/user/${v.userId}`} />
@@ -81,6 +87,7 @@ const Home = () => {
 
           </Feed>
       }
+      <p>目前主页正在设计当中，如果您有任何的建议，欢迎通过底部的联系方式联系我们 :)</p>
     </>
   );
 }
