@@ -104,13 +104,6 @@ namespace hjudge.WebHost.Controllers
                 if (!isAccepted.ContainsKey((i.UserId, i.ProblemId)))
                     isAccepted[(i.UserId, i.ProblemId)] = false;
 
-                if (i.ResultType == (int)ResultCode.Accepted)
-                {
-                    ret.RankInfos[i.UserId][i.ProblemId].AcceptCount++;
-                    ret.ProblemInfos[i.ProblemId].AcceptCount++;
-                    isAccepted[(i.UserId, i.ProblemId)] = true;
-                }
-
                 var (penalty, time) = (isAccepted[(i.UserId, i.ProblemId)], config.Type == ContestType.Penalty, i.ResultType) switch
                 {
                     (true, _, _) => (0, TimeSpan.Zero), // if has accepted, there will be no more time accumulation and penalty
@@ -132,6 +125,13 @@ namespace hjudge.WebHost.Controllers
                 ret.RankInfos[i.UserId][i.ProblemId].Time += time;
                 ret.RankInfos[i.UserId][i.ProblemId].Score = score;
 
+                if (i.ResultType == (int)ResultCode.Accepted)
+                {
+                    isAccepted[(i.UserId, i.ProblemId)] = true;
+                    ret.RankInfos[i.UserId][i.ProblemId].AcceptCount++;
+                    ret.ProblemInfos[i.ProblemId].AcceptCount++;
+                }
+
                 ret.RankInfos[i.UserId][i.ProblemId].SubmissionCount++;
                 ret.ProblemInfos[i.ProblemId].SubmissionCount++;
 
@@ -142,6 +142,18 @@ namespace hjudge.WebHost.Controllers
             foreach (var i in ret.UserInfos)
             {
                 i.Value.Score = ret.RankInfos[i.Key].Sum(j => j.Value.Score);
+            }
+
+            // no time and penalty if hasn't accepted
+            foreach (var i in isAccepted)
+            {
+                if (!i.Value)
+                {
+                    ret.UserInfos[i.Key.UserId].Time -= ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Time;
+                    ret.UserInfos[i.Key.UserId].Penalty -= ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Penalty;
+                    ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Time = TimeSpan.Zero;
+                    ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Penalty = 0;
+                }
             }
 
             var rankData = ret.UserInfos.Select(i => new { UserId = i.Key, Score = i.Value.Score, Time = i.Value.Time })
