@@ -227,6 +227,7 @@ namespace hjudge.WebHost.Controllers
             ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();
             ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();
 
+            ret.TriedProblems = ret.TriedProblems.Where(i => !ret.SolvedProblems.Contains(i)).ToList();
             return ret;
         }
     }

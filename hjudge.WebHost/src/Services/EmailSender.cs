@@ -26,8 +26,8 @@ namespace hjudge.WebHost.Services
         }
         public Task SendAsync(string subject, string content, EmailType type, string[] targets)
         {
-            var username = Configuration["EmailConfig:ApiId"];
-            var password = Configuration["EmailConfig:ApiSec"];
+            var username = Configuration["EmailConfig:UserName"];
+            var password = Configuration["EmailConfig:Password"];
             var domain = Configuration["EmailConfig:Domain"];
             var hostname = Configuration["HostName"];
             var smtpHost = Configuration["EmailConfig:Smtp:Host"];
@@ -47,7 +47,7 @@ namespace hjudge.WebHost.Services
                 From = new MailAddress($"{sender}@{domain}"),
                 Subject = subject,
                 SubjectEncoding = Encoding.UTF8,
-                Body = content.Replace("localhost:5001", hostname).Replace("localhost:5000", hostname),
+                Body = content.Replace("localhost:5001", hostname).Replace("localhost:5000", hostname), // replace host name for reverse proxy
                 BodyEncoding = Encoding.UTF8,
                 IsBodyHtml = true
             };

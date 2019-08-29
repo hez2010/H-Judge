@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace hjudge.WebHost.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     [ApiController]
     [Route("vote")]
     public class VoteController : ControllerBase

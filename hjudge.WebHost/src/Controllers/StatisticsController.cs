@@ -12,6 +12,7 @@ using hjudge.Core;
 
 namespace hjudge.WebHost.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     [Route("statistics")]
     [ApiController]
     public class StatisticsController : ControllerBase

@@ -2,6 +2,7 @@
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models.Account;
+using hjudge.WebHost.Models.Home;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,9 @@ using System.Threading.Tasks;
 namespace hjudge.WebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
+    [ApiController]
+    [Route("home")]
+    [Route("")]
     public class HomeController : Controller
     {
         private readonly CachedUserManager<UserInfo> userManager;
@@ -26,6 +30,8 @@ namespace hjudge.WebHost.Controllers
         }
 
         [SendAntiForgeryToken]
+        [Route("")]
+        [Route("index")]
         public async Task<IActionResult> Index()
         {
             var model = await GetCurrentUserInfo();
@@ -60,7 +66,16 @@ namespace hjudge.WebHost.Controllers
             return userInfoRet;
         }
 
+        [HttpGet]
+        [Route("activities")]
+        public ActivityListModel GetActivities()
+        {
+            // TODO: Generate activities
+            return new ActivityListModel();
+        }
+
         [AllowAnonymous]
+        [Route("error")]
         public IActionResult Error()
         {
             throw new InterfaceException((HttpStatusCode)HttpContext.Response.StatusCode, Activity.Current?.Id ?? HttpContext.TraceIdentifier);

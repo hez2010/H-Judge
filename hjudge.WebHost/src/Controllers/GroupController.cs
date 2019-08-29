@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
+using hjudge.WebHost.Exceptions;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -83,6 +84,26 @@ namespace hjudge.WebHost.Controllers
             }).Cacheable().ToListAsync();
 
             return ret;
+        }
+
+        [Route("details")]
+        [HttpGet]
+        public async Task<GroupModel> GroupDetails(int groupId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            var groups = await groupService.QueryGroupAsync(user?.Id);
+            var group = await groups.Where(i => i.Id == groupId).FirstOrDefaultAsync();
+            if (group == null) throw new NotFoundException("该小组不存在");
+
+            return new GroupModel
+            {
+                Id = group.Id,
+                UserId = group.UserId,
+                UserName = group.UserInfo.UserName,
+                Name = group.Name,
+                Description = group.Description,
+                IsPrivate = group.IsPrivate
+            };
         }
     }
 }
