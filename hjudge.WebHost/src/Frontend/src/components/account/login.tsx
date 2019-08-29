@@ -42,6 +42,11 @@ const Login = (props: LoginProps) => {
         })
     }
   }
+
+  const forgotPassword = () => {
+    commonFuncs.openPortal('提示', '此功能正在开发中，敬请期待', 'blue');
+  }
+
   return (
     <>
       <Modal size='tiny' open={props.modalOpen} closeIcon onClose={props.closeModal}>
@@ -60,6 +65,7 @@ const Login = (props: LoginProps) => {
               <Checkbox name='rememberMe' label='记住登录状态'></Checkbox>
             </Form.Field>
             <Button onClick={login} primary>登录</Button>
+            <a href='javascript:void(0)' onClick={forgotPassword} style={{ float: 'right' }}>忘记密码</a>
           </Form>
         </Modal.Content>
       </Modal>
