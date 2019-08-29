@@ -15,50 +15,47 @@ namespace hjudge.WebHost.Controllers
     [AutoValidateAntiforgeryToken]
     public class HomeController : Controller
     {
-        private readonly CachedUserManager<UserInfo> userManager;
-        private readonly SignInManager<UserInfo> signInManager;
+        // private readonly CachedUserManager<UserInfo> userManager;
+        // private readonly SignInManager<UserInfo> signInManager;
 
-        public HomeController(CachedUserManager<UserInfo> userManager,
-            SignInManager<UserInfo> signInManager)
+        public HomeController(/* CachedUserManager<UserInfo> userManager,
+            SignInManager<UserInfo> signInManager */)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+            // this.userManager = userManager;
+            // this.signInManager = signInManager;
         }
 
         [SendAntiForgeryToken]
-        public async Task<IActionResult> Index()
-        {
-            var model = await GetCurrentUserInfo();
-            return View(model);
-        }
+        public IActionResult Index() => View();
+        //var model = await GetCurrentUserInfo();
 
-        private async Task<UserInfoModel> GetCurrentUserInfo()
-        {
-            var userInfoRet = new UserInfoModel
-            {
-                SignedIn = signInManager.IsSignedIn(User)
-            };
-            var userId = userManager.GetUserId(User);
-            var user = await userManager.FindByIdAsync(userId);
-            if (user == null) return new UserInfoModel();
-            userInfoRet.Name = user.Name;
-            userInfoRet.UserId = user.Id;
-            userInfoRet.UserName = user.UserName;
-            userInfoRet.Privilege = user.Privilege;
-            userInfoRet.Coins = user.Coins;
-            userInfoRet.Experience = user.Experience;
+        // private async Task<UserInfoModel> GetCurrentUserInfo()
+        // {
+        //     var userInfoRet = new UserInfoModel
+        //     {
+        //         SignedIn = signInManager.IsSignedIn(User)
+        //     };
+        //     var userId = userManager.GetUserId(User);
+        //     var user = await userManager.FindByIdAsync(userId);
+        //     if (user == null) return new UserInfoModel();
+        //     userInfoRet.Name = user.Name;
+        //     userInfoRet.UserId = user.Id;
+        //     userInfoRet.UserName = user.UserName;
+        //     userInfoRet.Privilege = user.Privilege;
+        //     userInfoRet.Coins = user.Coins;
+        //     userInfoRet.Experience = user.Experience;
 
-            if (userInfoRet.SignedIn)
-            {
-                userInfoRet.EmailConfirmed = user.EmailConfirmed;
-                userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
-                userInfoRet.Email = user.Email;
-                userInfoRet.PhoneNumber = user.PhoneNumber;
-                userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
-            }
+        //     if (userInfoRet.SignedIn)
+        //     {
+        //         userInfoRet.EmailConfirmed = user.EmailConfirmed;
+        //         userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+        //         userInfoRet.Email = user.Email;
+        //         userInfoRet.PhoneNumber = user.PhoneNumber;
+        //         userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
+        //     }
 
-            return userInfoRet;
-        }
+        //     return userInfoRet;
+        // }
 
         [AllowAnonymous]
         public IActionResult Error()
