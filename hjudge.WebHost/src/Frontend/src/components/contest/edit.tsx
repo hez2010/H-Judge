@@ -56,7 +56,7 @@ interface ContestEditModel {
   problems: number[]
 }
 
-interface ContestEditProps extends CommonProps {
+interface ContestEditProps {
   contestId?: number
 }
 
@@ -65,7 +65,7 @@ interface ContestEditState {
   contest: ContestEditModel
 }
 
-export default class ContestEdit extends React.Component<ContestEditProps, ContestEditState, GlobalState> {
+export default class ContestEdit extends React.Component<ContestEditProps & CommonProps, ContestEditState, GlobalState> {
   constructor() {
     super();
 

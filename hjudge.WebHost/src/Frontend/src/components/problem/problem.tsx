@@ -9,7 +9,7 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
 
-interface ProblemProps extends CommonProps {
+interface ProblemProps {
   contestId?: number,
   groupId?: number
 }
@@ -39,7 +39,7 @@ interface ProblemState {
   loaded: boolean
 }
 
-export default class Problem extends React.Component<ProblemProps, ProblemState, GlobalState> {
+export default class Problem extends React.Component<ProblemProps & CommonProps, ProblemState, GlobalState> {
   constructor() {
     super();
     this.renderProblemList = this.renderProblemList.bind(this);

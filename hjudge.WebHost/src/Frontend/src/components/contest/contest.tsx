@@ -9,7 +9,7 @@ import { GlobalState } from '../../interfaces/globalState';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
 
-interface ContestProps extends CommonProps {
+interface ContestProps {
   groupId?: number
 }
 
@@ -37,7 +37,7 @@ interface ContestState {
   loaded: boolean
 }
 
-export default class Contest extends React.Component<ContestProps, ContestState, GlobalState> {
+export default class Contest extends React.Component<ContestProps & CommonProps, ContestState, GlobalState> {
   constructor() {
     super();
 

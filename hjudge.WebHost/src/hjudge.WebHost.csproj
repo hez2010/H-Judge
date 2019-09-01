@@ -47,12 +47,6 @@
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
-    <Compile Remove="Frontend\build\**" />
-    <Content Remove="$(SpaRoot)**" />
-    <Content Remove="Frontend\build\**" />
-    <EmbeddedResource Remove="Frontend\build\**" />
-    <None Remove="$(SpaRoot)**" />
-    <None Remove="Frontend\build\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 

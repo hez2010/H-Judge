@@ -22,7 +22,7 @@ interface ProblemDataUploadModel {
   failedFiles: string[]
 }
 
-interface ProblemEditProps extends CommonProps {
+interface ProblemEditProps {
   problemId?: number
 }
 
@@ -70,7 +70,7 @@ interface ProblemEditModel {
   config: ProblemConfig
 }
 
-export default class ProblemEdit extends React.Component<ProblemEditProps, ProblemEditState, GlobalState> {
+export default class ProblemEdit extends React.Component<ProblemEditProps & CommonProps, ProblemEditState, GlobalState> {
   constructor() {
     super();
 

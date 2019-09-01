@@ -12,7 +12,7 @@ import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
 import Rank from '../rank/rank';
 
-interface ContestDetailsProps extends CommonProps {
+interface ContestDetailsProps {
   contestId?: number,
   groupId?: number
 }
@@ -67,7 +67,7 @@ interface ContestDetailsState {
   rankOpened: boolean
 }
 
-export default class ContestDetails extends React.Component<ContestDetailsProps, ContestDetailsState, GlobalState> {
+export default class ContestDetails extends React.Component<ContestDetailsProps & CommonProps, ContestDetailsState, GlobalState> {
   constructor() {
     super();
     this.state = {

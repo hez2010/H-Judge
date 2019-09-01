@@ -11,7 +11,7 @@ import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
 
-interface ProblemDetailsProps extends CommonProps {
+interface ProblemDetailsProps {
   problemId?: number,
   contestId?: number,
   groupId?: number
@@ -57,7 +57,7 @@ interface SubmitResultModel {
   resultId: number
 }
 
-export default class ProblemDetails extends React.Component<ProblemDetailsProps, ProblemDetailsState, GlobalState> {
+export default class ProblemDetails extends React.Component<ProblemDetailsProps & CommonProps, ProblemDetailsState, GlobalState> {
   constructor() {
     super();
     this.fetchDetail = this.fetchDetail.bind(this);
@@ -232,7 +232,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps,
         })
       return;
     }
-    
+
     Post('/vote/problem', {
       problemId: this.state.problem.id,
       voteType: voteType
