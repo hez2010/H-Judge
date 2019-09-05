@@ -47,11 +47,11 @@ module.exports = function (webpackEnv) {
                 ),
                 cacheDirectory: true,
                 cacheCompression: isEnvProduction,
-                compact: isEnvProduction,
+                compact: isEnvProduction
               }
             },
             'astroturf/loader'
-          ],
+          ]
         },
         {
           test: /\.(s*)css$/,
@@ -92,5 +92,5 @@ module.exports = function (webpackEnv) {
         client: './src/index.tsx'
       }
     }
-  ]
-}
+  ];
+};

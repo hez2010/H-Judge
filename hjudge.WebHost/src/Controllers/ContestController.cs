@@ -126,7 +126,7 @@ namespace hjudge.WebHost.Controllers
                 contests = await (model switch
                 {
                     { GroupId: 0 } => contestService.QueryContestAsync(userId),
-                    { } => contestService.QueryContestAsync(userId, model.GroupId)
+                    _ => contestService.QueryContestAsync(userId, model.GroupId)
                 });
             }
             catch (Exception ex)
@@ -137,8 +137,6 @@ namespace hjudge.WebHost.Controllers
             var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId)/*.Cacheable()*/.FirstOrDefaultAsync();
 
             if (contest == null) throw new NotFoundException("找不到该比赛");
-
-            var user = await userManager.FindByIdAsync(contest.UserId);
 
             var vote = await voteService.GetVoteAsync(userId, null, model.ContestId);
 

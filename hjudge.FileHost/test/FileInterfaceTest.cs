@@ -1,4 +1,4 @@
-﻿using hjudgeFileHost.Services;
+﻿using hjudge.FileHost.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -15,7 +15,7 @@ namespace hjudge.FileHost.Test
         [TestMethod]
         public async Task FileTest()
         {
-            using (var m = new MemoryStream())
+            await using (var m = new MemoryStream())
             {
                 await m.WriteAsync(Encoding.UTF8.GetBytes("test"));
                 await m.FlushAsync();
@@ -24,7 +24,6 @@ namespace hjudge.FileHost.Test
 
                 var r = await service.DownloadAsync("{datadir:2}/test.jpg");
                 Assert.IsNotNull(r);
-                if (r == null) return;
 
                 var buffer = new byte[(int)r.Length];
                 await r.ReadAsync(buffer, 0, (int)r.Length);
@@ -32,7 +31,7 @@ namespace hjudge.FileHost.Test
                 Assert.AreEqual("test", Encoding.UTF8.GetString(buffer));
             }
 
-            using (var m = new MemoryStream())
+            await using (var m = new MemoryStream())
             {
                 await m.WriteAsync(Encoding.UTF8.GetBytes("test2"));
                 await m.FlushAsync();
@@ -41,7 +40,6 @@ namespace hjudge.FileHost.Test
 
                 var r = await service.DownloadAsync("{datadir:2}/test.jpg");
                 Assert.IsNotNull(r);
-                if (r == null) return;
 
                 var buffer = new byte[(int)r.Length];
                 await r.ReadAsync(buffer, 0, (int)r.Length);

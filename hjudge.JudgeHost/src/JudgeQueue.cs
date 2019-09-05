@@ -41,109 +41,130 @@ namespace hjudge.JudgeHost
             return Task.CompletedTask;
         }
 
-        public static async Task JudgeQueueExecuter(string dataCacheDir, CancellationToken cancellationToken)
+        public static async Task JudgeQueueExecutor(string dataCacheDir, CancellationToken cancellationToken)
         {
             if (!Directory.Exists(dataCacheDir)) Directory.CreateDirectory(dataCacheDir);
             if (Semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                await Semaphore.WaitAsync();
-                if (pools.TryDequeue(out var judgeInfo))
+                cancellationToken.ThrowIfCancellationRequested();
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    Console.WriteLine($"{DateTime.Now}: Started judge #{judgeInfo.JudgeId}");
-                    await ReportJudgeResultAsync(new JudgeReportInfo
+                    await Semaphore.WaitAsync(cancellationToken);
+                    if (pools.TryDequeue(out var judgeInfo))
                     {
-                        JudgeId = judgeInfo.JudgeId,
-                        Type = JudgeReportInfo.ReportType.PreJudge
-                    });
-
-                    var judge = new JudgeMain();
-                    if (judgeInfo.JudgeOptions == null || judgeInfo.BuildOptions == null)
-                    {
+                        Console.WriteLine($"{DateTime.Now}: Started judge #{judgeInfo.JudgeId}");
                         await ReportJudgeResultAsync(new JudgeReportInfo
                         {
                             JudgeId = judgeInfo.JudgeId,
-                            JudgeResult = new JudgeResult { JudgePoints = null },
+                            Type = JudgeReportInfo.ReportType.PreJudge
+                        });
+
+                        var judge = new JudgeMain();
+                        if (judgeInfo.JudgeOptions == null || judgeInfo.BuildOptions == null)
+                        {
+                            await ReportJudgeResultAsync(new JudgeReportInfo
+                            {
+                                JudgeId = judgeInfo.JudgeId,
+                                JudgeResult = new JudgeResult { JudgePoints = null },
+                                Type = JudgeReportInfo.ReportType.PostJudge
+                            });
+                            continue;
+                        }
+
+                        var workingDir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeInfo.JudgeOptions.GuidStr);
+
+                        var filesRequired =
+                            (await VarsProcessor.FillinWorkingDirAndGetRequiredFiles(judgeInfo, workingDir)).Distinct();
+
+                        Console.WriteLine($"{DateTime.Now}: Started downloading files for #{judgeInfo.JudgeId}");
+                        var fileService = new Files.FilesClient(Program.FileHostChannel);
+
+                        var request = new DownloadRequest();
+                        var now = DateTime.Now;
+
+                        var timeoutThreshold = TimeSpan.FromMinutes(5);
+                        foreach (var i in filesRequired)
+                        {
+                            var cache = fileCache.Where(j => j.Key == (dataCacheDir, i)).ToList();
+                            if (!cache.Any())
+                            {
+                                request.FileNames.Add(i);
+                                fileCache[(dataCacheDir, i)] = now;
+                            }
+                            else if (now - cache.FirstOrDefault().Value > timeoutThreshold)
+                            {
+                                request.FileNames.Add(i);
+                                fileCache[(dataCacheDir, i)] = now;
+                            }
+                        }
+
+                        var filesResponse = fileService.DownloadFiles(request, null, null, cancellationToken);
+
+                        while (await filesResponse.ResponseStream.MoveNext(default))
+                        {
+                            foreach (var i in filesResponse.ResponseStream.Current.Result)
+                            {
+                                var fileName = Path.Combine(dataCacheDir, JudgeMain.EscapeFileName(i.FileName));
+                                FileMode mode;
+                                if (File.Exists(fileName)) mode = FileMode.Truncate;
+                                else mode = FileMode.CreateNew;
+                                try
+                                {
+                                    await using var fs = new FileStream(fileName, mode, FileAccess.ReadWrite,
+                                        FileShare.None);
+                                    i.Content.WriteTo(fs);
+                                    await fs.FlushAsync(cancellationToken);
+                                    fs.Close();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.Message);
+                                }
+                            }
+                        }
+
+                        Console.WriteLine($"{DateTime.Now}: Finished downloading files for #{judgeInfo.JudgeId}");
+
+                        var result = new JudgeResult { JudgePoints = null };
+                        try
+                        {
+                            result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions, workingDir,
+                                dataCacheDir);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"{DateTime.Now}: Judge Error! {ex.Message}");
+                            Console.WriteLine("-------------------");
+                            Console.WriteLine(ex.StackTrace);
+                        }
+
+                        Console.WriteLine($"{DateTime.Now}: Finished judge #{judgeInfo.JudgeId}");
+                        await ReportJudgeResultAsync(new JudgeReportInfo
+                        {
+                            JudgeId = judgeInfo.JudgeId,
+                            JudgeResult = result,
                             Type = JudgeReportInfo.ReportType.PostJudge
                         });
-                        continue;
-                    }
-                    var workingDir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeInfo.JudgeOptions.GuidStr);
-
-                    var filesRequired = (await VarsProcessor.FillinWorkingDirAndGetRequiredFiles(judgeInfo, workingDir)).Distinct();
-
-                    Console.WriteLine($"{DateTime.Now}: Started downloading files for #{judgeInfo.JudgeId}");
-                    var fileService = new Files.FilesClient(Program.FileHostChannel);
-
-                    var request = new DownloadRequest();
-                    var now = DateTime.Now;
-
-                    var timeoutThreshold = TimeSpan.FromMinutes(1);
-                    foreach (var i in filesRequired)
-                    {
-                        var cache = fileCache.Where(j => j.Key == (dataCacheDir, i));
-                        if (!cache.Any())
+                        Console.WriteLine($"{DateTime.Now}: Reported judge #{judgeInfo.JudgeId}");
+                        if (cancellationToken.IsCancellationRequested)
                         {
-                            request.FileNames.Add(i);
-                            fileCache[(dataCacheDir, i)] = now;
-                        }
-                        else if (now - cache.FirstOrDefault().Value > timeoutThreshold)
-                        {
-                            request.FileNames.Add(i);
-                            fileCache[(dataCacheDir, i)] = now;
+                            Directory.Delete(dataCacheDir, true);
+                            break;
                         }
                     }
-
-                    var filesResponse = fileService.DownloadFiles(request);
-
-                    while (await filesResponse.ResponseStream.MoveNext(default))
-                    {
-                        foreach (var i in filesResponse.ResponseStream.Current.Result)
-                        {
-                            var fileName = Path.Combine(dataCacheDir, JudgeMain.EscapeFileName(i.FileName));
-                            FileMode mode;
-                            if (File.Exists(fileName)) mode = FileMode.Truncate;
-                            else mode = FileMode.CreateNew;
-                            try
-                            {
-                                using var fs = new FileStream(fileName, mode, FileAccess.ReadWrite, FileShare.None);
-                                i.Content.WriteTo(fs);
-                                await fs.FlushAsync();
-                                fs.Close();
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.Message);
-                            }
-                        }
-                    }
-
-                    Console.WriteLine($"{DateTime.Now}: Finished downloading files for #{judgeInfo.JudgeId}");
-
-                    var result = new JudgeResult { JudgePoints = null };
-                    try
-                    {
-                        result = await judge.JudgeAsync(judgeInfo.BuildOptions, judgeInfo.JudgeOptions, workingDir, dataCacheDir);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"{DateTime.Now}: Judge Error! {ex.Message}");
-                        Console.WriteLine("-------------------");
-                        Console.WriteLine(ex.StackTrace);
-                    }
-                    Console.WriteLine($"{DateTime.Now}: Finished judge #{judgeInfo.JudgeId}");
+                }
+            }
+            catch
+            {
+                while (pools.TryDequeue(out var info))
+                {
                     await ReportJudgeResultAsync(new JudgeReportInfo
                     {
-                        JudgeId = judgeInfo.JudgeId,
-                        JudgeResult = result,
+                        JudgeId = info.JudgeId,
+                        JudgeResult = null,
                         Type = JudgeReportInfo.ReportType.PostJudge
                     });
-                    Console.WriteLine($"{DateTime.Now}: Reported judge #{judgeInfo.JudgeId}");
-                    if (cancellationToken.IsCancellationRequested) 
-                    {
-                        Directory.Delete(dataCacheDir, true);
-                        break;
-                    }
                 }
             }
         }

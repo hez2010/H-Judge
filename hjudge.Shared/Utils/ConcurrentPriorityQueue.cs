@@ -5,7 +5,7 @@ using static hjudge.Shared.Judge.JudgeInfo;
 
 namespace hjudge.Shared.Utils
 {
-    public class ConcurrentPriorityQueue<T> : IEnumerable<T>, IEnumerable, IReadOnlyCollection<T>
+    public class ConcurrentPriorityQueue<T> : IReadOnlyCollection<T>
     {
         private readonly ConcurrentQueue<T> low = new ConcurrentQueue<T>();
         private readonly ConcurrentQueue<T> normal = new ConcurrentQueue<T>();
@@ -25,8 +25,6 @@ namespace hjudge.Shared.Utils
                     break;
                 case JudgePriority.High:
                     high.Enqueue(item);
-                    break;
-                default:
                     break;
             }
         }

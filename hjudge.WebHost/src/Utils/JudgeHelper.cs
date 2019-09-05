@@ -21,10 +21,10 @@ namespace hjudge.WebHost.Utils
             }
 
             var re = new Regex("[A-Z]|[a-z]|[0-9]");
-            return re.Matches(input)?.Cast<object>()?.Aggregate(string.Empty, (current, t) => current + t) ?? string.Empty;
+            return re.Matches(input).Cast<object>().Aggregate(string.Empty, (current, t) => current + t) ?? string.Empty;
         }
 
-        public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, IEnumerable<LanguageConfig> languageConfig)
+        public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, List<LanguageConfig> languageConfig)
         {
             var problem = await problemService.GetProblemAsync(judge.ProblemId);
             if (problem == null) throw new InvalidOperationException("Problem doesn't exists.");
@@ -95,18 +95,18 @@ namespace hjudge.WebHost.Utils
                         TimeLimit = point.TimeLimit,
                         StdInFile = point.StdInFile
                                 ?.Replace("${datadir}", datadir)
-                                ?.Replace("${file}", file)
-                                ?.Replace("${outputfile}", outputfile)
-                                ?.Replace("${name}", name)
-                                ?.Replace("${index0}", i.ToString())
-                                ?.Replace("${index}", (i + 1).ToString()) ?? string.Empty,
+                                .Replace("${file}", file)
+                                .Replace("${outputfile}", outputfile)
+                                .Replace("${name}", name)
+                                .Replace("${index0}", i.ToString())
+                                .Replace("${index}", (i + 1).ToString()) ?? string.Empty,
                         StdOutFile = point.StdOutFile
                                 ?.Replace("${datadir}", datadir)
-                                ?.Replace("${file}", file)
-                                ?.Replace("${outputfile}", outputfile)
-                                ?.Replace("${name}", name)
-                                ?.Replace("${index0}", i.ToString())
-                                ?.Replace("${index}", (i + 1).ToString()) ?? string.Empty
+                                .Replace("${file}", file)
+                                .Replace("${outputfile}", outputfile)
+                                .Replace("${name}", name)
+                                .Replace("${index0}", i.ToString())
+                                .Replace("${index}", (i + 1).ToString()) ?? string.Empty
                     });
                 }
                 judgeOptionsBuilder.UseInputFileName((string.IsNullOrWhiteSpace(problemConfig.InputFileName) ? null : problemConfig.InputFileName)?.Replace("${name}", name) ?? $"test_{judgeOptionsBuilder.GuidStr}.in");
@@ -124,42 +124,42 @@ namespace hjudge.WebHost.Utils
                     {
                         args = args.Substring((judge.Language?.Length ?? 0) + 2);
                     }
-                    if (!string.IsNullOrWhiteSpace(lang.RunExec))
+                    if (!string.IsNullOrWhiteSpace(lang?.RunExec))
                     {
                         judgeOptionsBuilder.UseRunOptions(options =>
                         {
                             options.Exec = (string.IsNullOrWhiteSpace(lang.RunExec) ? null : lang.RunExec)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${file}", file)
-                                    ?.Replace("${outputfile}", outputfile)
-                                    ?.Replace("${name}", name) ?? string.Empty;
+                                    .Replace("${file}", file)
+                                    .Replace("${outputfile}", outputfile)
+                                    .Replace("${name}", name) ?? string.Empty;
                             options.Args = (string.IsNullOrWhiteSpace(lang.RunArgs) ? null : lang.RunArgs)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${file}", file)
-                                    ?.Replace("${outputfile}", outputfile)
-                                    ?.Replace("${name}", name) ?? string.Empty;
+                                    .Replace("${file}", file)
+                                    .Replace("${outputfile}", outputfile)
+                                    .Replace("${name}", name) ?? string.Empty;
                         });
                     }
-                    if (!string.IsNullOrWhiteSpace(lang.CompilerExec))
+                    if (!string.IsNullOrWhiteSpace(lang?.CompilerExec))
                     {
                         buildOptionsBuilder.UseCompiler(options =>
                         {
                             options.Args = (string.IsNullOrWhiteSpace(args) ? null : args)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${file}", file)
-                                    ?.Replace("${outputfile}", outputfile)
-                                    ?.Replace("${name}", name)
+                                    .Replace("${file}", file)
+                                    .Replace("${outputfile}", outputfile)
+                                    .Replace("${name}", name)
                                 ??
                                 (string.IsNullOrWhiteSpace(lang.CompilerArgs) ? null : lang.CompilerArgs)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${file}", file)
-                                    ?.Replace("${outputfile}", outputfile)
-                                    ?.Replace("${name}", name) ?? string.Empty;
+                                    .Replace("${file}", file)
+                                    .Replace("${outputfile}", outputfile)
+                                    .Replace("${name}", name) ?? string.Empty;
                             options.Exec = (string.IsNullOrWhiteSpace(lang.CompilerExec) ? null : lang.CompilerExec)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${file}", file)
-                                    ?.Replace("${outputfile}", outputfile)
-                                    ?.Replace("${name}", name) ?? string.Empty;
+                                    .Replace("${file}", file)
+                                    .Replace("${outputfile}", outputfile)
+                                    .Replace("${name}", name) ?? string.Empty;
                             options.OutputFile = outputfile;
 
                             if (!string.IsNullOrWhiteSpace(lang.CompilerProblemMatcher))
@@ -174,21 +174,21 @@ namespace hjudge.WebHost.Utils
                             options.ReadStdError = lang.CompilerReadStdError;
                         });
                     }
-                    if (!string.IsNullOrWhiteSpace(lang.StaticCheckExec))
+                    if (!string.IsNullOrWhiteSpace(lang?.StaticCheckExec))
                     {
                         buildOptionsBuilder.UseStaticCheck(options =>
                         {
                             options.Args = (string.IsNullOrWhiteSpace(lang.StaticCheckArgs) ? null : lang.StaticCheckArgs)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${file}", file)
-                                    ?.Replace("${outputfile}", outputfile)
-                                    ?.Replace("${name}", name) ?? string.Empty;
+                                    .Replace("${file}", file)
+                                    .Replace("${outputfile}", outputfile)
+                                    .Replace("${name}", name) ?? string.Empty;
 
                             options.Exec = (string.IsNullOrWhiteSpace(lang.StaticCheckExec) ? null : lang.StaticCheckExec)
                                     ?.Replace("${datadir}", datadir)
-                                    ?.Replace("${file}", file)
-                                    ?.Replace("${outputfile}", outputfile)
-                                    ?.Replace("${name}", name) ?? string.Empty;
+                                    .Replace("${file}", file)
+                                    .Replace("${outputfile}", outputfile)
+                                    .Replace("${name}", name) ?? string.Empty;
 
                             if (!string.IsNullOrWhiteSpace(lang.StaticCheckProblemMatcher))
                             {
@@ -202,9 +202,12 @@ namespace hjudge.WebHost.Utils
                             options.ReadStdError = lang.StaticCheckReadStdError;
                         });
                     }
-                    judgeOptionsBuilder.UseStdErrBehavior(lang.StandardErrorBehavior);
 
-                    judgeOptionsBuilder.UseActiveProcessLimit(lang.ActiveProcessLimit);
+                    if (lang != null)
+                    {
+                        judgeOptionsBuilder.UseStdErrBehavior(lang.StandardErrorBehavior);
+                        judgeOptionsBuilder.UseActiveProcessLimit(lang.ActiveProcessLimit);
+                    }
                 }
                 return (judgeOptionsBuilder, buildOptionsBuilder);
             }
@@ -238,11 +241,11 @@ namespace hjudge.WebHost.Utils
                 {
                     AnswerFile = (string.IsNullOrWhiteSpace(problemConfig.Answer.AnswerFile) ? null : problemConfig.Answer.AnswerFile)
                             ?.Replace("${datadir}", datadir)
-                            ?.Replace("${file}", file)
-                            ?.Replace("${outputfile}", outputfile)
-                            ?.Replace("${name}", name)
-                            ?.Replace("${index0}", "0")
-                            ?.Replace("${index}", "1") ?? string.Empty,
+                            .Replace("${file}", file)
+                            .Replace("${outputfile}", outputfile)
+                            .Replace("${name}", name)
+                            .Replace("${index0}", "0")
+                            .Replace("${index}", "1") ?? string.Empty,
                     Score = problemConfig.Answer.Score
                 });
 

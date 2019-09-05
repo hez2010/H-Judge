@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace hjudgeFileHost.Data
+namespace hjudge.FileHost.Data
 {
     public partial class FileHostDbContext : DbContext
     {

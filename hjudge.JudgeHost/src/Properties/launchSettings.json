@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "hjudge.FileHost": {
+    "hjudge.JudgeHost": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {

@@ -94,7 +94,10 @@ namespace hjudge.WebHost.Services
                 {
                     await channel.ShutdownAsync();
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
             }
         }
     }

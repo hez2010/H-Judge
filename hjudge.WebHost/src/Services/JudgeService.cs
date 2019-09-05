@@ -70,7 +70,7 @@ namespace hjudge.WebHost.Services
             else await dbContext.Judge.AddAsync(judge);
             await dbContext.SaveChangesAsync();
 
-            var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, await languageService.GetLanguageConfigAsync());
+            var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, (await languageService.GetLanguageConfigAsync()).ToList());
             var (judgeOptions, buildOptions) = (judgeOptionsBuilder.Build(), buildOptionsBuilder.Build());
 
             var (channel, options) = messageQueueService.GetInstance("JudgeQueue");

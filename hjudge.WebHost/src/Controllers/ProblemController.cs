@@ -79,7 +79,7 @@ namespace hjudge.WebHost.Controllers
                 {
                     { ContestId: 0, GroupId: 0 } => problemService.QueryProblemAsync(userId),
                     { GroupId: 0 } => problemService.QueryProblemAsync(userId, model.ContestId),
-                    { } => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId)
+                    _ => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId)
                 });
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace hjudge.WebHost.Controllers
                 {
                     { ContestId: 0, GroupId: 0 } => problemService.QueryProblemAsync(userId),
                     { GroupId: 0 } => problemService.QueryProblemAsync(userId, model.ContestId),
-                    { } => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId)
+                    _ => problemService.QueryProblemAsync(userId, model.ContestId, model.GroupId)
                 });
             }
             catch (Exception ex)
@@ -259,7 +259,7 @@ namespace hjudge.WebHost.Controllers
                 if (contest != null)
                 {
                     var contestConfig = contest.Config.DeserializeJson<ContestConfig>();
-                    var contestLangs = config.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);
+                    var contestLangs = contestConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries);
                     langs = langs.Intersect(contestLangs).ToArray();
                 }
             }
@@ -359,14 +359,14 @@ namespace hjudge.WebHost.Controllers
             if (file.ContentType != "application/x-zip-compressed" && file.ContentType != "application/zip") throw new BadRequestException("文件格式不正确");
             if (file.Length > 134217728) throw new BadRequestException("文件大小不能超过 128 Mb");
 
-            using var stream = file.OpenReadStream();
+            await using var stream = file.OpenReadStream();
             using var zip = new ZipArchive(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
             var list = new List<UploadInfo>();
             var failedList = new ProblemDataUploadModel();
             long size = 0;
             foreach (var i in zip.Entries.Where(i => !i.FullName.EndsWith("/")))
             {
-                using var entryStream = i.Open();
+                await using var entryStream = i.Open();
                 size += i.Length;
                 if (size > 140 * 1048576)
                 {
@@ -401,7 +401,7 @@ namespace hjudge.WebHost.Controllers
                 await foreach (var i in downloadedFiles)
                 {
                     var entry = zip.CreateEntry(i.FileName);
-                    using var entryStream = entry.Open();
+                    await using var entryStream = entry.Open();
                     i.Content.WriteTo(entryStream);
                 }
             }
@@ -417,7 +417,7 @@ namespace hjudge.WebHost.Controllers
             if ((await problemService.GetProblemAsync(problemId)) == null) return;
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
-            _ = await fileService.DeleteFilesAsync(files);
+            await fileService.DeleteFilesAsync(files);
         }
     }
 }

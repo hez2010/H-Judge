@@ -1,10 +1,10 @@
-﻿using CacheManager.Core;
+﻿using System;
+using CacheManager.Core;
 using EFSecondLevelCache.Core;
-using hjudgeFileHost.Data;
-using hjudgeFileHost.Services;
+using hjudge.FileHost.Data;
+using hjudge.FileHost.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace hjudge.FileHost.Test
 {
@@ -18,9 +18,9 @@ namespace hjudge.FileHost.Test
             services.AddDbContext<FileHostDbContext>(options =>
             {
                 options.UseInMemoryDatabase("test");
-                options.EnableDetailedErrors(true);
-                options.EnableSensitiveDataLogging(true);
-                options.EnableServiceProviderCaching(true);
+                options.EnableDetailedErrors();
+                options.EnableSensitiveDataLogging();
+                options.EnableServiceProviderCaching();
             });
 
             services.AddEntityFrameworkInMemoryDatabase();

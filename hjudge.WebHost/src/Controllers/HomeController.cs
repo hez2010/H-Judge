@@ -14,9 +14,6 @@ using System.Threading.Tasks;
 namespace hjudge.WebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
-    [ApiController]
-    [Route("home")]
-    [Route("")]
     public class HomeController : Controller
     {
         private readonly CachedUserManager<UserInfo> userManager;
@@ -30,8 +27,6 @@ namespace hjudge.WebHost.Controllers
         }
 
         [SendAntiForgeryToken]
-        [Route("")]
-        [Route("index")]
         public async Task<IActionResult> Index()
         {
             var model = await GetCurrentUserInfo();
@@ -67,7 +62,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [Route("activities")]
+        [Route("home/activities")]
         public ActivityListModel GetActivities()
         {
             // TODO: Generate activities
@@ -75,7 +70,6 @@ namespace hjudge.WebHost.Controllers
         }
 
         [AllowAnonymous]
-        [Route("error")]
         public IActionResult Error()
         {
             throw new InterfaceException((HttpStatusCode)HttpContext.Response.StatusCode, Activity.Current?.Id ?? HttpContext.TraceIdentifier);

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using hjudge.Shared.Judge;
 using System.Collections.Generic;
 using Grpc.Core;
-using RabbitMQ.Client;
 
 namespace hjudge.JudgeHost
 {
@@ -75,13 +74,13 @@ namespace hjudge.JudgeHost
             };
 
             var tasks = new List<Task>();
-            for (var i = 0; i < config.ConcurrentJudgeTask; i++) 
-            tasks.Add(JudgeQueue.JudgeQueueExecuter(
-                Path.Combine(
-                    Path.GetTempPath(),
-                    config.DataCacheDirectory,
-                    Guid.NewGuid().ToString().Replace("-", "_")),
-                token));
+            for (var i = 0; i < config.ConcurrentJudgeTask; i++)
+                tasks.Add(JudgeQueue.JudgeQueueExecutor(
+                    Path.Combine(
+                        Path.GetTempPath(),
+                        config.DataCacheDirectory,
+                        Guid.NewGuid().ToString().Replace("-", "_")),
+                    token));
 
             await Task.WhenAll(tasks);
 
