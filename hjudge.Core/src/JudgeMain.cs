@@ -52,7 +52,7 @@ namespace hjudge.Core
             {
                 var current = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
                 var newValue = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? environments : environments.Replace(';', ':');
-                if (current.IndexOf(newValue) < 0)
+                if (current.IndexOf(newValue, StringComparison.Ordinal) < 0)
                 {
                     Environment.SetEnvironmentVariable("PATH",
                         $"{newValue}{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":")}{Environment.GetEnvironmentVariable("PATH")}");
@@ -62,14 +62,14 @@ namespace hjudge.Core
 
         public static string EscapeFileName(string? fileName) => fileName
                 ?.Replace(":", "_1_")
-                ?.Replace("\\", "_2_")
-                ?.Replace("/", "_2_")
-                ?.Replace("?", "_3_")
-                ?.Replace("*", "_4_")
-                ?.Replace("\"", "")
-                ?.Replace("<", "_5_")
-                ?.Replace(">", "_6_")
-                ?.Replace("|", "_7_") ?? string.Empty;
+                .Replace("\\", "_2_")
+                .Replace("/", "_2_")
+                .Replace("?", "_3_")
+                .Replace("*", "_4_")
+                .Replace("\"", "")
+                .Replace("<", "_5_")
+                .Replace(">", "_6_")
+                .Replace("|", "_7_") ?? string.Empty;
 
         private string? GetTargetFilePath(string? originalFilePath)
         {
@@ -426,7 +426,7 @@ namespace hjudge.Core
                     retryTimes++;
                     if (retryTimes > 100)
                     {
-                        std?.Dispose();
+                        std.Dispose();
                         return (ResultCode.Unknown_Error, 0, ex.Message);
                     }
                     await Task.Delay(100);
@@ -484,7 +484,7 @@ namespace hjudge.Core
                     if (!isAnswerJudge)
                     {
                         result.ExtraInfo =
-                        $"Line {line}: \nexpect: {stdline?.Substring(0, 64 < (stdline?.Length ?? 0) ? 64 : stdline?.Length ?? 0) ?? "<nothing>"}{((stdline?.Length ?? 0) > 64 ? "..." : string.Empty)} \noutput: {actline?.Substring(0, 64 < (actline?.Length ?? 0) ? 64 : actline?.Length ?? 0) ?? "<nothing>"}{((actline?.Length ?? 0) > 64 ? "..." : string.Empty)}";
+                        $"Line {line}: \nexpect: {stdline?.Substring(0, 64 < stdline.Length ? 64 : stdline.Length) ?? "<nothing>"}{((stdline?.Length ?? 0) > 64 ? "..." : string.Empty)} \noutput: {actline?.Substring(0, 64 < actline.Length ? 64 : actline.Length) ?? "<nothing>"}{((actline?.Length ?? 0) > 64 ? "..." : string.Empty)}";
                     }
 
                     if ((stdline?.Replace(" ", string.Empty) ?? string.Empty) ==

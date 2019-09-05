@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace hjudgeFileHost
+namespace hjudge.FileHost
 {
     class Program
     {

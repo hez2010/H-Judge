@@ -89,16 +89,16 @@ namespace hjudge.Shared.Utils
         {
             return Encoding.UTF8.GetBytes(camel switch
             {
-                true => JsonSerializer.Serialize<T>(obj, camelOptions),
-                false => JsonSerializer.Serialize<T>(obj, pascalOptions)
+                true => JsonSerializer.Serialize(obj, camelOptions),
+                false => JsonSerializer.Serialize(obj, pascalOptions)
             });
         }
         public static string SerializeJsonAsString<T>(this T obj, bool camel = true)
         {
             return camel switch
             {
-                true => JsonSerializer.Serialize<T>(obj, camelOptions),
-                false => JsonSerializer.Serialize<T>(obj, pascalOptions)
+                true => JsonSerializer.Serialize(obj, camelOptions),
+                false => JsonSerializer.Serialize(obj, pascalOptions)
             };
         }
         public static T DeserializeJson<T>(this ReadOnlySpan<byte> data, bool camel = true)

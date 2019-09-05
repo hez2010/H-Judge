@@ -22,7 +22,7 @@ namespace hjudge.WebHost.Services
 
         public MessageQueueService(IOptions<MessageQueueServiceOptions> options)
         {
-            factory = options.Value.MessageQueueFactory ?? throw new ArgumentNullException("MessageQueueFactory");
+            factory = options.Value.MessageQueueFactory ?? throw new NullReferenceException();
         }
 
         public void Dispose()

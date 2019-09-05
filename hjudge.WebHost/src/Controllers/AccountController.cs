@@ -77,7 +77,7 @@ namespace hjudge.WebHost.Controllers
             }
             else
             {
-                var errors = ModelState.ToList().SelectMany(i => i.Value.Errors, (i, j) => j.ErrorMessage);
+                var errors = ModelState.SelectMany(i => i.Value.Errors, (i, j) => j.ErrorMessage).ToList();
                 throw errors.Any() ?
                     new BadRequestException(errors.Aggregate((accu, next) => accu + "\n" + next))
                     : new BadRequestException();
@@ -105,7 +105,7 @@ namespace hjudge.WebHost.Controllers
 
             if (avatar.Length > 1048576) throw new BadRequestException("文件大小不能超过 1 Mb");
 
-            using var stream = new System.IO.MemoryStream();
+            await using var stream = new System.IO.MemoryStream();
 
             await avatar.CopyToAsync(stream);
             stream.Seek(0, System.IO.SeekOrigin.Begin);

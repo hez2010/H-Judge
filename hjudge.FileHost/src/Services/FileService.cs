@@ -3,9 +3,9 @@ using System.IO;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using Grpc.Core;
-using hjudgeFileHost.Data;
+using hjudge.FileHost.Data;
 
-namespace hjudgeFileHost.Services
+namespace hjudge.FileHost.Services
 {
     public class FileService : Files.FilesBase
     {
@@ -22,10 +22,10 @@ namespace hjudgeFileHost.Services
             var result = new UploadResponse();
             while (await requestStream.MoveNext())
             {
-                Console.WriteLine($"Count: {requestStream.Current.Infos.Count}");
+                Console.WriteLine($@"Count: {requestStream.Current.Infos.Count}");
                 foreach (var i in requestStream.Current.Infos)
                 {
-                    using var stream = new MemoryStream();
+                    await using var stream = new MemoryStream();
                     i.Content.WriteTo(stream);
                     stream.Seek(0, SeekOrigin.Begin);
                     try
@@ -61,7 +61,11 @@ namespace hjudgeFileHost.Services
                 {
                     stream = await seaweed.DownloadAsync(i);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
+
                 var succeeded = true;
                 if (stream != null) stream.Seek(0, SeekOrigin.Begin);
                 else succeeded = false;
@@ -86,7 +90,11 @@ namespace hjudgeFileHost.Services
                 {
                     succeeded = await seaweed.DeleteAsync(i);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
+
                 result.Results.Add(new DeleteResult
                 {
                     FileName = i,

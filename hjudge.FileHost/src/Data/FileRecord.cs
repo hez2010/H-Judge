@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace hjudgeFileHost.Data
+namespace hjudge.FileHost.Data
 {
     public class FileRecord
     {

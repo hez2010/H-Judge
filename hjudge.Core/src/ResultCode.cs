@@ -1,6 +1,6 @@
 ﻿namespace hjudge.Core
 {
-    public enum ResultCode : int
+    public enum ResultCode
     {
         Pending = -1,
         Judging = 0,

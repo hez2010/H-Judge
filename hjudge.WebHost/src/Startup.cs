@@ -7,7 +7,6 @@ using hjudge.WebHost.Services;
 using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -16,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RabbitMQ.Client.Events;
 using React.AspNet;
 using System;
 using System.Linq;
@@ -104,7 +102,7 @@ namespace hjudge.WebHost
             services.AddDbContext<WebHostDbContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-                options.EnableServiceProviderCaching(true);
+                options.EnableServiceProviderCaching();
             });
 
             services.AddEntityFrameworkNpgsql();
@@ -192,12 +190,12 @@ namespace hjudge.WebHost
 
             app.UseMiddleware<ExceptionMiddleware>(); // must be placed after app.UseExceptionHandler()
 
-            app.UseStatusCodePages(new Func<StatusCodeContext, Task>(context =>
+            app.UseStatusCodePages(context =>
                 ExceptionMiddleware.WriteExceptionAsync(context.HttpContext, new ErrorModel
                 {
                     ErrorCode = (System.Net.HttpStatusCode)context.HttpContext.Response.StatusCode,
                     ErrorMessage = "请求失败"
-                })));
+                }));
 
             app.UseResponseCaching();
             app.UseResponseCompression();
@@ -292,7 +290,7 @@ namespace hjudge.WebHost
                 switch (configuration[$"MessageQueue:Consumers:{cnt}:Queue"])
                 {
                     case "JudgeReport":
-                        consumer.OnReceived = new AsyncEventHandler<BasicDeliverEventArgs>(JudgeReport.JudgeReport_Received);
+                        consumer.OnReceived = JudgeReport.JudgeReport_Received;
                         Task.Run(() => JudgeReport.QueueExecutor(cancellationTokenSource.Token));
                         break;
                 }

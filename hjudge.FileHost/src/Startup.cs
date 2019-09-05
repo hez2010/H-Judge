@@ -1,7 +1,5 @@
 ﻿using CacheManager.Core;
 using EFSecondLevelCache.Core;
-using hjudgeFileHost.Data;
-using hjudgeFileHost.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using hjudge.FileHost.Data;
+using hjudge.FileHost.Services;
 
-namespace hjudgeFileHost
+namespace hjudge.FileHost
 {
     public class Startup
     {

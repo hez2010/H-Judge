@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Controllers
             if (groupId != 0)
             {
                 var groups = await groupService.QueryGroupAsync(user?.Id);
-                groups = groups.Where(i => i.GroupContestConfig.Any(i => i.ContestId == contestId && i.GroupId == i.GroupId))/*.Cacheable()*/;
+                groups = groups.Where(i => i.GroupContestConfig.Any(j => j.ContestId == contestId && j.GroupId == groupId))/*.Cacheable()*/;
                 if (!await groups.AnyAsync()) throw new NotFoundException("该比赛不存在或未加入对应小组");
             }
 
@@ -118,7 +118,7 @@ namespace hjudge.WebHost.Controllers
                     (ContestType.LastSubmit, ScoreCountingMode.All) => i.Score,
                     (ContestType.LastSubmit, _) => i.ResultType == (int)ResultCode.Accepted ? i.Score : 0,
                     (_, ScoreCountingMode.All) => Math.Max(i.Score, ret.RankInfos[i.UserId][i.ProblemId].Score),
-                    (_, _) => Math.Max(i.ResultType == (int)ResultCode.Accepted ? i.Score : 0, ret.RankInfos[i.UserId][i.ProblemId].Score),
+                    _ => Math.Max(i.ResultType == (int)ResultCode.Accepted ? i.Score : 0, ret.RankInfos[i.UserId][i.ProblemId].Score),
                 };
 
                 ret.RankInfos[i.UserId][i.ProblemId].Penalty += penalty;
@@ -168,7 +168,7 @@ namespace hjudge.WebHost.Controllers
                 ret.UserInfos[rankData[i].UserId].Rank = i + 1 - sameRankCnt;
                 if (i != 0)
                 {
-                    if (rankData[i].Score == rankData[i - 1].Score && rankData[i].Time == rankData[i - 1].Time) sameRankCnt++;
+                    if (Math.Abs(rankData[i].Score - rankData[i - 1].Score) < 0.001 && rankData[i].Time == rankData[i - 1].Time) sameRankCnt++;
                     else sameRankCnt = 0;
                 }
             }

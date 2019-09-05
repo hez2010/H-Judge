@@ -1,5 +1,4 @@
-﻿using hjudgeFileHost.Data;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using smartbox.SeaweedFs.Client;
 using smartbox.SeaweedFs.Client.Core.File;
 using System;
@@ -11,8 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using hjudge.FileHost.Data;
 
-namespace hjudgeFileHost.Services
+namespace hjudge.FileHost.Services
 {
     public class SeaweedFsOptions
     {

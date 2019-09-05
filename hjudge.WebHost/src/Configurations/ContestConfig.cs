@@ -1,26 +1,26 @@
 ﻿namespace hjudge.WebHost.Configurations
 {
-    public enum ContestType : int
+    public enum ContestType
     {
         Generic,
         LastSubmit,
         Penalty
     }
 
-    public enum ResultDisplayMode : int
+    public enum ResultDisplayMode
     {
         Intime,
         AfterContest,
         Never
     }
 
-    public enum ResultDisplayType : int
+    public enum ResultDisplayType
     {
         Detailed,
         Summary
     }
 
-    public enum ScoreCountingMode : int
+    public enum ScoreCountingMode
     {
         All,
         OnlyAccepted
