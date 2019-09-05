@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <NullableContextOptions>enable</NullableContextOptions>
     <TypeScriptToolsVersion>latest</TypeScriptToolsVersion>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <IsPackable>false</IsPackable>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <SpaRoot>.\Frontend\</SpaRoot>
