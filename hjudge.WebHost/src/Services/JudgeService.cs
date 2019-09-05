@@ -44,7 +44,7 @@ namespace hjudge.WebHost.Services
                 .Include(i => i.UserInfo)
                 .Include(i => i.Contest)
                 .Include(i => i.Group)
-                .Where(i => i.Id == judgeId).Cacheable().FirstOrDefaultAsync();
+                .Where(i => i.Id == judgeId)/*.Cacheable()*/.FirstOrDefaultAsync();
             return result;
         }
 

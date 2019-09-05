@@ -65,7 +65,7 @@ const Login = (props: LoginProps) => {
               <Checkbox name='rememberMe' label='记住登录状态'></Checkbox>
             </Form.Field>
             <Button onClick={login} primary>登录</Button>
-            <a href='javascript:void(0)' onClick={forgotPassword} style={{ float: 'right' }}>忘记密码</a>
+            <a href="#" onClick={forgotPassword} style={{ float: 'right' }}>忘记密码</a>
           </Form>
         </Modal.Content>
       </Modal>

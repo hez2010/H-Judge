@@ -27,8 +27,8 @@ namespace hjudgeFileHost
         {
             services.AddGrpc(options =>
             {
-                options.ReceiveMaxMessageSize = 2147483647;
-                options.SendMaxMessageSize = 150 * 1048576;
+                options.MaxReceiveMessageSize = 2147483647;
+                options.MaxSendMessageSize = 150 * 1048576;
             });
 
             services.AddDbContext<FileHostDbContext>(options =>
