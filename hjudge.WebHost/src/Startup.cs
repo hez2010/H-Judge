@@ -284,8 +284,8 @@ namespace hjudge.WebHost
                     Durable = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:Durable"]),
                     AutoAck = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:AutoAck"]),
                     Exclusive = bool.Parse(configuration[$"MessageQueue:Consumers:{cnt}:Exclusive"]),
-                    Exchange = configuration[$"MessageQueue:Producers:{cnt}:Exchange"],
-                    RoutingKey = configuration[$"MessageQueue:Producers:{cnt}:RoutingKey"]
+                    Exchange = configuration[$"MessageQueue:Consumers:{cnt}:Exchange"],
+                    RoutingKey = configuration[$"MessageQueue:Consumers:{cnt}:RoutingKey"]
                 };
                 switch (configuration[$"MessageQueue:Consumers:{cnt}:Queue"])
                 {

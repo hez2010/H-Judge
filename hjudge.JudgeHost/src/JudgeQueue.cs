@@ -47,6 +47,7 @@ namespace hjudge.JudgeHost
             if (Semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     await Semaphore.WaitAsync(cancellationToken);
@@ -98,7 +99,7 @@ namespace hjudge.JudgeHost
                             }
                         }
 
-                        var filesResponse = fileService.DownloadFiles(request);
+                        var filesResponse = fileService.DownloadFiles(request, null, null, cancellationToken);
 
                         while (await filesResponse.ResponseStream.MoveNext(default))
                         {

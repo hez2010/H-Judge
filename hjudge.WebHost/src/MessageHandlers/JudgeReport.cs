@@ -20,6 +20,7 @@ namespace hjudge.WebHost.MessageHandlers
         public static Task JudgeReport_Received(object sender, BasicDeliverEventArgs args)
         {
             if (!(sender is AsyncEventingBasicConsumer consumer)) return Task.CompletedTask;
+
             try
             {
                 queue.Enqueue(args.Body.DeserializeJson<JudgeReportInfo>(false));
@@ -46,7 +47,7 @@ namespace hjudge.WebHost.MessageHandlers
         {
             while (!token.IsCancellationRequested)
             {
-                await semaphore.WaitAsync();
+                await semaphore.WaitAsync(token);
                 if (queue.TryDequeue(out var info))
                 {
                     var judgeService = ServiceProviderExtensions.ServiceProvider?.GetService<IJudgeService>();
@@ -58,7 +59,6 @@ namespace hjudge.WebHost.MessageHandlers
                     if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
                     await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
                 }
-                if (token.IsCancellationRequested) break;
             }
         }
     }

@@ -9,6 +9,7 @@ import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { getWidth } from '../../utils/windowHelper';
+import { isAdmin } from '../../utils/privilegeHelper';
 // import { HubConnectionBuilder, HubConnectionState, HubConnection } from '@aspnet/signalr';
 
 interface JudgePointModel {
@@ -272,6 +273,14 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
             <Popup.Header>评测信息</Popup.Header>
             <Popup.Content>{this.renderSubmissionInfo()}</Popup.Content>
           </Popup>
+          {
+            isAdmin(this.global.userInfo.privilege) ?
+              <div style={{ float: 'right' }}>
+                <Button.Group>
+                  <Button onClick={this.reJudge}>重新评测</Button>
+                </Button.Group>
+              </div> : null
+          }
         </Item.Header>
 
         <Item.Description>
