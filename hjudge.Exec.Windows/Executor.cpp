@@ -3,16 +3,15 @@
 #include <string>
 #include <cstring>
 #include <sstream>
-#include <cstdio>
 #include "Executor.h"
 
 ExitType exitInfo = UnknownError;
 
 //Convert a Json::Value object to Json string
-std::string getJsonString(Json::Value value)
+std::string getJsonString(const Json::Value value)
 {
-	Json::StreamWriterBuilder wbuilder;
-	Json::StreamWriter *writer(wbuilder.newStreamWriter());
+    const Json::StreamWriterBuilder wBuilder;
+    auto writer(wBuilder.newStreamWriter());
 	std::ostringstream os;
 	writer->write(value, &os);
 	delete writer;
@@ -20,20 +19,20 @@ std::string getJsonString(Json::Value value)
 	return os.str();
 }
 
-#define CheckHandle(x) !(x == NULL || x == INVALID_HANDLE_VALUE)
+#define CheckHandle(x) !((x) == NULL || (x) == INVALID_HANDLE_VALUE)
 
 bool execute(const char* param, char* ret) {
 	//Set error mode, prevent windows error report utils window
 	SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOALIGNMENTFAULTEXCEPT | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
-	SetThreadErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX, NULL);
+	SetThreadErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX, nullptr);
 
-	//Initialize some varibles
-	Json::CharReaderBuilder rbuilder;
-	Json::CharReader *reader(rbuilder.newCharReader());
+	//Initialize some variables
+	Json::CharReaderBuilder rBuilder;
+    auto reader(rBuilder.newCharReader());
 	Json::Value root;
 	JSONCPP_STRING errs;
 
-	std::string exec, args, inputFile, outputFile, workingdir, stdErrFile;
+	std::string exec, args, inputFile, outputFile, workingDir, stdErrFile;
 	int activeProcessLimit;
 	long long timeLimit, memoryLimit;
 	bool isStdIO;
@@ -41,7 +40,7 @@ bool execute(const char* param, char* ret) {
 	Json::Value result;
 	result["TimeCost"] = 0;
 	result["MemoryCost"] = 0;
-	result["Exitcode"] = 0;
+	result["ExitCode"] = 0;
 	result["ResultType"] = 11;
 	result["ExtraInfo"] = "";
 
@@ -49,7 +48,7 @@ bool execute(const char* param, char* ret) {
 	if (reader->parse(param, param + std::strlen(param), &root, &errs) && errs.empty()) {
 		exec = root["Exec"].asString(); //Executable path
 		args = root["Args"].asString(); //Execute arguments
-		workingdir = root["WorkingDir"].asString(); //Environment directory
+		workingDir = root["WorkingDir"].asString(); //Environment directory
 		stdErrFile = root["StdErrRedirectFile"].asString(); //Redirect standard error
 		inputFile = root["InputFile"].asString(); //Input file path
 		outputFile = root["OutputFile"].asString(); //Output file path
@@ -71,10 +70,10 @@ bool execute(const char* param, char* ret) {
 	//Improve time counter accuracy
 	timeBeginPeriod(1);
 
-	bool checked = true;
+    auto checked = true;
 
 	//Create job object
-	HANDLE hJob = CreateJobObject(NULL, NULL);
+    auto hJob = CreateJobObject(nullptr, nullptr);
 	checked = CheckHandle(hJob);
 
 	//Set time, memory, process instance count limits
@@ -110,36 +109,36 @@ bool execute(const char* param, char* ret) {
 	SetInformationJobObject(hJob, JobObjectBasicUIRestrictions, &jobUIRestrictions, sizeof jobUIRestrictions);
 
 	//Create Io completion port and thread in order to get notification when limits exceeded
-	HANDLE hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 0);
+    auto hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, 0);
 	checked = CheckHandle(hIOCP);
 
-	JOBOBJECT_ASSOCIATE_COMPLETION_PORT jobIOCP = { 0 };
+	JOBOBJECT_ASSOCIATE_COMPLETION_PORT jobIOCP = { nullptr };
 	jobIOCP.CompletionKey = hJob;
 	jobIOCP.CompletionPort = hIOCP;
 	SetInformationJobObject(hJob, JobObjectAssociateCompletionPortInformation, &jobIOCP, sizeof jobIOCP);
 
-	HANDLE hIOCPThread = CreateThread(NULL, 0, static_cast<LPTHREAD_START_ROUTINE>(IOCPThread), static_cast<LPVOID>(hIOCP), 0, NULL);
+    auto hIOCPThread = CreateThread(nullptr, 0, static_cast<LPTHREAD_START_ROUTINE>(IOCPThread), static_cast<LPVOID>(hIOCP), 0, nullptr);
 
 	checked = CheckHandle(hIOCPThread);
 
 	//Execute command of target program
-	std::string commandline = exec.insert(0, "\"").append("\" ").append(args);
+    auto commandline = exec.insert(0, "\"").append("\" ").append(args);
 
-	//Initilize process info varibles
+	//Initialize process info variables
 	STARTUPINFO si = { sizeof STARTUPINFO };
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	si.wShowWindow = SW_HIDE;
-	SECURITY_ATTRIBUTES sa = { sizeof SECURITY_ATTRIBUTES, NULL, TRUE };
+	SECURITY_ATTRIBUTES sa = { sizeof SECURITY_ATTRIBUTES, nullptr, TRUE };
 	PROCESS_INFORMATION pi;
 
 	//Redirect standard input/output
-	HANDLE cmdInput = NULL, cmdOutput = NULL, cmdError;
+	HANDLE cmdInput = nullptr, cmdOutput = nullptr, cmdError;
 
 	if (isStdIO) {
 		cmdInput = CreateFile(inputFile.c_str(), GENERIC_READ,
 			FILE_SHARE_READ |
 			FILE_SHARE_WRITE,
-			&sa, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			&sa, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 		checked = CheckHandle(cmdInput);
 		if (checked) si.hStdInput = cmdInput;
@@ -147,7 +146,7 @@ bool execute(const char* param, char* ret) {
 		cmdOutput = CreateFile(outputFile.c_str(), GENERIC_WRITE | GENERIC_READ,
 			FILE_SHARE_READ |
 			FILE_SHARE_WRITE,
-			&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
 		checked = CheckHandle(cmdOutput);
 		if (checked) si.hStdOutput = cmdOutput;
@@ -156,13 +155,13 @@ bool execute(const char* param, char* ret) {
 	cmdError = CreateFile(stdErrFile.c_str(), GENERIC_WRITE | GENERIC_READ,
 		FILE_SHARE_READ |
 		FILE_SHARE_WRITE,
-		&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		&sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (checked) si.hStdError = cmdError;
 
 	if (!checked) goto Exit;
 
 	//Create process, and suspend the process at the very beginning
-	if (CreateProcess(NULL, (LPSTR)commandline.c_str(), NULL, NULL, TRUE, CREATE_NO_WINDOW | CREATE_SUSPENDED, NULL, workingdir.c_str(), &si, &pi)) {
+	if (CreateProcess(nullptr, const_cast<LPSTR>(commandline.c_str()), nullptr, nullptr, TRUE, CREATE_NO_WINDOW | CREATE_SUSPENDED, nullptr, workingDir.c_str(), &si, &pi)) {
 		if (!isStdIO) {
 			if (CheckHandle(si.hStdInput))
 				CloseHandle(si.hStdInput);
@@ -176,33 +175,33 @@ bool execute(const char* param, char* ret) {
 		CloseHandle(pi.hThread);
 
 		//Wait for a while
-		DWORD wait = WaitForSingleObject(pi.hProcess, static_cast<DWORD>(timeLimit) * 10);
+        auto wait = WaitForSingleObject(pi.hProcess, static_cast<DWORD>(timeLimit) * 10);
 		JOBOBJECT_EXTENDED_LIMIT_INFORMATION lpJobExtendedInfo;
 		JOBOBJECT_BASIC_ACCOUNTING_INFORMATION lpJobBasicInfo;
 
 		DWORD lpReturnLength;
 
 		//Post notification to terminate Io completion port thread
-		PostQueuedCompletionStatus(hIOCP, 0, reinterpret_cast<ULONG_PTR>(hJob), NULL);
+		PostQueuedCompletionStatus(hIOCP, 0, reinterpret_cast<ULONG_PTR>(hJob), nullptr);
 		WaitForSingleObject(hIOCPThread, INFINITE);
 
-		//Query process info: time/memory cost, exitcode
+		//Query process info: time/memory cost, exitCode
 		if (QueryInformationJobObject(hJob, JobObjectExtendedLimitInformation, &lpJobExtendedInfo, sizeof lpJobExtendedInfo, &lpReturnLength)
 			&& QueryInformationJobObject(hJob, JobObjectBasicAccountingInformation, &lpJobBasicInfo, sizeof lpJobBasicInfo, &lpReturnLength)) {
 
-			auto TimeCost = static_cast<long long>(lpJobBasicInfo.TotalUserTime.QuadPart) / 10000;
-			auto MemoryCost = static_cast<long long>(lpJobExtendedInfo.PeakProcessMemoryUsed) >> 10;
-			result["TimeCost"] = TimeCost;
-			result["MemoryCost"] = MemoryCost;
-			result["Exitcode"] = 0;
+			auto timeCost = static_cast<long long>(lpJobBasicInfo.TotalUserTime.QuadPart) / 10000;
+			auto memoryCost = static_cast<long long>(lpJobExtendedInfo.PeakProcessMemoryUsed) >> 10;
+			result["TimeCost"] = timeCost;
+			result["MemoryCost"] = memoryCost;
+			result["ExitCode"] = 0;
 
 			if (wait != WAIT_TIMEOUT) {
-				result["TimeCost"] = TimeCost;
-				result["MemoryCost"] = MemoryCost;
+				result["TimeCost"] = timeCost;
+				result["MemoryCost"] = memoryCost;
 
-				DWORD Exitcode = 0;
-				GetExitCodeProcess(pi.hProcess, &Exitcode);
-				result["Exitcode"] = static_cast<int>(Exitcode);
+				DWORD exitCode = 0;
+				GetExitCodeProcess(pi.hProcess, &exitCode);
+				result["ExitCode"] = static_cast<int>(exitCode);
 
 				switch (exitInfo) {
 				case Normal:
@@ -221,9 +220,9 @@ bool execute(const char* param, char* ret) {
 					result["ResultType"] = 11;
 					break;
 				}
-				if (TimeCost > timeLimit)
+				if (timeCost > timeLimit)
 					result["ResultType"] = 4;
-				if (MemoryCost > MemoryCost)
+				if (memoryCost > memoryLimit)
 					result["ResultType"] = 5;
 			}
 			else if (wait != WAIT_FAILED) {
@@ -237,7 +236,7 @@ bool execute(const char* param, char* ret) {
 		else {
 			result["TimeCost"] = 0;
 			result["MemoryCost"] = 0;
-			result["Exitcode"] = 0;
+			result["ExitCode"] = 0;
 			result["ResultType"] = 11;
 			result["ExtraInfo"] = "Failed to query job object information";
 		}
@@ -269,7 +268,7 @@ bool execute(const char* param, char* ret) {
 		timeEndPeriod(1);
 		return true;
 	}
-	else PostQueuedCompletionStatus(hIOCP, 0, reinterpret_cast<ULONG_PTR>(hJob), NULL);
+	else PostQueuedCompletionStatus(hIOCP, 0, reinterpret_cast<ULONG_PTR>(hJob), nullptr);
 
 	timeEndPeriod(1);
 

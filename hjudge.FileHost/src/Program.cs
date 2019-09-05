@@ -15,12 +15,15 @@ namespace hjudgeFileHost
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.ConfigureKestrel(options =>
-                    { //TODO: use config for host and port
-                        options.ListenLocalhost(61726, listenOptions =>
-                        {
-                            listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
-                        });
+                    webBuilder.ConfigureKestrel(kestrelOptions =>
+                    {
+                        // TODO: load port from config
+                        kestrelOptions.ListenLocalhost(61726,
+                            listenOptions =>
+                            {
+                                listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core
+                                    .HttpProtocols.Http2;
+                            });
                     });
                 });
     }

@@ -1,5 +1,4 @@
-﻿import { hot } from 'react-hot-loader/root';
-import * as React from 'react';
+﻿import * as React from 'react';
 import { useGlobal } from 'reactn';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
@@ -80,8 +79,7 @@ const App = (props: any) => {
     if (!userInfo.userId) refreshUserInfo();
   }, []);
 
-  const renderContent = () => {
-    return <>
+  const renderContent = <>
       <Layout>
         <Switch>
           <Route
@@ -168,10 +166,9 @@ const App = (props: any) => {
         </Segment>
       </TransitionablePortal>
     </>;
-  }
 
-  if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent()}</StaticRouter>;
-  return <BrowserRouter>{renderContent()}</BrowserRouter>;
+  if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent}</StaticRouter>;
+  return <BrowserRouter>{renderContent}</BrowserRouter>;
 };
 
-export default hot(App);
+export default App;

@@ -9,7 +9,7 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
 
-interface GroupProps extends CommonProps { }
+interface GroupProps { }
 
 interface GroupListItemModel {
   id: number,
@@ -32,7 +32,7 @@ interface GroupState {
   loaded: boolean
 }
 
-export default class Group extends React.Component<GroupProps, GroupState, GlobalState> {
+export default class Group extends React.Component<GroupProps & CommonProps, GroupState, GlobalState> {
   constructor() {
     super();
 

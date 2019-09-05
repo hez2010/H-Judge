@@ -46,7 +46,7 @@ namespace hjudge.WebHost.Services
             var result = await dbContext.Contest
                 .Include(i => i.UserInfo)
                 .Where(i => i.Id == contestId)
-                .Cacheable().FirstOrDefaultAsync();
+                /*.Cacheable()*/.FirstOrDefaultAsync();
             return result;
         }
 

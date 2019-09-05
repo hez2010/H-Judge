@@ -8,7 +8,7 @@ import { Table, Button, Placeholder, Form, Input, Pagination } from 'semantic-ui
 import { tryJson } from '../../utils/responseHelper';
 import { NavLink } from 'react-router-dom';
 
-interface StatisticsProps extends CommonProps {
+interface StatisticsProps {
   problemId?: number,
   contestId?: number,
   groupId?: number,
@@ -59,7 +59,7 @@ const judgeResult = [
   { key: '11', value: 'Unknown_Error', text: 'Unknown Error' }
 ];
 
-export default class Statistics extends React.Component<StatisticsProps, StatisticsState, GlobalState> {
+export default class Statistics extends React.Component<StatisticsProps & CommonProps, StatisticsState, GlobalState> {
   constructor() {
     super();
 

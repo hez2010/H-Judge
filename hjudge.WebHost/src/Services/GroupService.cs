@@ -43,13 +43,13 @@ namespace hjudge.WebHost.Services
         {
             var result = await dbContext.Group
                 .Include(i => i.UserInfo)
-                .Where(i => i.Id == groupId).Cacheable().FirstOrDefaultAsync();
+                .Where(i => i.Id == groupId)/*.Cacheable()*/.FirstOrDefaultAsync();
             return result;
         }
 
         public Task<bool> IsInGroupAsync(string userId, int groupId)
         {
-            return dbContext.GroupJoin.Where(i => i.UserId == userId && i.GroupId == groupId).Cacheable().AnyAsync();
+            return dbContext.GroupJoin.Where(i => i.UserId == userId && i.GroupId == groupId)/*.Cacheable()*/.AnyAsync();
         }
 
         public async Task<bool> OptInGroupAsync(string userId, int groupId)
