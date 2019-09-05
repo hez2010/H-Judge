@@ -76,7 +76,7 @@ namespace hjudge.JudgeHost
 
             var tasks = new List<Task>();
             for (var i = 0; i < config.ConcurrentJudgeTask; i++) 
-            tasks.Add(JudgeQueue.JudgeQueueExecuter(
+            tasks.Add(JudgeQueue.JudgeQueueExecutor(
                 Path.Combine(
                     Path.GetTempPath(),
                     config.DataCacheDirectory,
