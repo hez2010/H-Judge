@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Nullable>enable</Nullable>
     <NullableContextOptions>enable</NullableContextOptions>
+    <TypeScriptToolsVersion>latest</TypeScriptToolsVersion>
     <IsPackable>false</IsPackable>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <SpaRoot>.\Frontend\</SpaRoot>

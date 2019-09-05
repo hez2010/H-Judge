@@ -4,6 +4,16 @@ import { setTitle } from '../../utils/titleHelper';
 
 const About = () => {
   const upgradeLogs = [{
+    version: 'Alpha: 2.0-preview8',
+    date: '2019/09/05',
+    content: [
+      '1. 初步添加小组支持',
+      '2. 主页添加动态 Hub',
+      '3. 更新比赛排名算法',
+      '4. 修复评测器内存测量错误的 bug',
+    ]
+  },
+  {
     version: 'Alpha: 2.0-preview7',
     date: '2019/08/27',
     content: [
@@ -11,7 +21,7 @@ const About = () => {
       '2. 修复题目状态值错误的 bug'
     ]
   },
-    {
+  {
     version: 'Alpha: 2.0-preview6',
     date: '2019/08/26',
     content: [
