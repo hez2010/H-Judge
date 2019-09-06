@@ -76,27 +76,28 @@ namespace hjudge.WebHost.Services
             {
                 judge.Result = string.Empty;
                 dbContext.Judge.Update(judge);
+                await dbContext.SaveChangesAsync();
             }
             else
             {
                 judge.JudgeTime = DateTime.Now;
                 await dbContext.Judge.AddAsync(judge);
-            }
-            await dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
 
-            if (judge.ContestId != null)
-            {
-                var problemConfig = await dbContext.ContestProblemConfig
-                    .Where(i => i.ContestId == judge.ContestId &&
-                                i.ProblemId == judge.ProblemId).FirstOrDefaultAsync();
-                problemConfig.SubmissionCount++;
+                if (judge.ContestId != null)
+                {
+                    var problemConfig = await dbContext.ContestProblemConfig
+                        .Where(i => i.ContestId == judge.ContestId &&
+                                    i.ProblemId == judge.ProblemId).FirstOrDefaultAsync();
+                    problemConfig.SubmissionCount++;
+                }
+                else
+                {
+                    var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync();
+                    problem.SubmissionCount++;
+                }
+                await dbContext.SaveChangesAsync();
             }
-            else
-            {
-                var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync();
-                problem.SubmissionCount++;
-            }
-            await dbContext.SaveChangesAsync();
 
             var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, (await languageService.GetLanguageConfigAsync()).ToList());
             var (judgeOptions, buildOptions) = (judgeOptionsBuilder.Build(), buildOptionsBuilder.Build());
