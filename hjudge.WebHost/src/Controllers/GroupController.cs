@@ -26,7 +26,7 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
-        private readonly static int[] allStatus = new[] { 0, 1 };
+        private static readonly int[] allStatus = { 0, 1 };
 
         [Route("list")]
         public async Task<GroupListModel> GroupList([FromBody]GroupListQueryModel model)

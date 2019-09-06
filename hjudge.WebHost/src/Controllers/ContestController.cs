@@ -38,7 +38,7 @@ namespace hjudge.WebHost.Controllers
             this.voteService = voteService;
         }
 
-        private readonly static int[] allStatus = new[] { 0, 1, 2 };
+        private static readonly int[] allStatus = { 0, 1, 2 };
         [HttpPost]
         [Route("list")]
         public async Task<ContestListModel> ContestList([FromBody]ContestListQueryModel model)
@@ -160,7 +160,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpDelete]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public Task RemoveContest(int contestId)
         {
@@ -168,7 +168,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPut]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task<ContestEditModel> CreateContest([FromBody]ContestEditModel model)
         {
@@ -203,7 +203,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task UpdateContest([FromBody]ContestEditModel model)
         {
@@ -223,7 +223,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task<ContestEditModel> GetContest(int contestId)
         {

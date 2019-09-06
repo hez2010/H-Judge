@@ -58,6 +58,8 @@ namespace hjudge.WebHost.Controllers
             var now = DateTime.Now;
             var allowJumpToResult = true;
 
+            if (user.Privilege == 5) throw new ForbiddenException("不允许提交，请与管理员联系");
+
             if (model.GroupId != 0)
             {
                 var inGroup = await groupService.IsInGroupAsync(user.Id, model.GroupId);

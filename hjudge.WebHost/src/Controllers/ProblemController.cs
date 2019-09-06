@@ -58,7 +58,7 @@ namespace hjudge.WebHost.Controllers
             this.dbContext = dbContext;
         }
 
-        private readonly static int[] allStatus = new[] { 0, 1, 2 };
+        private static readonly int[] allStatus = { 0, 1, 2 };
 
         [HttpPost]
         [Route("list")]
@@ -270,7 +270,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpDelete]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public Task RemoveProblem(int problemId)
         {
@@ -278,7 +278,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPut]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task<ProblemEditModel> CreateProblem([FromBody]ProblemEditModel model)
         {
@@ -312,7 +312,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task UpdateProblem([FromBody]ProblemEditModel model)
         {
@@ -330,7 +330,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task<ProblemEditModel> GetProblem(int problemId)
         {
@@ -350,7 +350,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPut]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("data")]
         [RequestSizeLimit(135000000)]
         public async Task<ProblemDataUploadModel> UploadData([FromForm]int problemId, IFormFile file)
@@ -382,7 +382,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("data")]
         public async Task<IActionResult> GetData(int problemId)
         {
@@ -410,7 +410,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpDelete]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("data")]
         public async Task DeleteData(int problemId)
         {
