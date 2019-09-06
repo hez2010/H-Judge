@@ -74,7 +74,7 @@ namespace hjudge.Core
         private string? GetTargetFilePath(string? originalFilePath)
         {
             if (originalFilePath?.StartsWith("R:") ?? false) return Path.Combine(dataCacheDir, EscapeFileName(originalFilePath![2..]));
-            else return originalFilePath;
+            return originalFilePath;
         }
 
         public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingDir, string dataCacheDir)
@@ -347,7 +347,6 @@ namespace hjudge.Core
                         StandardOutputEncoding = Encoding.UTF8
                     }
                 };
-                await Task.Delay(100);
                 try
                 {
                     judge.Start();
