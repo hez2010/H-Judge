@@ -1,6 +1,4 @@
-﻿using hjudge.WebHost.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,7 +10,6 @@ namespace hjudge.WebHost.Services
 {
     public class CachedUserManager<TUser> : UserManager<TUser> where TUser : class
     {
-        private readonly WebHostDbContext dbContext;
         private readonly ICacheService cacheService;
 
         public CachedUserManager(
@@ -25,10 +22,8 @@ namespace hjudge.WebHost.Services
             IdentityErrorDescriber errors,
             IServiceProvider services,
             ILogger<CachedUserManager<TUser>> logger,
-            WebHostDbContext dbContext,
             ICacheService cacheService) : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger)
         {
-            this.dbContext = dbContext;
             this.cacheService = cacheService;
         }
 
@@ -130,13 +125,7 @@ namespace hjudge.WebHost.Services
         }
         public override Task<TUser> FindByIdAsync(string? userId)
         {
-            return cacheService.GetObjectAndSetAsync($"user_{userId}", async () =>
-            {
-                dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                var user = await base.FindByIdAsync(userId);
-                if (user != null) dbContext.Entry<TUser>(user).State = EntityState.Detached;
-                return user!;
-            });
+            return cacheService.GetObjectAndSetAsync($"user_{userId}", () => base.FindByIdAsync(userId));
         }
         public override async Task<IdentityResult> ChangeEmailAsync(TUser user, string newEmail, string token)
         {

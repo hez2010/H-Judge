@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Services
 
         public async Task<Judge?> GetJudgeAsync(int judgeId)
         {
-            var result = await dbContext.Judge
+            var result = await dbContext.Judge.AsNoTracking()
                 .Include(i => i.Problem)
                 .Include(i => i.UserInfo)
                 .Include(i => i.Contest)
@@ -54,7 +54,7 @@ namespace hjudge.WebHost.Services
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null)
         {
-            IQueryable<Judge> judges = dbContext.Judge;
+            IQueryable<Judge> judges = dbContext.Judge.AsNoTracking();
             if (!string.IsNullOrEmpty(userId)) judges = judges.Where(i => i.UserId == userId);
             if (groupId != 0) judges = judges.Where(i => i.GroupId == groupId);
             if (contestId != 0) judges = judges.Where(i => i.ContestId == contestId);
