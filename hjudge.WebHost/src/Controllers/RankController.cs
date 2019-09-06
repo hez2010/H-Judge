@@ -47,7 +47,7 @@ namespace hjudge.WebHost.Controllers
                 if (!await groups.AnyAsync()) throw new NotFoundException("该比赛不存在或未加入对应小组");
             }
 
-            var config = contest.Config.DeserializeJson<ContestConfig>();
+            var config = contest.Config.DeserializeJson<ContestConfig>(false);
             if (!config.ShowRank && !Utils.PrivilegeHelper.IsTeacher(user?.Privilege)) throw new ForbiddenException("不允许查看排名");
 
             var judges = await judgeService.QueryJudgesAsync(null,

@@ -19,20 +19,20 @@ namespace hjudge.WebHost.Services
     }
     public class EmailSender : IEmailSender
     {
-        private readonly IConfiguration Configuration;
+        private readonly IConfiguration configuration;
         public EmailSender(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.configuration = configuration;
         }
-        public Task SendAsync(string subject, string content, EmailType type, string[] targets)
+        public async Task SendAsync(string subject, string content, EmailType type, string[] targets)
         {
-            var username = Configuration["EmailConfig:UserName"];
-            var password = Configuration["EmailConfig:Password"];
-            var domain = Configuration["EmailConfig:Domain"];
-            var hostname = Configuration["HostName"];
-            var smtpHost = Configuration["EmailConfig:Smtp:Host"];
-            var smtpPort = int.Parse(Configuration["EmailConfig:Smtp:Port"]);
-            var smtpEnableSsl = bool.Parse(Configuration["EmailConfig:Smtp:EnableSsl"]);
+            var username = configuration["EmailConfig:UserName"];
+            var password = configuration["EmailConfig:Password"];
+            var domain = configuration["EmailConfig:Domain"];
+            var hostname = configuration["HostName"];
+            var smtpHost = configuration["EmailConfig:Smtp:Host"];
+            var smtpPort = int.Parse(configuration["EmailConfig:Smtp:Port"]);
+            var smtpEnableSsl = bool.Parse(configuration["EmailConfig:Smtp:EnableSsl"]);
 
             var sender = type switch
             {
@@ -57,7 +57,7 @@ namespace hjudge.WebHost.Services
                 msg.To.Add(new MailAddress(address));
             }
 
-            var smtp = new SmtpClient
+            using var smtp = new SmtpClient
             {
                 Host = smtpHost,
                 Port = smtpPort,
@@ -65,7 +65,7 @@ namespace hjudge.WebHost.Services
                 Credentials = new NetworkCredential(username, password)
             };
 
-            return smtp.SendMailAsync(msg);
+            await smtp.SendMailAsync(msg);
         }
     }
 }

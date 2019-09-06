@@ -9,6 +9,7 @@ using hjudge.WebHost.Extensions;
 using hjudge.WebHost.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using hjudge.Core;
 using hjudge.WebHost.Data.Identity;
@@ -58,12 +59,38 @@ namespace hjudge.WebHost.MessageHandlers
                     using var scope = ServiceProviderExtensions.ServiceProvider?.CreateScope();
                     try
                     {
+                        var userManager = scope?.ServiceProvider.GetService<CachedUserManager<UserInfo>>();
+                        if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
+
                         var dbContext = scope?.ServiceProvider.GetService<WebHostDbContext>();
                         if (dbContext == null) throw new InvalidOperationException("WebHostDbContext was not registed into service collection.");
                         dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                        
+
                         var judgeService = scope?.ServiceProvider.GetService<IJudgeService>();
                         if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed into service collection.");
+
+                        var judge = await judgeService.GetJudgeAsync(info.JudgeId);
+                        if (judge != null && judge.JudgeCount <= 1 && judge.ResultType == (int)ResultCode.Accepted)
+                        {
+                            var user = await userManager.FindByIdAsync(judge.UserId);
+                            user.AcceptedCount++;
+                            await userManager.UpdateAsync(user);
+
+                            if (judge.ContestId != null)
+                            {
+                                var problemConfig = await dbContext.ContestProblemConfig
+                                    .Where(i => i.ContestId == judge.ContestId &&
+                                                i.ProblemId == judge.ProblemId).FirstOrDefaultAsync(token);
+                                problemConfig.AcceptCount++;
+                            }
+                            else
+                            {
+                                var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync(token);
+                                problem.AcceptCount++;
+                            }
+
+                            await dbContext.SaveChangesAsync(token);
+                        }
 
                         await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);
 
@@ -71,17 +98,6 @@ namespace hjudge.WebHost.MessageHandlers
                         if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
                         await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
 
-                        // TODO: Fix tracking issues
-                        // var userManager = scope?.ServiceProvider.GetService<CachedUserManager<UserInfo>>();
-                        // if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
-                        
-                        // var judge = await judgeService.GetJudgeAsync(info.JudgeId);
-                        // if (judge != null && judge.JudgeCount <= 1 && judge.ResultType == (int)ResultCode.Accepted)
-                        // {
-                        //     var user = await userManager.FindByIdAsync(judge.UserId);
-                        //     user.AcceptedCount++;
-                        //     await userManager.UpdateAsync(user);
-                        // }
                     }
                     catch (Exception ex)
                     {

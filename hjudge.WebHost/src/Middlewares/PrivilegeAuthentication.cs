@@ -19,7 +19,7 @@ namespace hjudge.WebHost.Middlewares
             {
                 var dbContext = context.HttpContext.RequestServices.GetService<WebHostDbContext>();
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
+                var userInfo = await dbContext.Users.FirstOrDefaultAsync(i => i.Id == userId);
 
                 if (userInfo == null) throw new AuthenticationException("没有登录账户");
 
@@ -37,7 +37,7 @@ namespace hjudge.WebHost.Middlewares
                 var dbContext = context.HttpContext.RequestServices.GetService<WebHostDbContext>();
 
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
+                var userInfo = await dbContext.Users.FirstOrDefaultAsync(i => i.Id == userId);
 
                 if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0)) throw new ForbiddenException();
 
@@ -53,7 +53,7 @@ namespace hjudge.WebHost.Middlewares
                 var dbContext = context.HttpContext.RequestServices.GetService<WebHostDbContext>();
 
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var userInfo = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(i => i.Id == userId);
+                var userInfo = await dbContext.Users.FirstOrDefaultAsync(i => i.Id == userId);
 
                 if (!PrivilegeHelper.IsTeacher(userInfo?.Privilege ?? 0)) throw new ForbiddenException();
 
