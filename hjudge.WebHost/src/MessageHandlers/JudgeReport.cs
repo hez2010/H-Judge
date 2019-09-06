@@ -51,6 +51,7 @@ namespace hjudge.WebHost.MessageHandlers
 
         public static async Task QueueExecutor(CancellationToken token)
         {
+            var random = new Random();
             while (!token.IsCancellationRequested)
             {
                 await semaphore.WaitAsync(token);
@@ -59,37 +60,58 @@ namespace hjudge.WebHost.MessageHandlers
                     using var scope = ServiceProviderExtensions.ServiceProvider?.CreateScope();
                     try
                     {
-                        var userManager = scope?.ServiceProvider.GetService<CachedUserManager<UserInfo>>();
-                        if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
-
-                        var dbContext = scope?.ServiceProvider.GetService<WebHostDbContext>();
-                        if (dbContext == null) throw new InvalidOperationException("WebHostDbContext was not registed into service collection.");
-                        dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-
                         var judgeService = scope?.ServiceProvider.GetService<IJudgeService>();
                         if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed into service collection.");
 
-                        var judge = await judgeService.GetJudgeAsync(info.JudgeId);
-                        if (judge != null && judge.JudgeCount <= 1 && judge.ResultType == (int)ResultCode.Accepted)
+                        var dbContext = scope?.ServiceProvider.GetService<WebHostDbContext>();
+                        if (dbContext == null) throw new InvalidOperationException("WebHostDbContext was not registed into service collection.");
+
+                        if (info.Type == JudgeReportInfo.ReportType.PostJudge)
                         {
-                            var user = await userManager.FindByIdAsync(judge.UserId);
-                            user.AcceptedCount++;
-                            await userManager.UpdateAsync(user);
+                            var userManager = scope?.ServiceProvider.GetService<CachedUserManager<UserInfo>>();
+                            if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
 
-                            if (judge.ContestId != null)
+                            var resultType = JudgeService.ComputeJudgeResultType(info.JudgeResult);
+                            
+                            var judge = await judgeService.GetJudgeAsync(info.JudgeId);
+                            if (judge != null && judge.JudgeCount <= 1 && (int)resultType >= (int)ResultCode.Accepted)
                             {
-                                var problemConfig = await dbContext.ContestProblemConfig
-                                    .Where(i => i.ContestId == judge.ContestId &&
-                                                i.ProblemId == judge.ProblemId).FirstOrDefaultAsync(token);
-                                problemConfig.AcceptCount++;
-                            }
-                            else
-                            {
-                                var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync(token);
-                                problem.AcceptCount++;
+                                if (resultType == ResultCode.Accepted)
+                                {
+                                    if (judge.ContestId != null)
+                                    {
+                                        var problemConfig = await dbContext.ContestProblemConfig
+                                            .AsNoTracking()
+                                            .Where(i => i.ContestId == judge.ContestId &&
+                                                        i.ProblemId == judge.ProblemId).FirstOrDefaultAsync(token);
+                                        problemConfig.AcceptCount++;
+                                        dbContext.ContestProblemConfig.Update(problemConfig);
+                                    }
+                                    else
+                                    {
+                                        var problem = await dbContext.Problem.AsNoTracking().Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync(token);
+                                        problem.AcceptCount++;
+                                        dbContext.Problem.Update(problem);
+                                    }
+                                }
+
+                                var (coins, experience, accept) = resultType switch
+                                {
+                                    ResultCode.Accepted => (random.Next(30, 80), random.Next(50, 100), 1),
+                                    ResultCode.Presentation_Error => (random.Next(10, 30), random.Next(30, 50), 0),
+                                    _ => (0, random.Next(10, 30), 0)
+                                };
+
+                                var userInfo = await userManager.FindByIdAsync(judge.UserId);
+
+                                userInfo.Coins += coins;
+                                userInfo.Experience += experience;
+                                userInfo.AcceptedCount += accept;
+
+                                await userManager.UpdateAsync(userInfo);
                             }
 
-                            await dbContext.SaveChangesAsync(token);
+                            await dbContext.SaveChangesAsync();
                         }
 
                         await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);

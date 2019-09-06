@@ -16,7 +16,7 @@ namespace hjudge.WebHost.Services
     public interface IJudgeService
     {
         Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null);
-        Task<Judge?> GetJudgeAsync(int judgeId);
+        Task<Judge?> GetJudgeAsync(int judgeId, bool includeForeignFields = false);
         Task<int> QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
     }
@@ -44,20 +44,25 @@ namespace hjudge.WebHost.Services
             this.userManager = userManager;
         }
 
-        public async Task<Judge?> GetJudgeAsync(int judgeId)
+        public async Task<Judge?> GetJudgeAsync(int judgeId, bool includeForeignFields = false)
         {
-            var result = await dbContext.Judge
+            var judges = includeForeignFields ? dbContext.Judge
                 .Include(i => i.Problem)
                 .Include(i => i.UserInfo)
                 .Include(i => i.Contest)
                 .Include(i => i.Group)
-                .Where(i => i.Id == judgeId)/*.Cacheable()*/.FirstOrDefaultAsync();
+                .AsNoTracking() : dbContext.Judge.AsNoTracking();
+                
+            var result = await judges
+                .Where(i => i.Id == judgeId)
+                /*.Cacheable()*/
+                .FirstOrDefaultAsync();
             return result;
         }
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null)
         {
-            IQueryable<Judge> judges = dbContext.Judge;
+            IQueryable<Judge> judges = dbContext.Judge.AsNoTracking();
             if (!string.IsNullOrEmpty(userId)) judges = judges.Where(i => i.UserId == userId);
             if (groupId != 0) judges = judges.Where(i => i.GroupId == groupId);
             if (contestId != 0) judges = judges.Where(i => i.ContestId == contestId);
@@ -76,27 +81,28 @@ namespace hjudge.WebHost.Services
             {
                 judge.Result = string.Empty;
                 dbContext.Judge.Update(judge);
+                await dbContext.SaveChangesAsync();
             }
             else
             {
                 judge.JudgeTime = DateTime.Now;
                 await dbContext.Judge.AddAsync(judge);
-            }
-            await dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
 
-            if (judge.ContestId != null)
-            {
-                var problemConfig = await dbContext.ContestProblemConfig
-                    .Where(i => i.ContestId == judge.ContestId &&
-                                i.ProblemId == judge.ProblemId).FirstOrDefaultAsync();
-                problemConfig.SubmissionCount++;
+                if (judge.ContestId != null)
+                {
+                    var problemConfig = await dbContext.ContestProblemConfig
+                        .Where(i => i.ContestId == judge.ContestId &&
+                                    i.ProblemId == judge.ProblemId).FirstOrDefaultAsync();
+                    problemConfig.SubmissionCount++;
+                }
+                else
+                {
+                    var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync();
+                    problem.SubmissionCount++;
+                }
+                await dbContext.SaveChangesAsync();
             }
-            else
-            {
-                var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync();
-                problem.SubmissionCount++;
-            }
-            await dbContext.SaveChangesAsync();
 
             var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, (await languageService.GetLanguageConfigAsync()).ToList());
             var (judgeOptions, buildOptions) = (judgeOptionsBuilder.Build(), buildOptionsBuilder.Build());
@@ -120,36 +126,38 @@ namespace hjudge.WebHost.Services
             return judge.Id;
         }
 
+        public static ResultCode ComputeJudgeResultType(JudgeResult? result)
+        {
+            if (result?.JudgePoints == null)
+            {
+                return ResultCode.Unknown_Error;
+            }
+
+            if (result.JudgePoints.Count == 0 || result.JudgePoints.All(i => i.ResultType == ResultCode.Accepted))
+            {
+                return ResultCode.Accepted;
+            }
+
+            var mostPresentTimes =
+                result.JudgePoints.Select(i => i.ResultType).Distinct().Max(i =>
+                    result.JudgePoints.Count(j => j.ResultType == i && j.ResultType != ResultCode.Accepted));
+            var mostPresent =
+                result.JudgePoints.Select(i => i.ResultType).Distinct().FirstOrDefault(
+                    i => result.JudgePoints.Count(j => j.ResultType == i && j.ResultType != ResultCode.Accepted) ==
+                         mostPresentTimes
+                );
+            return mostPresent;
+        }
+
         public async Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? result)
         {
-            var judge = await GetJudgeAsync(judgeId);
+            var judge = await dbContext.Judge.FindAsync(judgeId);
             if (judge == null) return;
 
             if (reportType == JudgeReportInfo.ReportType.PostJudge)
             {
                 judge.Result = result?.SerializeJsonAsString(false) ?? "{}";
-                judge.ResultType = (int)new Func<ResultCode>(() =>
-                {
-                    if (result?.JudgePoints == null)
-                    {
-                        return ResultCode.Unknown_Error;
-                    }
-
-                    if (result.JudgePoints.Count == 0 || result.JudgePoints.All(i => i.ResultType == ResultCode.Accepted))
-                    {
-                        return ResultCode.Accepted;
-                    }
-
-                    var mostPresentTimes =
-                        result.JudgePoints.Select(i => i.ResultType).Distinct().Max(i =>
-                            result.JudgePoints.Count(j => j.ResultType == i && j.ResultType != ResultCode.Accepted));
-                    var mostPresent =
-                        result.JudgePoints.Select(i => i.ResultType).Distinct().FirstOrDefault(
-                            i => result.JudgePoints.Count(j => j.ResultType == i && j.ResultType != ResultCode.Accepted) ==
-                                 mostPresentTimes
-                        );
-                    return mostPresent;
-                }).Invoke();
+                judge.ResultType = (int)ComputeJudgeResultType(result);
                 judge.FullScore = result?.JudgePoints?.Sum(i => i.Score) ?? 0;
             }
 
@@ -159,7 +167,6 @@ namespace hjudge.WebHost.Services
             }
 
             dbContext.Judge.Update(judge);
-
             await dbContext.SaveChangesAsync();
         }
     }

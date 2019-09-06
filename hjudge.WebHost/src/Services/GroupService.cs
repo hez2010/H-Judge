@@ -42,8 +42,10 @@ namespace hjudge.WebHost.Services
         public async Task<Group?> GetGroupAsync(int groupId)
         {
             var result = await dbContext.Group
-                .Include(i => i.UserInfo)
-                .Where(i => i.Id == groupId)/*.Cacheable()*/.FirstOrDefaultAsync();
+                .AsNoTracking()
+                .Where(i => i.Id == groupId)
+                /*.Cacheable()*/
+                .FirstOrDefaultAsync();
             return result;
         }
 
@@ -93,7 +95,7 @@ namespace hjudge.WebHost.Services
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Group> groups = dbContext.Group.Include(i => i.GroupJoin);
+            IQueryable<Group> groups = dbContext.Group.AsNoTracking().Include(i => i.GroupJoin);
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -105,7 +107,7 @@ namespace hjudge.WebHost.Services
 
         public Task<IQueryable<GroupJoin>> QueryGroupJoinRecordsAsync()
         {
-            IQueryable<GroupJoin> groups = dbContext.GroupJoin;
+            IQueryable<GroupJoin> groups = dbContext.GroupJoin.AsNoTracking();
             return Task.FromResult(groups);
         }
 

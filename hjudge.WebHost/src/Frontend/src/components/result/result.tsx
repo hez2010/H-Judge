@@ -96,6 +96,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
   // private connection: HubConnection = new HubConnectionBuilder()
   //   .withUrl('/hub/judge')
   //   .build();
+  private timer: NodeJS.Timeout | undefined;
 
   loadResult(resultId: number) {
     Get(`/judge/result?id=${resultId}`)
@@ -112,9 +113,9 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
           result: result,
           loaded: true
         });
-        
+
         // TODO: remove it once bug in signalr was fixed
-        if (result.resultType < 1) setTimeout(() => this.loadResult(resultId), 3000);
+        if (result.resultType < 1) this.timer = setTimeout(() => this.loadResult(resultId), 3000);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '评测结果加载失败', 'red');
@@ -233,7 +234,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
   componentDidMount() {
     setTitle('评测结果');
-    
+
     // TODO: re-enable it once bug in signalr was fixed
     // this.connection.on('JudgeCompleteSignalReceived', (resultId: number) => {
     //   this.loadResult(resultId);
@@ -252,6 +253,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
   }
 
   componentWillUnmount() {
+    if (this.timer) clearTimeout(this.timer);
     // if (this.connection.state === HubConnectionState.Connected) this.connection.stop();
   }
 
