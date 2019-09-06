@@ -83,7 +83,7 @@ namespace hjudge.JudgeHost
                         var request = new DownloadRequest();
                         var now = DateTime.Now;
 
-                        var timeoutThreshold = TimeSpan.FromMinutes(5);
+                        var timeoutThreshold = TimeSpan.FromMinutes(3);
                         foreach (var i in filesRequired)
                         {
                             var cache = fileCache.Where(j => j.Key == (dataCacheDir, i)).ToList();
