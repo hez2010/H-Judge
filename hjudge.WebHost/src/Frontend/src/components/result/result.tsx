@@ -181,9 +181,9 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
           <Label ribbon color='black'>#{i + 1}</Label>
           <Header as='span' color={v.resultType < 1 ? undefined : (v.resultType === 1 ? 'green' : 'red')}>{v.result}</Header>
           <br />
-          <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>时间：{v.timeCost}ms</small>
+          <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>得分：{v.score}</small>
           <br />
-          <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>内存：{v.memoryCost}kb</small>
+          <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>时间：{v.timeCost}ms, 内存：{v.memoryCost}kb</small>
           <br />
           <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>退出代码：{v.exitCode}</small>
           <br />
