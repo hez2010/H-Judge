@@ -390,11 +390,11 @@ namespace hjudge.WebHost.Controllers
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
             var downloadedFiles = fileService.DownloadFilesAsync(files);
-            var stream = new FileStream(Path.GetTempFileName(), 
-                FileMode.Open, 
-                FileAccess.ReadWrite, 
+            var stream = new FileStream(Path.GetTempFileName(),
+                FileMode.Open,
+                FileAccess.ReadWrite,
                 FileShare.None,
-                4096, 
+                4096,
                 FileOptions.Asynchronous | FileOptions.DeleteOnClose | FileOptions.SequentialScan);
             using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
@@ -407,6 +407,21 @@ namespace hjudge.WebHost.Controllers
             }
             stream.Seek(0, SeekOrigin.Begin);
             return File(stream, "application/x-zip-compressed", $"Data_{problemId}_{DateTime.Now:yyyyMMddHHmmssffff}.zip", true);
+        }
+
+        [HttpGet]
+        [RequireTeacher]
+        [Route("data-view")]
+        public async Task<IActionResult> GetDataFileList(int problemId)
+        {
+            if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
+
+            var files = await fileService.ListFilesAsync($"Data/{problemId}/");
+            var length = $"Data/{problemId}/".Length;
+            var dataList = files.Select(i => $"${{datadir}}/{i[length..]}").ToList();
+            var sb = new StringBuilder();
+            foreach (var i in dataList) sb.AppendLine(i);
+            return Content(sb.ToString());
         }
 
         [HttpDelete]

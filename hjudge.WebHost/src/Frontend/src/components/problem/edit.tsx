@@ -122,6 +122,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
     this.selectFile = this.selectFile.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
     this.downloadFile = this.downloadFile.bind(this);
+    this.viewFileList = this.viewFileList.bind(this);
   }
 
   private problemId = 0;
@@ -167,6 +168,14 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
     else this.problemId = 0;
 
     this.fetchConfig(this.problemId);
+  }
+
+  viewFileList() {
+    let link = document.createElement('a');
+    link.href = `/problem/data-view?problemId=${this.state.problem.id}`;
+    link.target = '_blank';
+    link.click();
+    link.remove();
   }
 
   renderPreview() {
@@ -572,6 +581,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       {
         !this.state.processingData ? <Form.Group inline>
         <Form.Button type='button' primary onClick={this.selectFile}>上传 .zip 数据文件</Form.Button>
+        <Form.Button type='button' onClick={this.viewFileList}>查看文件列表</Form.Button>
         <Form.Button type='button' onClick={this.downloadFile}>下载数据文件</Form.Button>
         <Form.Button type='button' color='red' onClick={() => this.setState({ confirmOpen: true })}>删除数据文件</Form.Button>
       </Form.Group> : <Loader active inline>处理中...</Loader>
