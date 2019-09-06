@@ -341,7 +341,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps 
       </Header>
       </Divider>
       {this.problemList()}
-      {this.rankModal()};
+      {this.rankModal()}
     </>;
   }
 }

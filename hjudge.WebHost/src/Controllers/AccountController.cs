@@ -195,7 +195,7 @@ namespace hjudge.WebHost.Controllers
             var signedIn = signInManager.IsSignedIn(User);
             var userInfoRet = new UserInfoModel
             {
-                SignedIn = string.IsNullOrEmpty(userId) ? signedIn : false
+                SignedIn = string.IsNullOrEmpty(userId) && signedIn
             };
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);

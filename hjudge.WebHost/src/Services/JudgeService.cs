@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using hjudge.WebHost.Data.Identity;
 using static hjudge.Shared.Judge.JudgeInfo;
 
 namespace hjudge.WebHost.Services
@@ -25,16 +26,19 @@ namespace hjudge.WebHost.Services
         private readonly IProblemService problemService;
         private readonly ILanguageService languageService;
         private readonly IMessageQueueService messageQueueService;
+        private readonly CachedUserManager<UserInfo> userManager;
 
         public JudgeService(WebHostDbContext dbContext,
             IProblemService problemService,
             ILanguageService languageService,
-            IMessageQueueService messageQueueService)
+            IMessageQueueService messageQueueService,
+            CachedUserManager<UserInfo> userManager)
         {
             this.dbContext = dbContext;
             this.problemService = problemService;
             this.languageService = languageService;
             this.messageQueueService = messageQueueService;
+            this.userManager = userManager;
         }
 
         public async Task<Judge?> GetJudgeAsync(int judgeId)

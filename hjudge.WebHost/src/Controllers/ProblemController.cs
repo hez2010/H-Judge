@@ -58,7 +58,7 @@ namespace hjudge.WebHost.Controllers
             this.dbContext = dbContext;
         }
 
-        private readonly static int[] allStatus = new[] { 0, 1, 2 };
+        private static readonly int[] allStatus = { 0, 1, 2 };
 
         [HttpPost]
         [Route("list")]
@@ -270,7 +270,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpDelete]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public Task RemoveProblem(int problemId)
         {
@@ -278,7 +278,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPut]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task<ProblemEditModel> CreateProblem([FromBody]ProblemEditModel model)
         {
@@ -312,7 +312,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task UpdateProblem([FromBody]ProblemEditModel model)
         {
@@ -330,7 +330,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("edit")]
         public async Task<ProblemEditModel> GetProblem(int problemId)
         {
@@ -350,7 +350,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPut]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("data")]
         [RequestSizeLimit(135000000)]
         public async Task<ProblemDataUploadModel> UploadData([FromForm]int problemId, IFormFile file)
@@ -382,7 +382,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("data")]
         public async Task<IActionResult> GetData(int problemId)
         {
@@ -390,11 +390,11 @@ namespace hjudge.WebHost.Controllers
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
             var downloadedFiles = fileService.DownloadFilesAsync(files);
-            var stream = new FileStream(Path.GetTempFileName(), 
-                FileMode.Open, 
-                FileAccess.ReadWrite, 
+            var stream = new FileStream(Path.GetTempFileName(),
+                FileMode.Open,
+                FileAccess.ReadWrite,
                 FileShare.None,
-                4096, 
+                4096,
                 FileOptions.Asynchronous | FileOptions.DeleteOnClose | FileOptions.SequentialScan);
             using (var zip = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
@@ -409,8 +409,23 @@ namespace hjudge.WebHost.Controllers
             return File(stream, "application/x-zip-compressed", $"Data_{problemId}_{DateTime.Now:yyyyMMddHHmmssffff}.zip", true);
         }
 
+        [HttpGet]
+        [RequireTeacher]
+        [Route("data-view")]
+        public async Task<IActionResult> GetDataFileList(int problemId)
+        {
+            if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
+
+            var files = await fileService.ListFilesAsync($"Data/{problemId}/");
+            var length = $"Data/{problemId}/".Length;
+            var dataList = files.Select(i => $"${{datadir}}/{i[length..]}").ToList();
+            var sb = new StringBuilder();
+            foreach (var i in dataList) sb.AppendLine(i);
+            return Content(sb.ToString());
+        }
+
         [HttpDelete]
-        [RequireAdmin]
+        [RequireTeacher]
         [Route("data")]
         public async Task DeleteData(int problemId)
         {

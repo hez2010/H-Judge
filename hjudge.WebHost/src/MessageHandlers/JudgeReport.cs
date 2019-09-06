@@ -10,6 +10,8 @@ using hjudge.WebHost.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Threading;
+using hjudge.Core;
+using hjudge.WebHost.Data.Identity;
 
 namespace hjudge.WebHost.MessageHandlers
 {
@@ -58,6 +60,16 @@ namespace hjudge.WebHost.MessageHandlers
                     var judgeHub = Program.RootServiceProvider?.GetService<IHubContext<JudgeHub, IJudgeHub>>();
                     if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
                     await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
+
+                    var userManager = ServiceProviderExtensions.ServiceProvider?.GetService<CachedUserManager<UserInfo>>();
+                    if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
+                    var judge = await judgeService.GetJudgeAsync(info.JudgeId);
+                    if (judge != null && judge.JudgeCount <= 1 && judge.ResultType == (int)ResultCode.Accepted)
+                    {
+                        var user = await userManager.FindByIdAsync(judge.UserId);
+                        user.AcceptedCount++;
+                        await userManager.UpdateAsync(user);
+                    }
                 }
             }
         }
