@@ -29,10 +29,11 @@ namespace hjudge.WebHost.Controllers
         private readonly IGroupService groupService;
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly ILanguageService languageService;
+        private readonly WebHostDbContext dbContext;
 
         public JudgeController(IJudgeService judgeService, IProblemService problemService,
             IContestService contestService, IGroupService groupService, CachedUserManager<UserInfo> userManager,
-            ILanguageService languageService)
+            ILanguageService languageService, WebHostDbContext dbContext)
         {
             this.judgeService = judgeService;
             this.problemService = problemService;
@@ -40,6 +41,7 @@ namespace hjudge.WebHost.Controllers
             this.groupService = groupService;
             this.userManager = userManager;
             this.languageService = languageService;
+            this.dbContext = dbContext;
         }
 
         [PrivilegeAuthentication.RequireSignedIn]

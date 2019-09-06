@@ -326,7 +326,10 @@ namespace hjudge.Core
                 {
                     try
                     {
-                        File.Copy(GetTargetFilePath(judgeOption.SpecialJudgeOptions.Exec), judgeOption.SpecialJudgeOptions.Exec);
+                        var realExec = judgeOption.SpecialJudgeOptions.Exec.StartsWith("R:") ? 
+                            Path.Combine(workingDir, Path.GetFileName(judgeOption.SpecialJudgeOptions.Exec)) : judgeOption.SpecialJudgeOptions.Exec;
+                        File.Copy(GetTargetFilePath(judgeOption.SpecialJudgeOptions.Exec), realExec);
+                        judgeOption.SpecialJudgeOptions.Exec = realExec;
                     }
                     catch
                     {
@@ -372,7 +375,7 @@ namespace hjudge.Core
 
                 if (judge.ExitCode != 0)
                 {
-                    return (ResultCode.Special_Judge_Error, 0, string.Empty);
+                    return (ResultCode.Special_Judge_Error, 0, $"Special judge exited with code {judge.ExitCode}");
                 }
 
                 try
@@ -386,7 +389,7 @@ namespace hjudge.Core
                 }
                 catch
                 {
-                    return (ResultCode.Special_Judge_Error, 0, string.Empty);
+                    return (ResultCode.Special_Judge_Error, 0, "Bad output format from special judge");
                 }
             }
 
