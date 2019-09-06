@@ -51,6 +51,7 @@ namespace hjudge.WebHost.MessageHandlers
 
         public static async Task QueueExecutor(CancellationToken token)
         {
+            var random = new Random();
             while (!token.IsCancellationRequested)
             {
                 await semaphore.WaitAsync(token);
@@ -70,23 +71,35 @@ namespace hjudge.WebHost.MessageHandlers
                         if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed into service collection.");
 
                         var judge = await judgeService.GetJudgeAsync(info.JudgeId);
-                        if (judge != null && judge.JudgeCount <= 1 && judge.ResultType == (int)ResultCode.Accepted)
+                        if (judge != null && judge.JudgeCount <= 1)
                         {
                             var user = await userManager.FindByIdAsync(judge.UserId);
-                            user.AcceptedCount++;
+                            var (coins, experience, accept) = judge.ResultType switch
+                            {
+                                (int)ResultCode.Accepted => (random.Next(30, 80), random.Next(50, 100), 1),
+                                (int)ResultCode.Presentation_Error => (random.Next(10, 30), random.Next(30, 50), 0),
+                                _ => (0, 0, 0)
+                            };
+                            
+                            user.Coins += coins;
+                            user.Experience += experience;
+                            user.AcceptedCount += accept;
                             await userManager.UpdateAsync(user);
 
-                            if (judge.ContestId != null)
+                            if (judge.ResultType == (int)ResultCode.Accepted)
                             {
-                                var problemConfig = await dbContext.ContestProblemConfig
-                                    .Where(i => i.ContestId == judge.ContestId &&
-                                                i.ProblemId == judge.ProblemId).FirstOrDefaultAsync(token);
-                                problemConfig.AcceptCount++;
-                            }
-                            else
-                            {
-                                var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync(token);
-                                problem.AcceptCount++;
+                                if (judge.ContestId != null)
+                                {
+                                    var problemConfig = await dbContext.ContestProblemConfig
+                                        .Where(i => i.ContestId == judge.ContestId &&
+                                                    i.ProblemId == judge.ProblemId).FirstOrDefaultAsync(token);
+                                    problemConfig.AcceptCount++;
+                                }
+                                else
+                                {
+                                    var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync(token);
+                                    problem.AcceptCount++;
+                                }
                             }
 
                             await dbContext.SaveChangesAsync(token);
