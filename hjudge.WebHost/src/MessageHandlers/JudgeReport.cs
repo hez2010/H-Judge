@@ -12,6 +12,9 @@ using System.Collections.Concurrent;
 using System.Threading;
 using hjudge.Core;
 using hjudge.WebHost.Data.Identity;
+using Microsoft.Extensions.Logging;
+using hjudge.WebHost.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace hjudge.WebHost.MessageHandlers
 {
@@ -50,25 +53,41 @@ namespace hjudge.WebHost.MessageHandlers
             while (!token.IsCancellationRequested)
             {
                 await semaphore.WaitAsync(token);
-                if (queue.TryDequeue(out var info))
+                while (queue.TryDequeue(out var info))
                 {
-                    var judgeService = ServiceProviderExtensions.ServiceProvider?.GetService<IJudgeService>();
-                    if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed into service collection.");
-
-                    await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);
-
-                    var judgeHub = Program.RootServiceProvider?.GetService<IHubContext<JudgeHub, IJudgeHub>>();
-                    if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
-                    await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
-
-                    var userManager = ServiceProviderExtensions.ServiceProvider?.GetService<CachedUserManager<UserInfo>>();
-                    if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
-                    var judge = await judgeService.GetJudgeAsync(info.JudgeId);
-                    if (judge != null && judge.JudgeCount <= 1 && judge.ResultType == (int)ResultCode.Accepted)
+                    using var scope = ServiceProviderExtensions.ServiceProvider?.CreateScope();
+                    try
                     {
-                        var user = await userManager.FindByIdAsync(judge.UserId);
-                        user.AcceptedCount++;
-                        await userManager.UpdateAsync(user);
+                        var dbContext = scope?.ServiceProvider.GetService<WebHostDbContext>();
+                        if (dbContext == null) throw new InvalidOperationException("WebHostDbContext was not registed into service collection.");
+                        dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                        
+                        var judgeService = scope?.ServiceProvider.GetService<IJudgeService>();
+                        if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed into service collection.");
+
+                        await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);
+
+                        var judgeHub = Program.RootServiceProvider?.GetService<IHubContext<JudgeHub, IJudgeHub>>();
+                        if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
+                        await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
+
+                        // TODO: Fix tracking issues
+                        // var userManager = scope?.ServiceProvider.GetService<CachedUserManager<UserInfo>>();
+                        // if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
+                        
+                        // var judge = await judgeService.GetJudgeAsync(info.JudgeId);
+                        // if (judge != null && judge.JudgeCount <= 1 && judge.ResultType == (int)ResultCode.Accepted)
+                        // {
+                        //     var user = await userManager.FindByIdAsync(judge.UserId);
+                        //     user.AcceptedCount++;
+                        //     await userManager.UpdateAsync(user);
+                        // }
+                    }
+                    catch (Exception ex)
+                    {
+                        var logger = scope?.ServiceProvider.GetService<ILogger<JudgeReport>>();
+                        if (logger == null) throw new NullReferenceException();
+                        logger.LogError(ex, "Judge report update error.");
                     }
                 }
             }

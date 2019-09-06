@@ -108,7 +108,7 @@ namespace hjudge.WebHost.Services
 
         public Task<VotesRecord?> GetVoteAsync(string userId, int? problemId, int? contestId)
         {
-            return dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == contestId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            return dbContext.VotesRecord.AsNoTracking().Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == contestId)/*.Cacheable()*/.FirstOrDefaultAsync();
         }
 
         public async Task<bool> UpvoteContestAsync(string userId, int contestId, string? title = null, string? content = null)

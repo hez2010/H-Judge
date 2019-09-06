@@ -51,7 +51,7 @@ namespace hjudge.JudgeHost
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     await Semaphore.WaitAsync(cancellationToken);
-                    if (pools.TryDequeue(out var judgeInfo))
+                    while (pools.TryDequeue(out var judgeInfo))
                     {
                         Console.WriteLine($"{DateTime.Now}: Started judge #{judgeInfo.JudgeId}");
                         await ReportJudgeResultAsync(new JudgeReportInfo

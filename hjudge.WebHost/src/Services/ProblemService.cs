@@ -46,7 +46,7 @@ namespace hjudge.WebHost.Services
 
         public async Task<Problem?> GetProblemAsync(int problemId)
         {
-            var result = await dbContext.Problem
+            var result = await dbContext.Problem.AsNoTracking()
                 .Include(i => i.UserInfo)
                 .Where(i => i.Id == problemId)
                 /*.Cacheable()*/
@@ -58,7 +58,7 @@ namespace hjudge.WebHost.Services
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Problem> problems = dbContext.Problem;
+            IQueryable<Problem> problems = dbContext.Problem.AsNoTracking();
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -80,7 +80,7 @@ namespace hjudge.WebHost.Services
                 if (contest.Hidden) throw new ForbiddenException();
             }
 
-            IQueryable<Problem> problems = dbContext.ContestProblemConfig
+            IQueryable<Problem> problems = dbContext.ContestProblemConfig.AsNoTracking()
                                                 .Include(i => i.Problem)
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)
@@ -111,7 +111,7 @@ namespace hjudge.WebHost.Services
                     throw new ForbiddenException("未参加该小组");
             }
 
-            IQueryable<Problem> problems = dbContext.ContestProblemConfig
+            IQueryable<Problem> problems = dbContext.ContestProblemConfig.AsNoTracking()
                                                 .Include(i => i.Problem)
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)

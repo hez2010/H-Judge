@@ -96,9 +96,6 @@ namespace hjudge.WebHost.Controllers
             }
             else if (problem.Hidden && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该题目不存在");
 
-            user.SubmissionCount++;
-            await userManager.UpdateAsync(user);
-
             var id = await judgeService.QueueJudgeAsync(new Judge
             {
                 Content = model.Content,
@@ -109,6 +106,9 @@ namespace hjudge.WebHost.Controllers
                 UserId = user.Id,
                 Description = "Online Judge"
             });
+
+            user.SubmissionCount++;
+            await userManager.UpdateAsync(user);
 
             return new SubmitSuccessModel
             {
