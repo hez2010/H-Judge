@@ -63,11 +63,18 @@ namespace hjudge.WebHost.Services
         public async Task<int> QueueJudgeAsync(Judge judge)
         {
             judge.ResultType = (int)ResultCode.Pending;
-            judge.JudgeTime = DateTime.Now;
             judge.JudgeCount++;
             var isRejudge = judge.Id != 0;
-            if (isRejudge) dbContext.Judge.Update(judge);
-            else await dbContext.Judge.AddAsync(judge);
+            if (isRejudge)
+            {
+                judge.Result = string.Empty;
+                dbContext.Judge.Update(judge);
+            }
+            else
+            {
+                judge.JudgeTime = DateTime.Now;
+                await dbContext.Judge.AddAsync(judge);
+            }
             await dbContext.SaveChangesAsync();
 
             var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, (await languageService.GetLanguageConfigAsync()).ToList());
