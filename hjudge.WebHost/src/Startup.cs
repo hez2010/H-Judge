@@ -123,7 +123,8 @@ namespace hjudge.WebHost
             .AddSignInManager<SignInManager<UserInfo>>()
             .AddUserManager<CachedUserManager<UserInfo>>()
             .AddEntityFrameworkStores<WebHostDbContext>()
-            .AddErrorDescriber<TranslatedIdentityErrorDescriber>();
+            .AddErrorDescriber<TranslatedIdentityErrorDescriber>()
+            .AddDefaultTokenProviders();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

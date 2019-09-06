@@ -27,12 +27,19 @@ namespace hjudge.WebHost.Controllers
         private readonly CachedUserManager<UserInfo> userManager;
         private readonly SignInManager<UserInfo> signInManager;
         private readonly IJudgeService judgeService;
+        private readonly IEmailSender emailSender;
 
-        public AccountController(CachedUserManager<UserInfo> userManager, SignInManager<UserInfo> signInManager, IJudgeService judgeService, WebHostDbContext dbContext)
+        public AccountController(
+            CachedUserManager<UserInfo> userManager,
+            SignInManager<UserInfo> signInManager,
+            IJudgeService judgeService,
+            WebHostDbContext dbContext,
+            IEmailSender emailSender)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.judgeService = judgeService;
+            this.emailSender = emailSender;
             dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
@@ -229,6 +236,50 @@ namespace hjudge.WebHost.Controllers
 
             ret.TriedProblems = ret.TriedProblems.Where(i => !ret.SolvedProblems.Contains(i)).ToList();
             return ret;
+        }
+
+        [HttpPost]
+        [Route("reset-email")]
+        public async Task SendResetPasswordEmailAsync([FromBody]ResetEmailModel model)
+        {
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null) return;
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var html = $@"<h2>H::Judge</h2>
+<p>您好 {user.UserName}，感谢使用 H::Judge！</p>
+<p>您请求的重置密码验证码为：</p><small>{token}</small><p>请使用此验证码重置您的密码</p>
+<hr />
+<small>{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}</small>";
+            await emailSender.SendAsync(
+                 "重置密码 - H::Judge",
+                 html,
+                 EmailType.Account,
+                 new[] { model.Email });
+        }
+
+        [HttpPost]
+        [Route("reset-password")]
+        public async Task ResetPasswordAsync([FromBody]ResetModel model)
+        {
+            if (TryValidateModel(model))
+            {
+                var user = await userManager.FindByEmailAsync(model.Email);
+                if (user == null) return;
+                var result = await userManager.ResetPasswordAsync(user, model.Token, model.Password);
+                if (!result.Succeeded)
+                {
+                    throw result.Errors.Any() ?
+                        new BadRequestException(result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next))
+                        : new BadRequestException();
+                }
+            }
+            else
+            {
+                var errors = ModelState.SelectMany(i => i.Value.Errors, (i, j) => j.ErrorMessage).ToList();
+                throw errors.Any() ?
+                    new BadRequestException(errors.Aggregate((accu, next) => accu + "\n" + next))
+                    : new BadRequestException();
+            }
         }
     }
 }

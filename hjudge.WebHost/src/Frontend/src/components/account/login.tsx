@@ -8,6 +8,7 @@ import { getTargetState } from '../../utils/reactnHelper';
 import { GlobalState } from '../../interfaces/globalState';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
+import Password from './password';
 
 interface LoginProps {
   modalOpen: boolean,
@@ -16,6 +17,11 @@ interface LoginProps {
 
 const Login = (props: LoginProps) => {
   const [commonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
+  const [openPassword, setOpenPassword] = React.useState(false);
+
+  const closePassword = () => {
+    setOpenPassword(false);
+  }
 
   const login = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     let element = event.target as HTMLButtonElement;
@@ -43,9 +49,7 @@ const Login = (props: LoginProps) => {
     }
   }
 
-  const forgotPassword = () => {
-    commonFuncs.openPortal('提示', '此功能正在开发中，敬请期待', 'blue');
-  }
+  const forgotPassword = () => setOpenPassword(true);
 
   return (
     <>
@@ -69,6 +73,7 @@ const Login = (props: LoginProps) => {
           </Form>
         </Modal.Content>
       </Modal>
+      <Password modalOpen={openPassword} closeModal={closePassword} />
     </>
   );
 };
