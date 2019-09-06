@@ -183,7 +183,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
           <br />
           <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>时间：{v.timeCost}ms</small>
           <br />
-          <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>内存：{v.memoryCost}ms</small>
+          <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>内存：{v.memoryCost}kb</small>
           <br />
           <small style={{ wordBreak: 'break-all', wordWrap: 'break-word' }}>退出代码：{v.exitCode}</small>
           <br />
