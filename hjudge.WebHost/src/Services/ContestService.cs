@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Services
 
         public async Task<Contest?> GetContestAsync(int contestId)
         {
-            var result = await dbContext.Contest.AsNoTracking()
+            var result = await dbContext.Contest
                 .Include(i => i.UserInfo)
                 .Where(i => i.Id == contestId)
                 /*.Cacheable()*/.FirstOrDefaultAsync();
@@ -54,7 +54,7 @@ namespace hjudge.WebHost.Services
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Contest> contests = dbContext.Contest.AsNoTracking().Include(i => i.ContestRegister);
+            IQueryable<Contest> contests = dbContext.Contest.Include(i => i.ContestRegister);
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -78,7 +78,7 @@ namespace hjudge.WebHost.Services
                 }
             }
 
-            IQueryable<Contest> contests = dbContext.GroupContestConfig.AsNoTracking()
+            IQueryable<Contest> contests = dbContext.GroupContestConfig
                 .Include(i => i.Contest).Where(i => i.GroupId == groupId).OrderByDescending(i => i.Id).Select(i => i.Contest);
 
             return contests;
@@ -100,14 +100,13 @@ namespace hjudge.WebHost.Services
         public async Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems)
         {
             var oldProblems = await dbContext.ContestProblemConfig.Where(i => i.ContestId == contestId).ToListAsync();
-            dbContext.ContestProblemConfig.RemoveRange(oldProblems);
-            await dbContext.SaveChangesAsync();
 
             var dict = new Dictionary<int, ContestProblemConfig>();
-            foreach (var i in oldProblems)
-            {
-                if (!dict.ContainsKey(i.ProblemId)) dict[i.ProblemId] = i;
-            }
+
+            foreach (var i in oldProblems) if (!dict.ContainsKey(i.ProblemId)) dict[i.ProblemId] = i;
+
+            dbContext.ContestProblemConfig.RemoveRange(oldProblems);
+            await dbContext.SaveChangesAsync();
 
             foreach (var i in problems.Distinct())
             {

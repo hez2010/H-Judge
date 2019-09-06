@@ -102,7 +102,6 @@ namespace hjudge.WebHost
             services.AddDbContext<WebHostDbContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 options.EnableServiceProviderCaching();
             });
 

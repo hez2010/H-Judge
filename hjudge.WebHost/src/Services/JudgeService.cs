@@ -26,24 +26,27 @@ namespace hjudge.WebHost.Services
         private readonly IProblemService problemService;
         private readonly ILanguageService languageService;
         private readonly IMessageQueueService messageQueueService;
+        private readonly IContestService contestService;
         private readonly CachedUserManager<UserInfo> userManager;
 
         public JudgeService(WebHostDbContext dbContext,
             IProblemService problemService,
             ILanguageService languageService,
             IMessageQueueService messageQueueService,
+            IContestService contestService,
             CachedUserManager<UserInfo> userManager)
         {
             this.dbContext = dbContext;
             this.problemService = problemService;
             this.languageService = languageService;
             this.messageQueueService = messageQueueService;
+            this.contestService = contestService;
             this.userManager = userManager;
         }
 
         public async Task<Judge?> GetJudgeAsync(int judgeId)
         {
-            var result = await dbContext.Judge.AsNoTracking()
+            var result = await dbContext.Judge
                 .Include(i => i.Problem)
                 .Include(i => i.UserInfo)
                 .Include(i => i.Contest)
@@ -54,7 +57,7 @@ namespace hjudge.WebHost.Services
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null)
         {
-            IQueryable<Judge> judges = dbContext.Judge.AsNoTracking();
+            IQueryable<Judge> judges = dbContext.Judge;
             if (!string.IsNullOrEmpty(userId)) judges = judges.Where(i => i.UserId == userId);
             if (groupId != 0) judges = judges.Where(i => i.GroupId == groupId);
             if (contestId != 0) judges = judges.Where(i => i.ContestId == contestId);
@@ -78,6 +81,20 @@ namespace hjudge.WebHost.Services
             {
                 judge.JudgeTime = DateTime.Now;
                 await dbContext.Judge.AddAsync(judge);
+            }
+            await dbContext.SaveChangesAsync();
+
+            if (judge.ContestId != null)
+            {
+                var problemConfig = await dbContext.ContestProblemConfig
+                    .Where(i => i.ContestId == judge.ContestId &&
+                                i.ProblemId == judge.ProblemId).FirstOrDefaultAsync();
+                problemConfig.SubmissionCount++;
+            }
+            else
+            {
+                var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync();
+                problem.SubmissionCount++;
             }
             await dbContext.SaveChangesAsync();
 
