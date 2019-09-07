@@ -165,12 +165,12 @@ namespace hjudge.WebHost.Controllers
 
             for (var i = 0; i < rankData.Count; i++)
             {
-                ret.UserInfos[rankData[i].UserId].Rank = i + 1 - sameRankCnt;
                 if (i != 0)
                 {
                     if (Math.Abs(rankData[i].Score - rankData[i - 1].Score) < 0.001 && rankData[i].Time == rankData[i - 1].Time) sameRankCnt++;
                     else sameRankCnt = 0;
                 }
+                ret.UserInfos[rankData[i].UserId].Rank = i + 1 - sameRankCnt;
             }
 
             return ret;
