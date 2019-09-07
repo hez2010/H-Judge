@@ -154,11 +154,6 @@ namespace hjudge.JudgeHost
                             Type = JudgeReportInfo.ReportType.PostJudge
                         });
                         Console.WriteLine($"{DateTime.Now}: Reported judge #{judgeInfo.JudgeId}");
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            Directory.Delete(dataCacheDir, true);
-                            break;
-                        }
                     }
                 }
             }
@@ -173,6 +168,10 @@ namespace hjudge.JudgeHost
                         Type = JudgeReportInfo.ReportType.PostJudge
                     });
                 }
+            }
+            finally
+            {
+                Directory.Delete(dataCacheDir, true);
             }
         }
     }
