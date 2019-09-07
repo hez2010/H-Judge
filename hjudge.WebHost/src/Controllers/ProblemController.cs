@@ -246,7 +246,7 @@ namespace hjudge.WebHost.Controllers
             ret.CreationTime = problem.CreationTime;
             ret.Upvote = problem.Upvote;
             ret.Downvote = problem.Downvote;
-            var vote = await voteService.GetVoteAsync(userId, model.ProblemId, model.ContestId == 0 ? null : (int?)model.ContestId);
+            var vote = await voteService.GetVoteAsync(userId, model.ProblemId, null);
             ret.MyVote = vote?.VoteType ?? 0;
 
             var config = problem.Config.DeserializeJson<ProblemConfig>(false);
@@ -419,7 +419,7 @@ namespace hjudge.WebHost.Controllers
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
             var length = $"Data/{problemId}/".Length;
-            var dataList = files.Select(i => $"${{datadir}}/{i[length..]}").ToList();
+            var dataList = files.Select(i => $"${{datadir}}/{i[length..]}").OrderBy(i => i).ToList();
             var sb = new StringBuilder();
             foreach (var i in dataList) sb.AppendLine(i);
             return Content(sb.ToString());

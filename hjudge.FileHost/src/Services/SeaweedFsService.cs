@@ -44,7 +44,7 @@ namespace hjudge.FileHost.Services
                 else result = await template.SaveFileByStream(hash, content);
                 fileRecord.ContentType = string.IsNullOrEmpty(result.ContentType) ? "application/octet-stream" : result.ContentType;
                 fileRecord.FileSize = length;
-                fileRecord.LastModified = new DateTime(result.LastModified);
+                fileRecord.LastModified = DateTime.Now;
                 fileRecord.FileName = hash;
                 fileRecord.OriginalFileName = fileName;
                 dbContext.Files.Update(fileRecord);
@@ -57,7 +57,7 @@ namespace hjudge.FileHost.Services
                 {
                     ContentType = string.IsNullOrEmpty(result.ContentType) ? "application/octet-stream" : result.ContentType,
                     FileSize = length,
-                    LastModified = new DateTime(result.LastModified),
+                    LastModified = DateTime.Now,
                     FileName = hash,
                     FileId = result.FileId,
                     OriginalFileName = fileName
@@ -91,10 +91,21 @@ namespace hjudge.FileHost.Services
             return response.StatusCode == System.Net.HttpStatusCode.OK ? response.OutputStream : null;
         }
 
-        public async Task<IEnumerable<string>> ListAsync(string prefix)
+        public async Task<List<FileInformation>> ListAsync(string prefix)
         {
             await connection.Start();
-            var files = await dbContext.Files.Where(i => i.OriginalFileName.StartsWith(prefix)).Select(i => i.OriginalFileName)/*.Cacheable()*/.ToListAsync();
+            var files = await dbContext.Files.Where(i => i.OriginalFileName.StartsWith(prefix))
+                .Select(i => new FileInformation { FileName = i.OriginalFileName, LastModified = i.LastModified.Ticks })
+                /*.Cacheable()*/.ToListAsync();
+            return files;
+        }
+
+        public async Task<List<FileInformation>> ListAsync(IEnumerable<string> fileNames)
+        {
+            await connection.Start();
+            var files = await dbContext.Files.Where(i => fileNames.Contains(i.OriginalFileName))
+                .Select(i => new FileInformation { FileName = i.OriginalFileName, LastModified = i.LastModified.Ticks })
+                /*.Cacheable()*/.ToListAsync();
             return files;
         }
 

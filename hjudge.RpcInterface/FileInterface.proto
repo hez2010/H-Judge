@@ -5,6 +5,7 @@ service Files {
     rpc UploadFiles (stream UploadRequest) returns (UploadResponse) {};
     rpc DeleteFiles (DeleteRequest) returns (DeleteResponse) {};
     rpc ListFiles (ListRequest) returns (ListResponse) {};
+    rpc ListExactFiles (ListExactRequest) returns (ListResponse) {};
 }
 
 message DownloadRequest {
@@ -56,6 +57,15 @@ message ListRequest {
     string prefix = 1;
 }
 
-message ListResponse {
+message ListExactRequest {
     repeated string fileNames = 1;
+}
+
+message ListResponse {
+    repeated FileInformation fileInfos = 1;
+}
+
+message FileInformation {
+    string fileName = 1;
+    int64 lastModified = 2;
 }

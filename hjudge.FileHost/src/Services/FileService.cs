@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using Grpc.Core;
@@ -107,9 +108,17 @@ namespace hjudge.FileHost.Services
 
         public override async Task<ListResponse> ListFiles(ListRequest request, ServerCallContext context)
         {
-            var result = seaweed.ListAsync(request.Prefix);
+            var result = await seaweed.ListAsync(request.Prefix);
             var response = new ListResponse();
-            response.FileNames.AddRange(await result);
+            response.FileInfos.AddRange(result);
+            return response;
+        }
+
+        public override async Task<ListResponse> ListExactFiles(ListExactRequest request, ServerCallContext context)
+        {
+            var result = await seaweed.ListAsync(request.FileNames);
+            var response = new ListResponse();
+            response.FileInfos.AddRange(result);
             return response;
         }
     }

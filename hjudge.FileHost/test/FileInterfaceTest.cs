@@ -25,7 +25,7 @@ namespace hjudge.FileHost.Test
                 var r = await service.DownloadAsync("{datadir:2}/test.jpg");
                 Assert.IsNotNull(r);
 
-                var buffer = new byte[(int)r.Length];
+                var buffer = new byte[(int)r!.Length];
                 await r.ReadAsync(buffer, 0, (int)r.Length);
                 await r.DisposeAsync();
                 Assert.AreEqual("test", Encoding.UTF8.GetString(buffer));
@@ -41,7 +41,7 @@ namespace hjudge.FileHost.Test
                 var r = await service.DownloadAsync("{datadir:2}/test.jpg");
                 Assert.IsNotNull(r);
 
-                var buffer = new byte[(int)r.Length];
+                var buffer = new byte[(int)r!.Length];
                 await r.ReadAsync(buffer, 0, (int)r.Length);
                 await r.DisposeAsync();
                 Assert.AreEqual("test2", Encoding.UTF8.GetString(buffer));
