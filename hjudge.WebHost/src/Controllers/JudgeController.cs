@@ -177,9 +177,8 @@ namespace hjudge.WebHost.Controllers
                             if (DateTime.Now < contest.EndTime) throw new ForbiddenException("当前不允许查看该评测结果");
                             break;
                     }
-                    ret.ResultType = ResultDisplayType.Summary switch
+                    ret.ResultDisplayType = config.ResultType switch
                     {
-                        ResultDisplayType.Detailed => 0,
                         ResultDisplayType.Summary => 1,
                         _ => 0
                     };
