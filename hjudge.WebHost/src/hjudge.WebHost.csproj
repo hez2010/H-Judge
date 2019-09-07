@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BundlerMinifier.Core" Version="2.9.406" />
+    <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
     <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="2.0.0-beta-1629" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore" Version="3.1.7" />

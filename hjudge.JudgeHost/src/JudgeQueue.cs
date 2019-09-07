@@ -13,7 +13,7 @@ namespace hjudge.JudgeHost
     class JudgeQueue
     {
         private static readonly ConcurrentPriorityQueue<JudgeInfo> pools = new ConcurrentPriorityQueue<JudgeInfo>();
-        private static readonly ConcurrentDictionary<(string DataCacheDir, string FileName), DateTime> fileCache = new ConcurrentDictionary<(string DataCacheDir, string FileName), DateTime>();
+        private static readonly ConcurrentDictionary<(string DataCacheDir, string FileName), long> fileCache = new ConcurrentDictionary<(string DataCacheDir, string FileName), long>();
         public static SemaphoreSlim? Semaphore { get; set; }
         public static Task QueueJudgeAsync(JudgeInfo info)
         {
@@ -51,12 +51,14 @@ namespace hjudge.JudgeHost
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     await Semaphore.WaitAsync(cancellationToken);
+                    await Task.Delay(100000, cancellationToken);
                     while (pools.TryDequeue(out var judgeInfo))
                     {
                         Console.WriteLine($"{DateTime.Now}: Started judge #{judgeInfo.JudgeId}");
                         await ReportJudgeResultAsync(new JudgeReportInfo
                         {
                             JudgeId = judgeInfo.JudgeId,
+                            JudgeResult = null,
                             Type = JudgeReportInfo.ReportType.PreJudge
                         });
 
@@ -80,22 +82,28 @@ namespace hjudge.JudgeHost
                         Console.WriteLine($"{DateTime.Now}: Started downloading files for #{judgeInfo.JudgeId}");
                         var fileService = new Files.FilesClient(Program.FileHostChannel);
 
-                        var request = new DownloadRequest();
-                        var now = DateTime.Now;
+                        var listRequest = new ListExactRequest();
+                        listRequest.FileNames.AddRange(filesRequired);
 
-                        var timeoutThreshold = TimeSpan.FromMinutes(3);
+                        var fileInfos =
+                            (await fileService.ListExactFilesAsync(listRequest))
+                            .FileInfos.ToDictionary(i => i.FileName, i => i.LastModified);
+
+                        var request = new DownloadRequest();
+
                         foreach (var i in filesRequired)
                         {
                             var cache = fileCache.Where(j => j.Key == (dataCacheDir, i)).ToList();
+                            if (!fileInfos.ContainsKey(i)) continue;
                             if (!cache.Any())
                             {
                                 request.FileNames.Add(i);
-                                fileCache[(dataCacheDir, i)] = now;
+                                fileCache[(dataCacheDir, i)] = fileInfos[i];
                             }
-                            else if (now - cache.FirstOrDefault().Value > timeoutThreshold)
+                            else if (cache.FirstOrDefault().Value != fileInfos[i])
                             {
                                 request.FileNames.Add(i);
-                                fileCache[(dataCacheDir, i)] = now;
+                                fileCache[(dataCacheDir, i)] = fileInfos[i];
                             }
                         }
 

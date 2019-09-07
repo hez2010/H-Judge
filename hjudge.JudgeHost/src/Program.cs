@@ -66,13 +66,6 @@ namespace hjudge.JudgeHost
             }
             var token = tokenSource.Token;
 
-            Console.CancelKeyPress += async (sender, e) =>
-            {
-                await FileHostChannel.ShutdownAsync();
-                tokenSource.Cancel();
-                e.Cancel = true;
-            };
-
             var tasks = new List<Task>();
             for (var i = 0; i < config.ConcurrentJudgeTask; i++)
                 tasks.Add(JudgeQueue.JudgeQueueExecutor(
@@ -82,9 +75,24 @@ namespace hjudge.JudgeHost
                         Guid.NewGuid().ToString().Replace("-", "_")),
                     token));
 
+            Console.CancelKeyPress += async (sender, e) =>
+            {
+                tokenSource.Cancel();
+                await FileHostChannel.ShutdownAsync();
+                e.Cancel = true;
+            };
+
+            AppDomain.CurrentDomain.ProcessExit += async (sender, e) =>
+            {
+                tokenSource.Cancel();
+                await FileHostChannel.ShutdownAsync();
+                await Task.WhenAll(tasks);
+            };
+
             await Task.WhenAll(tasks);
 
             JudgeMessageQueueFactory?.Dispose();
+            tokenSource?.Dispose();
         }
 
         private static async Task JudgeRequest_Received(object sender, BasicDeliverEventArgs args)

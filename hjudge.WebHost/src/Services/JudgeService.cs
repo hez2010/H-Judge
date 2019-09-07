@@ -128,6 +128,8 @@ namespace hjudge.WebHost.Services
 
         public static ResultCode ComputeJudgeResultType(JudgeResult? result)
         {
+            if (result == null) return ResultCode.Judging;
+
             if (result?.JudgePoints == null)
             {
                 return ResultCode.Unknown_Error;

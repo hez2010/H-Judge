@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +29,7 @@ namespace hjudge.WebHost.Services
         {
             if (client != null) return;
             var section = configuration.GetSection("FileServer");
-            channel = new Channel($"{section["HostName"]}:{section["Port"]}", ChannelCredentials.Insecure, new[] 
+            channel = new Channel($"{section["HostName"]}:{section["Port"]}", ChannelCredentials.Insecure, new[]
             {
                 new ChannelOption(ChannelOptions.MaxReceiveMessageLength, 2147483647),
                 new ChannelOption(ChannelOptions.MaxSendMessageLength, 150 * 1048576)
@@ -83,7 +84,7 @@ namespace hjudge.WebHost.Services
                 Prefix = prefix
             };
             var response = await client!.ListFilesAsync(request);
-            return response.FileNames;
+            return response.FileInfos.Select(i => i.FileName);
         }
 
         public async ValueTask DisposeAsync()
