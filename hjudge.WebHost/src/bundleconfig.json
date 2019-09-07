@@ -10,5 +10,29 @@
     "inputFiles": [
       "wwwroot/css/index.css"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/css/preloader.min.css",
+    "inputFiles": [
+      "wwwroot/css/preloader.css"
+    ]
+  },
+  {
+    "outputFileName": "Frontend/public/css/preloader.min.css",
+    "inputFiles": [
+      "wwwroot/css/preloader.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/main.min.js",
+    "inputFiles": [
+      "wwwroot/js/main.js"
+    ]
+  },
+  {
+    "outputFileName": "Frontend/public/js/main.min.js",
+    "inputFiles": [
+      "wwwroot/js/main.js"
+    ]
   }
 ]

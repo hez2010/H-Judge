@@ -6,15 +6,27 @@
     <title>欢迎 - H::Judge</title>
     <base href="/" />
     <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/preloader.min.css" />
     <link rel="stylesheet" href="/css/index.min.css" />
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" media="none" onload="if(media!='all')media='all'" href="//cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" media="none" onload="if(media!='all')media='all'" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" crossorigin="anonymous" />
 </head>
 <body>
+    <div id="preloader">
+        <div class="progress rotate dot">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <span class="description">H::Judge 正在加载中...</span>
+    </div>
     <main role="main"></main>
     <noscript>此站点需要启用 JavaScript 才能正常运行。</noscript>
-    <script src="/dist/client.bundle.js"></script>
-    <script src="/dist/vendors~client.bundle.js"></script>
+    <script src="/js/main.min.js"></script>
+    <script defer src="/dist/vendors~client.bundle.js"></script>
+    <script defer src="/dist/client.bundle.js"></script>
 </body>
 </html>
