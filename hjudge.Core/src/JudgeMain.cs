@@ -77,6 +77,29 @@ namespace hjudge.Core
             return originalFilePath;
         }
 
+        private string? GetMiddleDirectoryPath(string? originalFilePath)
+        {
+            if (originalFilePath?.StartsWith("R:") ?? false)
+            {
+                var fileName = originalFilePath[2..];
+                var fragment = fileName.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                // path: Data/{Problem Id}/.../file
+                if (fragment.Length >= 2 && fragment[0] == "Data")
+                {
+                    var sb = new StringBuilder();
+                    for (var i = 2; i < fragment.Length - 1; i++)
+                    {
+                        sb.Append(fragment[i]);
+                        sb.Append('/');
+                    }
+                    var result = sb.ToString();
+                    // remove the last '/'
+                    return result.Length == 0 ? "" : sb.ToString()[..^1];
+                }
+            }
+            return "";
+        }
+
         public async Task<JudgeResult> JudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions, string workingDir, string dataCacheDir)
         {
             this.workingDir = workingDir;
@@ -167,7 +190,8 @@ namespace hjudge.Core
                         }
                         try
                         {
-                            File.Copy(GetTargetFilePath(judgeOptions.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString())), Path.Combine(this.workingDir, $"answer_{judgeOptions.GuidStr}.dat"), true);
+                            var path = judgeOptions.DataPoints[i].StdOutFile.Replace("${index}", (i + 1).ToString()).Replace("${index0}", i.ToString());
+                            File.Copy(GetTargetFilePath(path), Path.Combine(this.workingDir, $"answer_{judgeOptions.GuidStr}.dat"), true);
                         }
                         catch
                         {
@@ -326,7 +350,7 @@ namespace hjudge.Core
                 {
                     try
                     {
-                        var realExec = judgeOption.SpecialJudgeOptions.Exec.StartsWith("R:") ? 
+                        var realExec = judgeOption.SpecialJudgeOptions.Exec.StartsWith("R:") ?
                             Path.Combine(workingDir, Path.GetFileName(judgeOption.SpecialJudgeOptions.Exec)) : judgeOption.SpecialJudgeOptions.Exec;
                         File.Copy(GetTargetFilePath(judgeOption.SpecialJudgeOptions.Exec), realExec);
                         judgeOption.SpecialJudgeOptions.Exec = realExec;
@@ -583,7 +607,13 @@ namespace hjudge.Core
         {
             try
             {
-                extra.ForEach(i => File.Copy(GetTargetFilePath(i), Path.Combine(workingDir, Path.GetFileName(i) ?? string.Empty), true));
+                extra.ForEach(i =>
+                {
+                    var filePath = Path.Combine(workingDir, GetMiddleDirectoryPath(i), Path.GetFileName(i) ?? string.Empty);
+                    var directory = Path.GetDirectoryName(filePath);
+                    if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                    File.Copy(GetTargetFilePath(i), filePath, true);
+                });
             }
             catch
             {
