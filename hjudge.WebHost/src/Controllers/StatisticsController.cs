@@ -44,7 +44,7 @@ namespace hjudge.WebHost.Controllers
 
             var ret = new StatisticsListModel();
 
-            if (model.RequireTotalCount) ret.TotalCount = await query.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await query.Select(i => i.Id).Cacheable().CountAsync();
 
             query = query.OrderByDescending(i => i.Id);
 
@@ -64,7 +64,7 @@ namespace hjudge.WebHost.Controllers
                 ProblemName = i.Problem.Name,
                 Language = i.Language,
                 Score = i.FullScore
-            })/*.Cacheable()*/.ToListAsync();
+            }).Cacheable().ToListAsync();
 
             return ret;
         }

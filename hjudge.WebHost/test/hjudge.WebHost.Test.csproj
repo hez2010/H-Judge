@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0-preview-20190828-03" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.2" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.3" />
   </ItemGroup>
 
   <ItemGroup>

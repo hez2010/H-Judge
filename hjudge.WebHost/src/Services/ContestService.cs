@@ -46,7 +46,7 @@ namespace hjudge.WebHost.Services
             var result = await dbContext.Contest
                 .AsNoTracking()
                 .Where(i => i.Id == contestId)
-                /*.Cacheable()*/
+                .Cacheable()
                 .FirstOrDefaultAsync();
             return result;
         }

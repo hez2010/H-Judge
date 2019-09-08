@@ -36,7 +36,7 @@ namespace hjudge.FileHost.Services
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
             FileHandleStatus result;
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
             var length = content.Length;
             if (fileRecord != null)
             {
@@ -70,7 +70,7 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
             if (fileRecord == null) return true;
             var result = await template.DeleteFile(fileRecord.FileId);
             if (result)
@@ -85,7 +85,7 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).Cacheable().FirstOrDefaultAsync();
             if (fileRecord == null) return null;
             var response = await template.GetFileStream(fileRecord.FileId);
             return response.StatusCode == System.Net.HttpStatusCode.OK ? response.OutputStream : null;
@@ -96,7 +96,7 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var files = await dbContext.Files.Where(i => i.OriginalFileName.StartsWith(prefix))
                 .Select(i => new FileInformation { FileName = i.OriginalFileName, LastModified = i.LastModified.Ticks })
-                /*.Cacheable()*/.ToListAsync();
+                .Cacheable().ToListAsync();
             return files;
         }
 
@@ -105,7 +105,7 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var files = await dbContext.Files.Where(i => fileNames.Contains(i.OriginalFileName))
                 .Select(i => new FileInformation { FileName = i.OriginalFileName, LastModified = i.LastModified.Ticks })
-                /*.Cacheable()*/.ToListAsync();
+                .Cacheable().ToListAsync();
             return files;
         }
 

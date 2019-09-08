@@ -34,7 +34,7 @@ namespace hjudge.WebHost.Services
         {
             var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).Cacheable().FirstOrDefaultAsync();
             if (exists != null)
             {
                 if (exists.VoteType == 1) contest.Upvote = Math.Max(0, contest.Upvote - 1);
@@ -50,7 +50,7 @@ namespace hjudge.WebHost.Services
         {
             var problem = await problemService.GetProblemAsync(problemId);
             if (problem == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).Cacheable().FirstOrDefaultAsync();
             if (exists != null)
             {
                 if (exists.VoteType == 1) problem.Upvote = Math.Max(0, problem.Upvote - 1);
@@ -66,7 +66,7 @@ namespace hjudge.WebHost.Services
         {
             var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).Cacheable().AnyAsync();
             if (exists) return false;
             ++contest.Downvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
@@ -88,7 +88,7 @@ namespace hjudge.WebHost.Services
         {
             var problem = await problemService.GetProblemAsync(problemId);
             if (problem == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).Cacheable().AnyAsync();
             if (exists) return false;
             ++problem.Downvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
@@ -108,14 +108,14 @@ namespace hjudge.WebHost.Services
 
         public Task<VotesRecord?> GetVoteAsync(string userId, int? problemId, int? contestId)
         {
-            return dbContext.VotesRecord.AsNoTracking().Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == contestId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            return dbContext.VotesRecord.AsNoTracking().Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == contestId).Cacheable().FirstOrDefaultAsync();
         }
 
         public async Task<bool> UpvoteContestAsync(string userId, int contestId, string? title = null, string? content = null)
         {
             var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).Cacheable().AnyAsync();
             if (exists) return false;
             ++contest.Upvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
@@ -137,7 +137,7 @@ namespace hjudge.WebHost.Services
         {
             var problem = await problemService.GetProblemAsync(problemId);
             if (problem == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).Cacheable().AnyAsync();
             if (exists) return false;
             ++problem.Upvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord

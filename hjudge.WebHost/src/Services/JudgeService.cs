@@ -55,7 +55,7 @@ namespace hjudge.WebHost.Services
                 
             var result = await judges
                 .Where(i => i.Id == judgeId)
-                /*.Cacheable()*/
+                .Cacheable()
                 .FirstOrDefaultAsync();
             return result;
         }
