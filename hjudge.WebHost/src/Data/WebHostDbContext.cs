@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.Contracts;
@@ -284,11 +285,6 @@ namespace hjudge.WebHost.Data
 
             //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
-            foreach (var i in this.ChangeTracker.Entries())
-            {
-                if (i.State == EntityState.Unchanged) i.State = EntityState.Detached;
-            }
-
             return result;
         }
 
@@ -301,12 +297,7 @@ namespace hjudge.WebHost.Data
             //this.ChangeTracker.AutoDetectChangesEnabled = true;
 
             //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
-
-            foreach (var i in this.ChangeTracker.Entries())
-            {
-                if (i.State == EntityState.Unchanged) i.State = EntityState.Detached;
-            }
-
+            
             return result;
         }
     }

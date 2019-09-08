@@ -52,7 +52,7 @@ namespace hjudge.WebHost.Services
                 .Include(i => i.Contest)
                 .Include(i => i.Group)
                 .Where(i => i.Id == judgeId) : dbContext.Judge.Where(i => i.Id == judgeId);
-                
+
             return judges
                 /*.Cacheable()*/
                 .FirstOrDefaultAsync();
@@ -79,13 +79,11 @@ namespace hjudge.WebHost.Services
             {
                 judge.Result = string.Empty;
                 dbContext.Judge.Update(judge);
-                await dbContext.SaveChangesAsync();
             }
             else
             {
                 judge.JudgeTime = DateTime.Now;
                 await dbContext.Judge.AddAsync(judge);
-                await dbContext.SaveChangesAsync();
 
                 if (judge.ContestId != null)
                 {
@@ -99,8 +97,8 @@ namespace hjudge.WebHost.Services
                     var problem = await dbContext.Problem.Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync();
                     problem.SubmissionCount++;
                 }
-                await dbContext.SaveChangesAsync();
             }
+            await dbContext.SaveChangesAsync();
 
             var (judgeOptionsBuilder, buildOptionsBuilder) = await JudgeHelper.GetOptionBuilders(problemService, judge, (await languageService.GetLanguageConfigAsync()).ToList());
             var (judgeOptions, buildOptions) = (judgeOptionsBuilder.Build(), buildOptionsBuilder.Build());

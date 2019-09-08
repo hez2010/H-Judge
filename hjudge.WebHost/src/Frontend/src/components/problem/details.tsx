@@ -153,7 +153,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
       <br />
       <small>出题用户：<NavLink to={`/user/${this.state.problem.userId}`}>{this.state.problem.userName}</NavLink></small>
       <br />
-      <small>题目难度：<Rating icon='star' defaultRating={this.state.problem.level} maxRating={10} disabled={true} /></small>
+      <small>题目难度：<Rating icon='star' rating={this.state.problem.level} maxRating={10} disabled={true} /></small>
       <br />
       <small>完成状态：{this.state.problem.status === 0 ? '未尝试' : this.state.problem.status === 1 ? '已尝试' : '已通过'}</small>
       <br />

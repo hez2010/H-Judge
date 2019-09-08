@@ -28,11 +28,6 @@ namespace hjudge.FileHost.Data
 
             //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
-            foreach (var i in this.ChangeTracker.Entries())
-            {
-                if (i.State == EntityState.Unchanged) i.State = EntityState.Detached;
-            }
-
             return result;
         }
 
@@ -45,11 +40,6 @@ namespace hjudge.FileHost.Data
             //this.ChangeTracker.AutoDetectChangesEnabled = true;
 
             //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
-
-            foreach (var i in this.ChangeTracker.Entries())
-            {
-                if (i.State == EntityState.Unchanged) i.State = EntityState.Detached;
-            }
 
             return result;
         }
