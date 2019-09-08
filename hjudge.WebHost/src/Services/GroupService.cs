@@ -39,19 +39,17 @@ namespace hjudge.WebHost.Services
             return group.Id;
         }
 
-        public async Task<Group?> GetGroupAsync(int groupId)
+        public Task<Group?> GetGroupAsync(int groupId)
         {
-            var result = await dbContext.Group
-                .AsNoTracking()
+            return dbContext.Group
                 .Where(i => i.Id == groupId)
-                .Cacheable()
+                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
-            return result;
         }
 
         public Task<bool> IsInGroupAsync(string userId, int groupId)
         {
-            return dbContext.GroupJoin.Where(i => i.UserId == userId && i.GroupId == groupId).Cacheable().AnyAsync();
+            return dbContext.GroupJoin.Where(i => i.UserId == userId && i.GroupId == groupId)/*.Cacheable()*/.AnyAsync();
         }
 
         public async Task<bool> OptInGroupAsync(string userId, int groupId)
@@ -60,7 +58,7 @@ namespace hjudge.WebHost.Services
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                if (!await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).AnyAsync())
+                if (!await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId)/*.Cacheable()*/.AnyAsync())
                 {
                     await dbContext.GroupJoin.AddAsync(new GroupJoin
                     {
@@ -80,7 +78,7 @@ namespace hjudge.WebHost.Services
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                var info = await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).FirstOrDefaultAsync();
+                var info = await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId)/*.Cacheable()*/.FirstOrDefaultAsync();
                 if (info != null)
                 {
                     dbContext.GroupJoin.Remove(info);
@@ -95,7 +93,7 @@ namespace hjudge.WebHost.Services
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Group> groups = dbContext.Group.AsNoTracking().Include(i => i.GroupJoin);
+            IQueryable<Group> groups = dbContext.Group.Include(i => i.GroupJoin);
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -107,7 +105,7 @@ namespace hjudge.WebHost.Services
 
         public Task<IQueryable<GroupJoin>> QueryGroupJoinRecordsAsync()
         {
-            IQueryable<GroupJoin> groups = dbContext.GroupJoin.AsNoTracking();
+            IQueryable<GroupJoin> groups = dbContext.GroupJoin;
             return Task.FromResult(groups);
         }
 

@@ -231,8 +231,8 @@ namespace hjudge.WebHost.Controllers
 
             var judges = await judgeService.QueryJudgesAsync(userId);
 
-            ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();
-            ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).Cacheable().ToListAsync();
+            ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i)/*.Cacheable()*/.ToListAsync();
+            ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i)/*.Cacheable()*/.ToListAsync();
 
             ret.TriedProblems = ret.TriedProblems.Where(i => !ret.SolvedProblems.Contains(i)).ToList();
             return ret;

@@ -99,7 +99,7 @@ namespace hjudge.WebHost.Controllers
                                 model.GroupId == 0 ? null : (int?)model.GroupId,
                                 model.ContestId,
                                 model.ProblemId);
-                        if (contestConfig.SubmissionLimit <= await judges.Cacheable().CountAsync())
+                        if (contestConfig.SubmissionLimit <= await judges/*.Cacheable()*/.CountAsync())
                             throw new ForbiddenException("超出提交次数限制");
                     }
                     if (contestConfig.ResultMode != ResultDisplayMode.Intime) allowJumpToResult = false;

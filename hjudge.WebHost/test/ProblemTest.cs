@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
-    //[TestClass]
+    [TestClass]
     public class ProblemTest
     {
         private readonly IProblemService service = TestService.Provider.GetService<IProblemService>();
@@ -28,19 +28,19 @@ namespace hjudge.WebHost.Test
             Assert.AreNotEqual(0, id);
 
             var studentResult = await service.QueryProblemAsync(stuId);
-            Assert.IsTrue(studentResult.Cacheable().Any(i => i.Id == id && i.Name == problem.Name));
+            Assert.IsTrue(studentResult/*.Cacheable()*/.Any(i => i.Id == id && i.Name == problem.Name));
 
             var newName = Guid.NewGuid().ToString();
             problem.Name = newName;
             await service.UpdateProblemAsync(problem);
 
             studentResult = await service.QueryProblemAsync(stuId);
-            Assert.IsTrue(studentResult.Cacheable().Any(i => i.Id == id && i.Name == problem.Name));
+            Assert.IsTrue(studentResult/*.Cacheable()*/.Any(i => i.Id == id && i.Name == problem.Name));
 
             await service.RemoveProblemAsync(id);
 
             studentResult = await service.QueryProblemAsync(stuId);
-            Assert.IsFalse(studentResult.Cacheable().Any(i => i.Id == id));
+            Assert.IsFalse(studentResult/*.Cacheable()*/.Any(i => i.Id == id));
         }
 
         [TestMethod]
@@ -65,10 +65,10 @@ namespace hjudge.WebHost.Test
             var adminResult = await service.QueryProblemAsync(adminId);
             var strdentResult = await service.QueryProblemAsync(stuId);
 
-            Assert.IsTrue(adminResult.Cacheable().Any(i => i.Id == priId));
-            Assert.IsTrue(adminResult.Cacheable().Any(i => i.Id == pubId));
-            Assert.IsTrue(strdentResult.Cacheable().Any(i => i.Id == pubId));
-            Assert.IsFalse(strdentResult.Cacheable().Any(i => i.Id == priId));
+            Assert.IsTrue(adminResult/*.Cacheable()*/.Any(i => i.Id == priId));
+            Assert.IsTrue(adminResult/*.Cacheable()*/.Any(i => i.Id == pubId));
+            Assert.IsTrue(strdentResult/*.Cacheable()*/.Any(i => i.Id == pubId));
+            Assert.IsFalse(strdentResult/*.Cacheable()*/.Any(i => i.Id == priId));
         }
     }
 }

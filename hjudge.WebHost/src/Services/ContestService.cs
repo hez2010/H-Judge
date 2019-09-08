@@ -41,21 +41,19 @@ namespace hjudge.WebHost.Services
             return contest.Id;
         }
 
-        public async Task<Contest?> GetContestAsync(int contestId)
+        public Task<Contest?> GetContestAsync(int contestId)
         {
-            var result = await dbContext.Contest
-                .AsNoTracking()
+            return dbContext.Contest
                 .Where(i => i.Id == contestId)
-                .Cacheable()
+                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
-            return result;
         }
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId)
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Contest> contests = dbContext.Contest.AsNoTracking().Include(i => i.ContestRegister);
+            IQueryable<Contest> contests = dbContext.Contest.Include(i => i.ContestRegister);
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -79,7 +77,7 @@ namespace hjudge.WebHost.Services
                 }
             }
 
-            IQueryable<Contest> contests = dbContext.GroupContestConfig.AsNoTracking()
+            IQueryable<Contest> contests = dbContext.GroupContestConfig
                 .Include(i => i.Contest).Where(i => i.GroupId == groupId).OrderByDescending(i => i.Id).Select(i => i.Contest);
 
             return contests;

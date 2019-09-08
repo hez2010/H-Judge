@@ -16,6 +16,7 @@ using hjudge.WebHost.Data.Identity;
 using Microsoft.Extensions.Logging;
 using hjudge.WebHost.Data;
 using Microsoft.EntityFrameworkCore;
+using EFSecondLevelCache.Core;
 
 namespace hjudge.WebHost.MessageHandlers
 {
@@ -81,15 +82,17 @@ namespace hjudge.WebHost.MessageHandlers
                                     if (judge.ContestId != null)
                                     {
                                         var problemConfig = await dbContext.ContestProblemConfig
-                                            .AsNoTracking()
                                             .Where(i => i.ContestId == judge.ContestId &&
-                                                        i.ProblemId == judge.ProblemId).FirstOrDefaultAsync(token);
+                                                        i.ProblemId == judge.ProblemId)
+                                            /*.Cacheable()*/.FirstOrDefaultAsync(token);
                                         problemConfig.AcceptCount++;
                                         dbContext.ContestProblemConfig.Update(problemConfig);
                                     }
                                     else
                                     {
-                                        var problem = await dbContext.Problem.AsNoTracking().Where(i => i.Id == judge.ProblemId).FirstOrDefaultAsync(token);
+                                        var problem = await dbContext.Problem
+                                            .Where(i => i.Id == judge.ProblemId)
+                                            /*.Cacheable()*/.FirstOrDefaultAsync(token);
                                         problem.AcceptCount++;
                                         dbContext.Problem.Update(problem);
                                     }
