@@ -8,6 +8,7 @@ import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { CommonProps } from '../../interfaces/commonProps';
 import { tryJson } from '../../utils/responseHelper';
+import { toInputDateTime } from '../../utils/dateHelper';
 
 enum ContestType {
   Generic,
@@ -224,14 +225,6 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
     </Placeholder>;
     if (!this.state.loaded) return placeHolder;
 
-    const padding = (num: number, padding: number) => {
-      let str = num.toString();
-      if (str.length >= padding) return str;
-      return '0'.repeat(padding - str.length) + str;
-    }
-    const toInputDateTime = (time: Date) =>
-      `${padding(time.getFullYear(), 4)}-${padding(time.getMonth() + 1, 2)}-${padding(time.getDate(), 2)}T${padding(time.getHours(), 2)}:${padding(time.getMinutes(), 2)}:${padding(time.getSeconds(), 2)}`;
-
     const basic = <Form>
       <Form.Field required error={!this.state.contest.name}>
         <label>比赛名称</label>
@@ -239,11 +232,11 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
       </Form.Field>
       <Form.Field required error={!this.state.contest.startTime.getTime()}>
         <label>开始时间</label>
-        <Form.Input type="datetime-local" required defaultValue={toInputDateTime(this.state.contest.startTime)} onChange={e => this.handleChange(this.state.contest, 'startTime', new Date(e.target.value))} />
+        <Form.Input type="datetime-local" step="1" required defaultValue={toInputDateTime(this.state.contest.startTime)} onChange={e => this.handleChange(this.state.contest, 'startTime', new Date(e.target.value))} />
       </Form.Field>
       <Form.Field required error={!this.state.contest.endTime.getTime()}>
         <label>结束时间</label>
-        <Form.Input type="datetime-local" required defaultValue={toInputDateTime(this.state.contest.endTime)} onChange={e => this.handleChange(this.state.contest, 'endTime', new Date(e.target.value))} />
+        <Form.Input type="datetime-local" step="1" required defaultValue={toInputDateTime(this.state.contest.endTime)} onChange={e => this.handleChange(this.state.contest, 'endTime', new Date(e.target.value))} />
       </Form.Field>
       <Form.Field>
         <label>进入密码</label>
