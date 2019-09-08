@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Test
 {
-    //[TestClass]
+    [TestClass]
     public class VoteTest
     {
         private readonly IVoteService voteService = TestService.Provider.GetService<IVoteService>();

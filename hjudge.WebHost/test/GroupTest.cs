@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
-    //[TestClass]
+    [TestClass]
     public class GroupTest
     {
         private readonly IGroupService groupService = TestService.Provider.GetService<IGroupService>();
@@ -41,11 +41,11 @@ namespace hjudge.WebHost.Test
 
             await groupService.UpdateGroupContestAsync(gid, new[] { cid, cid });
             var result = await contestService.QueryContestAsync(stuId, gid);
-            Assert.IsTrue(result.Cacheable().Count(i => i.Id == cid) == 1);
+            Assert.IsTrue(result/*.Cacheable()*/.Count(i => i.Id == cid) == 1);
 
             await groupService.UpdateGroupContestAsync(gid, new int[0]);
             result = await contestService.QueryContestAsync(stuId, gid);
-            Assert.IsFalse(result.Cacheable().Any());
+            Assert.IsFalse(result/*.Cacheable()*/.Any());
         }
 
         [TestMethod]
@@ -63,19 +63,19 @@ namespace hjudge.WebHost.Test
             Assert.AreNotEqual(0, id);
 
             var studentResult = await groupService.QueryGroupAsync(stuId);
-            Assert.IsTrue(studentResult.Cacheable().Any(i => i.Id == id && i.Name == group.Name));
+            Assert.IsTrue(studentResult/*.Cacheable()*/.Any(i => i.Id == id && i.Name == group.Name));
 
             var newName = Guid.NewGuid().ToString();
             group.Name = newName;
             await groupService.UpdateGroupAsync(group);
 
             studentResult = await groupService.QueryGroupAsync(stuId);
-            Assert.IsTrue(studentResult.Cacheable().Any(i => i.Id == id && i.Name == group.Name));
+            Assert.IsTrue(studentResult/*.Cacheable()*/.Any(i => i.Id == id && i.Name == group.Name));
 
             await groupService.RemoveGroupAsync(id);
 
             studentResult = await groupService.QueryGroupAsync(stuId);
-            Assert.IsFalse(studentResult.Cacheable().Any(i => i.Id == id));
+            Assert.IsFalse(studentResult/*.Cacheable()*/.Any(i => i.Id == id));
         }
 
         [TestMethod]
@@ -99,18 +99,18 @@ namespace hjudge.WebHost.Test
             var adminResult = await groupService.QueryGroupAsync(adminId);
             var strdentResult = await groupService.QueryGroupAsync(stuId);
 
-            Assert.IsTrue(adminResult.Cacheable().Any(i => i.Id == priId));
-            Assert.IsTrue(adminResult.Cacheable().Any(i => i.Id == pubId));
-            Assert.IsTrue(strdentResult.Cacheable().Any(i => i.Id == pubId));
-            Assert.IsFalse(strdentResult.Cacheable().Any(i => i.Id == priId));
+            Assert.IsTrue(adminResult/*.Cacheable()*/.Any(i => i.Id == priId));
+            Assert.IsTrue(adminResult/*.Cacheable()*/.Any(i => i.Id == pubId));
+            Assert.IsTrue(strdentResult/*.Cacheable()*/.Any(i => i.Id == pubId));
+            Assert.IsFalse(strdentResult/*.Cacheable()*/.Any(i => i.Id == priId));
 
             await groupService.OptInGroupAsync(stuId, priId);
             strdentResult = await groupService.QueryGroupAsync(stuId);
-            Assert.IsTrue(strdentResult.Cacheable().Any(i => i.Id == priId));
+            Assert.IsTrue(strdentResult/*.Cacheable()*/.Any(i => i.Id == priId));
 
             await groupService.OptOutGroupAsync(stuId, priId);
             strdentResult = await groupService.QueryGroupAsync(stuId);
-            Assert.IsFalse(strdentResult.Cacheable().Any(i => i.Id == priId));
+            Assert.IsFalse(strdentResult/*.Cacheable()*/.Any(i => i.Id == priId));
         }
     }
 }

@@ -20,26 +20,36 @@ namespace hjudge.FileHost.Data
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            var changedEntityNames = this.GetChangedEntityNames();
+            //var changedEntityNames = this.GetChangedEntityNames();
 
-            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            //this.ChangeTracker.AutoDetectChangesEnabled = false;
             var result = base.SaveChanges(acceptAllChangesOnSuccess);
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
+            //this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+            //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            foreach (var i in this.ChangeTracker.Entries())
+            {
+                if (i.State == EntityState.Unchanged) i.State = EntityState.Detached;
+            }
 
             return result;
         }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            var changedEntityNames = this.GetChangedEntityNames();
+            //var changedEntityNames = this.GetChangedEntityNames();
 
-            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            //this.ChangeTracker.AutoDetectChangesEnabled = false;
             var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
+            //this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+            //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            foreach (var i in this.ChangeTracker.Entries())
+            {
+                if (i.State == EntityState.Unchanged) i.State = EntityState.Detached;
+            }
 
             return result;
         }

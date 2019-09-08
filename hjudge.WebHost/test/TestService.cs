@@ -111,6 +111,7 @@ namespace hjudge.WebHost.Test
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
             })
             /*.AddJsonOptions(options =>
             {

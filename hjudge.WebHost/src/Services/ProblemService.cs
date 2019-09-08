@@ -44,21 +44,19 @@ namespace hjudge.WebHost.Services
             return problem.Id;
         }
 
-        public async Task<Problem?> GetProblemAsync(int problemId)
+        public Task<Problem?> GetProblemAsync(int problemId)
         {
-            var result = await dbContext.Problem
-                .AsNoTracking()
+            return dbContext.Problem
                 .Where(i => i.Id == problemId)
-                .Cacheable()
+                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
-            return result;
         }
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId)
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Problem> problems = dbContext.Problem.AsNoTracking();
+            IQueryable<Problem> problems = dbContext.Problem;
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -81,7 +79,6 @@ namespace hjudge.WebHost.Services
             }
 
             IQueryable<Problem> problems = dbContext.ContestProblemConfig
-                                                .AsNoTracking()
                                                 .Include(i => i.Problem)
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)
@@ -113,7 +110,6 @@ namespace hjudge.WebHost.Services
             }
 
             IQueryable<Problem> problems = dbContext.ContestProblemConfig
-                                                .AsNoTracking()
                                                 .Include(i => i.Problem)
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)

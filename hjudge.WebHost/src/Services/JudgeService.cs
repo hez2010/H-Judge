@@ -44,25 +44,23 @@ namespace hjudge.WebHost.Services
             this.userManager = userManager;
         }
 
-        public async Task<Judge?> GetJudgeAsync(int judgeId, bool includeForeignFields = false)
+        public Task<Judge?> GetJudgeAsync(int judgeId, bool includeForeignFields = false)
         {
             var judges = includeForeignFields ? dbContext.Judge
                 .Include(i => i.Problem)
                 .Include(i => i.UserInfo)
                 .Include(i => i.Contest)
                 .Include(i => i.Group)
-                .AsNoTracking() : dbContext.Judge.AsNoTracking();
+                .Where(i => i.Id == judgeId) : dbContext.Judge.Where(i => i.Id == judgeId);
                 
-            var result = await judges
-                .Where(i => i.Id == judgeId)
-                .Cacheable()
+            return judges
+                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
-            return result;
         }
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null)
         {
-            IQueryable<Judge> judges = dbContext.Judge.AsNoTracking();
+            IQueryable<Judge> judges = dbContext.Judge;
             if (!string.IsNullOrEmpty(userId)) judges = judges.Where(i => i.UserId == userId);
             if (groupId != 0) judges = judges.Where(i => i.GroupId == groupId);
             if (contestId != 0) judges = judges.Where(i => i.ContestId == contestId);
