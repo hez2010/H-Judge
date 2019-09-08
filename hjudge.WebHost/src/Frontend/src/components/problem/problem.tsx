@@ -180,7 +180,7 @@ export default class Problem extends React.Component<ProblemProps & CommonProps,
                 <Table.Cell>{v.status === 0 ? '未尝试' : v.status === 1 ? '已尝试' : '已通过'}</Table.Cell>
                 {
                   v.upvote + v.downvote === 0 ?
-                    <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /></Table.Cell> :
+                    <Table.Cell><Rating icon='star' rating={3} maxRating={5} disabled={true} /></Table.Cell> :
                     <Table.Cell><Rating icon='star' maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
                 }
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>

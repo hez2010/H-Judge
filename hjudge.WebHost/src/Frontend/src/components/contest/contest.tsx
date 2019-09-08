@@ -187,7 +187,7 @@ export default class Contest extends React.Component<ContestProps & CommonProps,
                 <Table.Cell>{status === 0 ? '未开始' : status === 1 ? '进行中' : '已结束'}</Table.Cell>
                 {
                   v.upvote + v.downvote === 0 ?
-                    <Table.Cell><Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /></Table.Cell> :
+                    <Table.Cell><Rating icon='star' rating={3} maxRating={5} disabled={true} /></Table.Cell> :
                     <Table.Cell><Rating icon='star' maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
                 }
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
