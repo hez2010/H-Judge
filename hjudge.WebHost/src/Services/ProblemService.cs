@@ -49,7 +49,7 @@ namespace hjudge.WebHost.Services
             var result = await dbContext.Problem
                 .AsNoTracking()
                 .Where(i => i.Id == problemId)
-                /*.Cacheable()*/
+                .Cacheable()
                 .FirstOrDefaultAsync();
             return result;
         }

@@ -273,39 +273,31 @@ namespace hjudge.WebHost.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
-        
-        //public override int SaveChanges(bool acceptAllChangesOnSuccess)
-        //{
-        //    var changedEntityNames = this.GetChangedEntityNames();
 
-        //    this.ChangeTracker.AutoDetectChangesEnabled = false;
-        //    var result = base.SaveChanges(acceptAllChangesOnSuccess);
-        //    this.ChangeTracker.AutoDetectChangesEnabled = true;
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
 
-        //    this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            var result = base.SaveChanges(acceptAllChangesOnSuccess);
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-        //    foreach (var i in this.ChangeTracker.Entries())
-        //    {
-        //        i.State = EntityState.Detached;
-        //    }
-        //    return result;
-        //}
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
-        //public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-        //{
-        //    var changedEntityNames = this.GetChangedEntityNames();
+            return result;
+        }
 
-        //    this.ChangeTracker.AutoDetectChangesEnabled = false;
-        //    var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        //    this.ChangeTracker.AutoDetectChangesEnabled = true;
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
 
-        //    this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+            this.ChangeTracker.AutoDetectChangesEnabled = false;
+            var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-        //    foreach (var i in this.ChangeTracker.Entries())
-        //    {
-        //        i.State = EntityState.Detached;
-        //    }
-        //    return result;
-        //}
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            return result;
+        }
     }
 }

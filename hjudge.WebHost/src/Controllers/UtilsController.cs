@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Controllers
                 UserName = i.UserName,
                 Name = i.Name,
                 Email = i.Email
-            })/*.Cacheable()*/;
+            }).Cacheable();
 
             return new UserQueryResultListModel
             {

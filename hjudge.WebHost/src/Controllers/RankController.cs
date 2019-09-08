@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Controllers
             if (groupId != 0)
             {
                 var groups = await groupService.QueryGroupAsync(user?.Id);
-                groups = groups.Where(i => i.GroupContestConfig.Any(j => j.ContestId == contestId && j.GroupId == groupId))/*.Cacheable()*/;
+                groups = groups.Where(i => i.GroupContestConfig.Any(j => j.ContestId == contestId && j.GroupId == groupId)).Cacheable();
                 if (!await groups.AnyAsync()) throw new NotFoundException("该比赛不存在或未加入对应小组");
             }
 
@@ -78,11 +78,11 @@ namespace hjudge.WebHost.Controllers
                 ResultType = i.ResultType,
                 Time = i.JudgeTime,
                 Score = i.FullScore
-            })/*.Cacheable()*/;
+            }).Cacheable();
 
             var isAccepted = new Dictionary<(string UserId, int ProblemId), bool>();
 
-            foreach (var i in results)
+            await foreach (var i in results)
             {
                 if (!ret.UserInfos.ContainsKey(i.UserId)) ret.UserInfos[i.UserId] = new RankUserInfoModel
                 {

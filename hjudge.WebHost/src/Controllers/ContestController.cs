@@ -89,7 +89,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).Cacheable().CountAsync();
 
             if (model.GroupId == 0) contests = contests.OrderByDescending(i => i.Id);
             else model.StartId = 0; // keep original order while fetching contests in a group
@@ -106,7 +106,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
-            })/*.Cacheable()*/.ToListAsync();
+            }).Cacheable().ToListAsync();
 
             ret.CurrentTime = DateTime.Now;
             return ret;
@@ -134,7 +134,7 @@ namespace hjudge.WebHost.Controllers
                 throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).Cacheable().FirstOrDefaultAsync();
 
             if (contest == null) throw new NotFoundException("找不到该比赛");
 
