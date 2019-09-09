@@ -14,12 +14,12 @@ namespace hjudge.FileHost
 {
     public class Startup
     {
+        private readonly IConfiguration configuration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -33,7 +33,7 @@ namespace hjudge.FileHost
 
             services.AddDbContext<FileHostDbContext>(options =>
             {
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
 // #if DEBUG
 //                 options.EnableDetailedErrors(true);
 //                 options.EnableSensitiveDataLogging(true);
@@ -48,23 +48,23 @@ namespace hjudge.FileHost
             services.AddScoped<SeaweedFsService>()
                 .Configure<SeaweedFsOptions>(options =>
                 {
-                    options.MasterHostName = Configuration["SeaweedFs:MasterHostName"];
-                    options.Port = int.Parse(Configuration["SeaweedFs:Port"]);
+                    options.MasterHostName = configuration["SeaweedFs:MasterHostName"];
+                    options.Port = int.Parse(configuration["SeaweedFs:Port"]);
                 });
 
             services.AddEFSecondLevelCache();
             services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
                     .WithUpdateMode(CacheUpdateMode.Up)
                     .WithJsonSerializer()
-                    .WithRedisConfiguration(Configuration["Redis:Configuration"], config =>
+                    .WithRedisConfiguration(configuration["Redis:Configuration"], config =>
                     {
                         config.WithAllowAdmin()
                             .WithDatabase(0)
-                            .WithEndpoint(Configuration["Redis:HostName"], int.Parse(Configuration["Redis:Port"]));
+                            .WithEndpoint(configuration["Redis:HostName"], int.Parse(configuration["Redis:Port"]));
                     })
                     .WithMaxRetries(100)
                     .WithRetryTimeout(50)
-                    .WithRedisCacheHandle(Configuration["Redis:Configuration"])
+                    .WithRedisCacheHandle(configuration["Redis:Configuration"])
                     .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
                     .Build());
                     

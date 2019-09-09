@@ -158,8 +158,6 @@ namespace hjudge.WebHost
                     options.DefaultEngineName = ChakraCoreJsEngine.EngineName;
                 }).AddChakraCore();
             }
-            
-            services.RecordServiceCollection();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

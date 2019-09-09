@@ -4,8 +4,9 @@
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "commandLineArgs": "--port=61726"
     }
   }
 }

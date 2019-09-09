@@ -1,124 +1,75 @@
-﻿using hjudge.Shared.Utils;
-using hjudge.Shared.MessageQueue;
-using RabbitMQ.Client.Events;
+﻿using hjudge.Shared.MessageQueue;
 using System;
 using System.IO;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using hjudge.Shared.Judge;
 using System.Collections.Generic;
-using Grpc.Core;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.JudgeHost
 {
     class Program
     {
+        public static Task Main(string[] args) => CreateHostBuilder(args).Build().RunAsync();
 
-        public static MessageQueueFactory? JudgeMessageQueueFactory;
-        public static Channel? FileHostChannel;
-        private static readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-        static async Task Main(string[] args)
-        {
-#if DEBUG
-            var config = File.ReadAllText("appsettings.Development.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>(false);
-#else
-            var config = File.ReadAllText("appsettings.json", Encoding.UTF8).DeserializeJson<JudgeHostConfig>(false);
-#endif
-            if (config.ConcurrentJudgeTask <= 0) config.ConcurrentJudgeTask = Environment.ProcessorCount;
-            JudgeQueue.Semaphore = new SemaphoreSlim(0, config.ConcurrentJudgeTask);
-
-            FileHostChannel = new Channel(config.FileHost, ChannelCredentials.Insecure);
-            var options = config.MessageQueue;
-            if (options != null)
-            {
-                JudgeMessageQueueFactory = new MessageQueueFactory(new MessageQueueFactory.HostOptions
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .UseConsoleLifetime()
+                .ConfigureServices((hostContext, services) =>
                 {
-                    HostName = options.HostName,
-                    Password = options.Password,
-                    Port = options.Port,
-                    UserName = options.UserName,
-                    VirtualHost = options.VirtualHost
-                });
-
-                if (options.Producers != null)
-                {
-                    foreach (var i in options.Producers)
-                    {
-                        JudgeMessageQueueFactory.CreateProducer(i);
-                    }
-                }
-
-                if (options.Consumers != null)
-                {
-                    foreach (var i in options.Consumers)
-                    {
-                        i.OnReceived = i.Queue switch
+                    var config = hostContext.Configuration;
+                    services.AddHostedService<JudgeQueue>()
+                        .Configure<JudgeHostConfig>(options =>
                         {
-                            "JudgeQueue" => new AsyncEventHandler<BasicDeliverEventArgs>(JudgeRequest_Received),
-                            _ => null
-                        };
+                            options.FileHost = config["FileHost"];
+                            options.DataCacheDirectory = config["DataCacheDirectory"];
+                            options.MessageQueue = new MessageQueueOptions
+                            {
+                                HostName = config["MessageQueue:HostName"],
+                                Password = config["MessageQueue:Password"],
+                                Port = int.Parse(config["MessageQueue:Port"]),
+                                UserName = config["MessageQueue:UserName"],
+                                VirtualHost = config["MessageQueue:VirtualHost"]
+                            };
 
-                        JudgeMessageQueueFactory.CreateConsumer(i);
-                    }
-                }
-            }
-            var token = tokenSource.Token;
+                            var messageQueueOptions = config.GetSection("MessageQueue");
+                            var producersConfig = messageQueueOptions.GetSection("Producers").GetChildren();
+                            var consumersConfig = messageQueueOptions.GetSection("Consumers").GetChildren();
 
-            var tasks = new List<Task>();
-            for (var i = 0; i < config.ConcurrentJudgeTask; i++)
-                tasks.Add(JudgeQueue.JudgeQueueExecutor(
-                    Path.Combine(
-                        Path.GetTempPath(),
-                        config.DataCacheDirectory,
-                        Guid.NewGuid().ToString().Replace("-", "_")),
-                    token));
+                            var producers = new List<MessageQueueFactory.ProducerOptions>();
+                            foreach (var i in producersConfig)
+                            {
+                                producers.Add(new MessageQueueFactory.ProducerOptions
+                                {
+                                    AutoDelete = bool.Parse(i["AutoDelete"]),
+                                    Durable = bool.Parse(i["Durable"]),
+                                    Exchange = i["Exchange"],
+                                    Exclusive = bool.Parse(i["Exclusive"]),
+                                    Queue = i["Queue"],
+                                    RoutingKey = i["RoutingKey"]
+                                });
+                            }
+                            options.MessageQueue.Producers = producers.ToArray();
+                            var consumers = new List<MessageQueueFactory.ConsumerOptions>();
+                            foreach (var i in consumersConfig)
+                            {
+                                consumers.Add(new MessageQueueFactory.ConsumerOptions
+                                {
+                                    AutoAck = bool.Parse(i["AutoAck"]),
+                                    Durable = bool.Parse(i["Durable"]),
+                                    Exchange = i["Exchange"],
+                                    Exclusive = bool.Parse(i["Exclusive"]),
+                                    Queue = i["Queue"],
+                                    RoutingKey = i["RoutingKey"]
+                                });
+                            }
+                            options.MessageQueue.Consumers = consumers.ToArray();
 
-            Console.CancelKeyPress += async (sender, e) =>
-            {
-                tokenSource.Cancel();
-                await FileHostChannel.ShutdownAsync();
-                e.Cancel = true;
-            };
-
-            AppDomain.CurrentDomain.ProcessExit += async (sender, e) =>
-            {
-                tokenSource.Cancel();
-                await FileHostChannel.ShutdownAsync();
-                await Task.WhenAll(tasks);
-            };
-
-            await Task.WhenAll(tasks);
-
-            JudgeMessageQueueFactory?.Dispose();
-            tokenSource?.Dispose();
-        }
-
-        private static async Task JudgeRequest_Received(object sender, BasicDeliverEventArgs args)
-        {
-            if (sender is AsyncEventingBasicConsumer consumer)
-            {
-                JudgeInfo info;
-
-                try
-                {
-                    info = args.Body.DeserializeJson<JudgeInfo>(false);
-                }
-                catch
-                {
-                    consumer.Model.BasicNack(args.DeliveryTag, false, !args.Redelivered);
-                    if (args.Redelivered)
-                    {
-                        Console.WriteLine($"{DateTime.Now}: Message fetching failed, tag: {args.DeliveryTag}");
-                    }
-                    return;
-                }
-
-                await JudgeQueue.QueueJudgeAsync(info);
-
-                consumer.Model.BasicAck(args.DeliveryTag, false);
-            }
-        }
+                            options.DataCacheDirectory = Path.Combine(
+                                Path.GetTempPath(),
+                                config["DataCacheDirectory"],
+                                Guid.NewGuid().ToString().Replace("-", "_"));
+                        });
+                });
     }
 }
