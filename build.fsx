@@ -21,11 +21,12 @@ let findMSBuild =
     }
 
 Target.create "Clean" (fun _ ->
-    !! "**/Cargo.toml"
-    |> Seq.iter(fun project -> 
-        let dir = Path.getDirectory project
-        Shell.Exec ("cargo", "clean", dir) |> ignore
-    )
+    if (Environment.isLinux) then
+        !! "**/Cargo.toml"
+        |> Seq.iter(fun project -> 
+            let dir = Path.getDirectory project
+            Shell.Exec ("cargo", "clean", dir) |> ignore
+        )
     !! "**/*.csproj"
     |> Seq.iter (fun project -> 
         let dir = Path.getDirectory project
@@ -43,21 +44,22 @@ Target.create "Clean" (fun _ ->
 )
 
 Target.create "Build" (fun _ ->
-    !! "**/Cargo.toml"
-    |> Seq.iter(fun project -> 
-        let dir = Path.getDirectory project
-        Shell.Exec ("cargo", "build --release", dir) |> ignore
-        let outputDir = dir+"/target/release";
-        for x in System.IO.Directory.GetFiles outputDir do
-            let sb = System.Text.StringBuilder()
-            let fileName = System.IO.Path.GetFileName x
-            for i in fileName do 
-                match i with
-                | '_' -> sb.Append '.' |> ignore
-                | _ -> sb.Append i |> ignore
-            let targetFileName = Path.combine outputDir (sb.ToString())
-            System.IO.File.Move(x, targetFileName)
-    )
+    if (Environment.isLinux) then
+        !! "**/Cargo.toml"
+        |> Seq.iter(fun project -> 
+            let dir = Path.getDirectory project
+            Shell.Exec ("cargo", "build --release", dir) |> ignore
+            let outputDir = dir+"/target/release";
+            for x in System.IO.Directory.GetFiles outputDir do
+                let sb = System.Text.StringBuilder()
+                let fileName = System.IO.Path.GetFileName x
+                for i in fileName do 
+                    match i with
+                    | '_' -> sb.Append '.' |> ignore
+                    | _ -> sb.Append i |> ignore
+                let targetFileName = Path.combine outputDir (sb.ToString())
+                System.IO.File.Move(x, targetFileName)
+        )
     !! "**/*.csproj"
     |> Seq.iter (DotNet.publish id)
     if (Environment.isWindows) then

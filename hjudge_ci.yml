@@ -20,6 +20,7 @@ steps:
     script: |
         fake run build.fsx -t Test
 - task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.JudgeHost/src/bin/Release/netcoreapp3.0/publish'
     includeRootFolder: false
@@ -27,6 +28,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.JudgeHost.zip'
     replaceExistingArchive: true
 - task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.FileHost/src/bin/Release/netcoreapp3.0/publish'
     includeRootFolder: false
@@ -34,6 +36,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.FileHost.zip'
     replaceExistingArchive: true
 - task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.WebHost/src/bin/Release/netcoreapp3.0/publish'
     includeRootFolder: false
@@ -41,6 +44,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.WebHost.zip'
     replaceExistingArchive: true
 - task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.Exec.Windows/x64/Release'
     includeRootFolder: false
@@ -48,6 +52,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Windows.zip'
     replaceExistingArchive: true
 - task: ArchiveFiles@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.Exec.Linux/target/release'
     includeRootFolder: false
@@ -55,6 +60,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Linux.zip'
     replaceExistingArchive: true
 - task: PublishPipelineArtifact@1
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     targetPath: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'hjudge_artifacts_$(Build.BuildId)'
