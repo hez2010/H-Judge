@@ -12,6 +12,7 @@ This is the official repository for [H::Judge](https://hjudge.com).
 - [.NET Core 3.0](https://www.microsoft.com/net/)
 - [SeaweedFs 1.43](https://github.com/chrislusf/seaweedfs/)
 - [PostgreSQL 11](https://www.postgresql.org/)
+- [Yarn 1.17.3](https://yarnpkg.com/)
 
 ## Projects
 - hjudge.WebHost:
