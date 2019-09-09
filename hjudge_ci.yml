@@ -11,34 +11,15 @@ steps:
     packageType: 'sdk'
     version: '3.0.100-preview9-014004'
     includePreviewVersions: true
-- task: NuGetToolInstaller@1
-- task: NuGetCommand@2
+- task: CmdLine@2
   inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
-    feedsToUse: 'select'
-    verbosityRestore: 'Normal'
-- task: VSBuild@1
+    script: |
+        fake run build.fsx -t Build
+- task: CmdLine@2
   inputs:
-    solution: '**\*.sln'
-    msbuildArgs: '/t:Build,Publish'
-    platform: 'x64'
-    configuration: 'Release'
-    clean: true
-    maximumCpuCount: true
-    msbuildArchitecture: 'x64'
-- task: VSTest@2
-  inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    platform: 'x64'
-    configuration: 'Release'
+    script: |
+        fake run build.fsx -t Test
 - task: ArchiveFiles@2
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.JudgeHost/src/bin/Release/netcoreapp3.0/publish'
     includeRootFolder: false
@@ -46,7 +27,6 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.JudgeHost.zip'
     replaceExistingArchive: true
 - task: ArchiveFiles@2
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.FileHost/src/bin/Release/netcoreapp3.0/publish'
     includeRootFolder: false
@@ -54,7 +34,6 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.FileHost.zip'
     replaceExistingArchive: true
 - task: ArchiveFiles@2
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
     rootFolderOrFile: 'hjudge.WebHost/src/bin/Release/netcoreapp3.0/publish'
     includeRootFolder: false
@@ -62,16 +41,20 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.WebHost.zip'
     replaceExistingArchive: true
 - task: ArchiveFiles@2
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
-    rootFolderOrFile: 'x64/Release'
+    rootFolderOrFile: 'hjudge.Exec.Windows/x64/Release'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Windows.zip'
     replaceExistingArchive: true
-
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'hjudge.Exec.Linux/target/release'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Linux.zip'
+    replaceExistingArchive: true
 - task: PublishPipelineArtifact@1
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   inputs:
     targetPath: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'hjudge_artifacts_$(Build.BuildId)'

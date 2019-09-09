@@ -1,0 +1,13 @@
+[package]
+name = "hjudge_Exec_Linux"
+version = "0.1.0"
+authors = ["Steven He <hez2010@outlook.com>"]
+edition = "2018"
+
+[lib]
+name = "hjudge_Exec_Linux"
+crate-type = ["dylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
