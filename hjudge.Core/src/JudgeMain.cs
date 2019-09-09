@@ -79,7 +79,7 @@ namespace hjudge.Core
 
         private string? GetMiddleDirectoryPath(string? originalFilePath)
         {
-            if (originalFilePath?.StartsWith("R:") ?? false)
+            if (originalFilePath != null && originalFilePath.StartsWith("R:"))
             {
                 var fileName = originalFilePath[2..];
                 var fragment = fileName.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
