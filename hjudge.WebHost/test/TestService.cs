@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using EFSecondLevelCache.Core;
-using hjudge.WebHost.Extensions;
 using hjudge.WebHost.Middlewares;
 using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
@@ -130,7 +129,6 @@ namespace hjudge.WebHost.Test
                 options.DefaultEngineName = ChakraCoreJsEngine.EngineName;
             }).AddChakraCore();
 
-            services.RecordServiceCollection();
             return services.BuildServiceProvider();
         }
     }

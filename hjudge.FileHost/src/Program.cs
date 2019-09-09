@@ -16,8 +16,27 @@ namespace hjudge.FileHost
                     webBuilder
                         .ConfigureKestrel(kestrelOptions =>
                         {
-                            // TODO: int.Parse(configuration["Host:Port"])
-                            kestrelOptions.ListenLocalhost(61726,
+                            var port = 61726;
+                            if (args != null)
+                            {
+                                foreach (var i in args)
+                                {
+                                    if (i.StartsWith("--"))
+                                    {
+                                        var split = i.IndexOf("=");
+                                        var command = i[2..split].ToLowerInvariant();
+                                        var value = i[(split + 1)..];
+
+                                        switch (command)
+                                        {
+                                            case "port":
+                                                port = int.Parse(value);
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                            kestrelOptions.ListenLocalhost(port,
                                 listenOptions =>
                                 {
                                     listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core
