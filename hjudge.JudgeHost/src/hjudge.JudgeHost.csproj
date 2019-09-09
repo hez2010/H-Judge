@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <UserSecretsId>dotnet-hjudge.JudgeHost-E622A167-32DA-4085-8683-8C6333C6F752</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,9 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.Development.json" Condition="'$(Configuration)' == 'Debug'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="appsettings.json" Condition="'$(Configuration)' == 'Release'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
