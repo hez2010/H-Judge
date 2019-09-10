@@ -118,8 +118,10 @@ namespace hjudge.Core
                     return await AnswerJudgeAsync(buildOptions, judgeOptions);
                 }
 
-                var fileName = Path.Combine(this.workingDir, $"{buildOptions.SubmitFileName}{buildOptions.ExtensionName}");
-                File.WriteAllText(fileName, buildOptions.Source, Encoding.UTF8);
+                foreach (var i in buildOptions.SourceFiles)
+                {
+                    File.WriteAllText(Path.Combine(workingDir, i.FileName), i.Content, Encoding.UTF8);
+                }
 
                 if (buildOptions.StaticCheckOption != null)
                 {
@@ -250,7 +252,7 @@ namespace hjudge.Core
                             if (point.ResultType == ResultCode.Accepted)
                             {
                                 var (resultType, percentage, extraInfo) = point.ResultType == ResultCode.Accepted ?
-                                   await CompareAsync(fileName, inputFile, Path.Combine(this.workingDir, $"answer_{judgeOptions.GuidStr}.dat"), outputFile, judgeOptions)
+                                   await CompareAsync(workingDir, inputFile, Path.Combine(this.workingDir, $"answer_{judgeOptions.GuidStr}.dat"), outputFile, judgeOptions)
                                     : (point.ResultType, 0, point.ExtraInfo);
                                 point.ExtraInfo = extraInfo;
                                 point.ResultType = resultType;
@@ -285,7 +287,7 @@ namespace hjudge.Core
             return result;
         }
 
-        private async Task<JudgeResult> AnswerJudgeAsync(BuildOptions buildOption, JudgeOptions judgeOption)
+        private async Task<JudgeResult> AnswerJudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions)
         {
             var result = new JudgeResult
             {
@@ -295,19 +297,27 @@ namespace hjudge.Core
                 }
             };
 
-            if (judgeOption.AnswerPoint == null || !File.Exists(judgeOption.AnswerPoint.AnswerFile))
+            if (judgeOptions.AnswerPoint == null || !File.Exists(judgeOptions.AnswerPoint.AnswerFile))
             {
                 result.JudgePoints[0].ResultType = ResultCode.Problem_Config_Error;
             }
 
             try
             {
-                File.Copy(GetTargetFilePath(judgeOption.AnswerPoint?.AnswerFile), Path.Combine(workingDir, $"answer_{judgeOption.GuidStr}.txt"), true);
-                var fileName = Path.Combine(workingDir, buildOption.SubmitFileName);
-                File.WriteAllText(fileName, buildOption.Source, Encoding.UTF8);
-                var (resultType, percentage, extraInfo) = await CompareAsync(fileName, string.Empty, Path.Combine(workingDir, $"answer_{judgeOption.GuidStr}.txt"), Path.Combine(workingDir, buildOption.SubmitFileName), judgeOption, true);
+                File.Copy(GetTargetFilePath(judgeOptions.AnswerPoint?.AnswerFile), Path.Combine(workingDir, $"answer_{judgeOptions.GuidStr}.txt"), true);
+
+                foreach (var i in buildOptions.SourceFiles)
+                {
+                    File.WriteAllText(Path.Combine(workingDir, i.FileName), i.Content, Encoding.UTF8);
+                }
+
+                var (resultType, percentage, extraInfo) = await CompareAsync(
+                    workingDir,
+                    string.Empty,
+                    Path.Combine(workingDir, $"answer_{judgeOptions.GuidStr}.txt"),
+                    buildOptions.SourceFiles.Count == 0 ? string.Empty : Path.Combine(workingDir, buildOptions.SourceFiles[0].FileName), judgeOptions, true);
                 result.JudgePoints[0].ResultType = resultType;
-                result.JudgePoints[0].Score = percentage * (judgeOption.AnswerPoint?.Score ?? 0);
+                result.JudgePoints[0].Score = percentage * (judgeOptions.AnswerPoint?.Score ?? 0);
                 result.JudgePoints[0].ExtraInfo = extraInfo;
             }
             catch (Exception ex)
@@ -319,7 +329,7 @@ namespace hjudge.Core
             return result;
         }
 
-        private async Task<(ResultCode Result, float Percentage, string ExtraInfo)> CompareAsync(string sourceFile, string stdInputFile, string stdOutputFile, string outputFile, JudgeOptions judgeOption, bool isAnswerJudge = false)
+        private async Task<(ResultCode Result, float Percentage, string ExtraInfo)> CompareAsync(string workingDir, string stdInputFile, string stdOutputFile, string outputFile, JudgeOptions judgeOption, bool isAnswerJudge = false)
         {
             if (!File.Exists(outputFile))
             {
@@ -329,9 +339,9 @@ namespace hjudge.Core
             if (judgeOption.SpecialJudgeOptions != null)
             {
                 var argsBuilder = new StringBuilder();
-                if (judgeOption.SpecialJudgeOptions.UseSourceFile)
+                if (judgeOption.SpecialJudgeOptions.UseWorkingDir)
                 {
-                    argsBuilder.Append($" \"{sourceFile}\"");
+                    argsBuilder.Append($" \"{workingDir}\"");
                 }
                 if (judgeOption.SpecialJudgeOptions.UseOutputFile)
                 {

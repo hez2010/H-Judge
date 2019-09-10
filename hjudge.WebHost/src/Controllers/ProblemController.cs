@@ -265,6 +265,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
+            ret.Sources = config.SourceFiles;
             ret.Languages = LanguageConfigHelper.GenerateLanguageConfig(langConfig, langs).ToList();
 
             return ret;

@@ -9,7 +9,7 @@ namespace hjudge.WebHost.Configurations
         public string SpecialJudge { get; set; } = string.Empty;
         public string InputFileName { get; set; } = string.Empty;
         public string OutputFileName { get; set; } = string.Empty;
-        public string SubmitFileName { get; set; } = string.Empty;
+        public List<string> SourceFiles { get; set; } = new List<string>();
         public List<string> ExtraFiles { get; set; } = new List<string>();
         public List<DataPoint> Points { get; set; } = new List<DataPoint>();
         public AnswerPoint Answer { get; set; } = new AnswerPoint();

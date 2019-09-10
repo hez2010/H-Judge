@@ -17,6 +17,7 @@ namespace hjudge.WebHost.Models.Problem
         public int AcceptCount { get; set; }
         public int SubmissionCount { get; set; }
         public List<LanguageModel> Languages { get; set; } = new List<LanguageModel>();
+        public List<string> Sources { get; set; } = new List<string>();
         public int Status { get; set; }
         public bool Hidden { get; set; }
         public int Upvote { get; set; }
