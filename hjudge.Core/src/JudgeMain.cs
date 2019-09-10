@@ -120,7 +120,10 @@ namespace hjudge.Core
 
                 foreach (var i in buildOptions.SourceFiles)
                 {
-                    File.WriteAllText(Path.Combine(workingDir, i.FileName), i.Content, Encoding.UTF8);
+                    var path = Path.Combine(workingDir, i.FileName);
+                    var dir = Path.GetDirectoryName(path);
+                    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                    File.WriteAllText(path, i.Content, Encoding.UTF8);
                 }
 
                 if (buildOptions.StaticCheckOption != null)
@@ -308,7 +311,10 @@ namespace hjudge.Core
 
                 foreach (var i in buildOptions.SourceFiles)
                 {
-                    File.WriteAllText(Path.Combine(workingDir, i.FileName), i.Content, Encoding.UTF8);
+                    var path = Path.Combine(workingDir, i.FileName);
+                    var dir = Path.GetDirectoryName(path);
+                    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                    File.WriteAllText(path, i.Content, Encoding.UTF8);
                 }
 
                 var (resultType, percentage, extraInfo) = await CompareAsync(

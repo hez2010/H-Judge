@@ -15,7 +15,8 @@ interface ProblemEditState {
   selectedTemplate: string,
   processingData: boolean,
   confirmOpen: boolean,
-  loaded: boolean
+  loaded: boolean,
+  sources: SourceModel[]
 }
 
 interface ProblemDataUploadModel {
@@ -49,7 +50,7 @@ interface ProblemConfig {
   specialJudge: string,
   inputFileName: string,
   outputFileName: string,
-  submitFileName: string,
+  sourceFiles: string[],
   extraFiles: string[],
   points: DataPoint[],
   answer: AnswerPoint,
@@ -68,6 +69,11 @@ interface ProblemEditModel {
   type: number,
   hidden: boolean,
   config: ProblemConfig
+}
+
+interface SourceModel {
+  index: number,
+  fileName: string
 }
 
 export default class ProblemEdit extends React.Component<ProblemEditProps & CommonProps, ProblemEditState, GlobalState> {
@@ -93,7 +99,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
           outputFileName: '',
           points: [],
           specialJudge: '',
-          submitFileName: '',
+          sourceFiles: [],
           useStdIO: true
         },
         description: '',
@@ -107,7 +113,13 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       selectedTemplate: '',
       processingData: false,
       confirmOpen: false,
-      loaded: false
+      loaded: false,
+      sources: [
+        {
+          index: 0,
+          fileName: '${random}${extension}'
+        }
+      ]
     };
 
     this.fetchConfig = this.fetchConfig.bind(this);
@@ -123,10 +135,13 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
     this.deleteFile = this.deleteFile.bind(this);
     this.downloadFile = this.downloadFile.bind(this);
     this.viewFileList = this.viewFileList.bind(this);
+    this.removeSource = this.removeSource.bind(this);
+    this.addSource = this.addSource.bind(this);
   }
 
   private problemId = 0;
   private pointsCount = 0;
+  private sourceCount = 0;
   private editor = React.createRef<CodeEditor>();
   private fileLoader = React.createRef<HTMLInputElement>();
 
@@ -151,8 +166,9 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
         this.setState({
           problem: result,
           useSpecialJudge: !!result.config.specialJudge,
+          sources: result.config.sourceFiles.map(v => ({ index: ++this.sourceCount, fileName: v })),
           loaded: true
-        } as ProblemEditState);
+        });
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '题目配置加载失败', 'red');
@@ -195,6 +211,8 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       this.global.commonFuncs.openPortal('错误', '题目信息填写不完整', 'red');
       return;
     }
+
+    this.state.problem.config.sourceFiles = this.state.sources.map(v => v.fileName);
     if (this.state.problem.id === 0) {
       Put('/problem/edit', this.state.problem)
         .then(tryJson)
@@ -208,6 +226,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
           result.config.points = result.config.points.map(v => { v.index = ++this.pointsCount; return v; });
           this.setState({
             problem: result,
+            sources: result.config.sourceFiles.map(v => ({ index: ++this.sourceCount, fileName: v })),
             useSpecialJudge: !!result.config.specialJudge
           } as ProblemEditState);
           this.global.commonFuncs.openPortal('成功', '题目保存成功', 'green');
@@ -246,6 +265,13 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       result = result && !!config.inputFileName;
       result = result && !!config.outputFileName;
     }
+    if (this.state.sources.length === 0) result = false;
+    for (let i of this.state.sources) {
+      if (!i.fileName) {
+        result = false;
+        break;
+      }
+    }
 
     if (problem.type === 1) {
       for (let x in config.points) {
@@ -257,6 +283,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
     else {
       result = result && !!config.answer.answerFile;
     }
+
     return result;
   }
 
@@ -268,6 +295,21 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
   addPoint() {
     this.state.problem.config.points = [...this.state.problem.config.points, { stdInFile: '', stdOutFile: '', timeLimit: 1000, memoryLimit: 131072, score: 10, index: ++this.pointsCount }];
     this.setState(this.state);
+  }
+
+  removeSource = (index: number) => () => {
+    if (this.state.sources.length <= 1) {
+      this.global.commonFuncs.openPortal('错误', '至少要有一个提交内容', 'red');
+      return;
+    }
+    let sources = [...this.state.sources];
+    sources.splice(index, 1);
+    this.setState({ sources: sources });
+  }
+
+  addSource() {
+    let sources = [...this.state.sources, { index: ++this.sourceCount, fileName: '${random}${extension}' }];
+    this.setState({ sources: sources });
   }
 
   applyTemplate() {
@@ -549,10 +591,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
             />
           </Form.Group>
       }
-      <Form.Field>
-        <label>自定义提交文件名</label>
-        <Form.Input placeholder='留空保持默认' defaultValue={this.state.problem.config.submitFileName} onChange={e => this.handleChange(this.state.problem.config, 'submitFileName', e.target.value)} />
-      </Form.Field>
+
       {
         this.state.problem.type === 1 ?
           <>
@@ -580,12 +619,33 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       <input ref={this.fileLoader} onChange={this.uploadFile} type='file' accept="application/x-zip-compressed" style={{ filter: 'alpha(opacity=0)', opacity: 0, width: 0, height: 0 }} />
       {
         !this.state.processingData ? <Form.Group inline>
-        <Form.Button type='button' primary onClick={this.selectFile}>上传 .zip 数据文件</Form.Button>
-        <Form.Button type='button' onClick={this.viewFileList}>查看文件列表</Form.Button>
-        <Form.Button type='button' onClick={this.downloadFile}>下载数据文件</Form.Button>
-        <Form.Button type='button' color='red' onClick={() => this.setState({ confirmOpen: true })}>删除数据文件</Form.Button>
-      </Form.Group> : <Loader active inline>处理中...</Loader>
+          <Form.Button type='button' primary onClick={this.selectFile}>上传 .zip 数据文件</Form.Button>
+          <Form.Button type='button' onClick={this.viewFileList}>查看文件列表</Form.Button>
+          <Form.Button type='button' onClick={this.downloadFile}>下载数据文件</Form.Button>
+          <Form.Button type='button' color='red' onClick={() => this.setState({ confirmOpen: true })}>删除数据文件</Form.Button>
+        </Form.Group> : <Loader active inline>处理中...</Loader>
       }
+    </Form>;
+
+    const submitContent = <Form>
+      <Form.Group widths={16} inline>
+        <Form.Button width={1} icon='add' primary onClick={this.addSource} />
+      </Form.Group>
+      <List relaxed>
+        {this.state.sources.map((v, i) =>
+          <List.Item key={v.index}>
+            <List.Content>
+              <Segment>
+                <Label color='teal' ribbon><span>提交 #{i + 1}&nbsp;</span><a onClick={this.removeSource(i)}><Icon name='delete' color='red' /></a></Label>
+                <Form.Field required error={!v.fileName}>
+                  <label>文件名</label>
+                  <Form.Input fluid required defaultValue={v.fileName} onChange={e => this.handleChange(this.state.sources[i], 'fileName', e.target.value)} />
+                </Form.Field>
+              </Segment>
+            </List.Content>
+          </List.Item>
+        )}
+      </List>
     </Form>;
 
     let panes = [
@@ -596,10 +656,13 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
         menuItem: '题目描述', render: () => <Tab.Pane key={1} attached={false}>{description}</Tab.Pane>
       },
       {
-        menuItem: '题目数据', render: () => <Tab.Pane key={2} attached={false}>{data}</Tab.Pane>
+        menuItem: '提交内容', render: () => <Tab.Pane key={2} attached={false}>{submitContent}</Tab.Pane>
       },
       {
-        menuItem: '高级选项', render: () => <Tab.Pane key={3} attached={false}>{advanced}</Tab.Pane>
+        menuItem: '题目数据', render: () => <Tab.Pane key={3} attached={false}>{data}</Tab.Pane>
+      },
+      {
+        menuItem: '高级选项', render: () => <Tab.Pane key={4} attached={false}>{advanced}</Tab.Pane>
       }
     ];
 
@@ -607,7 +670,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       [
         ...panes,
         {
-          menuItem: '实用工具', render: () => <Tab.Pane key={4} attached={false}>{utils}</Tab.Pane>
+          menuItem: '实用工具', render: () => <Tab.Pane key={5} attached={false}>{utils}</Tab.Pane>
         }
       ];
 

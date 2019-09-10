@@ -6,6 +6,7 @@ namespace hjudge.WebHost.Configurations
     {
         public string Name { get; set; } = string.Empty;
         public string Information { get; set; } = string.Empty;
+        public string Extensions { get; set; } = string.Empty;
         public string SyntaxHighlight { get; set; } = string.Empty;
         //Compiler
         public string CompilerExec { get; set; } = string.Empty;

@@ -299,14 +299,17 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     } as LanguageOptions));
     const { languageChoice } = this.state;
 
-    const panes = this.editors.map((v, i) => ({
-      menuItem: `${i + 1}. ${v.fileName}`,
-      render: () => <Tab.Pane attached={false} key={i}>
-        <div style={{ width: '100%', height: '30em' }}>
-          <CodeEditor onChange={() => this.updateContent(i, this.editors[i].editor)} defaultValue={this.state.contents[i]} ref={this.editors[i].editor} language={this.state.languageValue}></CodeEditor>
-        </div>
-      </Tab.Pane>
-    }));
+    const panes = this.editors.map((v, i) => {
+      let fileName = v.fileName.replace(/\${.*?}/g, '');
+      return {
+        menuItem: `${i + 1}. ${!!fileName ? fileName : 'default'}`,
+        render: () => <Tab.Pane attached={false} key={i}>
+          <div style={{ width: '100%', height: '30em' }}>
+            <CodeEditor onChange={() => this.updateContent(i, this.editors[i].editor)} defaultValue={this.state.contents[i]} ref={this.editors[i].editor} language={this.state.languageValue}></CodeEditor>
+          </div>
+        </Tab.Pane>
+      }
+    });
 
     const submitComponent = this.global.userInfo.signedIn ? <><div>
       <Dropdown
