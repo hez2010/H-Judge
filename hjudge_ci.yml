@@ -14,10 +14,15 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
-        mkdir hjudge.Exec.Windows/x64
-        mkdir hjudge.Exec.Windows/x64/Release
-        mkdir hjudge.Exec.Linux/target
-        mkdir hjudge.Exec.Linux/target/release
+        cd hjudge.Exec.Windows
+        mkdir x64
+        cd x64
+        mkdir Release
+        cd ../../hjudge.Exec.Linux
+        mkdir target
+        cd target
+        mkdir release
+        cd ../..
 - task: CmdLine@2
   inputs:
     script: |
