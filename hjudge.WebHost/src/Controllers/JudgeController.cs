@@ -78,7 +78,7 @@ namespace hjudge.WebHost.Controllers
             var problem = await problemService.GetProblemAsync(model.ProblemId);
             if (problem == null) throw new NotFoundException("该题目不存在");
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
-            
+
             // For older version compatibility
             if (problemConfig.SourceFiles.Count == 0)
             {
@@ -86,20 +86,17 @@ namespace hjudge.WebHost.Controllers
             }
 
             var sources = new List<Source>();
-            if (problemConfig.CodeSizeLimit != 0)
+            foreach (var i in model.Content)
             {
-                foreach (var i in model.Content)
+                if (problemConfig.CodeSizeLimit != 0 && problemConfig.CodeSizeLimit < Encoding.UTF8.GetByteCount(i.Content))
+                    throw new BadRequestException("提交内容长度超出限制");
+                if (problemConfig.SourceFiles.Contains(i.FileName))
                 {
-                    if (problemConfig.CodeSizeLimit < Encoding.UTF8.GetByteCount(i.Content))
-                        throw new BadRequestException("提交内容长度超出限制");
-                    if (problemConfig.SourceFiles.Contains(i.FileName))
+                    sources.Add(new Source
                     {
-                        sources.Add(new Source
-                        {
-                            FileName = i.FileName,
-                            Content = i.Content
-                        });
-                    }
+                        FileName = i.FileName,
+                        Content = i.Content
+                    });
                 }
             }
 
