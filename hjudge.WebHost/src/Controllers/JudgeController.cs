@@ -82,7 +82,7 @@ namespace hjudge.WebHost.Controllers
             // For older version compatibility
             if (problemConfig.SourceFiles.Count == 0)
             {
-                problemConfig.SourceFiles.Add(string.IsNullOrEmpty(problemConfig.SubmitFileName) ? "${random}${extension}" : problemConfig.SubmitFileName);
+                problemConfig.SourceFiles.Add(string.IsNullOrEmpty(problemConfig.SubmitFileName) ? "${random}${extension}" : $"{problemConfig.SubmitFileName}${{extension}}");
             }
 
             var sources = new List<Source>();
