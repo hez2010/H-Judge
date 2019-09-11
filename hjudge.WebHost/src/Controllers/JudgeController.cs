@@ -52,6 +52,8 @@ namespace hjudge.WebHost.Controllers
             var judge = await judgeService.GetJudgeAsync(model.ResultId);
             if (judge == null) throw new NotFoundException("该提交不存在");
 
+            // For older version compatibility
+            if (judge.AdditionalInfo != "v2") throw new ForbiddenException("旧版系统提交不支持重新评测");
             await judgeService.QueueJudgeAsync(judge);
         }
 
@@ -76,13 +78,30 @@ namespace hjudge.WebHost.Controllers
             var problem = await problemService.GetProblemAsync(model.ProblemId);
             if (problem == null) throw new NotFoundException("该题目不存在");
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
+            
+            // For older version compatibility
+            if (problemConfig.SourceFiles.Count == 0)
+            {
+                problemConfig.SourceFiles.Add(string.IsNullOrEmpty(problemConfig.SubmitFileName) ? "${random}${extension}" : problemConfig.SubmitFileName);
+            }
 
+            var sources = new List<Source>();
             if (problemConfig.CodeSizeLimit != 0)
+            {
                 foreach (var i in model.Content)
                 {
                     if (problemConfig.CodeSizeLimit < Encoding.UTF8.GetByteCount(i.Content))
                         throw new BadRequestException("提交内容长度超出限制");
+                    if (problemConfig.SourceFiles.Contains(i.FileName))
+                    {
+                        sources.Add(new Source
+                        {
+                            FileName = i.FileName,
+                            Content = i.Content
+                        });
+                    }
                 }
+            }
 
             var langConfig = (await languageService.GetLanguageConfigAsync()).ToList();
             var langs = problemConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
@@ -120,7 +139,7 @@ namespace hjudge.WebHost.Controllers
 
             var id = await judgeService.QueueJudgeAsync(new Judge
             {
-                Content = model.Content.SerializeJsonAsString(),
+                Content = sources.SerializeJsonAsString(),
                 Language = model.Language,
                 ProblemId = model.ProblemId,
                 ContestId = model.ContestId == 0 ? null : (int?)model.ContestId,
