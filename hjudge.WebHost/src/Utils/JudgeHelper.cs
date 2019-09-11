@@ -43,20 +43,26 @@ namespace hjudge.WebHost.Utils
             var buildOptionsBuilder = new BuildOptionsBuilder();
 
             var sources = judge.Content.DeserializeJson<List<Source>>();
-            foreach (var i in sources)
-                buildOptionsBuilder.AddSource(i.Content, i.FileName);
-            var fileNames = sources.Select(i => i.FileName).ToList();
+
             var ext = languageConfig
                 .FirstOrDefault(i => i.Name == judge.Language)
                 ?.Extensions?.Split(',', StringSplitOptions.RemoveEmptyEntries)[0]?.Trim() ?? string.Empty;
+
+            var datadir = $"R:Data/{problem.Id}"; // R: remote
+            var name = AlphaNumberFilter(problem.Name);
+
+            foreach (var i in sources)
+                buildOptionsBuilder.AddSource(i.Content, i.FileName
+                            .Replace("${name}", name)
+                            .Replace("${extension}", ext));
+
+            var fileNames = sources.Select(i => i.FileName).ToList();
 
             if (problem.Type == 1)
             {
                 var judgeOptionsBuilder = new CodeJudgeOptionsBuilder();
 
-                var datadir = $"R:Data/{problem.Id}"; // R: remote
                 var outputfile = $"${{workingdir}}/{judgeOptionsBuilder.GuidStr}.exe";
-                var name = AlphaNumberFilter(problem.Name);
 
                 judgeOptionsBuilder.UseComparingOptions(options =>
                 {
@@ -208,8 +214,6 @@ namespace hjudge.WebHost.Utils
             else
             {
                 var judgeOptionsBuilder = new AnswerJudgeOptionsBuilder();
-                var datadir = $"R:Data/{problem.Id}"; // R: remote
-                var name = AlphaNumberFilter(problem.Name);
 
                 judgeOptionsBuilder.UseComparingOptions(options =>
                 {
