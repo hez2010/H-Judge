@@ -147,62 +147,68 @@ namespace hjudge.JudgeHost
                             var workingDir = Path.Combine(Path.GetTempPath(), "hjudgeTest", judgeInfo.JudgeOptions.GuidStr);
 
                             var filesRequired =
-                                (await VarsProcessor.FillinWorkingDirAndGetRequiredFiles(judgeInfo, workingDir)).Distinct();
+                                (await VarsProcessor.FillinWorkingDirAndGetRequiredFiles(judgeInfo, workingDir)).Distinct().ToList();
 
-                            logger.LogInformation($"Started downloading files for #{judgeInfo.JudgeId}");
-                            var fileService = new Files.FilesClient(fileHostChannel);
-
-                            var listRequest = new ListExactRequest();
-                            listRequest.FileNames.AddRange(filesRequired);
-
-                            var fileInfos =
-                                (await fileService.ListExactFilesAsync(listRequest))
-                                .FileInfos.ToDictionary(i => i.FileName, i => i.LastModified);
-
-                            var request = new DownloadRequest();
-
-                            foreach (var i in filesRequired)
+                            if (filesRequired.Count != 0)
                             {
-                                var cache = fileCache.Where(j => j.Key == i).ToList();
-                                if (!fileInfos.ContainsKey(i)) continue;
-                                if (!cache.Any())
-                                {
-                                    request.FileNames.Add(i);
-                                    fileCache[i] = fileInfos[i];
-                                }
-                                else if (cache.FirstOrDefault().Value != fileInfos[i])
-                                {
-                                    request.FileNames.Add(i);
-                                    fileCache[i] = fileInfos[i];
-                                }
-                            }
+                                logger.LogInformation($"Started downloading files for #{judgeInfo.JudgeId}");
 
-                            var filesResponse = fileService.DownloadFiles(request, null, null, stoppingToken);
+                                if (fileHostChannel.State != ChannelState.Ready) await fileHostChannel.ConnectAsync();
 
-                            while (await filesResponse.ResponseStream.MoveNext(stoppingToken))
-                            {
-                                foreach (var i in filesResponse.ResponseStream.Current.Result)
+                                var fileService = new Files.FilesClient(fileHostChannel);
+
+                                var listRequest = new ListExactRequest();
+                                listRequest.FileNames.AddRange(filesRequired);
+
+                                var fileInfos =
+                                    (await fileService.ListExactFilesAsync(listRequest))
+                                    .FileInfos.ToDictionary(i => i.FileName, i => i.LastModified);
+
+                                var request = new DownloadRequest();
+
+                                foreach (var i in filesRequired)
                                 {
-                                    var fileName = Path.Combine(options.DataCacheDirectory, JudgeMain.EscapeFileName(i.FileName));
-                                    FileMode mode;
-                                    if (File.Exists(fileName)) mode = FileMode.Truncate;
-                                    else mode = FileMode.CreateNew;
-                                    try
+                                    var cache = fileCache.Where(j => j.Key == i).ToList();
+                                    if (!fileInfos.ContainsKey(i)) continue;
+                                    if (!cache.Any())
                                     {
-                                        await using var fs = new FileStream(fileName, mode, FileAccess.ReadWrite,
-                                            FileShare.None);
-                                        i.Content.WriteTo(fs);
-                                        await fs.FlushAsync(stoppingToken);
-                                        fs.Close();
+                                        request.FileNames.Add(i);
+                                        fileCache[i] = fileInfos[i];
                                     }
-                                    catch (Exception ex)
+                                    else if (cache.FirstOrDefault().Value != fileInfos[i])
                                     {
-                                        Console.WriteLine(ex.Message);
+                                        request.FileNames.Add(i);
+                                        fileCache[i] = fileInfos[i];
                                     }
                                 }
-                            }
 
-                            logger.LogInformation($"Finished downloading files for #{judgeInfo.JudgeId}");
+                                var filesResponse = fileService.DownloadFiles(request, null, null, stoppingToken);
+
+                                while (await filesResponse.ResponseStream.MoveNext(stoppingToken))
+                                {
+                                    foreach (var i in filesResponse.ResponseStream.Current.Result)
+                                    {
+                                        var fileName = Path.Combine(options.DataCacheDirectory, JudgeMain.EscapeFileName(i.FileName));
+                                        FileMode mode;
+                                        if (File.Exists(fileName)) mode = FileMode.Truncate;
+                                        else mode = FileMode.CreateNew;
+                                        try
+                                        {
+                                            await using var fs = new FileStream(fileName, mode, FileAccess.ReadWrite,
+                                                FileShare.None);
+                                            i.Content.WriteTo(fs);
+                                            await fs.FlushAsync(stoppingToken);
+                                            fs.Close();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            logger.LogError(ex, $"Write file {fileName} error");
+                                        }
+                                    }
+                                }
+
+                                logger.LogInformation($"Finished downloading files for #{judgeInfo.JudgeId}");
+                            }
 
                             var result = new JudgeResult { JudgePoints = null };
                             try
@@ -212,7 +218,7 @@ namespace hjudge.JudgeHost
                             }
                             catch (Exception ex)
                             {
-                                logger.LogError(ex, $"Judge Error for #{judgeInfo.JudgeId}");
+                                logger.LogError(ex, $"Judge error for #{judgeInfo.JudgeId}");
                             }
 
                             logger.LogInformation($"Finished judge #{judgeInfo.JudgeId}");
@@ -223,6 +229,20 @@ namespace hjudge.JudgeHost
                                 Type = JudgeReportInfo.ReportType.PostJudge
                             });
                             logger.LogInformation($"Reported judge #{judgeInfo.JudgeId}");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, $"Judge prep error for #{info.JudgeInfo.JudgeId}");
+                            await ReportJudgeResultAsync(new JudgeReportInfo
+                            {
+                                JudgeId = info.JudgeInfo.JudgeId,
+                                JudgeResult = new JudgeResult
+                                {
+                                    JudgePoints = null,
+                                    CompileLog = ex.Message
+                                },
+                                Type = JudgeReportInfo.ReportType.PostJudge
+                            });
                         }
                         finally
                         {

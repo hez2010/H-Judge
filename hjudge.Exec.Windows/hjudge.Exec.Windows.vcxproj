@@ -72,29 +72,29 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(ProjectDir)..\lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(ProjectDir)..\lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(ProjectDir)..\lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(ProjectDir)..\lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir)lib\jsoncpp\include\json;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)lib\jsoncpp\src\lib_json;$(SourcePath)</SourcePath>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
@@ -147,17 +147,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\lib\jsoncpp\src\lib_json\json_reader.cpp" />
-    <ClCompile Include="..\lib\jsoncpp\src\lib_json\json_value.cpp" />
-    <ClCompile Include="..\lib\jsoncpp\src\lib_json\json_writer.cpp" />
+    <ClCompile Include="lib\jsoncpp\src\lib_json\json_reader.cpp" />
+    <ClCompile Include="lib\jsoncpp\src\lib_json\json_value.cpp" />
+    <ClCompile Include="lib\jsoncpp\src\lib_json\json_writer.cpp" />
     <ClCompile Include="Executor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\lib\jsoncpp\src\lib_json\json_tool.h" />
+    <ClInclude Include="lib\jsoncpp\src\lib_json\json_tool.h" />
     <ClInclude Include="Executor.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib\jsoncpp\src\lib_json\json_valueiterator.inl" />
+    <None Include="lib\jsoncpp\src\lib_json\json_valueiterator.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

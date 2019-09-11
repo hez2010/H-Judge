@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using hjudge.Core;
 
 namespace hjudge.WebHost.Models.Judge
@@ -16,7 +17,7 @@ namespace hjudge.WebHost.Models.Judge
         public string? GroupName { get; set; }
         public int ResultType { get; set; }
         public string Result => Enum.GetName(typeof(ResultCode), ResultType)?.Replace("_", " ") ?? "Unknown Error";
-        public string Content { get; set; } = string.Empty;
+        public List<Source> Content { get; set; } = new List<Source>();
         public int Type { get; set; }
         public DateTime Time { get; set; }
         public int ResultDisplayType { get; set; }

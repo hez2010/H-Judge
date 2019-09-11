@@ -77,8 +77,12 @@ namespace hjudge.WebHost.Controllers
             if (problem == null) throw new NotFoundException("该题目不存在");
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
 
-            if (problemConfig.CodeSizeLimit != 0 && problemConfig.CodeSizeLimit < Encoding.UTF8.GetByteCount(model.Content))
-                throw new BadRequestException("提交内容长度超出限制");
+            if (problemConfig.CodeSizeLimit != 0)
+                foreach (var i in model.Content)
+                {
+                    if (problemConfig.CodeSizeLimit < Encoding.UTF8.GetByteCount(i.Content))
+                        throw new BadRequestException("提交内容长度超出限制");
+                }
 
             var langConfig = (await languageService.GetLanguageConfigAsync()).ToList();
             var langs = problemConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
@@ -116,13 +120,14 @@ namespace hjudge.WebHost.Controllers
 
             var id = await judgeService.QueueJudgeAsync(new Judge
             {
-                Content = model.Content,
+                Content = model.Content.SerializeJsonAsString(),
                 Language = model.Language,
                 ProblemId = model.ProblemId,
                 ContestId = model.ContestId == 0 ? null : (int?)model.ContestId,
                 GroupId = model.GroupId == 0 ? null : (int?)model.GroupId,
                 UserId = user.Id,
-                Description = "Online Judge"
+                Description = "Online Judge",
+                AdditionalInfo = "v2"
             });
 
             return new SubmitSuccessModel
@@ -154,7 +159,16 @@ namespace hjudge.WebHost.Controllers
                 GroupId = judge.GroupId,
                 GroupName = judge.Group?.Name,
                 ResultType = judge.ResultType,
-                Content = judge.Content,
+                Content = judge.AdditionalInfo == "v2" ?
+                    judge.Content.DeserializeJson<List<Source>>() :
+                    new List<Source>
+                    {
+                        new Source
+                        {
+                            FileName = "default",
+                            Content = judge.Content
+                        }
+                    },
                 Time = judge.JudgeTime,
                 Language = judge.Language,
                 JudgeResult = (string.IsNullOrWhiteSpace(judge.Result) ? "{}" : judge.Result)

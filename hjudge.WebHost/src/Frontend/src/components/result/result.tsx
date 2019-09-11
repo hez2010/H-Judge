@@ -1,5 +1,5 @@
 import * as React from 'reactn';
-import { Header, Item, Popup, Button, Segment, Grid, Label, Loader, Responsive, Placeholder } from 'semantic-ui-react';
+import { Header, Item, Popup, Button, Segment, Grid, Label, Loader, Responsive, Placeholder, Tab } from 'semantic-ui-react';
 import { NavLink } from 'react-router-dom';
 import MarkdownViewer from '../viewer/markdown';
 import { Get, Post } from '../../utils/requestHelper';
@@ -28,6 +28,11 @@ interface JudgeResultModel {
   staticCheckLog: string
 }
 
+interface SourceModel {
+  fileName: string,
+  content: string
+}
+
 interface ResultModel {
   resultId: number,
   userId: string,
@@ -40,7 +45,7 @@ interface ResultModel {
   groupName: string,
   resultType: number,
   result: string,
-  content: string,
+  content: SourceModel[],
   type: number,
   time: Date,
   resultDisplayType: number,
@@ -71,7 +76,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
         groupName: '',
         resultType: -1,
         result: 'Pending',
-        content: '',
+        content: [],
         type: 0,
         time: new Date(),
         resultDisplayType: 0,
@@ -268,6 +273,23 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
     </Placeholder>;
     if (!this.state.loaded) return placeHolder;
 
+    const panes = this.state.result.content.map((v, i) => {
+      let fileName = v.fileName.replace(/\${.*?}/g, '');
+      return {
+        menuItem: `${i + 1}. ${!!fileName ? fileName : 'default'}`,
+        render: () => <Tab.Pane attached={false} key={i}>
+          <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
+            <MarkdownViewer content={'```\n' + v.content + '\n```'} />
+          </div>
+        </Tab.Pane>
+      };
+    });
+
+    const content = (this.state.result.content && this.state.result.content.length > 0) ? <>
+      <Header as='h3'>提交内容</Header>
+      <Tab menu={{ fluid: true, vertical: true, pointing: true, secondary: true }} panes={panes} menuPosition='right' />
+    </> : null;
+
     if (this.state.result.resultType < 1) return <Item>
       <Item.Content>
         <Item.Header as='h2'>
@@ -286,12 +308,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
         </Item.Header>
 
         <Item.Description>
-          {
-            !!this.state.result.content ? <><Header as='h3'>提交内容</Header>
-              <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
-                <MarkdownViewer content={'```\n' + this.state.result.content + '\n```'} />
-              </div></> : null
-          }
+          {content}
           <Loader active inline>评测中...</Loader>
         </Item.Description>
       </Item.Content>
@@ -313,12 +330,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
           </Item.Header>
 
           <Item.Description>
-            {
-              !!this.state.result.content ? <><Header as='h3'>提交内容</Header>
-                <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
-                  <MarkdownViewer content={'```\n' + this.state.result.content + '\n```'} />
-                </div></> : null
-            }
+            {content}
           </Item.Description>
         </Item.Content>
       </Item>

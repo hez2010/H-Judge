@@ -58,7 +58,7 @@ namespace hjudge.WebHost.MessageHandlers
                 await semaphore.WaitAsync(token);
                 while (queue.TryDequeue(out var info))
                 {
-                    using var scope = Program.RootServiceProvider.CreateScope();
+                    using var scope = Program.RootServiceProvider?.CreateScope();
                     try
                     {
                         var judgeService = scope?.ServiceProvider.GetService<IJudgeService>();

@@ -1,5 +1,5 @@
 ﻿import * as React from 'reactn';
-import { Item, Placeholder, Popup, Dropdown, Label, Header, Button, Rating, Icon } from 'semantic-ui-react';
+import { Item, Placeholder, Popup, Dropdown, Label, Header, Button, Rating, Icon, Tab } from 'semantic-ui-react';
 import { Post } from '../../utils/requestHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
@@ -22,7 +22,8 @@ interface ProblemDetailsState {
   languageChoice: number,
   languageValue: string,
   loaded: boolean,
-  submitting: boolean
+  submitting: boolean,
+  contents: string[]
 }
 
 export interface ProblemModel {
@@ -41,7 +42,8 @@ export interface ProblemModel {
   hidden: boolean,
   upvote: number,
   downvote: number,
-  myVote: number
+  myVote: number,
+  sources: string[]
 }
 
 interface LanguageOptions {
@@ -57,6 +59,11 @@ interface SubmitResultModel {
   resultId: number
 }
 
+interface CodeEditorInstance {
+  fileName: string,
+  editor: React.RefObject<CodeEditor>
+}
+
 export default class ProblemDetails extends React.Component<ProblemDetailsProps & CommonProps, ProblemDetailsState, GlobalState> {
   constructor() {
     super();
@@ -66,6 +73,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     this.submit = this.submit.bind(this);
     this.gotoStatistics = this.gotoStatistics.bind(this);
     this.voteProblem = this.voteProblem.bind(this);
+    this.updateContent = this.updateContent.bind(this);
 
     this.state = {
       problem: {
@@ -84,16 +92,18 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
         upvote: 0,
         userId: "",
         userName: "",
-        myVote: 0
+        myVote: 0,
+        sources: []
       },
       languageChoice: 0,
       languageValue: 'plain_text',
       loaded: false,
-      submitting: false
+      submitting: false,
+      contents: []
     };
   }
 
-  private editor = React.createRef<CodeEditor>();
+  private editors: CodeEditorInstance[] = [];
   private problemId = 0;
   private contestId = 0;
   private groupId = 0;
@@ -116,11 +126,17 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
         result.creationTime = new Date(result.creationTime.toString());
         let lang = 'plain_text';
         if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
+
+        this.editors = result.sources.map(v => ({
+          editor: React.createRef<CodeEditor>(),
+          fileName: v
+        }));
         this.setState({
           problem: result,
           languageValue: lang,
-          loaded: true
-        } as ProblemDetailsState);
+          loaded: true,
+          contents: result.sources.map(_ => '')
+        });
         setTitle(result.name);
       })
       .catch(err => {
@@ -167,6 +183,16 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     this.props.history.push(`/edit/problem/${id}`);
   }
 
+  updateContent(index: number, editor: React.RefObject<CodeEditor>) {
+    if (editor.current) {
+      let contents = [...this.state.contents];
+      contents[index] = editor.current.getInstance().getValue()
+      this.setState({
+        contents: contents
+      })
+    }
+  }
+
   submit() {
     if (this.state.submitting) {
       this.global.commonFuncs.openPortal('提示', '正在提交中，请稍等', 'orange');
@@ -176,14 +202,12 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
       this.global.commonFuncs.openPortal('提示', '请选择语言', 'orange');
       return;
     }
-    let editor = this.editor.current;
-    if (!editor) return;
     this.setState({ submitting: true });
     Post('/judge/submit', {
       problemId: this.problemId,
       contestId: this.contestId,
       groupId: this.groupId,
-      content: editor.getInstance().getValue(),
+      content: this.editors.map((v, i) => ({ fileName: v.fileName, content: this.state.contents[i] })),
       language: this.languageOptions[this.state.languageChoice].text
     })
       .then(tryJson)
@@ -275,6 +299,18 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     } as LanguageOptions));
     const { languageChoice } = this.state;
 
+    const panes = this.editors.map((v, i) => {
+      let fileName = v.fileName.replace(/\${.*?}/g, '');
+      return {
+        menuItem: `${i + 1}. ${!!fileName ? fileName : 'default'}`,
+        render: () => <Tab.Pane attached={false} key={i}>
+          <div style={{ width: '100%', height: '30em' }}>
+            <CodeEditor onChange={() => this.updateContent(i, this.editors[i].editor)} defaultValue={this.state.contents[i]} ref={this.editors[i].editor} language={this.state.languageValue}></CodeEditor>
+          </div>
+        </Tab.Pane>
+      }
+    });
+
     const submitComponent = this.global.userInfo.signedIn ? <><div>
       <Dropdown
         placeholder='代码语言'
@@ -291,9 +327,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
       <Label pointing>{this.languageOptions[languageChoice] ? this.languageOptions[languageChoice].information : '请选择语言'}</Label>
     </div>
       <br />
-      <div style={{ width: '100%', height: '30em' }}>
-        <CodeEditor ref={this.editor} language={this.state.languageValue}></CodeEditor>
-      </div>
+      <Tab menu={{ fluid: true, vertical: true, pointing: true, secondary: true }} panes={panes} menuPosition='right' />
       <br />
       <div style={{ textAlign: 'right' }}>
         <Button disabled={this.state.submitting} primary onClick={this.submit}>提交</Button>
