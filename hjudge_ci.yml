@@ -14,6 +14,13 @@ steps:
 - task: CmdLine@2
   inputs:
     script: |
+        mkdir hjudge.Exec.Windows/x64
+        mkdir hjudge.Exec.Windows/x64/Release
+        mkdir hjudge.Exec.Linux/target
+        mkdir hjudge.Exec.Linux/target/release
+- task: CmdLine@2
+  inputs:
+    script: |
         fake run build.fsx -t Build
 - task: CmdLine@2
   inputs:
