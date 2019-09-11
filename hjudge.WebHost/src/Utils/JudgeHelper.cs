@@ -30,9 +30,9 @@ namespace hjudge.WebHost.Utils
             var str = input;
             for (var j = 0; j < fileNames.Count; j++)
             {
-                str = str.Replace($"${{file:{j}}}", fileNames[j]).Replace("${extension}", extName);
+                str = str.Replace($"${{file:{j}}}", fileNames[j]);
             }
-            return str.Replace("${file}", fileNames[0]);
+            return str.Replace("${file}", fileNames[0]).Replace("${extension}", extName);
         }
 
         public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, List<LanguageConfig> languageConfig)
