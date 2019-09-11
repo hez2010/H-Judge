@@ -1053,10 +1053,10 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.3.tgz#bdfd69d61e464dcc81b25159c270d75a73c1a636"
   integrity sha512-Il2DtDVRGDcqjDtE+rF8iqg1CArehSK84HZJCT7AMITlyXRBpuPhqGLDQMowraqqu1coEaimg4ZOqggt6L6L+A==
 
-"@types/katex@0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@types/katex/-/katex-0.10.1.tgz#eebdeef7664691b3ebbbef0f66e806b8433cfb70"
-  integrity sha512-jU8eRIZQGUEU/M+IUB4/3vA68EjJJhuMGxrTFBKssNphM1mMfnoDp9abrMFYRR0ECjBdaE0p8hCk7vmhJ4l1gw==
+"@types/katex@0.10.2":
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/@types/katex/-/katex-0.10.2.tgz#322afa83aba5cca4edcea014ebf0be997135dbd9"
+  integrity sha512-QYTNuhuDU22gouVoL5kLmBTguu2rPvtp7wL5U5fTFsQkM1ojfUgxFPMFrqOSUofrdWwnZEmblcobdlLXj1lVOw==
 
 "@types/linkify-it@*":
   version "2.1.0"
