@@ -265,6 +265,11 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
+            // For older version compatibility
+            if (config.SourceFiles.Count == 0)
+            {
+                config.SourceFiles.Add(string.IsNullOrEmpty(config.SubmitFileName) ? "${random}${extension}" : $"{config.SubmitFileName}${{extension}}");
+            }
             ret.Sources = config.SourceFiles;
             ret.Languages = LanguageConfigHelper.GenerateLanguageConfig(langConfig, langs).ToList();
 
@@ -339,7 +344,7 @@ namespace hjudge.WebHost.Controllers
             var problem = await problemService.GetProblemAsync(problemId);
             if (problem == null) throw new NotFoundException("找不到该题目");
 
-            return new ProblemEditModel
+            var model = new ProblemEditModel
             {
                 Description = problem.Description,
                 Hidden = problem.Hidden,
@@ -349,6 +354,14 @@ namespace hjudge.WebHost.Controllers
                 Type = problem.Type,
                 Config = problem.Config.DeserializeJson<ProblemConfig>(false)
             };
+
+            // For older version compatibility
+            if (model.Config.SourceFiles.Count == 0)
+            {
+                model.Config.SourceFiles.Add(string.IsNullOrEmpty(model.Config.SubmitFileName) ? "${random}${extension}" : $"{model.Config.SubmitFileName}${{extension}}");
+            }
+
+            return model;
         }
 
         [HttpPut]

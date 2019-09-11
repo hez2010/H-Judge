@@ -273,14 +273,17 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
     </Placeholder>;
     if (!this.state.loaded) return placeHolder;
 
-    const panes = this.state.result.content.map((v, i) => ({
-      menuItem: `${i + 1}. ${v.fileName}`,
-      render: () => <Tab.Pane attached={false} key={i}>
-        <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
-          <MarkdownViewer content={'```\n' + v.content + '\n```'} />
-        </div>
-      </Tab.Pane>
-    }));
+    const panes = this.state.result.content.map((v, i) => {
+      let fileName = v.fileName.replace(/\${.*?}/g, '');
+      return {
+        menuItem: `${i + 1}. ${!!fileName ? fileName : 'default'}`,
+        render: () => <Tab.Pane attached={false} key={i}>
+          <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%', maxHeight: '30em' }}>
+            <MarkdownViewer content={'```\n' + v.content + '\n```'} />
+          </div>
+        </Tab.Pane>
+      };
+    });
 
     const content = (this.state.result.content && this.state.result.content.length > 0) ? <>
       <Header as='h3'>提交内容</Header>
