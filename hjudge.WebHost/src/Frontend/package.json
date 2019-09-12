@@ -57,7 +57,7 @@
     "react-dom": "16.9.0",
     "react-router-dom": "5.0.1",
     "reactn": "2.2.2",
-    "semantic-ui-react": "0.88.0",
+    "semantic-ui-react": "0.88.1",
     "webpack-cli": "3.3.8"
   },
   "scripts": {
