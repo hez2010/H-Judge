@@ -40,7 +40,7 @@ namespace hjudge.WebHost.Controllers
             }
             var judges = await judgeService.QueryJudgesAsync(model.UserId, model.GroupId, model.ContestId, model.ProblemId, resultType);
 
-            IQueryable<Judge> query = judges.Include(i => i.UserInfo).Include(i => i.Problem);
+            IQueryable<Judge> query = judges;
 
             var ret = new StatisticsListModel();
 

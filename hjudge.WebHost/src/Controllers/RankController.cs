@@ -67,7 +67,7 @@ namespace hjudge.WebHost.Controllers
                 GroupId = groupId
             };
 
-            var results = judges.Include(i => i.UserInfo).Include(i => i.Problem).OrderBy(i => i.Id).Select(i => new
+            var results = judges.OrderBy(i => i.Id).Select(i => new
             {
                 Id = i.Id,
                 ProblemId = i.ProblemId,

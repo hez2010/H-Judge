@@ -53,7 +53,7 @@ namespace hjudge.WebHost.Services
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Contest> contests = dbContext.Contest.Include(i => i.ContestRegister);
+            IQueryable<Contest> contests = dbContext.Contest;
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -78,7 +78,7 @@ namespace hjudge.WebHost.Services
             }
 
             IQueryable<Contest> contests = dbContext.GroupContestConfig
-                .Include(i => i.Contest).Where(i => i.GroupId == groupId).OrderByDescending(i => i.Id).Select(i => i.Contest);
+                .Where(i => i.GroupId == groupId).OrderByDescending(i => i.Id).Select(i => i.Contest);
 
             return contests;
         }

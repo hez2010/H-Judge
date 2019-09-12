@@ -16,7 +16,7 @@ namespace hjudge.WebHost.Services
     public interface IJudgeService
     {
         Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null);
-        Task<Judge?> GetJudgeAsync(int judgeId, bool includeForeignFields = false);
+        Task<Judge?> GetJudgeAsync(int judgeId);
         Task<int> QueueJudgeAsync(Judge judge);
         Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? judge);
     }
@@ -44,14 +44,9 @@ namespace hjudge.WebHost.Services
             this.userManager = userManager;
         }
 
-        public Task<Judge?> GetJudgeAsync(int judgeId, bool includeForeignFields = false)
+        public Task<Judge?> GetJudgeAsync(int judgeId)
         {
-            var judges = includeForeignFields ? dbContext.Judge
-                .Include(i => i.Problem)
-                .Include(i => i.UserInfo)
-                .Include(i => i.Contest)
-                .Include(i => i.Group)
-                .Where(i => i.Id == judgeId) : dbContext.Judge.Where(i => i.Id == judgeId);
+            var judges = dbContext.Judge.Where(i => i.Id == judgeId);
 
             return judges
                 /*.Cacheable()*/

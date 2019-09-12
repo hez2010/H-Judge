@@ -73,7 +73,7 @@ namespace hjudge.WebHost.Controllers
             if (model.StartId == 0) groups = groups.Skip(model.Start);
             else groups = groups.Where(i => i.Id <= model.StartId);
 
-            ret.Groups = await groups.Take(model.Count).Include(i => i.UserInfo).Select(i => new GroupListModel.GroupListItemModel
+            ret.Groups = await groups.Take(model.Count).Select(i => new GroupListModel.GroupListItemModel
             {
                 Id = i.Id,
                 CreationTime = i.CreationTime,

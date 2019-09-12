@@ -126,7 +126,7 @@ namespace hjudge.WebHost.Controllers
 
             if (model.ContestId != 0)
             {
-                ret.Problems = await problems.Include(i => i.ContestProblemConfig).Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
+                ret.Problems = await problems.Take(model.Count).Select(i => new ProblemListModel.ProblemListItemModel
                 {
                     Id = i.Id,
                     Name = i.Name,
