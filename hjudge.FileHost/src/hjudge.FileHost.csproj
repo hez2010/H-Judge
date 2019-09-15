@@ -16,7 +16,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview9" />
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.3" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.4" />
   </ItemGroup>
 
   <ItemGroup>
