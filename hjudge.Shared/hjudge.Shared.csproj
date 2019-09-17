@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="CacheManager.Core" Version="2.0.0-beta-1629" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0-preview9.19423.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0-rc1.19456.10" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
-    <PackageReference Include="System.Text.Json" Version="4.6.0-preview9.19421.4" />
+    <PackageReference Include="System.Text.Json" Version="4.6.0-rc1.19456.4" />
     <ProjectReference Include="..\hjudge.Core\src\hjudge.Core.csproj" />
   </ItemGroup>
 
