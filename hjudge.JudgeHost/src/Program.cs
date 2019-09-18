@@ -68,7 +68,7 @@ namespace hjudge.JudgeHost
                             options.DataCacheDirectory = Path.Combine(
                                 Path.GetTempPath(),
                                 config["DataCacheDirectory"],
-                                Guid.NewGuid().ToString().Replace("-", "_"));
+                                Guid.NewGuid().ToString().Replace("-", string.Empty));
                         });
                 });
     }

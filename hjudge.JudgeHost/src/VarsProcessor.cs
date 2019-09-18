@@ -23,7 +23,7 @@ namespace hjudge.JudgeHost
                     if (value is string str)
                     {
                         var newStr = str.Replace("${workingdir}", workingDir)
-                            .Replace("${random}", Guid.NewGuid().ToString().Replace("-", "_"));
+                            .Replace("${random}", Guid.NewGuid().ToString().Replace("-", string.Empty));
                         if (newStr.StartsWith("R:")) fileList.Add(newStr[2..]);
                         if (p.CanRead && p.CanWrite) p.SetValue(target, newStr);
                     }
@@ -37,7 +37,7 @@ namespace hjudge.JudgeHost
                                 if (!arr.IsReadOnly)
                                 {
                                     var newStr = strItem.Replace("${workingdir}", workingDir)
-                                        .Replace("${random}", Guid.NewGuid().ToString().Replace("-", "_"));
+                                        .Replace("${random}", Guid.NewGuid().ToString().Replace("-", string.Empty));
                                     if (newStr.StartsWith("R:")) fileList.Add(newStr[2..]);
                                     arr.SetValue(newStr, cnt);
                                 }
@@ -58,7 +58,7 @@ namespace hjudge.JudgeHost
                                 if (!list.IsReadOnly)
                                 {
                                     var newStr = strItem.Replace("${workingdir}", workingDir)
-                                        .Replace("${random}", Guid.NewGuid().ToString().Replace("-", "_"));
+                                        .Replace("${random}", Guid.NewGuid().ToString().Replace("-", string.Empty));
                                     if (newStr.StartsWith("R:")) fileList.Add(newStr[2..]);
                                     list[cnt] = newStr;
                                 }

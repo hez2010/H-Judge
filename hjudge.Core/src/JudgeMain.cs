@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace hjudge.Core
 {
@@ -15,6 +16,7 @@ namespace hjudge.Core
     {
         private string workingDir = string.Empty;
         private string dataCacheDir = string.Empty;
+        private ILogger? logger;
         private static readonly JsonSerializerOptions options = new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
@@ -46,7 +48,7 @@ namespace hjudge.Core
             return (result, ret);
         }
 
-        public JudgeMain(string environments = "")
+        public JudgeMain(string environments = "", ILogger? logger = null)
         {
             if (!string.IsNullOrEmpty(environments))
             {
@@ -58,6 +60,7 @@ namespace hjudge.Core
                         $"{newValue}{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ";" : ":")}{Environment.GetEnvironmentVariable("PATH")}");
                 }
             }
+            this.logger = logger;
         }
 
         public static string EscapeFileName(string? fileName) => fileName
@@ -150,6 +153,7 @@ namespace hjudge.Core
 
                 for (var i = 0; i < judgeOptions.DataPoints.Count; i++)
                 {
+                    this.logger?.LogInformation("Run standard judge point --> {0}", $"Point: {i + 1}");
                     var point = new JudgePoint();
                     if (!File.Exists(judgeOptions.RunOptions.Exec))
                     {
@@ -292,6 +296,7 @@ namespace hjudge.Core
 
         private async Task<JudgeResult> AnswerJudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions)
         {
+            this.logger?.LogInformation("Run answer judge point");
             var result = new JudgeResult
             {
                 JudgePoints = new List<JudgePoint>
@@ -377,6 +382,7 @@ namespace hjudge.Core
                     }
                 }
 
+                this.logger?.LogInformation("Run SPJ --> {0}", $"Command: {judgeOption.SpecialJudgeOptions.Exec} {argsBuilder.ToString()}");
                 using var judge = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -549,6 +555,7 @@ namespace hjudge.Core
 
         private async Task<string> StaticCheck(StaticCheckOptions checker)
         {
+            this.logger?.LogInformation("Static check --> {0}", $"Command: {checker.Exec} {checker.Args}");
             using var sta = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -636,6 +643,7 @@ namespace hjudge.Core
                 return (false, "Cannot copy one of extra files");
             }
 
+            this.logger?.LogInformation("Compile --> {0}", $"Command: {compiler.Exec} {compiler.Args}");
             using var comp = new Process
             {
                 StartInfo = new ProcessStartInfo

@@ -43,6 +43,8 @@ namespace hjudge.WebHost.Utils
             var buildOptionsBuilder = new BuildOptionsBuilder();
 
             var sources = judge.Content.DeserializeJson<List<Source>>();
+            foreach (var source in sources)
+                source.FileName = source.FileName.Replace("${random}", Guid.NewGuid().ToString().Replace("-", string.Empty));
 
             var ext = languageConfig
                 .FirstOrDefault(i => i.Name == judge.Language)
