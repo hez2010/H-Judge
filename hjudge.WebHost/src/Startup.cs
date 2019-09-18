@@ -101,6 +101,7 @@ namespace hjudge.WebHost
 
             services.AddDbContext<WebHostDbContext>(options =>
             {
+                options.UseLazyLoadingProxies();
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
                 options.EnableServiceProviderCaching();
             });

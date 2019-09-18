@@ -93,7 +93,7 @@ namespace hjudge.WebHost.Services
         {
             var user = await userManager.FindByIdAsync(userId);
 
-            IQueryable<Group> groups = dbContext.Group.Include(i => i.GroupJoin);
+            IQueryable<Group> groups = dbContext.Group;
 
             if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
             {

@@ -159,7 +159,7 @@ namespace hjudge.WebHost.Controllers
         public async Task<ResultModel> GetJudgeResult(int id)
         {
             var user = await userManager.GetUserAsync(User);
-            var judge = await judgeService.GetJudgeAsync(id, true);
+            var judge = await judgeService.GetJudgeAsync(id);
             if (judge == null) throw new NotFoundException("评测结果不存在");
             if (!Utils.PrivilegeHelper.IsTeacher(user.Privilege) && judge.UserId != user.Id && !judge.IsPublic) throw new ForbiddenException("没有权限查看该评测结果");
 

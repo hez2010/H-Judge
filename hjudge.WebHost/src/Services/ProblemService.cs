@@ -78,8 +78,7 @@ namespace hjudge.WebHost.Services
                 if (contest.Hidden) throw new ForbiddenException();
             }
 
-            IQueryable<Problem> problems = dbContext.ContestProblemConfig
-                                                .Include(i => i.Problem)
+            IQueryable<Problem> problems = dbContext.ContestProblemConfig
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)
                                                 .Select(i => i.Problem);
@@ -110,7 +109,6 @@ namespace hjudge.WebHost.Services
             }
 
             IQueryable<Problem> problems = dbContext.ContestProblemConfig
-                                                .Include(i => i.Problem)
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)
                                                 .Select(i => i.Problem);
