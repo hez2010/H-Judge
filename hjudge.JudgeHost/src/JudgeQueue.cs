@@ -97,6 +97,7 @@ namespace hjudge.JudgeHost
                 }
                 catch { /* ignored */ }
             }
+
             return Task.CompletedTask;
         }
 
@@ -132,7 +133,7 @@ namespace hjudge.JudgeHost
                                 Type = JudgeReportInfo.ReportType.PreJudge
                             });
 
-                            var judge = new JudgeMain();
+                            var judge = new JudgeMain("", logger);
                             if (judgeInfo.JudgeOptions == null || judgeInfo.BuildOptions == null)
                             {
                                 await ReportJudgeResultAsync(new JudgeReportInfo
