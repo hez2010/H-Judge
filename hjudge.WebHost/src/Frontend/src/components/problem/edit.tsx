@@ -607,7 +607,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       }
       <Form.Field>
         <label>附加文件</label>
-        <Form.TextArea placeholder='一行一个' defaultValue={this.state.problem.config.extraFiles.length === 0 ? '' : this.state.problem.config.extraFiles.reduce((accu, next) => `${accu}\n${next}`)} onChange={(_, data) => this.handleChange(this.state.problem.config, 'extraFiles', data.value ? data.value.toString().split('\n') : [])} />
+        <Form.TextArea placeholder='一行一个' defaultValue={this.state.problem.config.extraFiles.length === 0 ? '' : this.state.problem.config.extraFiles.filter(v => !!v).reduce((accu, next) => `${accu}\n${next}`)} onChange={(_, data) => this.handleChange(this.state.problem.config, 'extraFiles', data.value ? data.value.toString().split('\n') : [])} />
       </Form.Field>
       <Form.Field>
         <label>提交长度限制（单位：byte，0 为不限）</label>

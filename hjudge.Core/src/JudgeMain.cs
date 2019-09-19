@@ -17,6 +17,7 @@ namespace hjudge.Core
         private string workingDir = string.Empty;
         private string dataCacheDir = string.Empty;
         private ILogger? logger;
+        private const int LINE_LIMITS = 256;
         private static readonly JsonSerializerOptions options = new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
@@ -532,7 +533,7 @@ namespace hjudge.Core
                     if (!isAnswerJudge)
                     {
                         result.ExtraInfo =
-                        $"Line {line}: \nexpect: {stdline?.Substring(0, 64 < stdline.Length ? 64 : stdline.Length) ?? "<nothing>"}{((stdline?.Length ?? 0) > 64 ? "..." : string.Empty)} \noutput: {actline?.Substring(0, 64 < actline.Length ? 64 : actline.Length) ?? "<nothing>"}{((actline?.Length ?? 0) > 64 ? "..." : string.Empty)}";
+                        $"Line {line}: \nexpect: {stdline?.Substring(0, LINE_LIMITS < stdline.Length ? LINE_LIMITS : stdline.Length) ?? "<nothing>"}{((stdline?.Length ?? 0) > LINE_LIMITS ? "..." : string.Empty)} \noutput: {actline?.Substring(0, LINE_LIMITS < actline.Length ? LINE_LIMITS : actline.Length) ?? "<nothing>"}{((actline?.Length ?? 0) > LINE_LIMITS ? "..." : string.Empty)}";
                     }
 
                     if ((stdline?.Replace(" ", string.Empty) ?? string.Empty) ==

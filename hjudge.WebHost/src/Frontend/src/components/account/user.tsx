@@ -247,7 +247,7 @@ export default class User extends React.Component<CommonProps, UserState, Global
             }
           </div>
           <Item.Content>
-            <Item.Header>{this.state.userInfo.userName}<Label>编号：{this.state.userInfo.userId}</Label></Item.Header>
+            <Item.Header>{this.state.userInfo.userName}</Item.Header>
             <Item.Meta><Label>{this.state.userInfo.privilege === 1 ? '管理员' :
               this.state.userInfo.privilege === 2 ? '教师' :
                 this.state.userInfo.privilege === 3 ? '助教' :
