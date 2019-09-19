@@ -12,7 +12,7 @@ interface StatisticsProps {
   problemId?: number,
   contestId?: number,
   groupId?: number,
-  userId?: string,
+  userName?: string,
   result?: string
 }
 
@@ -22,8 +22,8 @@ interface StatisticsItemModel {
   groupId: number,
   resultId: number,
   problemName: string,
-  userId: number,
-  userName: number,
+  userId: string,
+  userName: string,
   result: string,
   resultType: number,
   time: Date,
@@ -83,7 +83,7 @@ export default class Statistics extends React.Component<StatisticsProps & Common
   private disableNavi = false;
   private expandParamsInUri = false;
   private prevUserId = this.global.userInfo.userId;
-  private userId = '';
+  private userName = '';
   private problemId = 0;
   private contestId = -1;
   private groupId = -1;
@@ -92,7 +92,7 @@ export default class Statistics extends React.Component<StatisticsProps & Common
   fetchStatisticsList(requireTotalCount: boolean, page: number) {
     if (!this.props.groupId && !this.props.problemId && !this.props.contestId && page.toString() !== this.props.match.params.page) {
       if (this.expandParamsInUri)
-        this.props.history.replace(`/statistics/${!!this.userId ? this.userId : '-1'}/${this.groupId}/${this.contestId}/${this.problemId}/${!!this.result ? this.result : 'All'}/${page}`);
+        this.props.history.replace(`/statistics/${!!this.userName ? this.userName : '-1'}/${this.groupId}/${this.contestId}/${this.problemId}/${!!this.result ? this.result : 'All'}/${page}`);
       else
         this.props.history.replace(`/statistics/${page}`);
     }
@@ -103,7 +103,7 @@ export default class Statistics extends React.Component<StatisticsProps & Common
     req.problemId = this.problemId === -1 ? null : this.problemId;
     req.contestId = this.contestId === -1 ? null : this.contestId;
     req.groupId = this.groupId === -1 ? null : this.groupId;
-    req.userId = !!this.userId ? this.userId : null;
+    req.userName = !!this.userName ? this.userName : null;
     req.result = this.result;
     if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
 
@@ -156,9 +156,9 @@ export default class Statistics extends React.Component<StatisticsProps & Common
       this.problemId = parseInt(this.props.match.params.problemId);
       this.expandParamsInUri = true;
     }
-    if (this.props.userId) this.userId = this.props.userId;
-    else if (!!this.props.match.params.userId && this.props.match.params.userId !== '-1') {
-      this.userId = this.props.match.params.userId;
+    if (this.props.userName) this.userName = this.props.userName;
+    else if (!!this.props.match.params.userName && this.props.match.params.userName !== '-1') {
+      this.userName = this.props.match.params.userName;
       this.expandParamsInUri = true;
     }
     if (this.props.result) this.result = this.props.result;
@@ -253,8 +253,8 @@ export default class Statistics extends React.Component<StatisticsProps & Common
             <Input fluid name='groupId' defaultValue={this.state.loaded ? this.getString(this.groupId) : ''} onChange={e => { this.idRecord.clear(); this.groupId = this.getNumber(e.target.value) }}></Input>
           </Form.Field>
           <Form.Field width={8}>
-            <label>用户编号</label>
-            <Input fluid name='userId' defaultValue={this.state.loaded ? this.userId : ''} onChange={e => { this.idRecord.clear(); this.userId = e.target.value; }}></Input>
+            <label>用户名</label>
+            <Input fluid name='userName' defaultValue={this.state.loaded ? this.userName : ''} onChange={e => { this.idRecord.clear(); this.userName = e.target.value; }}></Input>
           </Form.Field>
           <Form.Field width={4}>
             <label>评测结果</label>

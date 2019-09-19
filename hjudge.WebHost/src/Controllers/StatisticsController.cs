@@ -9,6 +9,7 @@ using EFSecondLevelCache.Core;
 using Microsoft.EntityFrameworkCore;
 using hjudge.WebHost.Data;
 using hjudge.Core;
+using hjudge.WebHost.Data.Identity;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -18,10 +19,12 @@ namespace hjudge.WebHost.Controllers
     public class StatisticsController : ControllerBase
     {
         private readonly IJudgeService judgeService;
+        private readonly CachedUserManager<UserInfo> userManager;
 
-        public StatisticsController(IJudgeService judgeService)
+        public StatisticsController(IJudgeService judgeService, CachedUserManager<UserInfo> userManager)
         {
             this.judgeService = judgeService;
+            this.userManager = userManager;
         }
 
         enum LastNamingState
@@ -38,7 +41,15 @@ namespace hjudge.WebHost.Controllers
             {
                 if (Enum.TryParse<ResultCode>(model.Result.Trim(), true, out var type)) resultType = (int?)type;
             }
-            var judges = await judgeService.QueryJudgesAsync(model.UserId, model.GroupId, model.ContestId, model.ProblemId, resultType);
+
+            string? queryUserId = null;
+            if (!string.IsNullOrEmpty(model.UserName))
+            {
+                var queryUser = await userManager.FindByNameAsync(model.UserName);
+                queryUserId = queryUser.Id;
+            }
+
+            var judges = await judgeService.QueryJudgesAsync(queryUserId, model.GroupId, model.ContestId, model.ProblemId, resultType);
 
             IQueryable<Judge> query = judges;
 
