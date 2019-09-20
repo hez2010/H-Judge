@@ -120,7 +120,7 @@ const App = (props: any) => {
             component={() => <p>此功能正在开发中，敬请期待</p>}>
           </Route>
           <Route
-            path='/statistics/:userId/:groupId/:contestId/:problemId/:result/:page?'
+            path='/statistics/:userName/:groupId/:contestId/:problemId/:result/:page?'
             component={Statistics}>
           </Route>
           <Route
