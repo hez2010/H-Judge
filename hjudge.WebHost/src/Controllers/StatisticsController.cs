@@ -46,7 +46,7 @@ namespace hjudge.WebHost.Controllers
             if (!string.IsNullOrEmpty(model.UserName))
             {
                 var queryUser = await userManager.FindByNameAsync(model.UserName);
-                queryUserId = queryUser.Id;
+                queryUserId = queryUser?.Id ?? "-1";
             }
 
             var judges = await judgeService.QueryJudgesAsync(queryUserId, model.GroupId, model.ContestId, model.ProblemId, resultType);
