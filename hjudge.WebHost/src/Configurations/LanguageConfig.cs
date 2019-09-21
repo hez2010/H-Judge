@@ -8,6 +8,7 @@ namespace hjudge.WebHost.Configurations
         public string Information { get; set; } = string.Empty;
         public string Extensions { get; set; } = string.Empty;
         public string SyntaxHighlight { get; set; } = string.Empty;
+        public bool DisabledByDefault { get; set; } = false;
         //Compiler
         public string CompilerExec { get; set; } = string.Empty;
         public string CompilerArgs { get; set; } = string.Empty;

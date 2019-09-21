@@ -251,9 +251,14 @@ namespace hjudge.WebHost.Controllers
 
             var config = problem.Config.DeserializeJson<ProblemConfig>(false);
 
+            var useDefaultDisabledConfig = false;
+
             var langConfig = (await languageService.GetLanguageConfigAsync()).ToList();
             var langs = config.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+
             if (langs.Length == 0) langs = langConfig.Select(i => i.Name).ToArray();
+            else useDefaultDisabledConfig = true;
+
             if (model.ContestId != 0)
             {
                 var contest = await contestService.GetContestAsync(model.ContestId);
@@ -261,9 +266,15 @@ namespace hjudge.WebHost.Controllers
                 {
                     var contestConfig = contest.Config.DeserializeJson<ContestConfig>(false);
                     var contestLangs = contestConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
-                    if (contestLangs.Length != 0) langs = langs.Intersect(contestLangs).ToArray();
+                    if (contestLangs.Length != 0)
+                    {
+                        langs = langs.Intersect(contestLangs).ToArray();
+                        useDefaultDisabledConfig = true;
+                    }
                 }
             }
+
+            if (!useDefaultDisabledConfig) langs = langs.Where(i => langConfig.Any(j => j.Name == i && !j.DisabledByDefault)).ToArray();
 
             // For older version compatibility
             if (config.SourceFiles.Count == 0)
