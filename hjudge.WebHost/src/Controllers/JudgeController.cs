@@ -100,9 +100,13 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
+            var useDefaultDisabledConfig = false;
+
             var langConfig = (await languageService.GetLanguageConfigAsync()).ToList();
             var langs = problemConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+
             if (langs.Length == 0) langs = langConfig.Select(i => i.Name).ToArray();
+            else useDefaultDisabledConfig = true;
 
             if (model.ContestId != 0)
             {
@@ -124,10 +128,16 @@ namespace hjudge.WebHost.Controllers
                     }
                     if (contestConfig.ResultMode != ResultDisplayMode.Intime) allowJumpToResult = false;
                     var contestLangs = contestConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
-                    if (contestLangs.Length != 0) langs = langs.Intersect(contestLangs).ToArray();
+                    if (contestLangs.Length != 0) 
+                    {
+                        langs = langs.Intersect(contestLangs).ToArray();
+                        useDefaultDisabledConfig = true;
+                    }
                 }
             }
             else if (problem.Hidden && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该题目不存在");
+
+            if (!useDefaultDisabledConfig) langs = langs.Where(i => langConfig.Any(j => j.Name == i && !j.DisabledByDefault)).ToArray();
 
             if (!langs.Contains(model.Language)) throw new ForbiddenException("不允许使用该语言提交");
 
