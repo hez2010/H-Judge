@@ -35,7 +35,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview9" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
     <PackageReference Include="React.AspNet" Version="5.1.0" />
-    <PackageReference Include="React.Router" Version="5.0.0" />
+    <PackageReference Include="React.Router" Version="5.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Resources.Extensions" Version="4.6.0-rc1.19456.4" />
