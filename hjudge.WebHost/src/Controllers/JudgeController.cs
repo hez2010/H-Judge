@@ -138,6 +138,8 @@ namespace hjudge.WebHost.Controllers
 
             if (!useDefaultDisabledConfig) langs = langs.Where(i => langConfig.Any(j => j.Name == i && !j.DisabledByDefault)).ToArray();
 
+            if (!useDefaultDisabledConfig) langs = langs.Where(i => langConfig.Any(j => j.Name == i && !j.DisabledByDefault)).ToArray();
+
             if (!langs.Contains(model.Language)) throw new ForbiddenException("不允许使用该语言提交");
 
             user.SubmissionCount++;
