@@ -63,8 +63,7 @@ namespace smartbox.SeaweedFs.Client.Core.Infrastructure
         {
             if (this == obj) return true;
 
-            var that = obj as MasterStatus;
-            if (that == null) return false;
+            if (!(obj is MasterStatus that)) return false;
             
             return Url.Equals(that.Url);
         }

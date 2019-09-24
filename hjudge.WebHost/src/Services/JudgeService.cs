@@ -26,22 +26,16 @@ namespace hjudge.WebHost.Services
         private readonly IProblemService problemService;
         private readonly ILanguageService languageService;
         private readonly IMessageQueueService messageQueueService;
-        private readonly IContestService contestService;
-        private readonly CachedUserManager<UserInfo> userManager;
 
         public JudgeService(WebHostDbContext dbContext,
             IProblemService problemService,
             ILanguageService languageService,
-            IMessageQueueService messageQueueService,
-            IContestService contestService,
-            CachedUserManager<UserInfo> userManager)
+            IMessageQueueService messageQueueService)
         {
             this.dbContext = dbContext;
             this.problemService = problemService;
             this.languageService = languageService;
             this.messageQueueService = messageQueueService;
-            this.contestService = contestService;
-            this.userManager = userManager;
         }
 
         public Task<Judge?> GetJudgeAsync(int judgeId)
