@@ -22,9 +22,11 @@
  * SOFTWARE.
  */
 
+using System;
+
 namespace smartbox.SeaweedFs.Client.Exception
 {
-    public class SeaweedFsFileNotFoundException : System.InvalidOperationException
+    public class SeaweedFsFileNotFoundException : InvalidOperationException
     {
         public SeaweedFsFileNotFoundException(string message)
             : base (message)

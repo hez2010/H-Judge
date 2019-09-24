@@ -1,12 +1,12 @@
-﻿using hjudge.WebHost.Data;
+﻿using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using hjudge.WebHost.Data;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Utils;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Middlewares
 {

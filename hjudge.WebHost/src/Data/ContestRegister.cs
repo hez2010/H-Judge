@@ -2,7 +2,7 @@
 
 namespace hjudge.WebHost.Data
 {
-    public partial class ContestRegister
+    public class ContestRegister
     {
         public int Id { get; set; }
         public int ContestId { get; set; }

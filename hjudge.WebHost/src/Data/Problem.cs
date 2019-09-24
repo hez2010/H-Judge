@@ -1,10 +1,10 @@
-﻿using hjudge.WebHost.Data.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using hjudge.WebHost.Data.Identity;
 
 namespace hjudge.WebHost.Data
 {
-    public partial class Problem
+    public class Problem
     {
         public Problem()
         {

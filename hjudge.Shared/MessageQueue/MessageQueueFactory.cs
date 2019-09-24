@@ -1,8 +1,8 @@
-﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Runtime.Serialization;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace hjudge.Shared.MessageQueue
 {

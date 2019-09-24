@@ -1,9 +1,9 @@
-﻿using hjudge.WebHost.Data.Identity;
-using System;
+﻿using System;
+using hjudge.WebHost.Data.Identity;
 
 namespace hjudge.WebHost.Data
 {
-    public partial class Judge
+    public class Judge
     {
         public int Id { get; set; }
         public string UserId { get; set; } = string.Empty;

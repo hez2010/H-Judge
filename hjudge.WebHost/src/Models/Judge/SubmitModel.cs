@@ -1,5 +1,5 @@
-﻿using hjudge.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using hjudge.Core;
 
 namespace hjudge.WebHost.Models.Judge
 {

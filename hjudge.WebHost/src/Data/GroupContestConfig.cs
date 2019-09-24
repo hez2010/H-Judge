@@ -1,6 +1,6 @@
 ﻿namespace hjudge.WebHost.Data
 {
-    public partial class GroupContestConfig
+    public class GroupContestConfig
     {
         public int Id { get; set; }
         public int GroupId { get; set; }

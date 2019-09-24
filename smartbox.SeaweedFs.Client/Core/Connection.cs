@@ -24,14 +24,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.Caching.Memory;
 using smartbox.SeaweedFs.Client.Core.Http;
 using smartbox.SeaweedFs.Client.Core.Infrastructure;
 using smartbox.SeaweedFs.Client.Exception;
@@ -171,7 +172,7 @@ namespace smartbox.SeaweedFs.Client.Core
             _cancellationTokenSource = new CancellationTokenSource();
             _pollClusterStatusTask = Repeat.Interval(TimeSpan.FromMilliseconds(StatusExpiry), PollClusterStatus,
                 _cancellationTokenSource.Token);
-            System.Diagnostics.Debug.WriteLine("seaweedfs master server connection is startup");
+            Debug.WriteLine("seaweedfs master server connection is startup");
         }
 
         public async Task Stop()
@@ -179,7 +180,7 @@ namespace smartbox.SeaweedFs.Client.Core
             HttpClient.CancelPendingRequests();
             _cancellationTokenSource.Cancel(false);
             await _pollClusterStatusTask;
-            System.Diagnostics.Debug.WriteLine("seaweedfs master server connection is shutdown");
+            Debug.WriteLine("seaweedfs master server connection is shutdown");
         }
 
         /// <summary>
@@ -520,7 +521,7 @@ namespace smartbox.SeaweedFs.Client.Core
             {
                 ConnectionClose = true;
                 //log.error("unable connect to the target seaweedfs core [" + leaderUrl + "]");
-                System.Diagnostics.Debug.WriteLine("unable connect to the target seaweedfs core [" + LeaderUrl + "]");
+                Debug.WriteLine("unable connect to the target seaweedfs core [" + LeaderUrl + "]");
             }
 
             if (ConnectionClose)
@@ -528,11 +529,11 @@ namespace smartbox.SeaweedFs.Client.Core
                 try
                 {
                     //log.info("lookup seaweedfs core leader by peers");
-                    System.Diagnostics.Debug.WriteLine("lookup seaweedfs core leader by peers");
+                    Debug.WriteLine("lookup seaweedfs core leader by peers");
                     if (SystemClusterStatus == null || SystemClusterStatus.Peers.Count == 0)
                     {
                         //log.error("cloud not found the seaweedfs core peers");
-                        System.Diagnostics.Debug.WriteLine("cloud not found the seaweedfs core peers");
+                        Debug.WriteLine("cloud not found the seaweedfs core peers");
                     }
                     else
                     {
@@ -540,14 +541,14 @@ namespace smartbox.SeaweedFs.Client.Core
                         if (!string.IsNullOrEmpty(url))
                         {
                             //log.error("seaweedfs core cluster is failover");
-                            System.Diagnostics.Debug.WriteLine("seaweedfs core cluster is failover");
+                            Debug.WriteLine("seaweedfs core cluster is failover");
                             await FetchSystemStatus(url);
                             ConnectionClose = false;
                         }
                         else
                         {
                             //log.error("seaweedfs core cluster is down");
-                            System.Diagnostics.Debug.WriteLine("seaweedfs core cluster is down");
+                            Debug.WriteLine("seaweedfs core cluster is down");
                             SystemClusterStatus.Leader.IsActive = false;
                             ConnectionClose = true;
                         }
@@ -557,7 +558,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 {
                     //e.printStackTrace();
                     //log.error("unable connect to the seaweedfs core leader");
-                    System.Diagnostics.Debug.WriteLine("unable connect to the seaweedfs core leader");
+                    Debug.WriteLine("unable connect to the seaweedfs core leader");
                 }
             }
         }

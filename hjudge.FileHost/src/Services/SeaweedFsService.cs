@@ -1,16 +1,16 @@
-﻿using Microsoft.Extensions.Options;
-using smartbox.SeaweedFs.Client;
-using smartbox.SeaweedFs.Client.Core.File;
-using System;
-using EFSecondLevelCache.Core;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using hjudge.FileHost.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using smartbox.SeaweedFs.Client;
+using smartbox.SeaweedFs.Client.Core.File;
 
 namespace hjudge.FileHost.Services
 {
@@ -36,7 +36,7 @@ namespace hjudge.FileHost.Services
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
             FileHandleStatus result;
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).FirstOrDefaultAsync();
             var length = content.Length;
             if (fileRecord != null)
             {
@@ -70,7 +70,7 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).FirstOrDefaultAsync();
             if (fileRecord == null) return true;
             var result = await template.DeleteFile(fileRecord.FileId);
             if (result)
@@ -85,10 +85,10 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
-            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).FirstOrDefaultAsync();
             if (fileRecord == null) return null;
             var response = await template.GetFileStream(fileRecord.FileId);
-            return response.StatusCode == System.Net.HttpStatusCode.OK ? response.OutputStream : null;
+            return response.StatusCode == HttpStatusCode.OK ? response.OutputStream : null;
         }
 
         public async Task<List<FileInformation>> ListAsync(string prefix)
@@ -96,7 +96,7 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var files = await dbContext.Files.Where(i => i.OriginalFileName.StartsWith(prefix))
                 .Select(i => new FileInformation { FileName = i.OriginalFileName, LastModified = i.LastModified.Ticks })
-                /*.Cacheable()*/.ToListAsync();
+                .ToListAsync();
             return files;
         }
 
@@ -105,7 +105,7 @@ namespace hjudge.FileHost.Services
             await connection.Start();
             var files = await dbContext.Files.Where(i => fileNames.Contains(i.OriginalFileName))
                 .Select(i => new FileInformation { FileName = i.OriginalFileName, LastModified = i.LastModified.Ticks })
-                /*.Cacheable()*/.ToListAsync();
+                .ToListAsync();
             return files;
         }
 

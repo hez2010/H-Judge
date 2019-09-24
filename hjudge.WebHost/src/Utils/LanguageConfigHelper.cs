@@ -1,8 +1,7 @@
-﻿using hjudge.WebHost.Configurations;
-using hjudge.WebHost.Models.Language;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using hjudge.WebHost.Configurations;
+using hjudge.WebHost.Models.Language;
 
 namespace hjudge.WebHost.Utils
 {

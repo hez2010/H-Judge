@@ -1,8 +1,7 @@
-﻿using hjudge.WebHost.Data;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
+using hjudge.WebHost.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace hjudge.WebHost.Services
@@ -34,13 +33,13 @@ namespace hjudge.WebHost.Services
         {
             var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).FirstOrDefaultAsync();
             if (exists != null)
             {
                 if (exists.VoteType == 1) contest.Upvote = Math.Max(0, contest.Upvote - 1);
                 else contest.Downvote = Math.Max(0, contest.Downvote - 1);
-                dbContext.VotesRecord.Remove(exists);
                 dbContext.Contest.Update(contest);
+                dbContext.VotesRecord.Remove(exists);
             }
             await dbContext.SaveChangesAsync();
             return true;
@@ -50,13 +49,13 @@ namespace hjudge.WebHost.Services
         {
             var problem = await problemService.GetProblemAsync(problemId);
             if (problem == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).FirstOrDefaultAsync();
             if (exists != null)
             {
                 if (exists.VoteType == 1) problem.Upvote = Math.Max(0, problem.Upvote - 1);
                 else problem.Downvote = Math.Max(0, problem.Downvote - 1);
-                dbContext.VotesRecord.Remove(exists);
                 dbContext.Problem.Update(problem);
+                dbContext.VotesRecord.Remove(exists);
             }
             await dbContext.SaveChangesAsync();
             return true;
@@ -66,9 +65,8 @@ namespace hjudge.WebHost.Services
         {
             var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).AnyAsync();
             if (exists) return false;
-            ++contest.Downvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
             {
                 ContestId = contestId,
@@ -79,6 +77,7 @@ namespace hjudge.WebHost.Services
                 Title = title ?? string.Empty,
                 Content = string.IsNullOrEmpty(title) ? string.Empty : (content ?? string.Empty)
             });
+            ++contest.Downvote;
             dbContext.Contest.Update(contest);
             await dbContext.SaveChangesAsync();
             return true;
@@ -88,9 +87,8 @@ namespace hjudge.WebHost.Services
         {
             var problem = await problemService.GetProblemAsync(problemId);
             if (problem == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).AnyAsync();
             if (exists) return false;
-            ++problem.Downvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
             {
                 ProblemId = problemId,
@@ -101,6 +99,7 @@ namespace hjudge.WebHost.Services
                 Title = title ?? string.Empty,
                 Content = string.IsNullOrEmpty(title) ? string.Empty : (content ?? string.Empty)
             });
+            ++problem.Downvote;
             dbContext.Problem.Update(problem);
             await dbContext.SaveChangesAsync();
             return true;
@@ -110,7 +109,6 @@ namespace hjudge.WebHost.Services
         {
             return dbContext.VotesRecord
                 .Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == contestId)
-                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
         }
 
@@ -118,7 +116,7 @@ namespace hjudge.WebHost.Services
         {
             var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).AnyAsync();
             if (exists) return false;
             ++contest.Upvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
@@ -140,7 +138,7 @@ namespace hjudge.WebHost.Services
         {
             var problem = await problemService.GetProblemAsync(problemId);
             if (problem == null) return false;
-            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null)/*.Cacheable()*/.AnyAsync();
+            var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).AnyAsync();
             if (exists) return false;
             ++problem.Upvote;
             await dbContext.VotesRecord.AddAsync(new VotesRecord

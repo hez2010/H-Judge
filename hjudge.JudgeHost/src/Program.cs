@@ -1,10 +1,10 @@
-﻿using hjudge.Shared.MessageQueue;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Hosting;
+using hjudge.Shared.MessageQueue;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace hjudge.JudgeHost
 {

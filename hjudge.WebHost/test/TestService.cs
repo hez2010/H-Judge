@@ -1,19 +1,17 @@
-using CacheManager.Core;
-using hjudge.WebHost.Data;
-using hjudge.WebHost.Data.Identity;
-using hjudge.WebHost.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using EFSecondLevelCache.Core;
+using hjudge.WebHost.Data;
+using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Middlewares;
+using hjudge.WebHost.Services;
 using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using React.AspNet;
 
@@ -52,26 +50,7 @@ namespace hjudge.WebHost.Test
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IVoteService, VoteService>();
             services.AddScoped<IFileService, FileService>();
-            services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
-
-            var jss = new JsonSerializerSettings
-            {
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            };
-
-            services.AddEFSecondLevelCache();
-            services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
-                    .WithUpdateMode(CacheUpdateMode.Up)
-                    .WithJsonSerializer(jss, jss)
-                    .WithMaxRetries(100)
-                    .WithRetryTimeout(50)
-                    .WithMicrosoftMemoryCacheHandle()
-                    .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(3))
-                    .Build());
-
-            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
 
             services.AddDbContext<WebHostDbContext>(options =>
             {
@@ -95,7 +74,7 @@ namespace hjudge.WebHost.Test
                 options.Password.RequireNonAlphanumeric = false;
             })
             .AddSignInManager<SignInManager<UserInfo>>()
-            .AddUserManager<CachedUserManager<UserInfo>>()
+            .AddUserManager<UserManager<UserInfo>>()
             .AddEntityFrameworkStores<WebHostDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>()
             .AddDefaultTokenProviders();

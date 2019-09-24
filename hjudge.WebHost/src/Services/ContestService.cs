@@ -1,11 +1,12 @@
-﻿using EFSecondLevelCache.Core;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Services
 {
@@ -21,11 +22,11 @@ namespace hjudge.WebHost.Services
     }
     public class ContestService : IContestService
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly IGroupService groupService;
         private readonly WebHostDbContext dbContext;
 
-        public ContestService(CachedUserManager<UserInfo> userManager,
+        public ContestService(UserManager<UserInfo> userManager,
             IGroupService groupService,
             WebHostDbContext dbContext)
         {
@@ -45,7 +46,6 @@ namespace hjudge.WebHost.Services
         {
             return dbContext.Contest
                 .Where(i => i.Id == contestId)
-                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
         }
 
@@ -55,7 +55,7 @@ namespace hjudge.WebHost.Services
 
             IQueryable<Contest> contests = dbContext.Contest;
 
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 contests = contests.Where(i => !i.Hidden || (i.SpecifyCompetitors && i.ContestRegister.Any(j => j.ContestId == i.Id && j.UserId == userId)));
             }
@@ -69,7 +69,7 @@ namespace hjudge.WebHost.Services
             var group = await groupService.GetGroupAsync(groupId);
             if (group == null) throw new NotFoundException("找不到该小组");
 
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 if (group.IsPrivate)
                 {

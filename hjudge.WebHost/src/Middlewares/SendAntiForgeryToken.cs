@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Middlewares
 {
@@ -15,7 +15,7 @@ namespace hjudge.WebHost.Middlewares
             if (context.HttpContext.Request.Method.ToLower() == "get")
             {
                 var tokens = antiforgery.GetAndStoreTokens(context.HttpContext);
-                context.HttpContext.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions() { HttpOnly = false });
+                context.HttpContext.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions { HttpOnly = false });
             }
             
             await next();

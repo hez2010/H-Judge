@@ -1,26 +1,26 @@
 ﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using hjudge.WebHost.Data;
-using hjudge.WebHost.Data.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using hjudge.Core;
-using hjudge.WebHost.Models.Problem;
-using hjudge.WebHost.Services;
-using hjudge.WebHost.Configurations;
-using hjudge.Shared.Utils;
-using EFSecondLevelCache.Core;
-using hjudge.WebHost.Utils;
-using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
-using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using hjudge.WebHost.Exceptions;
+using System.Linq;
 using System.Net;
-using Google.Protobuf;
-using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+using Google.Protobuf;
+using hjudge.Core;
+using hjudge.Shared.Utils;
+using hjudge.WebHost.Configurations;
+using hjudge.WebHost.Data;
+using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Models.Problem;
+using hjudge.WebHost.Services;
+using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -29,7 +29,7 @@ namespace hjudge.WebHost.Controllers
     [ApiController]
     public class ProblemController : ControllerBase
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly IProblemService problemService;
         private readonly IContestService contestService;
         private readonly IJudgeService judgeService;
@@ -39,7 +39,7 @@ namespace hjudge.WebHost.Controllers
         private readonly WebHostDbContext dbContext;
 
         public ProblemController(
-            CachedUserManager<UserInfo> userManager,
+            UserManager<UserInfo> userManager,
             IProblemService problemService,
             IContestService contestService,
             IJudgeService judgeService,
@@ -116,7 +116,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).CountAsync();
 
             if (model.ContestId == 0) problems = problems.OrderBy(i => i.Id);
             else model.StartId = 0; // keep original order while fetching problems in a contest
@@ -138,7 +138,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                })/*.Cacheable()*/.ToListAsync();
+                }).ToListAsync();
             }
             else
             {
@@ -159,7 +159,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                })/*.Cacheable()*/.ToListAsync();
+                }).ToListAsync();
             }
 
             return ret;
@@ -187,18 +187,18 @@ namespace hjudge.WebHost.Controllers
                 throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var problem = await problems.Where(i => i.Id == model.ProblemId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var problem = await problems.Where(i => i.Id == model.ProblemId).FirstOrDefaultAsync();
             if (problem == null) throw new NotFoundException("找不到该题目");
 
             // use an invalid value when userId is empty or null
             var judges = await judgeService.QueryJudgesAsync(string.IsNullOrEmpty(userId) ? "-1" : userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
 
             if (await judges.Where(i => i.ProblemId == problem.Id)
-                    /*.Cacheable()*/.AnyAsync())
+                    .AnyAsync())
             {
                 ret.Status = 1;
                 if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                        /*.Cacheable()*/.AnyAsync())
+                        .AnyAsync())
                 {
                     ret.Status = 2;
                 }
@@ -212,7 +212,7 @@ namespace hjudge.WebHost.Controllers
                 var data = await dbContext.ContestProblemConfig
                     .Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id)
                     .Select(i => new { i.AcceptCount, i.SubmissionCount })
-                    /*.Cacheable()*/
+                    
                     .FirstOrDefaultAsync();
                 if (data != null)
                 {
@@ -223,11 +223,11 @@ namespace hjudge.WebHost.Controllers
 
             if (!string.IsNullOrEmpty(userId))
             {
-                if (await judges.Where(i => i.ProblemId == problem.Id)/*.Cacheable()*/.AnyAsync())
+                if (await judges.Where(i => i.ProblemId == problem.Id).AnyAsync())
                 {
                     ret.Status = 1;
                     if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                            /*.Cacheable()*/.AnyAsync())
+                            .AnyAsync())
                     {
                         ret.Status = 2;
                     }

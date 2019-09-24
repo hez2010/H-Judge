@@ -11,12 +11,12 @@ namespace hjudge.FileHost.Data.Migrations
                 name: "Files",
                 columns: table => new
                 {
-                    FileId = table.Column<string>(nullable: false),
-                    FileName = table.Column<string>(nullable: false),
-                    OriginalFileName = table.Column<string>(nullable: false),
-                    ContentType = table.Column<string>(nullable: false),
-                    LastModified = table.Column<DateTime>(nullable: false),
-                    FileSize = table.Column<long>(nullable: false)
+                    FileId = table.Column<string>(),
+                    FileName = table.Column<string>(),
+                    OriginalFileName = table.Column<string>(),
+                    ContentType = table.Column<string>(),
+                    LastModified = table.Column<DateTime>(),
+                    FileSize = table.Column<long>()
                 },
                 constraints: table =>
                 {

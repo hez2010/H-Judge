@@ -1,11 +1,12 @@
-﻿using EFSecondLevelCache.Core;
-using hjudge.WebHost.Data;
-using hjudge.WebHost.Data.Identity;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using hjudge.WebHost.Data;
+using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace hjudge.WebHost.Services
 {
@@ -25,9 +26,9 @@ namespace hjudge.WebHost.Services
     public class GroupService : IGroupService
     {
         private readonly WebHostDbContext dbContext;
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
 
-        public GroupService(WebHostDbContext dbContext, CachedUserManager<UserInfo> userManager)
+        public GroupService(WebHostDbContext dbContext, UserManager<UserInfo> userManager)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
@@ -43,13 +44,12 @@ namespace hjudge.WebHost.Services
         {
             return dbContext.Group
                 .Where(i => i.Id == groupId)
-                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
         }
 
         public Task<bool> IsInGroupAsync(string userId, int groupId)
         {
-            return dbContext.GroupJoin.Where(i => i.UserId == userId && i.GroupId == groupId)/*.Cacheable()*/.AnyAsync();
+            return dbContext.GroupJoin.Where(i => i.UserId == userId && i.GroupId == groupId).AnyAsync();
         }
 
         public async Task<bool> OptInGroupAsync(string userId, int groupId)
@@ -58,7 +58,7 @@ namespace hjudge.WebHost.Services
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                if (!await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId)/*.Cacheable()*/.AnyAsync())
+                if (!await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).AnyAsync())
                 {
                     await dbContext.GroupJoin.AddAsync(new GroupJoin
                     {
@@ -78,7 +78,7 @@ namespace hjudge.WebHost.Services
             var group = await GetGroupAsync(groupId);
             if (user != null && group != null)
             {
-                var info = await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId)/*.Cacheable()*/.FirstOrDefaultAsync();
+                var info = await dbContext.GroupJoin.Where(i => i.GroupId == groupId && i.UserId == userId).FirstOrDefaultAsync();
                 if (info != null)
                 {
                     dbContext.GroupJoin.Remove(info);
@@ -95,7 +95,7 @@ namespace hjudge.WebHost.Services
 
             IQueryable<Group> groups = dbContext.Group;
 
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 groups = groups.Where(i => (i.IsPrivate && i.GroupJoin.Any(j => j.GroupId == i.Id && j.UserId == userId)) || !i.IsPrivate);
             }

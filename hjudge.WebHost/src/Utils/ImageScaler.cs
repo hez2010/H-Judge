@@ -1,6 +1,6 @@
-﻿using SixLabors.ImageSharp;
+﻿using System.IO;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using System.IO;
 
 namespace hjudge.WebHost.Utils
 {

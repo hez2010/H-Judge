@@ -1,21 +1,22 @@
-﻿using hjudge.Shared.Utils;
-using hjudge.WebHost.Utils;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using hjudge.Core;
+using hjudge.Shared.Utils;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
-using EFSecondLevelCache.Core;
 using hjudge.WebHost.Models.Account;
+using hjudge.WebHost.Properties;
 using hjudge.WebHost.Services;
+using hjudge.WebHost.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
-using hjudge.Core;
-using hjudge.WebHost.Exceptions;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -24,13 +25,13 @@ namespace hjudge.WebHost.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly SignInManager<UserInfo> signInManager;
         private readonly IJudgeService judgeService;
         private readonly IEmailSender emailSender;
 
         public AccountController(
-            CachedUserManager<UserInfo> userManager,
+            UserManager<UserInfo> userManager,
             SignInManager<UserInfo> signInManager,
             IJudgeService judgeService,
             WebHostDbContext dbContext,
@@ -80,7 +81,8 @@ namespace hjudge.WebHost.Controllers
                         new BadRequestException(result.Errors.Select(i => i.Description).Aggregate((accu, next) => accu + "\n" + next))
                         : new BadRequestException();
                 }
-                else await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+
+                await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
             }
             else
             {
@@ -100,7 +102,7 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPut]
         [Route("avatar")]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         public async Task UserAvatar(IFormFile avatar)
         {
             var userId = userManager.GetUserId(User);
@@ -112,10 +114,10 @@ namespace hjudge.WebHost.Controllers
 
             if (avatar.Length > 1048576) throw new BadRequestException("文件大小不能超过 1 Mb");
 
-            await using var stream = new System.IO.MemoryStream();
+            await using var stream = new MemoryStream();
 
             await avatar.CopyToAsync(stream);
-            stream.Seek(0, System.IO.SeekOrigin.Begin);
+            stream.Seek(0, SeekOrigin.Begin);
             var buffer = new byte[stream.Length];
             await stream.ReadAsync(buffer);
             user.Avatar = buffer;
@@ -129,13 +131,13 @@ namespace hjudge.WebHost.Controllers
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
             return user?.Avatar == null || user.Avatar.Length == 0
-                ? File(ImageScaler.ScaleImage(Properties.Resource.DefaultAvatar, 128, 128), "image/png")
+                ? File(ImageScaler.ScaleImage(Resource.DefaultAvatar, 128, 128), "image/png")
                 : File(ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
         }
 
         [HttpPost]
         [Route("profiles")]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         public async Task UserInfo([FromBody]UserInfoModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -231,8 +233,8 @@ namespace hjudge.WebHost.Controllers
 
             var judges = await judgeService.QueryJudgesAsync(userId);
 
-            ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i)/*.Cacheable()*/.ToListAsync();
-            ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i)/*.Cacheable()*/.ToListAsync();
+            ret.SolvedProblems = await judges.Where(i => i.ResultType == (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();
+            ret.TriedProblems = await judges.Where(i => i.ResultType != (int)ResultCode.Accepted).Select(i => i.ProblemId).Distinct().OrderBy(i => i).ToListAsync();
 
             ret.TriedProblems = ret.TriedProblems.Where(i => !ret.SolvedProblems.Contains(i)).ToList();
             return ret;

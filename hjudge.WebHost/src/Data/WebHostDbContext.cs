@@ -1,16 +1,10 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
-using EFSecondLevelCache.Core.Contracts;
-using hjudge.WebHost.Data.Identity;
+﻿using hjudge.WebHost.Data.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace hjudge.WebHost.Data
 {
-    public partial class WebHostDbContext : IdentityDbContext<UserInfo>
+    public class WebHostDbContext : IdentityDbContext<UserInfo>
     {
         public WebHostDbContext(DbContextOptions<WebHostDbContext> options)
             : base(options)
@@ -273,32 +267,6 @@ namespace hjudge.WebHost.Data
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
-        }
-
-        public override int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            //var changedEntityNames = this.GetChangedEntityNames();
-
-            //this.ChangeTracker.AutoDetectChangesEnabled = false;
-            var result = base.SaveChanges(acceptAllChangesOnSuccess);
-            //this.ChangeTracker.AutoDetectChangesEnabled = true;
-
-            //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
-
-            return result;
-        }
-
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-        {
-            //var changedEntityNames = this.GetChangedEntityNames();
-
-            //this.ChangeTracker.AutoDetectChangesEnabled = false;
-            var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-            //this.ChangeTracker.AutoDetectChangesEnabled = true;
-
-            //this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
-            
-            return result;
         }
     }
 }

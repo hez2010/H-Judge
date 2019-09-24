@@ -1,5 +1,5 @@
-﻿using hjudge.WebHost.Data.Identity;
-using System;
+﻿using System;
+using hjudge.WebHost.Data.Identity;
 
 namespace hjudge.WebHost.Data
 {

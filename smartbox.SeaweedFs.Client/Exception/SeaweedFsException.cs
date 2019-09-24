@@ -22,9 +22,11 @@
  * SOFTWARE.
  */
 
+using System;
+
 namespace smartbox.SeaweedFs.Client.Exception
 {
-    public class SeaweedFsException : System.InvalidOperationException
+    public class SeaweedFsException : InvalidOperationException
     {
         public SeaweedFsException(string message)
             : base (message)

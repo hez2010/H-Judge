@@ -12,9 +12,10 @@ using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models.Judge;
 using hjudge.WebHost.Services;
+using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EFSecondLevelCache.Core;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -27,11 +28,11 @@ namespace hjudge.WebHost.Controllers
         private readonly IProblemService problemService;
         private readonly IContestService contestService;
         private readonly IGroupService groupService;
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly ILanguageService languageService;
 
         public JudgeController(IJudgeService judgeService, IProblemService problemService,
-            IContestService contestService, IGroupService groupService, CachedUserManager<UserInfo> userManager,
+            IContestService contestService, IGroupService groupService, UserManager<UserInfo> userManager,
             ILanguageService languageService)
         {
             this.judgeService = judgeService;
@@ -42,7 +43,7 @@ namespace hjudge.WebHost.Controllers
             this.languageService = languageService;
         }
 
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         [HttpPost]
         [Route("rejudge")]
         public async Task Rejudge([FromBody]RejudgeModel model)
@@ -55,7 +56,7 @@ namespace hjudge.WebHost.Controllers
             await judgeService.QueueJudgeAsync(judge);
         }
 
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         [HttpPost]
         [RequestSizeLimit(10485760)]
         [Route("submit")]
@@ -112,7 +113,7 @@ namespace hjudge.WebHost.Controllers
                 if (contest != null)
                 {
                     if (contest.StartTime > now || now > contest.EndTime) throw new ForbiddenException("当前不允许提交");
-                    if (contest.Hidden && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该比赛不存在");
+                    if (contest.Hidden && !PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该比赛不存在");
 
                     var contestConfig = contest.Config.DeserializeJson<ContestConfig>(false);
                     if (contestConfig.SubmissionLimit != 0)
@@ -121,7 +122,7 @@ namespace hjudge.WebHost.Controllers
                                 model.GroupId == 0 ? null : (int?)model.GroupId,
                                 model.ContestId,
                                 model.ProblemId);
-                        if (contestConfig.SubmissionLimit <= await judges/*.Cacheable()*/.CountAsync())
+                        if (contestConfig.SubmissionLimit <= await judges.CountAsync())
                             throw new ForbiddenException("超出提交次数限制");
                     }
                     if (contestConfig.ResultMode != ResultDisplayMode.Intime) allowJumpToResult = false;
@@ -133,7 +134,7 @@ namespace hjudge.WebHost.Controllers
                     }
                 }
             }
-            else if (problem.Hidden && !Utils.PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该题目不存在");
+            else if (problem.Hidden && !PrivilegeHelper.IsTeacher(user.Privilege)) throw new NotFoundException("该题目不存在");
 
             if (!useDefaultDisabledConfig) langs = langs.Where(i => langConfig.Any(j => j.Name == i && !j.DisabledByDefault)).ToArray();
 
@@ -163,13 +164,13 @@ namespace hjudge.WebHost.Controllers
 
         [Route("result")]
         [HttpGet]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         public async Task<ResultModel> GetJudgeResult(int id)
         {
             var user = await userManager.GetUserAsync(User);
             var judge = await judgeService.GetJudgeAsync(id);
             if (judge == null) throw new NotFoundException("评测结果不存在");
-            if (!Utils.PrivilegeHelper.IsTeacher(user.Privilege) && judge.UserId != user.Id && !judge.IsPublic) throw new ForbiddenException("没有权限查看该评测结果");
+            if (!PrivilegeHelper.IsTeacher(user.Privilege) && judge.UserId != user.Id && !judge.IsPublic) throw new ForbiddenException("没有权限查看该评测结果");
 
             var ret = new ResultModel
             {
@@ -200,13 +201,13 @@ namespace hjudge.WebHost.Controllers
             };
             ret.JudgeResult.JudgePoints ??= new List<JudgePoint>();
 
-            if (judge.ContestId != null && !Utils.PrivilegeHelper.IsTeacher(user.Privilege))
+            if (judge.ContestId != null && !PrivilegeHelper.IsTeacher(user.Privilege))
             {
                 var contest = await contestService.GetContestAsync(judge.ContestId.Value);
                 if (contest != null)
                 {
                     var config = contest.Config.DeserializeJson<ContestConfig>(false);
-                    if (!config.CanMakeResultPublic && !Utils.PrivilegeHelper.IsTeacher(user.Privilege) && judge.UserId != user.Id) throw new ForbiddenException("没有权限查看该评测结果");
+                    if (!config.CanMakeResultPublic && !PrivilegeHelper.IsTeacher(user.Privilege) && judge.UserId != user.Id) throw new ForbiddenException("没有权限查看该评测结果");
                     switch (config.ResultMode)
                     {
                         case ResultDisplayMode.Never:

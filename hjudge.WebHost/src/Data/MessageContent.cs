@@ -2,7 +2,7 @@
 
 namespace hjudge.WebHost.Data
 {
-    public partial class MessageContent
+    public class MessageContent
     {
         public MessageContent()
         {

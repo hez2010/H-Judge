@@ -12,7 +12,7 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<string>(),
                     Name = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true)
@@ -26,32 +26,32 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<string>(),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
+                    EmailConfirmed = table.Column<bool>(),
                     PasswordHash = table.Column<string>(nullable: true),
                     SecurityStamp = table.Column<string>(nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
+                    PhoneNumberConfirmed = table.Column<bool>(),
+                    TwoFactorEnabled = table.Column<bool>(),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false),
+                    LockoutEnabled = table.Column<bool>(),
+                    AccessFailedCount = table.Column<int>(),
                     Name = table.Column<string>(nullable: true),
-                    Coins = table.Column<long>(nullable: false),
-                    Experience = table.Column<long>(nullable: false),
-                    Privilege = table.Column<int>(nullable: false),
+                    Coins = table.Column<long>(),
+                    Experience = table.Column<long>(),
+                    Privilege = table.Column<int>(),
                     Avatar = table.Column<byte[]>(nullable: true),
                     OtherInfo = table.Column<string>(nullable: true),
-                    LastSignedIn = table.Column<DateTime>(nullable: false),
-                    ContinuousSignedIn = table.Column<int>(nullable: false),
-                    AcceptedCount = table.Column<int>(nullable: false),
-                    SubmissionCount = table.Column<int>(nullable: false),
-                    MessageReplyCount = table.Column<int>(nullable: false)
+                    LastSignedIn = table.Column<DateTime>(),
+                    ContinuousSignedIn = table.Column<int>(),
+                    AcceptedCount = table.Column<int>(),
+                    SubmissionCount = table.Column<int>(),
+                    MessageReplyCount = table.Column<int>()
                 },
                 constraints: table =>
                 {
@@ -62,9 +62,9 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleId = table.Column<string>(nullable: false),
+                    RoleId = table.Column<string>(),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
                 },
@@ -83,9 +83,9 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(nullable: false),
+                    UserId = table.Column<string>(),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
                 },
@@ -104,10 +104,10 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(maxLength: 128),
+                    ProviderKey = table.Column<string>(maxLength: 128),
                     ProviderDisplayName = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: false)
+                    UserId = table.Column<string>()
                 },
                 constraints: table =>
                 {
@@ -124,8 +124,8 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(nullable: false),
-                    RoleId = table.Column<string>(nullable: false)
+                    UserId = table.Column<string>(),
+                    RoleId = table.Column<string>()
                 },
                 constraints: table =>
                 {
@@ -148,9 +148,9 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(nullable: false),
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
+                    UserId = table.Column<string>(),
+                    LoginProvider = table.Column<string>(maxLength: 128),
+                    Name = table.Column<string>(maxLength: 128),
                     Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -168,17 +168,17 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "Contest",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(nullable: false),
-                    StartTime = table.Column<DateTime>(nullable: false),
-                    EndTime = table.Column<DateTime>(nullable: false),
-                    Config = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(),
+                    StartTime = table.Column<DateTime>(),
+                    EndTime = table.Column<DateTime>(),
+                    Config = table.Column<string>(),
                     Password = table.Column<string>(nullable: true),
-                    Description = table.Column<string>(nullable: false),
-                    UserId = table.Column<string>(nullable: false),
-                    SpecifyCompetitors = table.Column<bool>(nullable: false),
-                    Hidden = table.Column<bool>(nullable: false),
+                    Description = table.Column<string>(),
+                    UserId = table.Column<string>(),
+                    SpecifyCompetitors = table.Column<bool>(),
+                    Hidden = table.Column<bool>(),
                     AdditionalInfo = table.Column<string>(nullable: true),
                     Upvote = table.Column<int>(nullable: false, defaultValueSql: "0"),
                     Downvote = table.Column<int>(nullable: false, defaultValueSql: "0")
@@ -198,13 +198,13 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "Group",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    Description = table.Column<string>(nullable: false),
-                    CreationTime = table.Column<DateTime>(nullable: false),
-                    IsPrivate = table.Column<bool>(nullable: false),
+                    UserId = table.Column<string>(),
+                    Name = table.Column<string>(),
+                    Description = table.Column<string>(),
+                    CreationTime = table.Column<DateTime>(),
+                    IsPrivate = table.Column<bool>(),
                     AdditionalInfo = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -222,9 +222,9 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "MessageContent",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Content = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(),
                     UserInfoId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -242,16 +242,16 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "Problem",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(nullable: false),
-                    CreationTime = table.Column<DateTime>(nullable: false),
-                    Level = table.Column<int>(nullable: false),
-                    Config = table.Column<string>(nullable: false),
-                    Type = table.Column<int>(nullable: false),
-                    Description = table.Column<string>(nullable: false),
-                    UserId = table.Column<string>(nullable: false),
-                    Hidden = table.Column<bool>(nullable: false),
+                    Name = table.Column<string>(),
+                    CreationTime = table.Column<DateTime>(),
+                    Level = table.Column<int>(),
+                    Config = table.Column<string>(),
+                    Type = table.Column<int>(),
+                    Description = table.Column<string>(),
+                    UserId = table.Column<string>(),
+                    Hidden = table.Column<bool>(),
                     AcceptCount = table.Column<int>(nullable: false, defaultValueSql: "0"),
                     SubmissionCount = table.Column<int>(nullable: false, defaultValueSql: "0"),
                     AdditionalInfo = table.Column<string>(nullable: true),
@@ -273,10 +273,10 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "ContestRegister",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ContestId = table.Column<int>(nullable: false),
-                    UserId = table.Column<string>(nullable: false)
+                    ContestId = table.Column<int>(),
+                    UserId = table.Column<string>()
                 },
                 constraints: table =>
                 {
@@ -299,13 +299,13 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "Announcement",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(nullable: false),
-                    Content = table.Column<string>(nullable: false),
-                    UserId = table.Column<string>(nullable: false),
-                    PublishTime = table.Column<DateTime>(nullable: false),
-                    Hidden = table.Column<bool>(nullable: false),
+                    Title = table.Column<string>(),
+                    Content = table.Column<string>(),
+                    UserId = table.Column<string>(),
+                    PublishTime = table.Column<DateTime>(),
+                    Hidden = table.Column<bool>(),
                     GroupId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -329,10 +329,10 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "GroupContestConfig",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    GroupId = table.Column<int>(nullable: false),
-                    ContestId = table.Column<int>(nullable: false)
+                    GroupId = table.Column<int>(),
+                    ContestId = table.Column<int>()
                 },
                 constraints: table =>
                 {
@@ -355,11 +355,11 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "GroupJoin",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(nullable: false),
-                    GroupId = table.Column<int>(nullable: false),
-                    JoinTime = table.Column<DateTime>(nullable: false)
+                    UserId = table.Column<string>(),
+                    GroupId = table.Column<int>(),
+                    JoinTime = table.Column<DateTime>()
                 },
                 constraints: table =>
                 {
@@ -382,15 +382,15 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "Message",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(nullable: false),
-                    ContentId = table.Column<int>(nullable: false),
-                    Type = table.Column<int>(nullable: false),
-                    UserId = table.Column<string>(nullable: false),
-                    SendTime = table.Column<DateTime>(nullable: false),
-                    Status = table.Column<int>(nullable: false),
-                    ReplyId = table.Column<int>(nullable: false)
+                    Title = table.Column<string>(),
+                    ContentId = table.Column<int>(),
+                    Type = table.Column<int>(),
+                    UserId = table.Column<string>(),
+                    SendTime = table.Column<DateTime>(),
+                    Status = table.Column<int>(),
+                    ReplyId = table.Column<int>()
                 },
                 constraints: table =>
                 {
@@ -413,10 +413,10 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "ContestProblemConfig",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ContestId = table.Column<int>(nullable: false),
-                    ProblemId = table.Column<int>(nullable: false),
+                    ContestId = table.Column<int>(),
+                    ProblemId = table.Column<int>(),
                     AcceptCount = table.Column<int>(nullable: false, defaultValueSql: "0"),
                     SubmissionCount = table.Column<int>(nullable: false, defaultValueSql: "0")
                 },
@@ -441,15 +441,15 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "Discussion",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(nullable: false),
+                    UserId = table.Column<string>(),
                     ProblemId = table.Column<int>(nullable: true),
                     ContestId = table.Column<int>(nullable: true),
                     GroupId = table.Column<int>(nullable: true),
-                    SubmitTime = table.Column<DateTime>(nullable: false),
-                    Title = table.Column<string>(nullable: false),
-                    Content = table.Column<string>(nullable: false),
+                    SubmitTime = table.Column<DateTime>(),
+                    Title = table.Column<string>(),
+                    Content = table.Column<string>(),
                     ReplyId = table.Column<int>(nullable: false, defaultValueSql: "0")
                 },
                 constraints: table =>
@@ -485,23 +485,23 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "Judge",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(nullable: false),
-                    JudgeTime = table.Column<DateTime>(nullable: false),
-                    ProblemId = table.Column<int>(nullable: false),
+                    UserId = table.Column<string>(),
+                    JudgeTime = table.Column<DateTime>(),
+                    ProblemId = table.Column<int>(),
                     ContestId = table.Column<int>(nullable: true),
                     GroupId = table.Column<int>(nullable: true),
-                    Content = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(),
                     Result = table.Column<string>(nullable: true),
-                    Type = table.Column<int>(nullable: false),
+                    Type = table.Column<int>(),
                     Description = table.Column<string>(nullable: true),
-                    ResultType = table.Column<int>(nullable: false),
-                    FullScore = table.Column<float>(nullable: false),
+                    ResultType = table.Column<int>(),
+                    FullScore = table.Column<float>(),
                     Language = table.Column<string>(nullable: true),
                     Logs = table.Column<string>(nullable: true),
                     AdditionalInfo = table.Column<string>(nullable: true),
-                    IsPublic = table.Column<bool>(nullable: false),
+                    IsPublic = table.Column<bool>(),
                     JudgeCount = table.Column<int>(nullable: false, defaultValueSql: "0")
                 },
                 constraints: table =>
@@ -537,15 +537,15 @@ namespace hjudge.WebHost.Data.Migrations
                 name: "VotesRecord",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>()
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ProblemId = table.Column<int>(nullable: true),
                     ContestId = table.Column<int>(nullable: true),
-                    UserId = table.Column<string>(nullable: false),
-                    VoteTime = table.Column<DateTime>(nullable: false),
+                    UserId = table.Column<string>(),
+                    VoteTime = table.Column<DateTime>(),
                     VoteType = table.Column<int>(nullable: false, defaultValueSql: "1"),
-                    Title = table.Column<string>(nullable: false),
-                    Content = table.Column<string>(nullable: false)
+                    Title = table.Column<string>(),
+                    Content = table.Column<string>()
                 },
                 constraints: table =>
                 {
