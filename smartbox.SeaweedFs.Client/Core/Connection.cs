@@ -407,7 +407,7 @@ namespace smartbox.SeaweedFs.Client.Core
 
             foreach (var item in peers)
             {
-                var request = new HttpRequestMessage(
+                using var request = new HttpRequestMessage(
                     HttpMethod.Get,
                     new Uri(item.Url + RequestPathStrategy.CheckClusterStatus)
                 );
@@ -483,6 +483,7 @@ namespace smartbox.SeaweedFs.Client.Core
             if (IsLookupVolumeCacheEnabled)
                 VolumeLookupCache.Dispose();
             HttpClient?.Dispose();
+            _cancellationTokenSource?.Dispose();
         }
 
         public void Dispose()

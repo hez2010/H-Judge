@@ -57,7 +57,7 @@ namespace smartbox.SeaweedFs.Client.Core
             if (!string.IsNullOrEmpty(ttl))
                 url = url + "?ttl=" + ttl;
 
-            var request = new HttpRequestMessage(
+            using var request = new HttpRequestMessage(
                 HttpMethod.Post,
                 new Uri(url)
             );
