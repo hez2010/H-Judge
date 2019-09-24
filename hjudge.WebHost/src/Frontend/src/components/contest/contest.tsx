@@ -1,6 +1,6 @@
 ﻿import * as React from 'reactn';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Input, Select, Placeholder, Rating, Confirm, Popup } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { isTeacher } from '../../utils/privilegeHelper';
@@ -8,6 +8,7 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { GlobalState } from '../../interfaces/globalState';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
+import { getRating } from '../../utils/ratingHelper';
 
 interface ContestProps {
   groupId?: number
@@ -158,12 +159,17 @@ export default class Contest extends React.Component<ContestProps & CommonProps,
   }
 
   renderContestList() {
-    let getStatus = (startTime: Date, endTime: Date) => {
+    const getStatus = (startTime: Date, endTime: Date) => {
       if (this.state.contestList.currentTime >= endTime) return 2;
       if (startTime < this.state.contestList.currentTime) return 1;
       return 0;
     };
 
+    const renderRating = (upvote: number, downvote: number) => {
+      let rating = getRating(upvote, downvote);
+      return <Popup content={rating.toString()} trigger={<Rating icon='star' rating={Math.round(rating)} maxRating={5} disabled={true} />} />;
+    }
+    
     return <>
       <Table color='black' selectable>
         <Table.Header>
@@ -185,11 +191,7 @@ export default class Contest extends React.Component<ContestProps & CommonProps,
                 <Table.Cell>{v.id}</Table.Cell>
                 <Table.Cell>{v.name}</Table.Cell>
                 <Table.Cell>{status === 0 ? '未开始' : status === 1 ? '进行中' : '已结束'}</Table.Cell>
-                {
-                  v.upvote + v.downvote === 0 ?
-                    <Table.Cell><Rating icon='star' rating={3} maxRating={5} disabled={true} /></Table.Cell> :
-                    <Table.Cell><Rating icon='star' maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
-                }
+                <Table.Cell>{renderRating(v.upvote, v.downvote)}</Table.Cell>
                 <Table.Cell>{v.startTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 <Table.Cell>{v.endTime.toLocaleString(undefined, { hour12: false })}</Table.Cell>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editContest(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ContestState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
