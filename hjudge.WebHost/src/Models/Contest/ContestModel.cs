@@ -1,5 +1,5 @@
-﻿using hjudge.WebHost.Configurations;
-using System;
+﻿using System;
+using hjudge.WebHost.Configurations;
 
 namespace hjudge.WebHost.Models.Contest
 {

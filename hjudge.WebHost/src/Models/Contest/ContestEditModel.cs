@@ -1,6 +1,6 @@
-﻿using hjudge.WebHost.Configurations;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using hjudge.WebHost.Configurations;
 
 namespace hjudge.WebHost.Models.Contest
 {

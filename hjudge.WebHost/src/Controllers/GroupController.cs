@@ -1,12 +1,12 @@
-﻿using hjudge.WebHost.Data.Identity;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Models.Group;
 using hjudge.WebHost.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
-using hjudge.WebHost.Exceptions;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -15,11 +15,11 @@ namespace hjudge.WebHost.Controllers
     public class GroupController : ControllerBase
     {
         private readonly IGroupService groupService;
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
 
         public GroupController(
             IGroupService groupService,
-            CachedUserManager<UserInfo> userManager
+            UserManager<UserInfo> userManager
             )
         {
             this.groupService = groupService;
@@ -67,7 +67,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).CountAsync();
 
             groups = groups.OrderByDescending(i => i.Id);
             if (model.StartId == 0) groups = groups.Skip(model.Start);
@@ -81,7 +81,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 UserId = i.UserId,
                 UserName = i.UserInfo.UserName
-            })/*.Cacheable()*/.ToListAsync();
+            }).ToListAsync();
 
             return ret;
         }

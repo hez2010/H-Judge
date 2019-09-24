@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
 
 namespace hjudge.FileHost
 {
@@ -39,8 +40,7 @@ namespace hjudge.FileHost
                             kestrelOptions.ListenLocalhost(port,
                                 listenOptions =>
                                 {
-                                    listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core
-                                        .HttpProtocols.Http2;
+                                    listenOptions.Protocols = HttpProtocols.Http2;
                                 });
                         });
                 });

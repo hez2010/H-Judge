@@ -1,17 +1,18 @@
-﻿using hjudge.Shared.Utils;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using hjudge.Core;
+using hjudge.Shared.Utils;
+using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Models.Rank;
 using hjudge.WebHost.Services;
+using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
 using Microsoft.EntityFrameworkCore;
-using hjudge.WebHost.Configurations;
-using hjudge.Core;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -20,12 +21,12 @@ namespace hjudge.WebHost.Controllers
     [Route("rank")]
     public class RankController : ControllerBase
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly IJudgeService judgeService;
         private readonly IContestService contestService;
         private readonly IGroupService groupService;
 
-        public RankController(CachedUserManager<UserInfo> userManager, IJudgeService judgeService, IContestService contestService, IGroupService groupService)
+        public RankController(UserManager<UserInfo> userManager, IJudgeService judgeService, IContestService contestService, IGroupService groupService)
         {
             this.userManager = userManager;
             this.judgeService = judgeService;
@@ -43,19 +44,18 @@ namespace hjudge.WebHost.Controllers
             if (groupId != 0)
             {
                 var groups = await groupService.QueryGroupAsync(user?.Id);
-                groups = groups.Where(i => i.GroupContestConfig.Any(j => j.ContestId == contestId && j.GroupId == groupId))/*.Cacheable()*/;
+                groups = groups.Where(i => i.GroupContestConfig.Any(j => j.ContestId == contestId && j.GroupId == groupId));
                 if (!await groups.AnyAsync()) throw new NotFoundException("该比赛不存在或未加入对应小组");
             }
 
             var config = contest.Config.DeserializeJson<ContestConfig>(false);
-            if (!config.ShowRank && !Utils.PrivilegeHelper.IsTeacher(user?.Privilege)) throw new ForbiddenException("不允许查看排名");
+            if (!config.ShowRank && !PrivilegeHelper.IsTeacher(user?.Privilege)) throw new ForbiddenException("不允许查看排名");
 
             var judges = await judgeService.QueryJudgesAsync(null,
                 groupId == 0 ? null : (int?)groupId,
-                contestId,
-                0);
+                contestId);
 
-            if (config.AutoStopRank && !Utils.PrivilegeHelper.IsTeacher(user?.Privilege) && DateTime.Now < contest.EndTime)
+            if (config.AutoStopRank && !PrivilegeHelper.IsTeacher(user?.Privilege) && DateTime.Now < contest.EndTime)
             {
                 var time = contest.EndTime.AddHours(-1);
                 judges = judges.Where(i => i.JudgeTime < time);
@@ -69,16 +69,16 @@ namespace hjudge.WebHost.Controllers
 
             var results = judges.OrderBy(i => i.Id).Select(i => new
             {
-                Id = i.Id,
-                ProblemId = i.ProblemId,
+                i.Id,
+                i.ProblemId,
                 ProblemName = i.Problem.Name,
-                UserId = i.UserId,
-                UserName = i.UserInfo.UserName,
-                Name = i.UserInfo.Name,
-                ResultType = i.ResultType,
+                i.UserId,
+                i.UserInfo.UserName,
+                i.UserInfo.Name,
+                i.ResultType,
                 Time = i.JudgeTime,
                 Score = i.FullScore
-            })/*.Cacheable()*/;
+            });
 
             var isAccepted = new Dictionary<(string UserId, int ProblemId), bool>();
 
@@ -87,7 +87,7 @@ namespace hjudge.WebHost.Controllers
                 if (!ret.UserInfos.ContainsKey(i.UserId)) ret.UserInfos[i.UserId] = new RankUserInfoModel
                 {
                     UserName = i.UserName,
-                    Name = Utils.PrivilegeHelper.IsTeacher(user?.Privilege) ? i.Name : string.Empty
+                    Name = PrivilegeHelper.IsTeacher(user?.Privilege) ? i.Name : string.Empty
                 };
                 if (!ret.ProblemInfos.ContainsKey(i.ProblemId)) ret.ProblemInfos[i.ProblemId] = new RankProblemInfoModel
                 {
@@ -145,18 +145,15 @@ namespace hjudge.WebHost.Controllers
             }
 
             // no time and penalty if hasn't accepted
-            foreach (var i in isAccepted)
+            foreach (var i in isAccepted.Where(i => !i.Value))
             {
-                if (!i.Value)
-                {
-                    ret.UserInfos[i.Key.UserId].Time -= ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Time;
-                    ret.UserInfos[i.Key.UserId].Penalty -= ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Penalty;
-                    ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Time = TimeSpan.Zero;
-                    ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Penalty = 0;
-                }
+                ret.UserInfos[i.Key.UserId].Time -= ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Time;
+                ret.UserInfos[i.Key.UserId].Penalty -= ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Penalty;
+                ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Time = TimeSpan.Zero;
+                ret.RankInfos[i.Key.UserId][i.Key.ProblemId].Penalty = 0;
             }
 
-            var rankData = ret.UserInfos.Select(i => new { UserId = i.Key, Score = i.Value.Score, Time = i.Value.Time })
+            var rankData = ret.UserInfos.Select(i => new { UserId = i.Key, i.Value.Score, i.Value.Time })
                 .OrderByDescending(i => i.Score)
                 .ThenBy(i => i.Time)
                 .ToList();

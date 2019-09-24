@@ -1,22 +1,21 @@
-﻿using hjudge.Shared.Judge;
-using hjudge.WebHost.Services;
-using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client.Events;
-using hjudge.Shared.Utils;
-using System;
-using System.Threading.Tasks;
-using hjudge.WebHost.Extensions;
-using hjudge.WebHost.Hubs;
-using Microsoft.AspNetCore.SignalR;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using hjudge.Core;
-using hjudge.WebHost.Data.Identity;
-using Microsoft.Extensions.Logging;
+using hjudge.Shared.Judge;
+using hjudge.Shared.Utils;
 using hjudge.WebHost.Data;
+using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Hubs;
+using hjudge.WebHost.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using EFSecondLevelCache.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client.Events;
 
 namespace hjudge.WebHost.MessageHandlers
 {
@@ -69,8 +68,8 @@ namespace hjudge.WebHost.MessageHandlers
 
                         if (info.Type == JudgeReportInfo.ReportType.PostJudge)
                         {
-                            var userManager = scope?.ServiceProvider.GetService<CachedUserManager<UserInfo>>();
-                            if (userManager == null) throw new InvalidOperationException("CachedUserManager<UserInfo> was not registed into service collection.");
+                            var userManager = scope?.ServiceProvider.GetService<UserManager<UserInfo>>();
+                            if (userManager == null) throw new InvalidOperationException("UserManager<UserInfo> was not registed into service collection.");
 
                             var resultType = JudgeService.ComputeJudgeResultType(info.JudgeResult);
                             
@@ -84,7 +83,7 @@ namespace hjudge.WebHost.MessageHandlers
                                         var problemConfig = await dbContext.ContestProblemConfig
                                             .Where(i => i.ContestId == judge.ContestId &&
                                                         i.ProblemId == judge.ProblemId)
-                                            /*.Cacheable()*/.FirstOrDefaultAsync(token);
+                                            .FirstOrDefaultAsync(token);
                                         problemConfig.AcceptCount++;
                                         dbContext.ContestProblemConfig.Update(problemConfig);
                                     }
@@ -92,7 +91,7 @@ namespace hjudge.WebHost.MessageHandlers
                                     {
                                         var problem = await dbContext.Problem
                                             .Where(i => i.Id == judge.ProblemId)
-                                            /*.Cacheable()*/.FirstOrDefaultAsync(token);
+                                            .FirstOrDefaultAsync(token);
                                         problem.AcceptCount++;
                                         dbContext.Problem.Update(problem);
                                     }

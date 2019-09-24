@@ -1,4 +1,10 @@
-﻿using Grpc.Core;
+﻿using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Grpc.Core;
 using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.MessageQueue;
@@ -7,12 +13,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client.Events;
-using System;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost
 {

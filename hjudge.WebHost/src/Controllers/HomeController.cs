@@ -1,25 +1,24 @@
-﻿using hjudge.WebHost.Data.Identity;
+﻿using System.Diagnostics;
+using System.Net;
+using System.Threading.Tasks;
+using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Models.Home;
-using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Controllers
 {
     [AutoValidateAntiforgeryToken]
     public class HomeController : Controller
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly SignInManager<UserInfo> signInManager;
 
-        public HomeController(CachedUserManager<UserInfo> userManager,
+        public HomeController(UserManager<UserInfo> userManager,
             SignInManager<UserInfo> signInManager)
         {
             this.userManager = userManager;

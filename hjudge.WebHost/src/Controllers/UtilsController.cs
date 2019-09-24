@@ -1,12 +1,12 @@
-﻿using EFSecondLevelCache.Core;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models.Utils;
-using hjudge.WebHost.Services;
+using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -15,20 +15,20 @@ namespace hjudge.WebHost.Controllers
     [AutoValidateAntiforgeryToken]
     public class UtilsController : ControllerBase
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
 
-        public UtilsController(CachedUserManager<UserInfo> userManager)
+        public UtilsController(UserManager<UserInfo> userManager)
         {
             this.userManager = userManager;
         }
 
         [Route("queryUsers")]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         public async Task<UserQueryResultListModel> QueryUser(string patterns)
         {
             var user = await userManager.GetUserAsync(User);
             IQueryable<UserInfo> users;
-            if (Utils.PrivilegeHelper.IsTeacher(user.Privilege))
+            if (PrivilegeHelper.IsTeacher(user.Privilege))
             {
                 users = userManager.Users.Where(i => 
                     (i.Name != null && i.Name.Contains(patterns)) ||
@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Controllers
                 UserName = i.UserName,
                 Name = i.Name,
                 Email = i.Email
-            })/*.Cacheable()*/;
+            });
 
             return new UserQueryResultListModel
             {

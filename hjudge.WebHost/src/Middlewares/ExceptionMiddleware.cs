@@ -1,9 +1,9 @@
-﻿using hjudge.WebHost.Exceptions;
-using hjudge.WebHost.Models;
-using Microsoft.AspNetCore.Http;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace hjudge.WebHost.Middlewares
 {

@@ -1,6 +1,6 @@
-﻿using hjudge.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using hjudge.Core;
 
 namespace hjudge.WebHost.Models.Statistics
 {

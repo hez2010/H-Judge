@@ -1,8 +1,14 @@
-﻿using hjudge.Shared.MessageQueue;
+﻿using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using hjudge.Shared.MessageQueue;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
-using hjudge.WebHost.Extensions;
+using hjudge.WebHost.Hubs;
 using hjudge.WebHost.MessageHandlers;
+using hjudge.WebHost.Middlewares;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Services;
 using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
@@ -15,17 +21,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using React.AspNet;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
-using CacheManager.Core;
-using hjudge.WebHost.Models;
-using hjudge.WebHost.Middlewares;
 using Newtonsoft.Json;
-using hjudge.WebHost.Hubs;
-using System.Threading;
+using React.AspNet;
 
 namespace hjudge.WebHost
 {
@@ -69,7 +66,6 @@ namespace hjudge.WebHost
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IVoteService, VoteService>();
             services.AddScoped<IFileService, FileService>();
-            services.AddSingleton<ICacheService, CacheService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
             services.AddSingleton<IMessageQueueService, MessageQueueService>()
@@ -81,23 +77,11 @@ namespace hjudge.WebHost
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
-            services.AddEFSecondLevelCache();
-            services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
-                    .WithUpdateMode(CacheUpdateMode.Up)
-                    .WithJsonSerializer(jss, jss)
-                    .WithRedisConfiguration(configuration["Redis:Configuration"], config =>
-                    {
-                        config.WithAllowAdmin()
-                            .WithDatabase(0)
-                            .WithEndpoint(configuration["Redis:HostName"], int.Parse(configuration["Redis:Port"]));
-                    })
-                    .WithMaxRetries(100)
-                    .WithRetryTimeout(50)
-                    .WithRedisCacheHandle(configuration["Redis:Configuration"])
-                    .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(3))
-                    .Build());
-
-            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration["Redis:HostName"] + ":" + configuration["Redis:Port"];
+                options.InstanceName = configuration["Redis:Configuration"];
+            });
 
             services.AddDbContext<WebHostDbContext>(options =>
             {
@@ -122,7 +106,7 @@ namespace hjudge.WebHost
                 options.Password.RequireNonAlphanumeric = false;
             })
             .AddSignInManager<SignInManager<UserInfo>>()
-            .AddUserManager<CachedUserManager<UserInfo>>()
+            .AddUserManager<UserManager<UserInfo>>()
             .AddEntityFrameworkStores<WebHostDbContext>()
             .AddErrorDescriber<TranslatedIdentityErrorDescriber>()
             .AddDefaultTokenProviders();
@@ -181,7 +165,7 @@ namespace hjudge.WebHost
                 {
                     config.Run(context => ExceptionMiddleware.WriteExceptionAsync(context, new ErrorModel
                     {
-                        ErrorCode = System.Net.HttpStatusCode.InternalServerError,
+                        ErrorCode = HttpStatusCode.InternalServerError,
                         ErrorMessage = "服务器内部异常"
                     }));
                 });
@@ -194,7 +178,7 @@ namespace hjudge.WebHost
             app.UseStatusCodePages(context =>
                 ExceptionMiddleware.WriteExceptionAsync(context.HttpContext, new ErrorModel
                 {
-                    ErrorCode = (System.Net.HttpStatusCode)context.HttpContext.Response.StatusCode,
+                    ErrorCode = (HttpStatusCode)context.HttpContext.Response.StatusCode,
                     ErrorMessage = "请求失败"
                 }));
 

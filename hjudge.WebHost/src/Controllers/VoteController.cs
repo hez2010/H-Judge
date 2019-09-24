@@ -4,6 +4,7 @@ using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models.Vote;
 using hjudge.WebHost.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace hjudge.WebHost.Controllers
@@ -14,16 +15,16 @@ namespace hjudge.WebHost.Controllers
     public class VoteController : ControllerBase
     {
         private readonly IVoteService voteService;
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
 
-        public VoteController(IVoteService voteService, CachedUserManager<UserInfo> userManager)
+        public VoteController(IVoteService voteService, UserManager<UserInfo> userManager)
         {
             this.voteService = voteService;
             this.userManager = userManager;
         }
 
         [HttpPost]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         [Route("problem")]
         public async Task VoteProblem([FromBody]ProblemVoteModel model)
         {
@@ -38,7 +39,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         [Route("contest")]
         public async Task VoteContest([FromBody]ContestVoteModel model)
         {
@@ -53,7 +54,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [PrivilegeAuthentication.RequireSignedInAttribute]
         [Route("cancel")]
         public async Task CancelVote([FromBody]CancelVoteModel model)
         {

@@ -1,9 +1,9 @@
-﻿using hjudge.WebHost.Data.Identity;
-using System;
+﻿using System;
+using hjudge.WebHost.Data.Identity;
 
 namespace hjudge.WebHost.Data
 {
-    public partial class GroupJoin
+    public class GroupJoin
     {
         public int Id { get; set; }
         public string UserId { get; set; } = string.Empty;

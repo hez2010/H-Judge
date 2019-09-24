@@ -1,6 +1,6 @@
 import * as React from 'reactn';
 import { setTitle } from '../../utils/titleHelper';
-import { Button, Pagination, Table, Form, Input, Select, Placeholder, Rating, Confirm } from 'semantic-ui-react';
+import { Button, Pagination, Table, Form, Input, Select, Placeholder, Rating, Confirm, Popup } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
 import { SerializeForm } from '../../utils/formHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
@@ -8,6 +8,7 @@ import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
+import { getRating } from '../../utils/ratingHelper';
 
 interface ProblemProps {
   contestId?: number,
@@ -156,6 +157,10 @@ export default class Problem extends React.Component<ProblemProps & CommonProps,
   }
 
   renderProblemList() {
+    const renderRating = (upvote: number, downvote: number) => {
+      let rating = getRating(upvote, downvote);
+      return <Popup content={rating.toString()} trigger={<Rating icon='star' rating={Math.round(rating)} maxRating={5} disabled={true} />} />;
+    }
     return <>
       <Table color='black' selectable>
         <Table.Header>
@@ -178,11 +183,7 @@ export default class Problem extends React.Component<ProblemProps & CommonProps,
                 <Table.Cell>{v.name}</Table.Cell>
                 <Table.Cell><span role='img' aria-label='level'>⭐</span>×{v.level}</Table.Cell>
                 <Table.Cell>{v.status === 0 ? '未尝试' : v.status === 1 ? '已尝试' : '已通过'}</Table.Cell>
-                {
-                  v.upvote + v.downvote === 0 ?
-                    <Table.Cell><Rating icon='star' rating={3} maxRating={5} disabled={true} /></Table.Cell> :
-                    <Table.Cell><Rating icon='star' maxRating={5} disabled={true} rating={Math.round(v.upvote * 5 / (v.upvote + v.downvote))} /></Table.Cell>
-                }
+                <Table.Cell>{renderRating(v.upvote, v.downvote)}</Table.Cell>
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
                 {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}

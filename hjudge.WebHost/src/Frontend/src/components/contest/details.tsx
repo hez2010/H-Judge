@@ -11,6 +11,7 @@ import { GlobalState } from '../../interfaces/globalState';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { tryJson } from '../../utils/responseHelper';
 import Rank from '../rank/rank';
+import { getRating } from '../../utils/ratingHelper';
 
 interface ContestDetailsProps {
   contestId?: number,
@@ -208,6 +209,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps 
   }
 
   renderContestInfo() {
+    let rating = getRating(this.state.contest.upvote, this.state.contest.downvote);
     return <div>
       <small>创建用户：<NavLink to={`/user/${this.state.contest.userId}`}>{this.state.contest.userName}</NavLink></small>
       <br />
@@ -215,7 +217,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps 
       <br />
       <small>提交限制：{this.state.contest.config.submissionLimit === 0 ? '无限次' : this.state.contest.config.submissionLimit}</small>
       <br />
-      <small>比赛评分：{this.state.contest.upvote + this.state.contest.downvote === 0 ? <Rating icon='star' rating={3} maxRating={5} disabled={true} /> : <Rating icon='star' maxRating={5} disabled={true} rating={Math.round(this.state.contest.upvote * 5 / (this.state.contest.upvote + this.state.contest.downvote))} />}</small>
+      <small>比赛评分：<Popup content={rating.toString()} trigger={<Rating icon='star' rating={Math.round(rating)} maxRating={5} disabled={true} />} /></small>
     </div>;
   }
 

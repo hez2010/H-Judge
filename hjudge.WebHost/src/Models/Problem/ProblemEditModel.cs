@@ -1,5 +1,5 @@
-﻿using hjudge.WebHost.Configurations;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using hjudge.WebHost.Configurations;
 
 namespace hjudge.WebHost.Models.Problem
 {

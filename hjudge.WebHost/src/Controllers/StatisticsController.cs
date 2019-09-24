@@ -1,15 +1,14 @@
-﻿using hjudge.WebHost.Models.Statistics;
-using hjudge.WebHost.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
-using Microsoft.EntityFrameworkCore;
-using hjudge.WebHost.Data;
 using hjudge.Core;
+using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Models.Statistics;
+using hjudge.WebHost.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -19,9 +18,9 @@ namespace hjudge.WebHost.Controllers
     public class StatisticsController : ControllerBase
     {
         private readonly IJudgeService judgeService;
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
 
-        public StatisticsController(IJudgeService judgeService, CachedUserManager<UserInfo> userManager)
+        public StatisticsController(IJudgeService judgeService, UserManager<UserInfo> userManager)
         {
             this.judgeService = judgeService;
             this.userManager = userManager;
@@ -55,7 +54,7 @@ namespace hjudge.WebHost.Controllers
 
             var ret = new StatisticsListModel();
 
-            if (model.RequireTotalCount) ret.TotalCount = await query.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await query.Select(i => i.Id).CountAsync();
 
             query = query.OrderByDescending(i => i.Id);
 
@@ -75,7 +74,7 @@ namespace hjudge.WebHost.Controllers
                 ProblemName = i.Problem.Name,
                 Language = i.Language,
                 Score = i.FullScore
-            })/*.Cacheable()*/.ToListAsync();
+            }).ToListAsync();
 
             return ret;
         }

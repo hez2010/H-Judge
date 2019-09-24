@@ -1,7 +1,7 @@
-﻿using hjudge.Shared.MessageQueue;
+﻿using System;
+using hjudge.Shared.MessageQueue;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
-using System;
 using static hjudge.Shared.MessageQueue.MessageQueueFactory;
 
 namespace hjudge.WebHost.Services

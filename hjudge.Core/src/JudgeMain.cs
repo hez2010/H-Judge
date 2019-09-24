@@ -126,7 +126,7 @@ namespace hjudge.Core
                 {
                     var path = Path.Combine(workingDir, i.FileName);
                     var dir = Path.GetDirectoryName(path);
-                    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
                     File.WriteAllText(path, i.Content, Encoding.UTF8);
                 }
 
@@ -154,7 +154,7 @@ namespace hjudge.Core
 
                 for (var i = 0; i < judgeOptions.DataPoints.Count; i++)
                 {
-                    this.logger?.LogInformation("Run standard judge point --> {0}", $"Point: {i + 1}");
+                    logger?.LogInformation("Run standard judge point --> {0}", $"Point: {i + 1}");
                     var point = new JudgePoint();
                     if (!File.Exists(judgeOptions.RunOptions.Exec))
                     {
@@ -297,7 +297,7 @@ namespace hjudge.Core
 
         private async Task<JudgeResult> AnswerJudgeAsync(BuildOptions buildOptions, JudgeOptions judgeOptions)
         {
-            this.logger?.LogInformation("Run answer judge point");
+            logger?.LogInformation("Run answer judge point");
             var result = new JudgeResult
             {
                 JudgePoints = new List<JudgePoint>
@@ -383,7 +383,7 @@ namespace hjudge.Core
                     }
                 }
 
-                this.logger?.LogInformation("Run SPJ --> {0}", $"Command: {judgeOption.SpecialJudgeOptions.Exec} {argsBuilder.ToString()}");
+                logger?.LogInformation("Run SPJ --> {0}", $"Command: {judgeOption.SpecialJudgeOptions.Exec} {argsBuilder}");
                 using var judge = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -556,7 +556,7 @@ namespace hjudge.Core
 
         private async Task<string> StaticCheck(StaticCheckOptions checker)
         {
-            this.logger?.LogInformation("Static check --> {0}", $"Command: {checker.Exec} {checker.Args}");
+            logger?.LogInformation("Static check --> {0}", $"Command: {checker.Exec} {checker.Args}");
             using var sta = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -644,7 +644,7 @@ namespace hjudge.Core
                 return (false, "Cannot copy one of extra files");
             }
 
-            this.logger?.LogInformation("Compile --> {0}", $"Command: {compiler.Exec} {compiler.Args}");
+            logger?.LogInformation("Compile --> {0}", $"Command: {compiler.Exec} {compiler.Args}");
             using var comp = new Process
             {
                 StartInfo = new ProcessStartInfo

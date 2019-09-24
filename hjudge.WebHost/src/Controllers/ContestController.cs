@@ -1,18 +1,18 @@
-﻿using hjudge.WebHost.Configurations;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using hjudge.Shared.Utils;
+using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
+using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Models.Contest;
 using hjudge.WebHost.Services;
-using hjudge.Shared.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
 using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
-using hjudge.WebHost.Exceptions;
-using System.Net;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -21,13 +21,13 @@ namespace hjudge.WebHost.Controllers
     [ApiController]
     public class ContestController : ControllerBase
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly IContestService contestService;
         private readonly IProblemService problemService;
         private readonly IVoteService voteService;
 
         public ContestController(
-            CachedUserManager<UserInfo> userManager,
+            UserManager<UserInfo> userManager,
             IContestService contestService,
             IProblemService problemService,
             IVoteService voteService)
@@ -89,7 +89,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id)/*.Cacheable()*/.CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
 
             if (model.GroupId == 0) contests = contests.OrderByDescending(i => i.Id);
             else model.StartId = 0; // keep original order while fetching contests in a group
@@ -106,7 +106,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
-            })/*.Cacheable()*/.ToListAsync();
+            }).ToListAsync();
 
             ret.CurrentTime = DateTime.Now;
             return ret;
@@ -134,7 +134,7 @@ namespace hjudge.WebHost.Controllers
                 throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var contest = await contests.Where(i => i.Id == model.ContestId)/*.Cacheable()*/.FirstOrDefaultAsync();
+            var contest = await contests.Where(i => i.Id == model.ContestId).FirstOrDefaultAsync();
 
             if (contest == null) throw new NotFoundException("找不到该比赛");
 

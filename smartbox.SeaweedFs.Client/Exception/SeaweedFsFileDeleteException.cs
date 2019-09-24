@@ -22,9 +22,11 @@
  * SOFTWARE.
  */
 
+using System;
+
 namespace smartbox.SeaweedFs.Client.Exception
 {
-    public class SeaweedFsFileDeleteException : System.InvalidOperationException
+    public class SeaweedFsFileDeleteException : InvalidOperationException
     {
         public SeaweedFsFileDeleteException(string message)
             : base (message)

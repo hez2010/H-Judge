@@ -1,10 +1,11 @@
-﻿using EFSecondLevelCache.Core;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace hjudge.WebHost.Services
 {
@@ -20,13 +21,13 @@ namespace hjudge.WebHost.Services
     }
     public class ProblemService : IProblemService
     {
-        private readonly CachedUserManager<UserInfo> userManager;
+        private readonly UserManager<UserInfo> userManager;
         private readonly WebHostDbContext dbContext;
         private readonly IContestService contestService;
         private readonly IGroupService groupService;
 
         public ProblemService(
-            CachedUserManager<UserInfo> userManager,
+            UserManager<UserInfo> userManager,
             WebHostDbContext dbContext,
             IContestService contestService,
             IGroupService groupService)
@@ -48,7 +49,6 @@ namespace hjudge.WebHost.Services
         {
             return dbContext.Problem
                 .Where(i => i.Id == problemId)
-                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
         }
 
@@ -58,7 +58,7 @@ namespace hjudge.WebHost.Services
 
             IQueryable<Problem> problems = dbContext.Problem;
 
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 problems = problems.Where(i => !i.Hidden);
             }
@@ -73,12 +73,13 @@ namespace hjudge.WebHost.Services
             var contest = await contestService.GetContestAsync(contestId);
             if (contest == null) throw new NotFoundException("找不到该比赛");
 
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 if (contest.Hidden) throw new ForbiddenException();
             }
 
-            IQueryable<Problem> problems = dbContext.ContestProblemConfig
+            IQueryable<Problem> problems = dbContext.ContestProblemConfig
+
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)
                                                 .Select(i => i.Problem);
@@ -99,7 +100,7 @@ namespace hjudge.WebHost.Services
             if (!dbContext.GroupContestConfig.Any(i => i.GroupId == groupId && i.ContestId == contestId))
                 throw new NotFoundException("找不到该比赛");
 
-            if (!Utils.PrivilegeHelper.IsTeacher(user?.Privilege))
+            if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
                 if (contest.Hidden) throw new ForbiddenException();
 

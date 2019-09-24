@@ -1,14 +1,12 @@
-﻿using EFSecondLevelCache.Core;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.Utils;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Utils;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using hjudge.WebHost.Data.Identity;
 using static hjudge.Shared.Judge.JudgeInfo;
 
 namespace hjudge.WebHost.Services
@@ -43,7 +41,6 @@ namespace hjudge.WebHost.Services
             var judges = dbContext.Judge.Where(i => i.Id == judgeId);
 
             return judges
-                /*.Cacheable()*/
                 .FirstOrDefaultAsync();
         }
 

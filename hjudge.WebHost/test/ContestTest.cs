@@ -1,10 +1,10 @@
-﻿using hjudge.WebHost.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EFSecondLevelCache.Core;
+using hjudge.WebHost.Data;
+using hjudge.WebHost.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace hjudge.WebHost.Test
 {
@@ -20,7 +20,7 @@ namespace hjudge.WebHost.Test
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
-            var contest = new Data.Contest
+            var contest = new Contest
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
@@ -29,7 +29,7 @@ namespace hjudge.WebHost.Test
             var cid = await contestService.CreateContestAsync(contest);
             Assert.AreNotEqual(0, cid);
 
-            var problem = new Data.Problem
+            var problem = new Problem
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
@@ -40,11 +40,11 @@ namespace hjudge.WebHost.Test
 
             await contestService.UpdateContestProblemAsync(cid, new[] { pid, pid });
             var result = await problemService.QueryProblemAsync(stuId, cid);
-            Assert.IsTrue(result/*.Cacheable()*/.Count(i => i.Id == pid) == 1);
+            Assert.IsTrue(result.Count(i => i.Id == pid) == 1);
 
             await contestService.UpdateContestProblemAsync(cid, new int[0]);
             result = await problemService.QueryProblemAsync(stuId, cid);
-            Assert.IsFalse(result/*.Cacheable()*/.Any());
+            Assert.IsFalse(result.Any());
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace hjudge.WebHost.Test
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
-            var contest = new Data.Contest
+            var contest = new Contest
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
@@ -69,12 +69,12 @@ namespace hjudge.WebHost.Test
             await contestService.UpdateContestAsync(contest);
 
             studentResult = await contestService.QueryContestAsync(stuId);
-            Assert.IsTrue(studentResult/*.Cacheable()*/.Any(i => i.Id == id && i.Name == contest.Name));
+            Assert.IsTrue(studentResult.Any(i => i.Id == id && i.Name == contest.Name));
 
             await contestService.RemoveContestAsync(id);
 
             studentResult = await contestService.QueryContestAsync(stuId);
-            Assert.IsFalse(studentResult/*.Cacheable()*/.Any(i => i.Id == id));
+            Assert.IsFalse(studentResult.Any(i => i.Id == id));
         }
 
         [TestMethod]
@@ -83,13 +83,13 @@ namespace hjudge.WebHost.Test
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
-            var pubId = await contestService.CreateContestAsync(new Data.Contest
+            var pubId = await contestService.CreateContestAsync(new Contest
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
             });
 
-            var priId = await contestService.CreateContestAsync(new Data.Contest
+            var priId = await contestService.CreateContestAsync(new Contest
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId,
@@ -99,10 +99,10 @@ namespace hjudge.WebHost.Test
             var adminResult = await contestService.QueryContestAsync(adminId);
             var strdentResult = await contestService.QueryContestAsync(stuId);
 
-            Assert.IsTrue(adminResult/*.Cacheable()*/.Any(i => i.Id == priId));
-            Assert.IsTrue(adminResult/*.Cacheable()*/.Any(i => i.Id == pubId));
-            Assert.IsTrue(strdentResult/*.Cacheable()*/.Any(i => i.Id == pubId));
-            Assert.IsFalse(strdentResult/*.Cacheable()*/.Any(i => i.Id == priId));
+            Assert.IsTrue(adminResult.Any(i => i.Id == priId));
+            Assert.IsTrue(adminResult.Any(i => i.Id == pubId));
+            Assert.IsTrue(strdentResult.Any(i => i.Id == pubId));
+            Assert.IsFalse(strdentResult.Any(i => i.Id == priId));
         }
     }
 }

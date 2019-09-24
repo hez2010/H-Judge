@@ -13,8 +13,6 @@
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="3.0.415" />
-    <PackageReference Include="CacheManager.StackExchange.Redis" Version="2.0.0-beta-1629" />
-    <PackageReference Include="CacheManager.Serialization.Json" Version="2.0.0-beta-1629" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore" Version="3.1.8" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore.Native.linux-x64" Version="3.1.8" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore.Native.win-x64" Version="3.1.8" />
@@ -32,14 +30,15 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.0-preview9" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre3" />
     <PackageReference Include="React.AspNet" Version="5.1.0" />
     <PackageReference Include="React.Router" Version="5.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
-    <PackageReference Include="EFSecondLevelCache.Core" Version="2.6.4" />
   </ItemGroup>
 
   <ItemGroup>

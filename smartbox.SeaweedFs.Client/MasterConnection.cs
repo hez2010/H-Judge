@@ -23,6 +23,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using smartbox.SeaweedFs.Client.Core;
 using smartbox.SeaweedFs.Client.Core.Infrastructure;
@@ -85,11 +86,11 @@ namespace smartbox.SeaweedFs.Client
         {
             if (_running)
             {
-                System.Diagnostics.Debug.WriteLine("connect is already startup");
+                Debug.WriteLine("connect is already startup");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("start connect to the seaweedfs master server [" +
+                Debug.WriteLine("start connect to the seaweedfs master server [" +
                                                    ConnectionUtil.ConvertUrlWithScheme(Host + ":" + Port) + "]");
                 
                 if (_connection == null)

@@ -10,6 +10,7 @@ import CodeEditor from '../editor/code';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
+import { getRating } from '../../utils/ratingHelper';
 
 interface ProblemDetailsProps {
   problemId?: number,
@@ -164,6 +165,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
   }
 
   renderProblemInfo() {
+    let rating = getRating(this.state.problem.upvote, this.state.problem.downvote);
     return <div>
       <small>添加时间：{this.state.problem.creationTime.toLocaleString(undefined, { hour12: false })}</small>
       <br />
@@ -173,9 +175,9 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
       <br />
       <small>完成状态：{this.state.problem.status === 0 ? '未尝试' : this.state.problem.status === 1 ? '已尝试' : '已通过'}</small>
       <br />
-      <small>提交统计：{this.state.problem.acceptCount} / {this.state.problem.submissionCount}</small>
+      <small>提交统计：{this.state.problem.acceptCount} / {this.state.problem.submissionCount}，通过率：{this.state.problem.submissionCount === 0 ? 0 : Math.round(this.state.problem.acceptCount * 10000 / this.state.problem.submissionCount) / 100.0} %</small>
       <br />
-      <small>题目评分：{this.state.problem.upvote + this.state.problem.downvote === 0 ? <Rating icon='star' defaultRating={3} maxRating={5} disabled={true} /> : <Rating icon='star' maxRating={5} disabled={true} rating={Math.round(this.state.problem.upvote * 5 / (this.state.problem.upvote + this.state.problem.downvote))} />}</small>
+      <small>题目评分：<Popup content={rating.toString()} trigger={<Rating icon='star' rating={Math.round(rating)} maxRating={5} disabled={true} />} /></small>
     </div>;
   }
 

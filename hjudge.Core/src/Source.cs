@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace hjudge.Core
+﻿namespace hjudge.Core
 {
     public class Source
     {

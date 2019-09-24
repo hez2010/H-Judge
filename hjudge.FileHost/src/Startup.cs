@@ -1,14 +1,11 @@
-﻿using CacheManager.Core;
-using EFSecondLevelCache.Core;
+﻿using hjudge.FileHost.Data;
+using hjudge.FileHost.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using hjudge.FileHost.Data;
-using hjudge.FileHost.Services;
 
 namespace hjudge.FileHost
 {
@@ -38,7 +35,7 @@ namespace hjudge.FileHost
 //                 options.EnableDetailedErrors(true);
 //                 options.EnableSensitiveDataLogging(true);
 // #endif
-                options.EnableServiceProviderCaching(true);
+                options.EnableServiceProviderCaching();
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
@@ -52,23 +49,11 @@ namespace hjudge.FileHost
                     options.Port = int.Parse(configuration["SeaweedFs:Port"]);
                 });
 
-            services.AddEFSecondLevelCache();
-            services.AddSingleton(typeof(ICacheManagerConfiguration), new CacheManager.Core.ConfigurationBuilder()
-                    .WithUpdateMode(CacheUpdateMode.Up)
-                    .WithJsonSerializer()
-                    .WithRedisConfiguration(configuration["Redis:Configuration"], config =>
-                    {
-                        config.WithAllowAdmin()
-                            .WithDatabase(0)
-                            .WithEndpoint(configuration["Redis:HostName"], int.Parse(configuration["Redis:Port"]));
-                    })
-                    .WithMaxRetries(100)
-                    .WithRetryTimeout(50)
-                    .WithRedisCacheHandle(configuration["Redis:Configuration"])
-                    .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
-                    .Build());
-                    
-            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration["Redis:HostName"] + configuration["Redis:Port"];
+                options.InstanceName = configuration["Redis:Configuration"];
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
