@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -192,7 +193,7 @@ namespace hjudge.WebHost
                     config.LoadBabel = false;
                     config.LoadReact = false;
                     config.ReuseJavaScriptEngines = true;
-                    config.AllowJavaScriptPrecompilation = true;
+                    config.AllowJavaScriptPrecompilation = false;
                     config.UseServerSideRendering = true;
                     config.AddScriptWithoutTransform("~/dist/server.bundle.js");
                     config.AddScriptWithoutTransform("~/dist/vendors~server.bundle.js");
