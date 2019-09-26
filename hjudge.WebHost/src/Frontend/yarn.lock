@@ -6734,10 +6734,10 @@ react@16.9.0, react@^16.3.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
 
-reactn@2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/reactn/-/reactn-2.2.3.tgz#cc53b7619970732a95eeeb0a8d88653cc7973dfc"
-  integrity sha512-LWMkZsW560wFI+RmbXc3unF2eFde8cKIeYQHXN+JHM9EI5tH34QjMqi7C3VSr30/ODJK35PEy/2J1NDR/vb8Nw==
+reactn@2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/reactn/-/reactn-2.2.4.tgz#f42168177f865feeeba057c8ad558d5456c730f9"
+  integrity sha512-ROZGocaVrunwcyxmmi7tQWk0/NhersX55Zh0yInDXxD2sc7L4iriSu6oG0Cmq2QcwfEJTFXIEL+ASBpDgAYywQ==
   dependencies:
     use-force-update "^1.0.5"
 
