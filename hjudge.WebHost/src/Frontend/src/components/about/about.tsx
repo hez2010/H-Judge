@@ -4,6 +4,17 @@ import { setTitle } from '../../utils/titleHelper';
 
 const About = () => {
   const upgradeLogs = [{
+    version: 'Stable: 2.0',
+    date: '2019/09/27',
+    content: [
+      '1. 更新至 .NET Core 3.0 GA',
+      '2. 添加默认禁用语言配置功能',
+      '3. 更换缓存方案',
+      '4. 为题目/比赛评分添加分值弹窗',
+      '5. 已知问题修复'
+    ]
+  },
+  {
     version: 'Beta: 2.0-rc2',
     date: '2019/09/19',
     content: [
