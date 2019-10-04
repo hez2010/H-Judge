@@ -44,7 +44,7 @@
     "typescript": "3.6.3",
     "url-loader": "2.1.0",
     "webpack": "4.41.0",
-    "webpack-dev-server": "3.8.1"
+    "webpack-dev-server": "3.8.2"
   },
   "dependencies": {
     "@aspnet/signalr": "1.1.4",
