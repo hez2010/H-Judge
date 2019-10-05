@@ -19,7 +19,7 @@
     "@typescript-eslint/eslint-plugin": "2.3.2",
     "@typescript-eslint/parser": "2.3.2",
     "astroturf": "0.9.18",
-    "autoprefixer": "9.6.1",
+    "autoprefixer": "9.6.4",
     "babel-eslint": "10.0.3",
     "babel-loader": "8.0.6",
     "babel-preset-env": "1.7.0",
