@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "@babel/core": "7.6.2",
+    "@babel/core": "7.6.4",
     "@babel/plugin-proposal-class-properties": "7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "7.6.2",
     "@babel/plugin-transform-regenerator": "7.4.5",
@@ -12,7 +12,7 @@
     "@types/highlight.js": "9.12.3",
     "@types/katex": "0.10.2",
     "@types/markdown-it": "0.0.9",
-    "@types/node": "12.11.1",
+    "@types/node": "12.11.6",
     "@types/react": "16.9.9",
     "@types/react-dom": "16.9.2",
     "@types/react-router-dom": "5.1.0",
@@ -34,7 +34,7 @@
     "eslint-plugin-import": "2.18.2",
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-react": "7.16.0",
-    "eslint-plugin-react-hooks": "2.1.2",
+    "eslint-plugin-react-hooks": "2.2.0",
     "file-loader": "4.2.0",
     "isomorphic-style-loader": "5.1.0",
     "node-sass": "4.12.0",
@@ -44,7 +44,7 @@
     "typescript": "3.6.4",
     "url-loader": "2.2.0",
     "webpack": "4.41.2",
-    "webpack-dev-server": "3.8.2"
+    "webpack-dev-server": "3.9.0"
   },
   "dependencies": {
     "@aspnet/signalr": "1.1.4",
@@ -53,8 +53,8 @@
     "highlight.js": "9.15.10",
     "katex": "0.11.1",
     "markdown-it": "10.0.0",
-    "react": "16.10.2",
-    "react-dom": "16.10.2",
+    "react": "16.11.0",
+    "react-dom": "16.11.0",
     "react-router-dom": "5.1.2",
     "reactn": "2.2.4",
     "semantic-ui-react": "0.88.1",
