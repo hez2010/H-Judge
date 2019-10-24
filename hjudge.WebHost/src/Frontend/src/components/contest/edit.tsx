@@ -2,7 +2,7 @@ import * as React from 'reactn';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Get, Put, Post } from '../../utils/requestHelper';
-import CodeEditor from '../editor/code';
+import AceEditor from 'react-ace';
 import { Placeholder, Tab, Grid, Form, Header, Button, Divider } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
@@ -104,7 +104,7 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
   }
 
   private contestId: number = 0;
-  private editor: React.RefObject<CodeEditor> = React.createRef<CodeEditor>();
+  private editor: React.RefObject<AceEditor> = React.createRef<AceEditor>();
 
 
   fetchConfig(contestId: number) {
@@ -143,12 +143,15 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
     else this.contestId = 0;
 
     this.fetchConfig(this.contestId);
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
   }
 
   renderPreview() {
     let editor = this.editor.current;
     if (!editor) return;
-    this.state.contest.description = editor.getInstance().getValue();
+    this.state.contest.description = editor.editor.getValue();
     this.setState(this.state as ContestEditState);
   }
 
@@ -265,7 +268,7 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
       <Grid.Row>
         <Grid.Column>
           <div style={{ width: '100%', height: '30em' }}>
-            <CodeEditor ref={this.editor} language="markdown" onChange={() => this.renderPreview()} defaultValue={this.state.contest.description}></CodeEditor>
+            <AceEditor height="100%" width="100%" ref={this.editor} mode="markdown" debounceChangePeriod={200} theme="tomorrow" onChange={() => this.renderPreview()} value={this.state.contest.description}></AceEditor>
           </div>
         </Grid.Column>
         <Grid.Column>

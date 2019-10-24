@@ -3,7 +3,7 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { Get, Put, Post, Delete } from '../../utils/requestHelper';
-import CodeEditor from '../editor/code';
+import AceEditor from 'react-ace';
 import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon, Confirm, Loader } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
@@ -142,7 +142,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
   private problemId = 0;
   private pointsCount = 0;
   private sourceCount = 0;
-  private editor = React.createRef<CodeEditor>();
+  private editor = React.createRef<AceEditor>();
   private fileLoader = React.createRef<HTMLInputElement>();
 
   fetchConfig(problemId: number) {
@@ -184,6 +184,9 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
     else this.problemId = 0;
 
     this.fetchConfig(this.problemId);
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
   }
 
   viewFileList() {
@@ -197,7 +200,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
   renderPreview() {
     let editor = this.editor.current;
     if (!editor) return;
-    this.state.problem.description = editor.getInstance().getValue();
+    this.state.problem.description = editor.editor.getValue();
     this.setState(this.state as ProblemEditState);
   }
 
@@ -483,7 +486,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
       <Grid.Row>
         <Grid.Column>
           <div style={{ width: '100%', height: '30em' }}>
-            <CodeEditor ref={this.editor} language="markdown" onChange={() => this.renderPreview()} defaultValue={this.state.problem.description}></CodeEditor>
+            <AceEditor height="100%" width="100%" ref={this.editor} debounceChangePeriod={200} mode="markdown" theme="tomorrow" value={this.state.problem.description} onChange={() => this.renderPreview()}></AceEditor>
           </div>
         </Grid.Column>
         <Grid.Column>
