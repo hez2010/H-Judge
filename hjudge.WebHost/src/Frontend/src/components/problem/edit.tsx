@@ -3,7 +3,6 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { Get, Put, Post, Delete } from '../../utils/requestHelper';
-import AceEditor from 'react-ace';
 import { Placeholder, Tab, Grid, Form, Rating, Header, Button, Divider, List, Label, Segment, Icon, Confirm, Loader } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
@@ -142,7 +141,7 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
   private problemId = 0;
   private pointsCount = 0;
   private sourceCount = 0;
-  private editor = React.createRef<AceEditor>();
+  private editor = React.createRef<any>();
   private fileLoader = React.createRef<HTMLInputElement>();
 
   fetchConfig(problemId: number) {
@@ -481,6 +480,11 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
           </Form.Group>
       }
     </Form>;
+
+    const AceEditor = require('react-ace').default;
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
 
     const description = <Grid columns={2} divided>
       <Grid.Row>

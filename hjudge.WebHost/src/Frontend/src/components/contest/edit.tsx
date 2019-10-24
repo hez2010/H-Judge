@@ -2,7 +2,6 @@ import * as React from 'reactn';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { setTitle } from '../../utils/titleHelper';
 import { Get, Put, Post } from '../../utils/requestHelper';
-import AceEditor from 'react-ace';
 import { Placeholder, Tab, Grid, Form, Header, Button, Divider } from 'semantic-ui-react';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
@@ -103,8 +102,8 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
     this.canSubmit = this.canSubmit.bind(this);
   }
 
-  private contestId: number = 0;
-  private editor: React.RefObject<AceEditor> = React.createRef<AceEditor>();
+  private contestId = 0;
+  private editor = React.createRef<any>();
 
 
   fetchConfig(contestId: number) {
@@ -263,6 +262,11 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
         <Form.Input placeholder='填写题目编号，多个用英文半角分号 ; 分隔' defaultValue={this.state.contest.problems.length === 0 ? '' : this.state.contest.problems.map(v => v.toString()).reduce((accu, next) => `${accu}; ${next}`)} onChange={e => this.handleChange(this.state.contest, 'problems', e.target.value.split(';').filter(v => !!v.trim()).map(v => parseInt(v.trim())))} />
       </Form.Field>
     </Form>;
+
+    const AceEditor = require('react-ace').default;
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
 
     const description = <Grid columns={2} divided>
       <Grid.Row>
