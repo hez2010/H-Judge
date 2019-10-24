@@ -346,7 +346,7 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
           checked={this.state.contest.config.showRank}
           onChange={(_, data) => this.handleChange(this.state.contest.config, 'showRank', data.checked)}
         />
-        <Form.Radio
+        <Form.Checkbox
           label='启用封榜'
           checked={this.state.contest.config.autoStopRank}
           onChange={(_, data) => this.handleChange(this.state.contest.config, 'autoStopRank', data.checked)}
