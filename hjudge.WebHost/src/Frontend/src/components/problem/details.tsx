@@ -6,7 +6,6 @@ import { setTitle } from '../../utils/titleHelper';
 import { NavLink } from 'react-router-dom';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
-import AceEditor from 'react-ace';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
@@ -62,7 +61,7 @@ interface SubmitResultModel {
 
 interface CodeEditorInstance {
   fileName: string,
-  editor: React.RefObject<AceEditor>
+  editor: React.RefObject<any>
 }
 
 export default class ProblemDetails extends React.Component<ProblemDetailsProps & CommonProps, ProblemDetailsState, GlobalState> {
@@ -129,7 +128,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
         if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
 
         this.editors = result.sources.map(v => ({
-          editor: React.createRef<AceEditor>(),
+          editor: React.createRef<any>(),
           fileName: v
         }));
         this.setState({
@@ -162,9 +161,6 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     else this.groupId = 0;
 
     this.fetchDetail(this.problemId, this.contestId, this.groupId);
-
-    let global = (globalThis as any);
-    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
   }
 
   renderProblemInfo() {
@@ -188,7 +184,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     this.props.history.push(`/edit/problem/${id}`);
   }
 
-  updateContent(index: number, editor: React.RefObject<AceEditor>) {
+  updateContent(index: number, editor: React.RefObject<any>) {
     if (editor.current) {
       let contents = [...this.state.contents];
       contents[index] = editor.current.editor.getValue()
@@ -303,6 +299,11 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
       highlight: v.syntaxHighlight
     } as LanguageOptions));
     const { languageChoice } = this.state;
+
+    const AceEditor = require('react-ace').default;
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
 
     const panes = this.editors.map((v, i) => {
       let fileName = v.fileName.replace(/\${.*?}/g, '');
