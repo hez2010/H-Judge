@@ -143,6 +143,9 @@ export default class ContestEdit extends React.Component<ContestEditProps & Comm
     else this.contestId = 0;
 
     this.fetchConfig(this.contestId);
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
   }
 
   renderPreview() {

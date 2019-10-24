@@ -162,6 +162,9 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     else this.groupId = 0;
 
     this.fetchDetail(this.problemId, this.contestId, this.groupId);
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
   }
 
   renderProblemInfo() {

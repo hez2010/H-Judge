@@ -184,6 +184,9 @@ export default class ProblemEdit extends React.Component<ProblemEditProps & Comm
     else this.problemId = 0;
 
     this.fetchConfig(this.problemId);
+
+    let global = (globalThis as any);
+    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
   }
 
   viewFileList() {
