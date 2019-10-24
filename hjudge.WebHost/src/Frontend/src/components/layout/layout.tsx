@@ -206,7 +206,7 @@ const Layout = (props: React.Props<never>) => {
               <Header inverted as='h4' content='关于 H::Judge' />
               <List link inverted>
                 <NavLink to='/about' className='item'>更新日志</NavLink>
-                <List.Item as='a'>开发者：hez2010</List.Item>
+                <List.Item as='a' href='https://www.linkedin.com/in/steven-he-899661191'>开发者：hez2010</List.Item>
               </List>
             </Grid.Column>
             <Grid.Column width={4}>
@@ -219,7 +219,7 @@ const Layout = (props: React.Props<never>) => {
             <Grid.Column width={6}>
               <Header inverted as='h4' content='您的专属评测系统' />
               <List link inverted>
-                <List.Item as='a' href='https://www.linkedin.com/in/steven-he-899661191'>H::Judge &copy; {new Date(Date.now()).getFullYear()}. hez2010 版权所有</List.Item>
+                <List.Item as='a' href='/'>H::Judge &copy; {new Date(Date.now()).getFullYear()}. hez2010 版权所有</List.Item>
                 <List.Item as='a' href='https://dotnet.microsoft.com/apps/aspnet'>Powered by ASP.NET Core 3.0</List.Item>
               </List>
             </Grid.Column>
