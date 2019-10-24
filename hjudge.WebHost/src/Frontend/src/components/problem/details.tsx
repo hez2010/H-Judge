@@ -6,7 +6,7 @@ import { setTitle } from '../../utils/titleHelper';
 import { NavLink } from 'react-router-dom';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
-import CodeEditor from '../editor/code';
+import AceEditor from 'react-ace';
 import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
@@ -62,7 +62,7 @@ interface SubmitResultModel {
 
 interface CodeEditorInstance {
   fileName: string,
-  editor: React.RefObject<CodeEditor>
+  editor: React.RefObject<AceEditor>
 }
 
 export default class ProblemDetails extends React.Component<ProblemDetailsProps & CommonProps, ProblemDetailsState, GlobalState> {
@@ -129,7 +129,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
         if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
 
         this.editors = result.sources.map(v => ({
-          editor: React.createRef<CodeEditor>(),
+          editor: React.createRef<AceEditor>(),
           fileName: v
         }));
         this.setState({
@@ -185,10 +185,10 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     this.props.history.push(`/edit/problem/${id}`);
   }
 
-  updateContent(index: number, editor: React.RefObject<CodeEditor>) {
+  updateContent(index: number, editor: React.RefObject<AceEditor>) {
     if (editor.current) {
       let contents = [...this.state.contents];
-      contents[index] = editor.current.getInstance().getValue()
+      contents[index] = editor.current.editor.getValue()
       this.setState({
         contents: contents
       })
@@ -307,7 +307,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
         menuItem: `${i + 1}. ${!!fileName ? fileName : 'default'}`,
         render: () => <Tab.Pane attached={false} key={i}>
           <div style={{ width: '100%', height: '30em' }}>
-            <CodeEditor onChange={() => this.updateContent(i, this.editors[i].editor)} defaultValue={this.state.contents[i]} ref={this.editors[i].editor} language={this.state.languageValue}></CodeEditor>
+            <AceEditor height="100%" width="100%" onChange={() => this.updateContent(i, this.editors[i].editor)} debounceChangePeriod={200} value={this.state.contents[i]} ref={this.editors[i].editor} mode={this.state.languageValue} theme="tomorrow"></AceEditor>
           </div>
         </Tab.Pane>
       }
