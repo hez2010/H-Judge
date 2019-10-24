@@ -301,9 +301,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
     const { languageChoice } = this.state;
 
     const AceEditor = require('react-ace').default;
-
-    let global = (globalThis as any);
-    if (global.ace) global.ace.config.set('basePath', '/lib/ace');
+    if (typeof window !== 'undefined' && window && window.ace) window.ace.config.set('basePath', '/lib/ace');
 
     const panes = this.editors.map((v, i) => {
       let fileName = v.fileName.replace(/\${.*?}/g, '');
