@@ -4,6 +4,15 @@ import { setTitle } from '../../utils/titleHelper';
 
 const About = () => {
   const upgradeLogs = [{
+    version: 'Stable: 2.1',
+    date: '2019/10/27',
+    content: [
+      '1. 代码编辑器性能改进',
+      '2. 评测结果加载机制改进',
+      '3. 已知问题修复'
+    ]
+  },
+  {
     version: 'Stable: 2.0',
     date: '2019/09/27',
     content: [

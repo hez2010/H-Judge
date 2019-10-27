@@ -10,7 +10,6 @@ import { CommonProps } from '../../interfaces/commonProps';
 import { setTitle } from '../../utils/titleHelper';
 import { getWidth } from '../../utils/windowHelper';
 import { isAdmin } from '../../utils/privilegeHelper';
-// import { HubConnectionBuilder, HubConnectionState, HubConnection } from '@aspnet/signalr';
 
 interface JudgePointModel {
   score: number,
@@ -98,10 +97,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
     this.staticCheckLogs = this.staticCheckLogs.bind(this);
   }
 
-  // private connection: HubConnection = new HubConnectionBuilder()
-  //   .withUrl('/hub/judge')
-  //   .build();
-  private timer: NodeJS.Timeout | undefined;
+  private connection: any;
 
   loadResult(resultId: number) {
     Get(`/judge/result?id=${resultId}`)
@@ -118,9 +114,6 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
           result: result,
           loaded: true
         });
-
-        // TODO: remove it once bug in signalr was fixed
-        if (result.resultType < 1) this.timer = setTimeout(() => this.loadResult(resultId), 3000);
       })
       .catch(err => {
         this.global.commonFuncs.openPortal('错误', '评测结果加载失败', 'red');
@@ -240,26 +233,34 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
   componentDidMount() {
     setTitle('评测结果');
 
-    // TODO: re-enable it once bug in signalr was fixed
-    // this.connection.on('JudgeCompleteSignalReceived', (resultId: number) => {
-    //   this.loadResult(resultId);
-    // });
+    if (typeof window !== 'undefined') {
+      import('@aspnet/signalr').then(signalR => {
+        this.connection = new signalR.HubConnectionBuilder()
+          .withUrl('/hub/judge')
+          .build();
+        let connection = this.connection as signalR.HubConnection;
 
-    // this.connection.start()
-    //   .then(() => this.connection.invoke("SubscribeJudgeResult", parseInt(this.props.match.params.resultId))
-    //     .then(() => this.loadResult(parseInt(this.props.match.params.resultId)))
-    //     .catch((err: any) => {
-    //       this.loadResult(parseInt(this.props.match.params.resultId));
-    //       console.log(err);
-    //     }))
-    //   .catch((err: any) => console.log(err));
+        connection.on('JudgeCompleteSignalReceived', (resultId: number) => {
+          this.loadResult(resultId);
+        });
 
-    this.loadResult(parseInt(this.props.match.params.resultId))
+        connection.start()
+          .then(() => connection.invoke("SubscribeJudgeResult", parseInt(this.props.match.params.resultId))
+            .then(() => this.loadResult(parseInt(this.props.match.params.resultId)))
+            .catch((err: any) => {
+              this.loadResult(parseInt(this.props.match.params.resultId));
+              console.log(err);
+            }))
+          .catch((err: any) => console.log(err));
+      });
+    }
   }
 
   componentWillUnmount() {
-    if (this.timer) clearTimeout(this.timer);
-    // if (this.connection.state === HubConnectionState.Connected) this.connection.stop();
+    import('@aspnet/signalr').then(signalR => {
+      let connection = this.connection as signalR.HubConnection;
+      if (connection && connection.state === signalR.HubConnectionState.Connected) connection.stop();
+    });
   }
 
   render() {
