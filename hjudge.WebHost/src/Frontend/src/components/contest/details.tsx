@@ -327,7 +327,7 @@ export default class ContestDetails extends React.Component<ContestDetailsProps 
 
           <Item.Description>
             <br />
-            <Progress percent={this.state.progress / 100} inverted progress indicating={this.state.status === 1}>{this.state.status === 0 ? '未开始' : this.state.status === 1 ? '进行中' : '已结束'}（{this.state.contest.startTime.toLocaleString(undefined, { hour12: false })} - {this.state.contest.endTime.toLocaleString(undefined, { hour12: false })}）</Progress>
+            <Progress percent={this.state.progress / 100} inverted progress error={this.state.status === 0} success={this.state.status === 2} indicating={this.state.status === 1}>{this.state.status === 0 ? '未开始' : this.state.status === 1 ? '进行中' : '已结束'}（{this.state.contest.startTime.toLocaleString(undefined, { hour12: false })} - {this.state.contest.endTime.toLocaleString(undefined, { hour12: false })}）</Progress>
 
             <div style={{ overflow: 'auto', scrollBehavior: 'auto', width: '100%' }}>
               <MarkdownViewer content={this.state.contest.description} />
