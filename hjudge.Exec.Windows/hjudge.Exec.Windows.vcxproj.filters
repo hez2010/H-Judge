@@ -21,27 +21,27 @@
     <ClCompile Include="Executor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\jsoncpp\src\lib_json\json_reader.cpp">
-      <Filter>Library Files</Filter>
+    <ClCompile Include="lib\jsoncpp\src\lib_json\json_reader.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\jsoncpp\src\lib_json\json_value.cpp">
-      <Filter>Library Files</Filter>
+    <ClCompile Include="lib\jsoncpp\src\lib_json\json_value.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\jsoncpp\src\lib_json\json_writer.cpp">
-      <Filter>Library Files</Filter>
+    <ClCompile Include="lib\jsoncpp\src\lib_json\json_writer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Executor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\jsoncpp\src\lib_json\json_tool.h">
-      <Filter>Library Files</Filter>
+    <ClInclude Include="lib\jsoncpp\src\lib_json\json_tool.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib\jsoncpp\src\lib_json\json_valueiterator.inl">
-      <Filter>Library Files</Filter>
+    <None Include="lib\jsoncpp\src\lib_json\json_valueiterator.inl">
+      <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
 </Project>
