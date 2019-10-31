@@ -85,15 +85,14 @@ namespace hjudge.WebHost.Controllers
                     Title = "通过题目",
                     Content = $"成功通过了题目 {i.Problem.Name}"
                 })
-                .OrderByDescending(i => i.Time)
-                .Take(10);
+                .OrderByDescending(i => i.Time);
             
             var model = new ActivityListModel
             {
-                TotalCount = await result.CountAsync()
+                TotalCount = 10
             };
             
-            foreach (var i in result)
+            foreach (var i in result.Take(10))
             {
                 model.Activities.Add(new ActivityModel
                 {
