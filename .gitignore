@@ -21,6 +21,9 @@ AppData/
 .fake/
 .paket/
 
+# Rider files
+.idea/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
