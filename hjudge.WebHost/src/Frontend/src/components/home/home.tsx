@@ -72,11 +72,11 @@ const Home = () => {
               activitieList.activities.length === 0 ? '现在还没有动态哦' : activitieList.activities.map((v, i) =>
                 <Feed.Event key={i}>
                   <Feed.Label>
-                    <img src={`/user/${v.userId}`} />
+                    <img src={`/user/avatar?userId=${v.userId}`} />
                   </Feed.Label>
                   <Feed.Content>
                     <Feed.Summary>
-                      <Feed.User>{v.userName}</Feed.User>{v.title}
+                      <Feed.User>{v.userName}</Feed.User> {v.title}
                       <Feed.Date>{v.time.toLocaleString(undefined, { hour12: false })}</Feed.Date>
                     </Feed.Summary>
                     <Feed.Extra>{v.content}</Feed.Extra>
