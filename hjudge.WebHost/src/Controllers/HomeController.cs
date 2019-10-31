@@ -1,14 +1,19 @@
 ﻿using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using hjudge.Core;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Models.Home;
+using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -17,12 +22,15 @@ namespace hjudge.WebHost.Controllers
     {
         private readonly UserManager<UserInfo> userManager;
         private readonly SignInManager<UserInfo> signInManager;
+        private readonly IJudgeService judgeService;
 
         public HomeController(UserManager<UserInfo> userManager,
-            SignInManager<UserInfo> signInManager)
+            SignInManager<UserInfo> signInManager,
+            IJudgeService judgeService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.judgeService = judgeService;
         }
 
         [SendAntiForgeryToken]
@@ -54,7 +62,8 @@ namespace hjudge.WebHost.Controllers
                 userInfoRet.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
                 userInfoRet.Email = user.Email;
                 userInfoRet.PhoneNumber = user.PhoneNumber;
-                userInfoRet.OtherInfo = IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
+                userInfoRet.OtherInfo =
+                    IdentityHelper.GetOtherUserInfo(string.IsNullOrEmpty(user.OtherInfo) ? "{}" : user.OtherInfo);
             }
 
             return userInfoRet;
@@ -62,16 +71,48 @@ namespace hjudge.WebHost.Controllers
 
         [HttpGet]
         [Route("home/activities")]
-        public ActivityListModel GetActivities()
+        public async Task<ActivityListModel> GetActivities()
         {
-            // TODO: Generate activities
-            return new ActivityListModel();
+            var judges = await judgeService
+                .QueryJudgesAsync(null, 0, 0, 0, (int) ResultCode.Accepted);
+            var result = judges.Select(i =>
+                new
+                {
+                    ProblemName = i.Problem.Name,
+                    UserName = i.UserInfo.UserName,
+                    UserId = i.UserId,
+                    Time = i.JudgeTime,
+                    Title = "通过题目",
+                    Content = $"成功通过了题目 {i.Problem.Name}"
+                })
+                .OrderByDescending(i => i.Time)
+                .Take(10);
+            
+            var model = new ActivityListModel
+            {
+                TotalCount = await result.CountAsync()
+            };
+            
+            foreach (var i in result)
+            {
+                model.Activities.Add(new ActivityModel
+                {
+                    Content = $"成功通过了题目 {i.ProblemName}",
+                    Time = i.Time,
+                    Title = "通过题目",
+                    UserId = i.UserId,
+                    UserName = i.UserName
+                });
+            }
+
+            return model;
         }
 
         [AllowAnonymous]
         public IActionResult Error()
         {
-            throw new InterfaceException((HttpStatusCode)HttpContext.Response.StatusCode, Activity.Current?.Id ?? HttpContext.TraceIdentifier);
+            throw new InterfaceException((HttpStatusCode) HttpContext.Response.StatusCode,
+                Activity.Current?.Id ?? HttpContext.TraceIdentifier);
         }
     }
 }
