@@ -50,7 +50,7 @@
     "@aspnet/signalr": "1.1.4",
     "es6-promise": "4.2.8",
     "fetch-ponyfill": "6.1.0",
-    "highlight.js": "9.15.10",
+    "highlight.js": "9.16.2",
     "katex": "0.11.1",
     "markdown-it": "10.0.0",
     "react": "16.11.0",
