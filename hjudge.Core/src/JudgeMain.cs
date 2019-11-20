@@ -374,12 +374,12 @@ namespace hjudge.Core
                     {
                         var realExec = judgeOption.SpecialJudgeOptions.Exec.StartsWith("R:") ?
                             Path.Combine(workingDir, Path.GetFileName(judgeOption.SpecialJudgeOptions.Exec)) : judgeOption.SpecialJudgeOptions.Exec;
-                        File.Copy(GetTargetFilePath(judgeOption.SpecialJudgeOptions.Exec), realExec);
+                        File.Copy(GetTargetFilePath(judgeOption.SpecialJudgeOptions.Exec), realExec, true);
                         judgeOption.SpecialJudgeOptions.Exec = realExec;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        return (ResultCode.Special_Judge_Error, 0, "Cannot find special judge");
+                        return (ResultCode.Special_Judge_Error, 0, ex.Message);
                     }
                 }
 
@@ -427,7 +427,9 @@ namespace hjudge.Core
 
                 try
                 {
-                    var percentage = Convert.ToSingle(output.Trim());
+                    var lineFeed = output.IndexOf("\n");
+                    output = (lineFeed == -1 ? output : output[0..lineFeed]).Trim();
+                    var percentage = Convert.ToSingle(output);
                     return (
                         Math.Abs(percentage - 1f) < 0.001 ?
                             ResultCode.Accepted : ResultCode.Wrong_Answer,
@@ -436,7 +438,7 @@ namespace hjudge.Core
                 }
                 catch
                 {
-                    return (ResultCode.Special_Judge_Error, 0, "Bad output format from special judge");
+                    return (ResultCode.Special_Judge_Error, 0, $"Bad output format from special judge: {output}");
                 }
             }
 

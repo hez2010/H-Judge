@@ -42,9 +42,6 @@ module.exports = function (webpackEnv) {
             {
               loader: 'babel-loader',
               options: {
-                customize: require.resolve(
-                  'babel-preset-react-app/webpack-overrides'
-                ),
                 cacheDirectory: true,
                 cacheCompression: isEnvProduction,
                 compact: isEnvProduction
