@@ -23,7 +23,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [Route("queryUsers")]
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         public async Task<UserQueryResultListModel> QueryUser(string patterns)
         {
             var user = await userManager.GetUserAsync(User);

@@ -9,6 +9,7 @@ using hjudge.Shared.Utils;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Hubs;
+using hjudge.WebHost.Hubs.Clients;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;

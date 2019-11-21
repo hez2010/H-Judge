@@ -8,6 +8,7 @@ import { useGlobal } from 'reactn';
 import { GlobalState } from '../../interfaces/globalState';
 import { getTargetState } from '../../utils/reactnHelper';
 import { CommonFuncs } from '../../interfaces/commonFuncs';
+import { NavLink } from 'react-router-dom';
 
 interface ActivityModel {
   userId: string,
@@ -76,7 +77,7 @@ const Home = () => {
                   </Feed.Label>
                   <Feed.Content>
                     <Feed.Summary>
-                      <Feed.User>{v.userName}</Feed.User> {v.title}
+                      <Feed.User as='div'><NavLink to={`/user/${v.userId}`}>{v.userName}</NavLink></Feed.User> {v.title}
                       <Feed.Date>{v.time.toLocaleString(undefined, { hour12: false })}</Feed.Date>
                     </Feed.Summary>
                     <Feed.Extra>{v.content}</Feed.Extra>

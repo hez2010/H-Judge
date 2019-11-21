@@ -24,7 +24,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         [Route("problem")]
         public async Task VoteProblem([FromBody]ProblemVoteModel model)
         {
@@ -39,7 +39,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         [Route("contest")]
         public async Task VoteContest([FromBody]ContestVoteModel model)
         {
@@ -54,7 +54,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpPost]
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         [Route("cancel")]
         public async Task CancelVote([FromBody]CancelVoteModel model)
         {
