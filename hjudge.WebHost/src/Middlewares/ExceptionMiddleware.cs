@@ -1,25 +1,20 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Models;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace hjudge.WebHost.Middlewares
 {
     public class ExceptionMiddleware : IMiddleware
     {
-        private readonly static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+        private readonly static JsonSerializerSettings jsonSerializerOptions = new JsonSerializerSettings
         {
-            AllowTrailingCommas = true,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            DateTimeZoneHandling = DateTimeZoneHandling.Local
         };
-
-        static ExceptionMiddleware()
-        {
-            jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
@@ -41,7 +36,8 @@ namespace hjudge.WebHost.Middlewares
         public static async Task WriteExceptionAsync<T>(HttpContext context, T value)
         {
             context.Response.ContentType = "application/json";
-            await JsonSerializer.SerializeAsync(context.Response.Body, value, jsonSerializerOptions);
+            var result = JsonConvert.SerializeObject(value, jsonSerializerOptions);
+            await context.Response.WriteAsync(result);
         }
     }
 }
