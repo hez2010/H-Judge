@@ -234,9 +234,11 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
     setTitle('评测结果');
 
     if (typeof window !== 'undefined') {
-      import('@aspnet/signalr').then(signalR => {
+      import('@microsoft/signalr').then(signalR => {
         this.connection = new signalR.HubConnectionBuilder()
           .withUrl('/hub/judge')
+          .withAutomaticReconnect()
+          .configureLogging(signalR.LogLevel.Warning)
           .build();
         let connection = this.connection as signalR.HubConnection;
 
@@ -257,7 +259,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
   }
 
   componentWillUnmount() {
-    import('@aspnet/signalr').then(signalR => {
+    import('@microsoft/signalr').then(signalR => {
       let connection = this.connection as signalR.HubConnection;
       if (connection && connection.state === signalR.HubConnectionState.Connected) connection.stop();
     });
