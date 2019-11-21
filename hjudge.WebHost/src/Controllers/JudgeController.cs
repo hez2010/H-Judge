@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Controllers
             this.languageService = languageService;
         }
 
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         [HttpPost]
         [Route("rejudge")]
         public async Task Rejudge([FromBody]RejudgeModel model)
@@ -56,7 +56,7 @@ namespace hjudge.WebHost.Controllers
             await judgeService.QueueJudgeAsync(judge);
         }
 
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         [HttpPost]
         [RequestSizeLimit(10485760)]
         [Route("submit")]
@@ -164,7 +164,7 @@ namespace hjudge.WebHost.Controllers
 
         [Route("result")]
         [HttpGet]
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         public async Task<ResultModel> GetJudgeResult(int id)
         {
             var user = await userManager.GetUserAsync(User);

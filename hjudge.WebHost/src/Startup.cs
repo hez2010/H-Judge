@@ -212,6 +212,7 @@ namespace hjudge.WebHost
                 endpoints.MapDefaultControllerRoute();
 
                 endpoints.MapHub<JudgeHub>("/hub/judge");
+                endpoints.MapHub<MessageHub>("/hub/message");
 
                 if (environment.IsProduction())
                 {

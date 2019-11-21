@@ -12,8 +12,6 @@ using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -75,7 +73,9 @@ namespace hjudge.WebHost.Controllers
         {
             var judges = await judgeService
                 .QueryJudgesAsync(null, 0, 0, 0, (int) ResultCode.Accepted);
-            var result = judges.Select(i =>
+            var result = judges
+                .Where(i => !i.Problem.Hidden)
+                .Select(i =>
                 new
                 {
                     ProblemName = i.Problem.Name,

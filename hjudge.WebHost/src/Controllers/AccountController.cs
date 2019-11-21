@@ -102,7 +102,7 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPut]
         [Route("avatar")]
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         public async Task UserAvatar(IFormFile avatar)
         {
             var userId = userManager.GetUserId(User);
@@ -126,9 +126,10 @@ namespace hjudge.WebHost.Controllers
 
         [HttpGet]
         [Route("avatar")]
-        public async Task<IActionResult> UserAvatar(string? userId)
+        [ResponseCache(Duration = 3600)]
+        public async Task<IActionResult> UserAvatar(string userId)
         {
-            if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return BadRequest();
             var user = await userManager.FindByIdAsync(userId);
             return user?.Avatar == null || user.Avatar.Length == 0
                 ? File(ImageScaler.ScaleImage(Resource.DefaultAvatar, 128, 128), "image/png")
@@ -137,7 +138,7 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPost]
         [Route("profiles")]
-        [PrivilegeAuthentication.RequireSignedInAttribute]
+        [PrivilegeAuthentication.RequireSignedIn]
         public async Task UserInfo([FromBody]UserInfoModel model)
         {
             var userId = userManager.GetUserId(User);
