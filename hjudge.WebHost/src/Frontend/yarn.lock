@@ -775,7 +775,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@microsoft/signalr@^3.0.1":
+"@microsoft/signalr@3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@microsoft/signalr/-/signalr-3.0.1.tgz#8149ca0a50a950aafb90b75260f33c6b37db3afb"
   integrity sha512-tRhqAmf5SyK02VXM6noj6DjSgt0i8yDqspHdLqdqsSrjMh4/inrwjI/BqLVE8zLD3mHp+eGHeSnlLTUVe024vA==

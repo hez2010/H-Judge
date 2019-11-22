@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@babel/preset-react": "7.7.0",
-    "@microsoft/signalr": "^3.0.1",
+    "@microsoft/signalr": "3.0.1",
     "es6-promise": "4.2.8",
     "fetch-ponyfill": "6.1.0",
     "highlight.js": "9.16.2",
