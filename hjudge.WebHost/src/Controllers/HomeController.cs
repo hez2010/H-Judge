@@ -72,9 +72,11 @@ namespace hjudge.WebHost.Controllers
         public async Task<ActivityListModel> GetActivities()
         {
             var judges = await judgeService
-                .QueryJudgesAsync(null, 0, 0, 0, (int) ResultCode.Accepted);
+                .QueryJudgesAsync(null, 0, 0, 0, (int)ResultCode.Accepted);
             var result = judges
-                .Where(i => !i.Problem.Hidden)
+                .Where(i => (i.ContestId == null && i.GroupId == null && !i.Problem.Hidden) ||
+                    (i.ContestId != null && i.GroupId == null && !i.Contest.Hidden) ||
+                    (i.GroupId != null && !i.Group.IsPrivate))
                 .Select(i =>
                 new
                 {
@@ -86,12 +88,12 @@ namespace hjudge.WebHost.Controllers
                     Content = $"成功通过了题目 {i.Problem.Name}"
                 })
                 .OrderByDescending(i => i.Time);
-            
+
             var model = new ActivityListModel
             {
                 TotalCount = 10
             };
-            
+
             foreach (var i in result.Take(10))
             {
                 model.Activities.Add(new ActivityModel
@@ -110,7 +112,7 @@ namespace hjudge.WebHost.Controllers
         [AllowAnonymous]
         public IActionResult Error()
         {
-            throw new InterfaceException((HttpStatusCode) HttpContext.Response.StatusCode,
+            throw new InterfaceException((HttpStatusCode)HttpContext.Response.StatusCode,
                 Activity.Current?.Id ?? HttpContext.TraceIdentifier);
         }
     }
