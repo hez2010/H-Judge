@@ -182,8 +182,8 @@ namespace hjudge.WebHost
                     ErrorMessage = "请求失败"
                 }));
 
-            app.UseResponseCaching();
             app.UseResponseCompression();
+            app.UseResponseCaching();
 
             if (environment.IsProduction())
             {

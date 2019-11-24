@@ -126,7 +126,7 @@ namespace hjudge.WebHost.Controllers
 
         [HttpGet]
         [Route("avatar")]
-        [ResponseCache(Duration = 3600)]
+        [ResponseCache(Duration = 3600, VaryByQueryKeys = new[] { "userId" })]
         public async Task<IActionResult> UserAvatar(string userId)
         {
             if (string.IsNullOrEmpty(userId)) return BadRequest();
