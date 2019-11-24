@@ -117,7 +117,10 @@ namespace hjudge.WebHost
 
             services.AddSignalR();
 
-            services.AddMvc()
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<ExceptionMiddleware>();
+            })
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
@@ -172,8 +175,6 @@ namespace hjudge.WebHost
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseMiddleware<ExceptionMiddleware>(); // must be placed after app.UseExceptionHandler()
 
             app.UseStatusCodePages(context =>
                 ExceptionMiddleware.WriteExceptionAsync(context.HttpContext, new ErrorModel
