@@ -117,7 +117,10 @@ namespace hjudge.WebHost
 
             services.AddSignalR();
 
-            services.AddMvc()
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<ExceptionMiddleware>();
+            })
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
@@ -173,8 +176,6 @@ namespace hjudge.WebHost
                 app.UseHsts();
             }
 
-            app.UseMiddleware<ExceptionMiddleware>(); // must be placed after app.UseExceptionHandler()
-
             app.UseStatusCodePages(context =>
                 ExceptionMiddleware.WriteExceptionAsync(context.HttpContext, new ErrorModel
                 {
@@ -182,8 +183,8 @@ namespace hjudge.WebHost
                     ErrorMessage = "请求失败"
                 }));
 
-            app.UseResponseCaching();
             app.UseResponseCompression();
+            app.UseResponseCaching();
 
             if (environment.IsProduction())
             {
