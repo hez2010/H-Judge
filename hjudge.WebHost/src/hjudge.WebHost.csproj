@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.0.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.1" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-pre6" />
-    <PackageReference Include="React.AspNet" Version="5.1.1" />
+    <PackageReference Include="React.AspNet" Version="5.1.2" />
     <PackageReference Include="React.Router" Version="5.1.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
