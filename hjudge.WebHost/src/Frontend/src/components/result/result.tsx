@@ -27,7 +27,7 @@ interface JudgeResultModel {
   staticCheckLog: string
 }
 
-interface SourceModel {
+export interface SourceModel {
   fileName: string,
   content: string
 }
@@ -95,9 +95,15 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
     this.reJudge = this.reJudge.bind(this);
     this.renderSubmissionInfo = this.renderSubmissionInfo.bind(this);
     this.staticCheckLogs = this.staticCheckLogs.bind(this);
+    this.fillSubmit = this.fillSubmit.bind(this);
   }
 
   private connection: any;
+
+  fillSubmit() {
+    sessionStorage.setItem('fill-submit', JSON.stringify(this.state.result.content));
+    this.props.history.push(`/details/problem/${this.state.result.problemId}${!this.state.result.contestId ? '' : `/${this.state.result.contestId}`}${!this.state.result.groupId ? '' : `/${this.state.result.groupId}`}`);
+  }
 
   loadResult(resultId: number) {
     Get(`/judge/result?id=${resultId}`)
@@ -305,6 +311,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
               <div style={{ float: 'right' }}>
                 <Button.Group>
                   <Button onClick={this.reJudge}>重新评测</Button>
+                  <Button primary onClick={this.fillSubmit}>填充提交</Button>
                 </Button.Group>
               </div> : null
           }
@@ -328,6 +335,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
             <div style={{ float: 'right' }}>
               <Button.Group>
                 <Button onClick={this.reJudge}>重新评测</Button>
+                <Button primary onClick={this.fillSubmit}>填充提交</Button>
               </Button.Group>
             </div>
           </Item.Header>
