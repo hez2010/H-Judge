@@ -164,12 +164,14 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
   componentDidMount() {
     setTitle('题目详情');
 
-    let fillContent = sessionStorage.getItem('fill-submit');
-    if (!!fillContent) {
-      sessionStorage.removeItem('fill-submit');
-      this.fillSubmitContents = JSON.parse(fillContent);
+    if (typeof window !== 'undefined') {
+      let fillContent = sessionStorage.getItem('fill-submit');
+      if (!!fillContent) {
+        sessionStorage.removeItem('fill-submit');
+        this.fillSubmitContents = JSON.parse(fillContent);
+      }
     }
-
+    
     if (this.props.problemId) this.problemId = this.props.problemId;
     else if (this.props.match.params.problemId) this.problemId = parseInt(this.props.match.params.problemId)
     else this.problemId = 0;
