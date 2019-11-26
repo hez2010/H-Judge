@@ -10,6 +10,7 @@ import MarkdownViewer from '../viewer/markdown';
 import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
 import { getRating } from '../../utils/ratingHelper';
+import { SourceModel } from '../result/result';
 
 interface ProblemDetailsProps {
   problemId?: number,
@@ -108,6 +109,7 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
   private contestId = 0;
   private groupId = 0;
   private languageOptions: LanguageOptions[] = [];
+  private fillSubmitContents: SourceModel[] = [];
 
   fetchDetail(problemId: number, contestId: number, groupId: number) {
     Post('/problem/details', {
@@ -127,15 +129,29 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
         let lang = 'plain_text';
         if (result.languages && result.languages.length > 0) lang = result.languages[0].syntaxHighlight;
 
-        this.editors = result.sources.map(v => ({
-          editor: React.createRef<any>(),
-          fileName: v
-        }));
+        let editors: CodeEditorInstance[] = [];
+        let contents: string[] = [];
+
+        for (let fileName of result.sources) {
+          editors.push({
+            editor: React.createRef<any>(),
+            fileName: fileName
+          });
+          let content = '';
+          if (this.fillSubmitContents.length !== 0) {
+            let source = this.fillSubmitContents.find(v => v.fileName === fileName);
+            if (source) {
+              content = source.content;
+            }
+          }
+          contents.push(content);
+        }
+        this.editors = editors;
         this.setState({
           problem: result,
           languageValue: lang,
           loaded: true,
-          contents: result.sources.map(_ => '')
+          contents: contents
         });
         setTitle(result.name);
       })
@@ -147,6 +163,12 @@ export default class ProblemDetails extends React.Component<ProblemDetailsProps 
 
   componentDidMount() {
     setTitle('题目详情');
+
+    let fillContent = sessionStorage.getItem('fill-submit');
+    if (!!fillContent) {
+      sessionStorage.removeItem('fill-submit');
+      this.fillSubmitContents = JSON.parse(fillContent);
+    }
 
     if (this.props.problemId) this.problemId = this.props.problemId;
     else if (this.props.match.params.problemId) this.problemId = parseInt(this.props.match.params.problemId)
