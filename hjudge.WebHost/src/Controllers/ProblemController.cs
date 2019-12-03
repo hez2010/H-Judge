@@ -254,7 +254,7 @@ namespace hjudge.WebHost.Controllers
             var useDefaultDisabledConfig = false;
 
             var langConfig = (await languageService.GetLanguageConfigAsync()).ToList();
-            var langs = config.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+            var langs = config.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
 
             if (langs.Length == 0) langs = langConfig.Select(i => i.Name).ToArray();
             else useDefaultDisabledConfig = true;
@@ -265,7 +265,7 @@ namespace hjudge.WebHost.Controllers
                 if (contest != null)
                 {
                     var contestConfig = contest.Config.DeserializeJson<ContestConfig>(false);
-                    var contestLangs = contestConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                    var contestLangs = contestConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                     if (contestLangs.Length != 0)
                     {
                         langs = langs.Intersect(contestLangs).ToArray();

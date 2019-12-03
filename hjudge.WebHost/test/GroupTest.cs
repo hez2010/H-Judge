@@ -11,12 +11,12 @@ namespace hjudge.WebHost.Test
     [TestClass]
     public class GroupTest
     {
-        private readonly IGroupService groupService = TestService.Provider.GetService<IGroupService>();
-        private readonly IContestService contestService = TestService.Provider.GetService<IContestService>();
-
         [TestMethod]
         public async Task ConfigAsync()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var groupService = scope.ServiceProvider.GetService<IGroupService>();
 
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
@@ -43,7 +43,7 @@ namespace hjudge.WebHost.Test
             var result = await contestService.QueryContestAsync(stuId, gid);
             Assert.IsTrue(result.Count(i => i.Id == cid) == 1);
 
-            await groupService.UpdateGroupContestAsync(gid, new int[0]);
+            await groupService.UpdateGroupContestAsync(gid, Array.Empty<int>());
             result = await contestService.QueryContestAsync(stuId, gid);
             Assert.IsFalse(result.Any());
         }
@@ -51,6 +51,10 @@ namespace hjudge.WebHost.Test
         [TestMethod]
         public async Task ModifyAsync()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var groupService = scope.ServiceProvider.GetService<IGroupService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
@@ -81,6 +85,10 @@ namespace hjudge.WebHost.Test
         [TestMethod]
         public async Task QueryAsync()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var groupService = scope.ServiceProvider.GetService<IGroupService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
             var pubId = await groupService.CreateGroupAsync(new Group

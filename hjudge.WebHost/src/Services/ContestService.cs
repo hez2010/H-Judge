@@ -19,6 +19,11 @@ namespace hjudge.WebHost.Services
         Task UpdateContestAsync(Contest contest);
         Task RemoveContestAsync(int contestId);
         Task UpdateContestProblemAsync(int contestId, IEnumerable<int> problems);
+        Task JoinContestAsync(int contestId, string[] userId);
+        Task QuitContestAsync(int contestId, string[] userId);
+        Task<bool> HasJoinedContestAsync(int contestId, string userId);
+        Task<IQueryable<Contest>> QueryJoinedContestAsync(string userId);
+        Task<IQueryable<UserInfo>> QueryCompetitorsAsync(int contestId);
     }
     public class ContestService : IContestService
     {
@@ -47,6 +52,33 @@ namespace hjudge.WebHost.Services
             return dbContext.Contest
                 .Where(i => i.Id == contestId)
                 .FirstOrDefaultAsync();
+        }
+
+        public Task<bool> HasJoinedContestAsync(int contestId, string userId)
+        {
+            return dbContext.ContestRegister
+                .AnyAsync(i => i.ContestId == contestId && i.UserId == userId);
+        }
+
+        public async Task JoinContestAsync(int contestId, string[] userId)
+        {
+            foreach (var i in userId)
+            {
+                if (await HasJoinedContestAsync(contestId, i)) continue;
+                await dbContext.ContestRegister
+                    .AddAsync(new ContestRegister
+                    {
+                        UserId = i,
+                        ContestId = contestId
+                    });
+            }
+            await dbContext.SaveChangesAsync();
+        }
+
+        public Task<IQueryable<UserInfo>> QueryCompetitorsAsync(int contestId)
+        {
+            return Task.FromResult(dbContext.ContestRegister.Where(i => i.ContestId == contestId)
+                .Select(i => i.UserInfo));
         }
 
         public async Task<IQueryable<Contest>> QueryContestAsync(string? userId)
@@ -81,6 +113,26 @@ namespace hjudge.WebHost.Services
                 .Where(i => i.GroupId == groupId).OrderByDescending(i => i.Id).Select(i => i.Contest);
 
             return contests;
+        }
+
+        public Task<IQueryable<Contest>> QueryJoinedContest(string userId)
+        {
+            return Task.FromResult(dbContext.ContestRegister.
+                Where(i => i.UserId == userId).Select(i => i.Contest));
+        }
+
+        public Task<IQueryable<Contest>> QueryJoinedContestAsync(string userId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public async Task QuitContestAsync(int contestId, string[] userId)
+        {
+            var registerInfo = dbContext.ContestRegister
+                .Where(i => i.ContestId == contestId && userId.Contains(i.UserId));
+            if (registerInfo == null) return;
+            dbContext.ContestRegister.RemoveRange(registerInfo);
+            await dbContext.SaveChangesAsync();
         }
 
         public async Task RemoveContestAsync(int contestId)

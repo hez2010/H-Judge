@@ -11,12 +11,13 @@ namespace hjudge.WebHost.Test
     [TestClass]
     public class ContestTest
     {
-        private readonly IContestService contestService = TestService.Provider.GetService<IContestService>();
-        private readonly IProblemService problemService = TestService.Provider.GetService<IProblemService>();
-
         [TestMethod]
         public async Task ConfigAsync()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
@@ -42,7 +43,7 @@ namespace hjudge.WebHost.Test
             var result = await problemService.QueryProblemAsync(stuId, cid);
             Assert.IsTrue(result.Count(i => i.Id == pid) == 1);
 
-            await contestService.UpdateContestProblemAsync(cid, new int[0]);
+            await contestService.UpdateContestProblemAsync(cid, Array.Empty<int>());
             result = await problemService.QueryProblemAsync(stuId, cid);
             Assert.IsFalse(result.Any());
         }
@@ -50,6 +51,10 @@ namespace hjudge.WebHost.Test
         [TestMethod]
         public async Task ModifyAsync()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
@@ -80,6 +85,10 @@ namespace hjudge.WebHost.Test
         [TestMethod]
         public async Task QueryAsync()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 

@@ -16,5 +16,6 @@ namespace hjudge.WebHost.Exceptions
 
         public HttpStatusCode Code { get; set; }
         public override string Message { get; }
+        public DateTime Time { get; } = DateTime.Now;
     }
 }

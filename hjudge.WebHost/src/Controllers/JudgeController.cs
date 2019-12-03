@@ -102,7 +102,7 @@ namespace hjudge.WebHost.Controllers
             var useDefaultDisabledConfig = false;
 
             var langConfig = (await languageService.GetLanguageConfigAsync()).ToList();
-            var langs = problemConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+            var langs = problemConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
 
             if (langs.Length == 0) langs = langConfig.Select(i => i.Name).ToArray();
             else useDefaultDisabledConfig = true;
@@ -126,7 +126,7 @@ namespace hjudge.WebHost.Controllers
                             throw new ForbiddenException("超出提交次数限制");
                     }
                     if (contestConfig.ResultMode != ResultDisplayMode.Intime) allowJumpToResult = false;
-                    var contestLangs = contestConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                    var contestLangs = contestConfig.Languages?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                     if (contestLangs.Length != 0) 
                     {
                         langs = langs.Intersect(contestLangs).ToArray();

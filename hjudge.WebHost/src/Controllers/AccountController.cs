@@ -284,5 +284,35 @@ namespace hjudge.WebHost.Controllers
                     : new BadRequestException();
             }
         }
+
+        [HttpGet]
+        [PrivilegeAuthentication.RequireSignedIn]
+        [Route("query-users")]
+        public async Task<List<UserBasicInfoModel>> QueryUsersAsync(string patterns)
+        {
+            var userId = userManager.GetUserId(User);
+            var userInfo = await userManager.FindByIdAsync(userId);
+            var normalizedPatterns = patterns.ToUpper();
+
+            var users = userManager.Users.Where(i => i.Email.Contains(normalizedPatterns) ||
+                    i.NormalizedUserName.Contains(normalizedPatterns) ||
+                    (i.Name != null && i.Name.Contains(patterns)));
+
+            if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0))
+                return await users.Select(i => new UserBasicInfoModel
+                {
+                    Email = i.Email,
+                    UserId = i.Id,
+                    UserName = i.UserName
+                }).ToListAsync();
+            else
+                return await users.Select(i => new UserBasicInfoModel
+                {
+                    Name = i.Name,
+                    Email = i.Email,
+                    UserId = i.Id,
+                    UserName = i.UserName
+                }).ToListAsync();
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace hjudge.JudgeHost
     {
         public static async Task<IEnumerable<string>> FillinWorkingDirAndGetRequiredFiles(object? target, string workingDir)
         {
-            if (target == null) return new string[0];
+            if (target == null) return Array.Empty<string>();
             var type = target.GetType();
             var properties = type.GetProperties();
             var fileList = new List<string>();

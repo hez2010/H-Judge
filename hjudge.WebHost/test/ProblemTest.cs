@@ -11,11 +11,12 @@ namespace hjudge.WebHost.Test
     [TestClass]
     public class ProblemTest
     {
-        private readonly IProblemService service = TestService.Provider.GetService<IProblemService>();
-
         [TestMethod]
         public async Task ModifyAsync()
         {
+            using var scope = TestService.Scope;
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
@@ -24,46 +25,49 @@ namespace hjudge.WebHost.Test
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
             };
-            var id = await service.CreateProblemAsync(problem);
+            var id = await problemService.CreateProblemAsync(problem);
             Assert.AreNotEqual(0, id);
 
-            var studentResult = await service.QueryProblemAsync(stuId);
+            var studentResult = await problemService.QueryProblemAsync(stuId);
             Assert.IsTrue(studentResult.Any(i => i.Id == id && i.Name == problem.Name));
 
             var newName = Guid.NewGuid().ToString();
             problem.Name = newName;
-            await service.UpdateProblemAsync(problem);
+            await problemService.UpdateProblemAsync(problem);
 
-            studentResult = await service.QueryProblemAsync(stuId);
+            studentResult = await problemService.QueryProblemAsync(stuId);
             Assert.IsTrue(studentResult.Any(i => i.Id == id && i.Name == problem.Name));
 
-            await service.RemoveProblemAsync(id);
+            await problemService.RemoveProblemAsync(id);
 
-            studentResult = await service.QueryProblemAsync(stuId);
+            studentResult = await problemService.QueryProblemAsync(stuId);
             Assert.IsFalse(studentResult.Any(i => i.Id == id));
         }
 
         [TestMethod]
         public async Task QueryAsync()
         {
+            using var scope = TestService.Scope;
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
-            var pubId = await service.CreateProblemAsync(new Problem
+            var pubId = await problemService.CreateProblemAsync(new Problem
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId
             });
 
-            var priId = await service.CreateProblemAsync(new Problem
+            var priId = await problemService.CreateProblemAsync(new Problem
             {
                 Name = Guid.NewGuid().ToString(),
                 UserId = adminId,
                 Hidden = true
             });
 
-            var adminResult = await service.QueryProblemAsync(adminId);
-            var strdentResult = await service.QueryProblemAsync(stuId);
+            var adminResult = await problemService.QueryProblemAsync(adminId);
+            var strdentResult = await problemService.QueryProblemAsync(stuId);
 
             Assert.IsTrue(adminResult.Any(i => i.Id == priId));
             Assert.IsTrue(adminResult.Any(i => i.Id == pubId));

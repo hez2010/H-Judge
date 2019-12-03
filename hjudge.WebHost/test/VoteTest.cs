@@ -10,13 +10,14 @@ namespace hjudge.WebHost.Test
     [TestClass]
     public class VoteTest
     {
-        private readonly IVoteService voteService = TestService.Provider.GetService<IVoteService>();
-        private readonly IContestService contestService = TestService.Provider.GetService<IContestService>();
-        private readonly IProblemService problemService = TestService.Provider.GetService<IProblemService>();
-
         [TestMethod]
         public async Task UpvoteProblemTest()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+            var voteService = scope.ServiceProvider.GetService<IVoteService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
@@ -40,6 +41,11 @@ namespace hjudge.WebHost.Test
         [TestMethod]
         public async Task UpvoteContestTest()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+            var voteService = scope.ServiceProvider.GetService<IVoteService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
@@ -62,6 +68,11 @@ namespace hjudge.WebHost.Test
         [TestMethod]
         public async Task DownvoteProblemTest()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+            var voteService = scope.ServiceProvider.GetService<IVoteService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 
@@ -85,6 +96,11 @@ namespace hjudge.WebHost.Test
         [TestMethod]
         public async Task DownvoteContestTest()
         {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+            var voteService = scope.ServiceProvider.GetService<IVoteService>();
+
             var adminId = (await UserUtils.GetAdmin()).Id;
             var stuId = (await UserUtils.GetStudent()).Id;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Models.Contest;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Identity;
@@ -245,6 +247,37 @@ namespace hjudge.WebHost.Controllers
             var problems = await problemService.QueryProblemAsync(userId, contestId);
             ret.Problems = problems.Select(i => i.Id).ToList();
             return ret;
+        }
+
+        [HttpGet]
+        [RequireTeacher]
+        [Route("competitors")]
+        public async Task<List<UserBasicInfoModel>> GetCompetitorsListAsync(int contestId)
+        {
+            return await (await contestService.QueryCompetitorsAsync(contestId))
+                .Select(i => new UserBasicInfoModel
+                {
+                    UserId = i.Id,
+                    Name = i.Name,
+                    UserName = i.UserName,
+                    Email = i.Email
+                }).ToListAsync();
+        }
+
+        [HttpPost]
+        [RequireTeacher]
+        [Route("competitors/add")]
+        public Task JoinContestAsync([FromBody]JoinQuitContestModel model)
+        {
+            return contestService.JoinContestAsync(model.ContestId, model.UserIds);
+        }
+
+        [HttpPost]
+        [RequireTeacher]
+        [Route("competitors/remove")]
+        public Task QuitContestAsync([FromBody]JoinQuitContestModel model)
+        {
+            return contestService.QuitContestAsync(model.ContestId, model.UserIds);
         }
     }
 }

@@ -19,8 +19,8 @@ namespace hjudge.WebHost.Test
 {
     public static class TestService
     {
-        private static readonly IServiceProvider provider = InitService();
-        public static IServiceProvider Provider => provider.CreateScope().ServiceProvider;
+        private static readonly IServiceProvider Provider = InitService();
+        public static IServiceScope Scope => Provider.CreateScope();
         private static IServiceProvider InitService()
         {
             var services = new ServiceCollection();

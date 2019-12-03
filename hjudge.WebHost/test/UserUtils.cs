@@ -8,11 +8,13 @@ namespace hjudge.WebHost.Test
 {
     public class UserUtils
     {
-        private static readonly UserManager<UserInfo> userManager = TestService.Provider.GetService<UserManager<UserInfo>>();
         private static bool inited;
         public static async Task InitUsers()
         {
             if (inited) return;
+            using var scope = TestService.Scope;
+            var userManager = scope.ServiceProvider.GetService<UserManager<UserInfo>>();
+
             await userManager.CreateAsync(new UserInfo
             {
                 UserName = "admin",
@@ -54,26 +56,36 @@ namespace hjudge.WebHost.Test
         public static async Task<UserInfo> GetAdmin()
         {
             await InitUsers();
+            using var scope = TestService.Scope;
+            var userManager = scope.ServiceProvider.GetService<UserManager<UserInfo>>();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 1);
         }
         public static async Task<UserInfo> GetTeacher()
         {
             await InitUsers();
+            using var scope = TestService.Scope;
+            var userManager = scope.ServiceProvider.GetService<UserManager<UserInfo>>();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 2);
         }
         public static async Task<UserInfo> GetTa()
         {
             await InitUsers();
+            using var scope = TestService.Scope;
+            var userManager = scope.ServiceProvider.GetService<UserManager<UserInfo>>();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 3);
         }
         public static async Task<UserInfo> GetStudent()
         {
             await InitUsers();
+            using var scope = TestService.Scope;
+            var userManager = scope.ServiceProvider.GetService<UserManager<UserInfo>>();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 4);
         }
         public static async Task<UserInfo> GetBlack()
         {
             await InitUsers();
+            using var scope = TestService.Scope;
+            var userManager = scope.ServiceProvider.GetService<UserManager<UserInfo>>();
             return userManager.Users.FirstOrDefault(i => i.Privilege == 1);
         }
     }

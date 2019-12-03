@@ -33,7 +33,8 @@ namespace hjudge.WebHost.Middlewares
                 await WriteExceptionAsync(context.HttpContext, new ErrorModel
                 {
                     ErrorCode = ex.Code,
-                    ErrorMessage = ex.Message
+                    ErrorMessage = ex.Message,
+                    ErrorTime = ex.Time
                 });
             }
         }

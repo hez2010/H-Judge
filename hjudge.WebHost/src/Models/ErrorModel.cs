@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace hjudge.WebHost.Models
 {
@@ -6,5 +7,6 @@ namespace hjudge.WebHost.Models
     {
         public HttpStatusCode ErrorCode { get; set; }
         public string ErrorMessage { get; set; } = string.Empty;
+        public DateTime ErrorTime { get; set; } = DateTime.Now;
     }
 }
