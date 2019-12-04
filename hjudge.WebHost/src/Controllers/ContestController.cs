@@ -8,6 +8,7 @@ using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Middlewares;
 using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Models.Contest;
 using hjudge.WebHost.Services;
@@ -251,6 +252,7 @@ namespace hjudge.WebHost.Controllers
 
         [HttpGet]
         [RequireTeacher]
+        [FunctionalControl.DisabledApi]
         [Route("competitors")]
         public async Task<List<UserBasicInfoModel>> GetCompetitorsListAsync(int contestId)
         {
@@ -266,6 +268,7 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPost]
         [RequireTeacher]
+        [FunctionalControl.DisabledApi]
         [Route("competitors/add")]
         public Task JoinContestAsync([FromBody]JoinQuitContestModel model)
         {
@@ -274,6 +277,7 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPost]
         [RequireTeacher]
+        [FunctionalControl.DisabledApi]
         [Route("competitors/remove")]
         public Task QuitContestAsync([FromBody]JoinQuitContestModel model)
         {
