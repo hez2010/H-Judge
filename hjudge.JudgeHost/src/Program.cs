@@ -22,7 +22,6 @@ namespace hjudge.JudgeHost
                         .Configure<JudgeHostConfig>(options =>
                         {
                             options.FileHost = config["FileHost"];
-                            options.DataCacheDirectory = config["DataCacheDirectory"];
                             options.MessageQueue = new MessageQueueOptions
                             {
                                 HostName = config["MessageQueue:HostName"],

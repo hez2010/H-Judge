@@ -12,6 +12,33 @@ namespace hjudge.WebHost.Test
     public class ContestTest
     {
         [TestMethod]
+        public async Task JoinQuitAsync()
+        {
+            using var scope = TestService.Scope;
+            var contestService = scope.ServiceProvider.GetService<IContestService>();
+            var problemService = scope.ServiceProvider.GetService<IProblemService>();
+
+            var adminId = (await UserUtils.GetAdmin()).Id;
+            var stuId = (await UserUtils.GetStudent()).Id;
+
+            var contest = new Contest
+            {
+                Name = Guid.NewGuid().ToString(),
+                UserId = adminId,
+                SpecifyCompetitors = true
+            };
+
+            var cid = await contestService.CreateContestAsync(contest);
+            Assert.AreNotEqual(0, cid);
+
+            await contestService.JoinContestAsync(cid, new[] { stuId });
+            Assert.IsTrue(await contestService.HasJoinedContestAsync(cid, stuId));
+
+            await contestService.QuitContestAsync(cid, new[] { stuId });
+            Assert.IsFalse(await contestService.HasJoinedContestAsync(cid, stuId));
+        }
+
+        [TestMethod]
         public async Task ConfigAsync()
         {
             using var scope = TestService.Scope;

@@ -30,9 +30,9 @@ namespace hjudge.WebHost.Test
             Assert.AreNotEqual(0, pubId);
 
             Assert.IsTrue(await voteService.UpvoteProblemAsync(stuId, pubId));
-            //var result = await problemService.GetProblemAsync(pubId);
+            var result = await problemService.GetProblemAsync(pubId);
 
-            //Assert.AreEqual(1, result?.Upvote);
+            Assert.AreEqual(1, result?.Upvote);
 
             Assert.IsFalse(await voteService.UpvoteProblemAsync(stuId, pubId));
             Assert.IsFalse(await voteService.DownvoteProblemAsync(stuId, pubId));
@@ -58,9 +58,9 @@ namespace hjudge.WebHost.Test
             Assert.AreNotEqual(0, pubId);
 
             Assert.IsTrue(await voteService.UpvoteContestAsync(stuId, pubId));
-            //var result = await contestService.GetContestAsync(pubId);
+            var result = await contestService.GetContestAsync(pubId);
 
-            //Assert.AreEqual(1, result?.Upvote);
+            Assert.AreEqual(1, result?.Upvote);
 
             Assert.IsFalse(await voteService.UpvoteContestAsync(stuId, pubId));
             Assert.IsFalse(await voteService.DownvoteContestAsync(stuId, pubId));
@@ -85,9 +85,9 @@ namespace hjudge.WebHost.Test
             Assert.AreNotEqual(0, pubId);
 
             Assert.IsTrue(await voteService.DownvoteProblemAsync(stuId, pubId));
-            //var result = await problemService.GetProblemAsync(pubId);
+            var result = await problemService.GetProblemAsync(pubId);
 
-            //Assert.AreEqual(1, result?.Downvote);
+            Assert.AreEqual(1, result?.Downvote);
 
             Assert.IsFalse(await voteService.UpvoteProblemAsync(stuId, pubId));
             Assert.IsFalse(await voteService.DownvoteProblemAsync(stuId, pubId));
@@ -113,9 +113,9 @@ namespace hjudge.WebHost.Test
             Assert.AreNotEqual(0, pubId);
 
             Assert.IsTrue(await voteService.DownvoteContestAsync(stuId, pubId));
-            //var result = await contestService.GetContestAsync(pubId);
+            var result = await contestService.GetContestAsync(pubId);
 
-            //Assert.AreEqual(1, result?.Downvote);
+            Assert.AreEqual(1, result?.Downvote);
 
             Assert.IsFalse(await voteService.UpvoteContestAsync(stuId, pubId));
             Assert.IsFalse(await voteService.DownvoteContestAsync(stuId, pubId));
