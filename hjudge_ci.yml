@@ -34,7 +34,7 @@ steps:
 - task: ArchiveFiles@2
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
-    rootFolderOrFile: 'hjudge.JudgeHost/src/bin/Release/netcoreapp3.0/publish'
+    rootFolderOrFile: 'hjudge.JudgeHost/src/bin/Release/netcoreapp3.1/publish'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.JudgeHost.zip'
@@ -42,7 +42,7 @@ steps:
 - task: ArchiveFiles@2
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
-    rootFolderOrFile: 'hjudge.FileHost/src/bin/Release/netcoreapp3.0/publish'
+    rootFolderOrFile: 'hjudge.FileHost/src/bin/Release/netcoreapp3.1/publish'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.FileHost.zip'
@@ -50,7 +50,7 @@ steps:
 - task: ArchiveFiles@2
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
-    rootFolderOrFile: 'hjudge.WebHost/src/bin/Release/netcoreapp3.0/publish'
+    rootFolderOrFile: 'hjudge.WebHost/src/bin/Release/netcoreapp3.1/publish'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.WebHost.zip'
