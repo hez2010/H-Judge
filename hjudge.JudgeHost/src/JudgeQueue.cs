@@ -23,7 +23,7 @@ namespace hjudge.JudgeHost
         private readonly MessageQueueFactory queueFactory;
         private readonly ConcurrentPriorityQueue<((ulong DeliveryTag, AsyncEventingBasicConsumer Consumer) Sender, JudgeInfo JudgeInfo)> pools = new ConcurrentPriorityQueue<((ulong DeliveryTag, AsyncEventingBasicConsumer Consumer) Sender, JudgeInfo JudgeInfo)>();
         private readonly ConcurrentDictionary<string, long> fileCache = new ConcurrentDictionary<string, long>();
-        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
         private readonly Channel fileHostChannel;
 
         public JudgeQueue(

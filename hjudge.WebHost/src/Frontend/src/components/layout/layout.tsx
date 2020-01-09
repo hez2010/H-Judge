@@ -220,7 +220,7 @@ const Layout = (props: React.Props<never>) => {
               <Header inverted as='h4' content='您的专属评测系统' />
               <List link inverted>
                 <List.Item as='a' href='/'>H::Judge &copy; {new Date(Date.now()).getFullYear()}. hez2010 版权所有</List.Item>
-                <List.Item as='a' href='https://dotnet.microsoft.com/apps/aspnet'>Powered by ASP.NET Core 3.0</List.Item>
+                <List.Item as='a' href='https://dotnet.microsoft.com/apps/aspnet'>Powered by ASP.NET Core 3.1</List.Item>
               </List>
             </Grid.Column>
           </Grid.Row>
