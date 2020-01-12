@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "@babel/core": "7.7.7",
-    "@babel/plugin-proposal-class-properties": "7.7.4",
-    "@babel/plugin-proposal-object-rest-spread": "7.7.7",
-    "@babel/plugin-transform-regenerator": "7.7.5",
-    "@babel/polyfill": "7.7.0",
-    "@babel/preset-typescript": "7.7.7",
+    "@babel/core": "7.8.0",
+    "@babel/plugin-proposal-class-properties": "7.8.0",
+    "@babel/plugin-proposal-object-rest-spread": "7.8.0",
+    "@babel/plugin-transform-regenerator": "7.8.0",
+    "@babel/polyfill": "7.8.0",
+    "@babel/preset-typescript": "7.8.0",
     "@svgr/webpack": "5.0.1",
     "@types/highlight.js": "9.12.3",
     "@types/katex": "0.11.0",
@@ -43,7 +43,7 @@
     "webpack-dev-server": "3.10.1"
   },
   "dependencies": {
-    "@babel/preset-react": "7.7.4",
+    "@babel/preset-react": "7.8.0",
     "@microsoft/signalr": "3.1.0",
     "es6-promise": "4.2.8",
     "fetch-ponyfill": "6.1.0",
