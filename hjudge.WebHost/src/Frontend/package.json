@@ -35,7 +35,7 @@
     "isomorphic-style-loader": "5.1.0",
     "node-sass": "4.13.1",
     "postcss-loader": "3.0.0",
-    "rimraf": "3.0.1",
+    "rimraf": "3.0.2",
     "sass-loader": "8.0.2",
     "typescript": "3.7.5",
     "url-loader": "3.0.0",
