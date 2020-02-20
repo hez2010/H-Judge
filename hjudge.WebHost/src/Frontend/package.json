@@ -54,7 +54,7 @@
     "react-ace": "8.0.0",
     "react-dom": "16.12.0",
     "react-router-dom": "5.1.2",
-    "reactn": "2.2.5",
+    "reactn": "2.2.6",
     "semantic-ui-react": "0.88.2",
     "webpack-cli": "3.3.11"
   },
