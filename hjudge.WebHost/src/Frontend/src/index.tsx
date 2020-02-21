@@ -7,6 +7,7 @@ import "regenerator-runtime/runtime";
 import { UserInfo } from './interfaces/userInfo';
 import { GlobalState } from './interfaces/globalState';
 
+// polyfill promise and fetch for SSR
 PromisePolyfill.polyfill();
 
 let Global = global as any;
@@ -29,6 +30,7 @@ const getInitUserInfo = (userInfo?: UserInfo) => userInfo ? userInfo : {
   phoneNumberConfirmed: false
 };
 
+// exposed for SSR interop
 Global.AppComponent = (props: any) => {
   React.setGlobal<GlobalState>({
     userInfo: getInitUserInfo(props ? props.userInfo : undefined)

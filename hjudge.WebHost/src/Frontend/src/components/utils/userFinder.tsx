@@ -17,5 +17,5 @@ interface UserFinderProps {
 
 const UserFinder = (props: UserFinderProps) => {
   const [commonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
-  
+  // TODO: a user finder. Find a user by userName, name, email, phone and etc.
 };
