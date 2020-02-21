@@ -41,9 +41,9 @@ interface RankProblemInfoModel {
 interface RankContestStatisticsModel {
   contestId: number,
   groupId: number,
-  problemInfos: any,
-  userInfos: any,
-  rankInfos: any
+  problemInfos: any, // TODO: Map<number, RankProblemInfoModel>
+  userInfos: any, // TODO: Map<string, RankUserInfoModel>
+  rankInfos: any // TODO: Map<string, Map<number, RankContestItemModel>>
 }
 
 const Rank = (props: RankProps) => {
