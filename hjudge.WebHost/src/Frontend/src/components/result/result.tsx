@@ -242,6 +242,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
     if (typeof window !== 'undefined') {
       import('@microsoft/signalr').then(signalR => {
+        // use signalR (websocket) for real-time result notification
         this.connection = new signalR.HubConnectionBuilder()
           .withUrl('/hub/judge')
           .withAutomaticReconnect()
