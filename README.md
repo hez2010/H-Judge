@@ -1,9 +1,21 @@
 # H::Judge
-
-## Description
 This is the official repository for [H::Judge](https://hjudge.com).
 
-## Status
+## Description
+A cross-platform, full-featured and fast online judge system.  
+
+#### Featrues
+- [x] Problem management
+- [x] Contest management
+- [x] Group management
+- [x] Rand and statistics
+- [x] Messaging and notifications
+- [x] System console
+- [x] Support for special judge
+- [x] Cross platform
+- [x] And more...
+
+## Build Status
 | master | develop |
 | ------ | ------- |
 | [![Build Status](https://dev.azure.com/hez2010/H-Judge/_apis/build/status/hez2010.H-Judge?branchName=master)](https://dev.azure.com/hez2010/H-Judge/_build/latest?definitionId=10&branchName=master) | [![Build Status](https://dev.azure.com/hez2010/H-Judge/_apis/build/status/hez2010.H-Judge?branchName=develop)](https://dev.azure.com/hez2010/H-Judge/_build/latest?definitionId=10&branchName=develop) |
