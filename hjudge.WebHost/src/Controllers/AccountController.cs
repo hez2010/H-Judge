@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -102,13 +103,13 @@ namespace hjudge.WebHost.Controllers
 
         [HttpPut]
         [Route("avatar")]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [RequireSignedIn]
         public async Task UserAvatar(IFormFile avatar)
         {
             var userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
 
-            if (avatar == null) throw new BadRequestException("文件格式不正确");
+            if (avatar is null) throw new BadRequestException("文件格式不正确");
 
             if (!avatar.ContentType.StartsWith("image/")) throw new BadRequestException("文件格式不正确");
 
@@ -131,14 +132,14 @@ namespace hjudge.WebHost.Controllers
         {
             if (string.IsNullOrEmpty(userId)) return BadRequest();
             var user = await userManager.FindByIdAsync(userId);
-            return user?.Avatar == null || user.Avatar.Length == 0
+            return user?.Avatar is null || user.Avatar.Length == 0
                 ? File(ImageScaler.ScaleImage(Resource.DefaultAvatar, 128, 128), "image/png")
                 : File(ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
         }
 
         [HttpPost]
         [Route("profiles")]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [RequireSignedIn]
         public async Task UserInfo([FromBody]UserInfoModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -203,7 +204,7 @@ namespace hjudge.WebHost.Controllers
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
             var currentUser = string.IsNullOrEmpty(userId) ? user : await userManager.GetUserAsync(User);
-            if (userId == null || user == null) return new UserInfoModel();
+            if (userId is null || user is null) return new UserInfoModel();
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;
             userInfoRet.Privilege = user.Privilege;
@@ -230,7 +231,7 @@ namespace hjudge.WebHost.Controllers
             var ret = new ProblemStatisticsModel();
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (userId == null || user == null) return new ProblemStatisticsModel();
+            if (userId is null || user is null) return new ProblemStatisticsModel();
 
             var judges = await judgeService.QueryJudgesAsync(userId);
 
@@ -246,7 +247,7 @@ namespace hjudge.WebHost.Controllers
         public async Task SendResetPasswordEmailAsync([FromBody]ResetEmailModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
-            if (user == null) return;
+            if (user is null) return;
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var html = $@"<h2>H::Judge</h2>
 <p>您好 {user.UserName}，感谢使用 H::Judge！</p>
@@ -267,7 +268,7 @@ namespace hjudge.WebHost.Controllers
             if (TryValidateModel(model))
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
-                if (user == null) return;
+                if (user is null) return;
                 var result = await userManager.ResetPasswordAsync(user, model.Token, model.Password);
                 if (!result.Succeeded)
                 {
@@ -286,7 +287,7 @@ namespace hjudge.WebHost.Controllers
         }
 
         [HttpGet]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [RequireSignedIn]
         [Route("query-users")]
         public async Task<List<UserBasicInfoModel>> QueryUsersAsync(string patterns)
         {

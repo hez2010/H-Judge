@@ -332,7 +332,7 @@ namespace smartbox.SeaweedFs.Client
         private async Task<LocationResult> GetTargetLocation(string fileId)
         {
             var result = await _masterWrapper.LookupVolume(new LookupVolumeParams(fileId, Collection));
-            if (result.Locations == null || result.Locations.Count == 0)
+            if (result.Locations is null || result.Locations.Count == 0)
                 throw new SeaweedFsFileDeleteException(fileId,
                     new SeaweedFsException(Messages.VolumeServerNotFound));
             return LoadBalance ? result.GetRandomLocation() : result.Locations[0];

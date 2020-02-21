@@ -188,7 +188,7 @@ namespace hjudge.WebHost.Controllers
             }
 
             var problem = await problems.Where(i => i.Id == model.ProblemId).FirstOrDefaultAsync();
-            if (problem == null) throw new NotFoundException("找不到该题目");
+            if (problem is null) throw new NotFoundException("找不到该题目");
 
             // use an invalid value when userId is empty or null
             var judges = await judgeService.QueryJudgesAsync(string.IsNullOrEmpty(userId) ? "-1" : userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
@@ -335,7 +335,7 @@ namespace hjudge.WebHost.Controllers
         public async Task UpdateProblem([FromBody]ProblemEditModel model)
         {
             var problem = await problemService.GetProblemAsync(model.Id);
-            if (problem == null) throw new NotFoundException("找不到该题目");
+            if (problem is null) throw new NotFoundException("找不到该题目");
 
             problem.Description = model.Description;
             problem.Hidden = model.Hidden;
@@ -353,7 +353,7 @@ namespace hjudge.WebHost.Controllers
         public async Task<ProblemEditModel> GetProblem(int problemId)
         {
             var problem = await problemService.GetProblemAsync(problemId);
-            if (problem == null) throw new NotFoundException("找不到该题目");
+            if (problem is null) throw new NotFoundException("找不到该题目");
 
             var model = new ProblemEditModel
             {
@@ -381,7 +381,7 @@ namespace hjudge.WebHost.Controllers
         [RequestSizeLimit(135000000)]
         public async Task<ProblemDataUploadModel> UploadData([FromForm]int problemId, IFormFile file)
         {
-            if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
+            if ((await problemService.GetProblemAsync(problemId)) is null) throw new NotFoundException("找不到该题目");
             if (file.ContentType != "application/x-zip-compressed" && file.ContentType != "application/zip") throw new BadRequestException("文件格式不正确");
             if (file.Length > 134217728) throw new BadRequestException("文件大小不能超过 128 Mb");
 
@@ -412,7 +412,7 @@ namespace hjudge.WebHost.Controllers
         [Route("data")]
         public async Task<IActionResult> GetData(int problemId)
         {
-            if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
+            if ((await problemService.GetProblemAsync(problemId)) is null) throw new NotFoundException("找不到该题目");
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
             var downloadedFiles = fileService.DownloadFilesAsync(files);
@@ -440,7 +440,7 @@ namespace hjudge.WebHost.Controllers
         [Route("data-view")]
         public async Task<IActionResult> GetDataFileList(int problemId)
         {
-            if ((await problemService.GetProblemAsync(problemId)) == null) throw new NotFoundException("找不到该题目");
+            if ((await problemService.GetProblemAsync(problemId)) is null) throw new NotFoundException("找不到该题目");
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
             var length = $"Data/{problemId}/".Length;
@@ -455,7 +455,7 @@ namespace hjudge.WebHost.Controllers
         [Route("data")]
         public async Task DeleteData(int problemId)
         {
-            if ((await problemService.GetProblemAsync(problemId)) == null) return;
+            if ((await problemService.GetProblemAsync(problemId)) is null) return;
 
             var files = await fileService.ListFilesAsync($"Data/{problemId}/");
             await fileService.DeleteFilesAsync(files);

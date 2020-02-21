@@ -139,7 +139,7 @@ namespace hjudge.WebHost.Controllers
 
             var contest = await contests.Where(i => i.Id == model.ContestId).FirstOrDefaultAsync();
 
-            if (contest == null) throw new NotFoundException("找不到该比赛");
+            if (contest is null) throw new NotFoundException("找不到该比赛");
 
             var vote = await voteService.GetVoteAsync(userId, null, model.ContestId);
 
@@ -211,7 +211,7 @@ namespace hjudge.WebHost.Controllers
         public async Task UpdateContest([FromBody]ContestEditModel model)
         {
             var contest = await contestService.GetContestAsync(model.Id);
-            if (contest == null) throw new NotFoundException("找不到该比赛");
+            if (contest is null) throw new NotFoundException("找不到该比赛");
 
             contest.Description = model.Description;
             contest.Hidden = model.Hidden;
@@ -234,7 +234,7 @@ namespace hjudge.WebHost.Controllers
             var ret = new ContestEditModel();
 
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) throw new NotFoundException("找不到该比赛");
+            if (contest is null) throw new NotFoundException("找不到该比赛");
 
             ret.Description = contest.Description;
             ret.Hidden = contest.Hidden;

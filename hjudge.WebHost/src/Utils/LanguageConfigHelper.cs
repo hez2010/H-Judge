@@ -11,7 +11,7 @@ namespace hjudge.WebHost.Utils
         {
             foreach (var i in langConfig)
             {
-                if (languages == null || languages.Length == 0 || languages.Contains(i.Name))
+                if (languages is null || languages.Length == 0 || languages.Contains(i.Name))
                 {
                     yield return new LanguageModel
                     {

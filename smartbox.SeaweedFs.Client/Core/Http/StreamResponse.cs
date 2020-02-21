@@ -33,7 +33,7 @@ namespace smartbox.SeaweedFs.Client.Core.Http
         public StreamResponse(Stream inputStream, HttpStatusCode statusCode)
         {
             StatusCode = statusCode;
-            if (inputStream == null)
+            if (inputStream is null)
                 return;
 
             OutputStream = new MemoryStream();
@@ -45,7 +45,7 @@ namespace smartbox.SeaweedFs.Client.Core.Http
 
         public async Task<Stream> GetInputStream()
         {
-            if (OutputStream == null)
+            if (OutputStream is null)
                 return null;
             var stream = new MemoryStream();
             await OutputStream.CopyToAsync(stream);
@@ -59,7 +59,7 @@ namespace smartbox.SeaweedFs.Client.Core.Http
 
         public long GetLength()
         {
-            if (OutputStream == null)
+            if (OutputStream is null)
                 return 0;
             return OutputStream.Length;
         }

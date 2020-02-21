@@ -4,6 +4,7 @@ namespace hjudge.WebHost.Configurations
 {
     public class LanguageConfig
     {
+        // Generic
         public string Name { get; set; } = string.Empty;
         public string Information { get; set; } = string.Empty;
         public string Extensions { get; set; } = string.Empty;

@@ -32,7 +32,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> CancelVoteContestAsync(string userId, int contestId)
         {
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) return false;
+            if (contest is null) return false;
             var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).FirstOrDefaultAsync();
             if (exists != null)
             {
@@ -48,7 +48,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> CancelVoteProblemAsync(string userId, int problemId)
         {
             var problem = await problemService.GetProblemAsync(problemId);
-            if (problem == null) return false;
+            if (problem is null) return false;
             var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).FirstOrDefaultAsync();
             if (exists != null)
             {
@@ -64,7 +64,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> DownvoteContestAsync(string userId, int contestId, string? title = null, string? content = null)
         {
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) return false;
+            if (contest is null) return false;
             var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).AnyAsync();
             if (exists) return false;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
@@ -86,7 +86,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> DownvoteProblemAsync(string userId, int problemId, string? title = null, string? content = null)
         {
             var problem = await problemService.GetProblemAsync(problemId);
-            if (problem == null) return false;
+            if (problem is null) return false;
             var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).AnyAsync();
             if (exists) return false;
             await dbContext.VotesRecord.AddAsync(new VotesRecord
@@ -115,7 +115,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> UpvoteContestAsync(string userId, int contestId, string? title = null, string? content = null)
         {
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) return false;
+            if (contest is null) return false;
             var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == null && i.ContestId == contestId).AnyAsync();
             if (exists) return false;
             ++contest.Upvote;
@@ -137,7 +137,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> UpvoteProblemAsync(string userId, int problemId, string? title = null, string? content = null)
         {
             var problem = await problemService.GetProblemAsync(problemId);
-            if (problem == null) return false;
+            if (problem is null) return false;
             var exists = await dbContext.VotesRecord.Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == null).AnyAsync();
             if (exists) return false;
             ++problem.Upvote;

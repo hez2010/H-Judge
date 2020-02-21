@@ -46,7 +46,7 @@ namespace hjudge.WebHost.Controllers
             };
             var userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (user == null) return new UserInfoModel();
+            if (user is null) return new UserInfoModel();
             userInfoRet.Name = user.Name;
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;

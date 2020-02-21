@@ -110,9 +110,9 @@ namespace hjudge.WebHost.Services
 
         public static ResultCode ComputeJudgeResultType(JudgeResult? result)
         {
-            if (result == null) return ResultCode.Judging;
+            if (result is null) return ResultCode.Judging;
 
-            if (result?.JudgePoints == null)
+            if (result?.JudgePoints is null)
             {
                 return ResultCode.Unknown_Error;
             }
@@ -136,7 +136,7 @@ namespace hjudge.WebHost.Services
         public async Task UpdateJudgeResultAsync(int judgeId, JudgeReportInfo.ReportType reportType, JudgeResult? result)
         {
             var judge = await dbContext.Judge.FindAsync(judgeId);
-            if (judge == null) return;
+            if (judge is null) return;
 
             if (reportType == JudgeReportInfo.ReportType.PostJudge)
             {

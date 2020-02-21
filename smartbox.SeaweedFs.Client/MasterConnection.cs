@@ -93,7 +93,7 @@ namespace smartbox.SeaweedFs.Client
                 Debug.WriteLine("start connect to the seaweedfs master server [" +
                                                    ConnectionUtil.ConvertUrlWithScheme(Host + ":" + Port) + "]");
                 
-                if (_connection == null)
+                if (_connection is null)
                 {
                     _connection = new Connection(
                         ConnectionUtil.ConvertUrlWithScheme(Host + ":" + Port),

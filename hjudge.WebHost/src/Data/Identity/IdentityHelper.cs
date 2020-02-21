@@ -21,7 +21,7 @@ namespace hjudge.WebHost.Data.Identity
         public static List<OtherUserInfoModel> GetOtherUserInfo(string rawInfo)
         {
             var otherInfo = JsonSerializer.Deserialize<OtherUserInfo>(rawInfo ?? "{}");
-            if (otherInfo == null) otherInfo = new OtherUserInfo();
+            if (otherInfo is null) otherInfo = new OtherUserInfo();
             var otherInfoList = new List<OtherUserInfoModel>();
             
             foreach (var property in OtherInfoProperties)

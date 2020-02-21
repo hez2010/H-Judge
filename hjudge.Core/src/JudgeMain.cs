@@ -306,7 +306,7 @@ namespace hjudge.Core
                 }
             };
 
-            if (judgeOptions.AnswerPoint == null || !File.Exists(judgeOptions.AnswerPoint.AnswerFile))
+            if (judgeOptions.AnswerPoint is null || !File.Exists(judgeOptions.AnswerPoint.AnswerFile))
             {
                 result.JudgePoints[0].ResultType = ResultCode.Problem_Config_Error;
             }
@@ -461,7 +461,7 @@ namespace hjudge.Core
                     }
                     await Task.Delay(100);
                 }
-            } while (std == null);
+            } while (std is null);
 
             retryTimes = 0;
             do
@@ -482,7 +482,7 @@ namespace hjudge.Core
                     }
                     await Task.Delay(100);
                 }
-            } while (act == null);
+            } while (act is null);
 
             var line = 0;
             var result = new JudgePoint
@@ -519,12 +519,12 @@ namespace hjudge.Core
 
                 if (judgeOption.ComparingOptions.IgnoreTextTailLineFeeds)
                 {
-                    if (stdline == null)
+                    if (stdline is null)
                     {
                         stdline = string.Empty;
                     }
 
-                    if (actline == null)
+                    if (actline is null)
                     {
                         actline = string.Empty;
                     }
@@ -734,7 +734,7 @@ namespace hjudge.Core
 
                 foreach (Match? item in ret)
                 {
-                    if (item == null) continue;
+                    if (item is null) continue;
                     GroupCollection matches = item.Groups;
                     var temp = matcher.DisplayFormat;
                     for (var i = 0; i < matches.Count; i++)

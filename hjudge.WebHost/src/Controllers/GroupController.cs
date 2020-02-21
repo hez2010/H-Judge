@@ -93,7 +93,7 @@ namespace hjudge.WebHost.Controllers
             var user = await userManager.GetUserAsync(User);
             var groups = await groupService.QueryGroupAsync(user?.Id);
             var group = await groups.Where(i => i.Id == groupId).FirstOrDefaultAsync();
-            if (group == null) throw new NotFoundException("该小组不存在");
+            if (group is null) throw new NotFoundException("该小组不存在");
 
             return new GroupModel
             {

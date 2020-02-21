@@ -366,7 +366,7 @@ namespace smartbox.SeaweedFs.Client.Core
             }
 
             jToken = obj.GetValue("IsLeader");
-            if (jToken == null || jToken.Type != JTokenType.Boolean)
+            if (jToken is null || jToken.Type != JTokenType.Boolean)
             {
                 peers.Add(new MasterStatus(masterUrl));
                 peers.Remove(leader);
@@ -403,7 +403,7 @@ namespace smartbox.SeaweedFs.Client.Core
         /// <returns></returns>
         private async Task<string> FindLeaderUriByPeers(IReadOnlyCollection<MasterStatus> peers)
         {
-            if (peers == null || peers.Count == 0)
+            if (peers is null || peers.Count == 0)
                 return null;
 
             foreach (var item in peers)
@@ -533,7 +533,7 @@ namespace smartbox.SeaweedFs.Client.Core
                 {
                     //log.info("lookup seaweedfs core leader by peers");
                     Debug.WriteLine("lookup seaweedfs core leader by peers");
-                    if (SystemClusterStatus == null || SystemClusterStatus.Peers.Count == 0)
+                    if (SystemClusterStatus is null || SystemClusterStatus.Peers.Count == 0)
                     {
                         //log.error("cloud not found the seaweedfs core peers");
                         Debug.WriteLine("cloud not found the seaweedfs core peers");

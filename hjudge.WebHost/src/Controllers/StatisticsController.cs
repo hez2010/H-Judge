@@ -26,11 +26,6 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
-        enum LastNamingState
-        {
-            Start, Blank, Other
-        }
-
         [Route("list")]
         [HttpPost]
         public async Task<StatisticsListModel> StatisticsList([FromBody]StatisticsListQueryModel model)

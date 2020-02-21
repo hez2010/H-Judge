@@ -71,7 +71,7 @@ namespace hjudge.FileHost.Services
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
             var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).FirstOrDefaultAsync();
-            if (fileRecord == null) return true;
+            if (fileRecord is null) return true;
             var result = await template.DeleteFile(fileRecord.FileId);
             if (result)
             {
@@ -86,7 +86,7 @@ namespace hjudge.FileHost.Services
             var template = new OperationsTemplate(connection);
             var hash = GetFileNameHash(fileName);
             var fileRecord = await dbContext.Files.Where(i => i.FileName == hash).FirstOrDefaultAsync();
-            if (fileRecord == null) return null;
+            if (fileRecord is null) return null;
             var response = await template.GetFileStream(fileRecord.FileId);
             return response.StatusCode == HttpStatusCode.OK ? response.OutputStream : null;
         }

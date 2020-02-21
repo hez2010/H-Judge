@@ -21,7 +21,7 @@ namespace hjudge.WebHost.Middlewares
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.FirstOrDefaultAsync(i => i.Id == userId);
 
-                if (userInfo == null) throw new AuthenticationException("没有登录账户");
+                if (userInfo is null) throw new AuthenticationException("没有登录账户");
                 if (userInfo.Privilege == 5) throw new AuthenticationException("账户已被加入黑名单");
 
                 await next();
@@ -38,7 +38,7 @@ namespace hjudge.WebHost.Middlewares
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.FirstOrDefaultAsync(i => i.Id == userId);
 
-                if (userInfo == null) throw new AuthenticationException("没有登录账户");
+                if (userInfo is null) throw new AuthenticationException("没有登录账户");
                 if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0)) throw new ForbiddenException();
 
                 await next();
@@ -55,7 +55,7 @@ namespace hjudge.WebHost.Middlewares
                 var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var userInfo = await dbContext.Users.FirstOrDefaultAsync(i => i.Id == userId);
 
-                if (userInfo == null) throw new AuthenticationException("没有登录账户");
+                if (userInfo is null) throw new AuthenticationException("没有登录账户");
                 if (!PrivilegeHelper.IsTeacher(userInfo?.Privilege ?? 0)) throw new ForbiddenException();
 
                 await next();

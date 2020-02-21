@@ -40,7 +40,7 @@ namespace hjudge.WebHost.Controllers
         {
             var user = await userManager.GetUserAsync(User);
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) throw new NotFoundException("该比赛不存在");
+            if (contest is null) throw new NotFoundException("该比赛不存在");
             if (groupId != 0)
             {
                 var groups = await groupService.QueryGroupAsync(user?.Id);

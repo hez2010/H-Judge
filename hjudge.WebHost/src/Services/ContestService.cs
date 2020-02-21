@@ -99,7 +99,7 @@ namespace hjudge.WebHost.Services
             var user = await userManager.FindByIdAsync(userId);
 
             var group = await groupService.GetGroupAsync(groupId);
-            if (group == null) throw new NotFoundException("找不到该小组");
+            if (group is null) throw new NotFoundException("找不到该小组");
 
             if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -130,7 +130,7 @@ namespace hjudge.WebHost.Services
         {
             var registerInfo = dbContext.ContestRegister
                 .Where(i => i.ContestId == contestId && userId.Contains(i.UserId));
-            if (registerInfo == null) return;
+            if (registerInfo is null) return;
             dbContext.ContestRegister.RemoveRange(registerInfo);
             await dbContext.SaveChangesAsync();
         }
