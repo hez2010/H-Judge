@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace hjudge.WebHost.Data.Identity
 {
-    public class IdentityHelper
+    public static class IdentityHelper
     {
         public class OtherUserInfoModel
         {

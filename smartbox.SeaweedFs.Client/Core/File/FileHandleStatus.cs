@@ -26,7 +26,6 @@ using System;
 
 namespace smartbox.SeaweedFs.Client.Core.File
 {
-    [Serializable]
     public class FileHandleStatus
     {
         public FileHandleStatus(string fileId, long lastModified, string filename, string contentType, long size)

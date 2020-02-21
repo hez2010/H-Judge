@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Test
 {
-    public class UserUtils
+    public static class UserUtils
     {
         private static bool inited;
         public static async Task InitUsers()

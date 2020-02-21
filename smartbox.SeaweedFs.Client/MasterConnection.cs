@@ -191,20 +191,22 @@ namespace smartbox.SeaweedFs.Client
 
         #region IDisposable
 
-        private bool _isDisposed;
+        private bool _disposed;
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (disposing && !_isDisposed)
+            if (_disposed) return;
+            if (disposing)
             {
-                _isDisposed = true;
                 _connection?.Dispose();
             }
+            _disposed = true;
         }
 
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

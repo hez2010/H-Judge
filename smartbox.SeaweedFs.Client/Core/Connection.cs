@@ -474,22 +474,25 @@ namespace smartbox.SeaweedFs.Client.Core
 
         #region IDisposable
 
-        private bool _isDisposed;
+        private bool _disposed;
 
-        private void Dispose(bool dispose)
+        protected virtual void Dispose(bool disposing)
         {
-            if (_isDisposed) return;
-            _isDisposed = dispose;
-
-            if (IsLookupVolumeCacheEnabled)
-                VolumeLookupCache.Dispose();
-            HttpClient?.Dispose();
-            _cancellationTokenSource?.Dispose();
+            if (_disposed) return;
+            if (disposing)
+            {
+                if (IsLookupVolumeCacheEnabled)
+                    VolumeLookupCache.Dispose();
+                HttpClient?.Dispose();
+                _cancellationTokenSource?.Dispose();
+            }
+            _disposed = true;
         }
 
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

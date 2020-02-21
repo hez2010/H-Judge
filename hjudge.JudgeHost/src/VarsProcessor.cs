@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost
 {
-    public class VarsProcessor
+    public static class VarsProcessor
     {
         public static async Task<IEnumerable<string>> FillinWorkingDirAndGetRequiredFiles(object? target, string workingDir)
         {

@@ -5,7 +5,7 @@ using hjudge.WebHost.Models.Language;
 
 namespace hjudge.WebHost.Utils
 {
-    public class LanguageConfigHelper
+    public static class LanguageConfigHelper
     {
         public static IEnumerable<LanguageModel> GenerateLanguageConfig(IEnumerable<LanguageConfig> langConfig, string[]? languages)
         {

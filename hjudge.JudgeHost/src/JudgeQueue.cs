@@ -25,6 +25,25 @@ namespace hjudge.JudgeHost
         private readonly ConcurrentDictionary<string, long> fileCache = new ConcurrentDictionary<string, long>();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
         private readonly Channel fileHostChannel;
+        private bool _disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+                queueFactory.Dispose();
+                semaphore.Dispose();
+            }
+            _disposed = true;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         public JudgeQueue(
             ILogger<JudgeQueue> logger,

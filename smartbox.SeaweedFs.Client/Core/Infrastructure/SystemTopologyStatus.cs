@@ -27,7 +27,6 @@ using System.Collections.Generic;
 
 namespace smartbox.SeaweedFs.Client.Core.Infrastructure
 {
-    [Serializable]
     public class SystemTopologyStatus
     {
         public SystemTopologyStatus() { }

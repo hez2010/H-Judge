@@ -13,7 +13,7 @@ namespace hjudge.WebHost.Middlewares
     public static class PrivilegeAuthentication
     {
         [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
-        public class RequireSignedInAttribute : Attribute, IAsyncActionFilter
+        public sealed class RequireSignedInAttribute : Attribute, IAsyncActionFilter
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
@@ -29,7 +29,7 @@ namespace hjudge.WebHost.Middlewares
         }
 
         [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
-        public class RequireAdminAttribute : Attribute, IAsyncActionFilter
+        public sealed class RequireAdminAttribute : Attribute, IAsyncActionFilter
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
@@ -46,7 +46,7 @@ namespace hjudge.WebHost.Middlewares
         }
 
         [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
-        public class RequireTeacherAttribute : Attribute, IAsyncActionFilter
+        public sealed class RequireTeacherAttribute : Attribute, IAsyncActionFilter
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {

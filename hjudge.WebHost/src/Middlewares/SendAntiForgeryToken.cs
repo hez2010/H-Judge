@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace hjudge.WebHost.Middlewares
 {
-    public class SendAntiForgeryTokenAttribute : ResultFilterAttribute
+    public sealed class SendAntiForgeryTokenAttribute : ResultFilterAttribute
     {
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {

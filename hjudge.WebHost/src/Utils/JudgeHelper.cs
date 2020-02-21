@@ -11,7 +11,7 @@ using hjudge.WebHost.Services;
 
 namespace hjudge.WebHost.Utils
 {
-    public class JudgeHelper
+    public static class JudgeHelper
     {
         private static string AlphaNumberFilter(string input)
         {

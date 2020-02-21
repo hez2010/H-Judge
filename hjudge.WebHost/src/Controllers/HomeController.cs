@@ -81,8 +81,8 @@ namespace hjudge.WebHost.Controllers
                 new
                 {
                     ProblemName = i.Problem.Name,
-                    UserName = i.UserInfo.UserName,
-                    UserId = i.UserId,
+                    i.UserInfo.UserName,
+                    i.UserId,
                     Time = i.JudgeTime,
                     Title = "通过题目",
                     Content = $"成功通过了题目 {i.Problem.Name}"
