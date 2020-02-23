@@ -24,6 +24,8 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 using React.AspNet;
 
 namespace hjudge.WebHost
@@ -58,6 +60,14 @@ namespace hjudge.WebHost
                     }
                 };
                 options.ActualSerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+                options.OperationProcessors.Add(new OperationSecurityScopeProcessor("XSRF-TOKEN"));
+                options.DocumentProcessors.Add(new SecurityDefinitionAppender("XSRF-TOKEN", new OpenApiSecurityScheme
+                {
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Name = "X-XSRF-TOKEN",
+                    Description = "XSRF Token Authorization",
+                    In = OpenApiSecurityApiKeyLocation.Header
+                }));
             });
 
             services.AddResponseCaching();
