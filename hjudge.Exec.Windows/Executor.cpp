@@ -5,7 +5,7 @@
 #include <sstream>
 #include "Executor.h"
 
-ExitType exitInfo = UnknownError;
+ExitType exitInfo = ExitType::UnknownError;
 
 //Convert a Json::Value object to Json string
 std::string getJsonString(const Json::Value value)
@@ -204,19 +204,19 @@ bool execute(const char* param, char* ret) {
                 result["ExitCode"] = static_cast<int>(exitCode);
 
                 switch (exitInfo) {
-                case Normal:
+                case ExitType::Normal:
                     result["ResultType"] = 1;
                     break;
-                case TimeLimitExceeded:
+                case ExitType::TimeLimitExceeded:
                     result["ResultType"] = 4;
                     break;
-                case MemoryLimitExceeded:
+                case ExitType::MemoryLimitExceeded:
                     result["ResultType"] = 5;
                     break;
-                case RuntimeError:
+                case ExitType::RuntimeError:
                     result["ResultType"] = 7;
                     break;
-                case UnknownError:
+                case ExitType::UnknownError:
                     result["ResultType"] = 11;
                     break;
                 }
@@ -314,31 +314,31 @@ DWORD WINAPI IOCPThread(LPVOID lpParam) {
             return 0;
 
         case JOB_OBJECT_MSG_ACTIVE_PROCESS_LIMIT: //Process instance count limit exceeded
-            exitInfo = RuntimeError;
+            exitInfo = ExitType::RuntimeError;
             return 0;
 
         case JOB_OBJECT_MSG_END_OF_JOB_TIME: //Process time limit exceeded
-            exitInfo = TimeLimitExceeded;
+            exitInfo = ExitType::TimeLimitExceeded;
             return 0;
 
         case JOB_OBJECT_MSG_JOB_MEMORY_LIMIT: //Process memory limit exceeded
-            exitInfo = MemoryLimitExceeded;
+            exitInfo = ExitType::MemoryLimitExceeded;
             return 0;
 
         case JOB_OBJECT_MSG_EXIT_PROCESS: //Process exited normally
-            exitInfo = Normal;
+            exitInfo = ExitType::Normal;
             return 0;
 
         case JOB_OBJECT_MSG_ABNORMAL_EXIT_PROCESS: //Process exited abnormally
-            exitInfo = RuntimeError;
+            exitInfo = ExitType::RuntimeError;
             return 0;
 
         case JOB_OBJECT_MSG_END_OF_PROCESS_TIME: //Process time limit exceeded
-            exitInfo = TimeLimitExceeded;
+            exitInfo = ExitType::TimeLimitExceeded;
             return 0;
 
         case JOB_OBJECT_MSG_PROCESS_MEMORY_LIMIT: //Process memory limit exceeded
-            exitInfo = MemoryLimitExceeded;
+            exitInfo = ExitType::MemoryLimitExceeded;
             return 0;
 
         default:

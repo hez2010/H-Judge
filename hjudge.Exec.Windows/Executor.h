@@ -18,6 +18,6 @@ extern "C" {
 DWORD WINAPI IOCPThread(LPVOID);
 std::string getJsonString(Json::Value);
 
-enum ExitType {
+enum class ExitType {
 	Normal, TimeLimitExceeded, MemoryLimitExceeded, RuntimeError, UnknownError
 };

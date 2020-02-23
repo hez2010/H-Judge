@@ -98,6 +98,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
     this.fillSubmit = this.fillSubmit.bind(this);
   }
 
+  // HubConnection. SignalR has issues with SSR, so I have to import @microsoft/signalr later. See https://github.com/dotnet/aspnetcore/issues/10400
   private connection: any;
 
   fillSubmit() {
@@ -241,6 +242,7 @@ export default class Result extends React.Component<CommonProps, ResultState, Gl
 
     if (typeof window !== 'undefined') {
       import('@microsoft/signalr').then(signalR => {
+        // use signalR (websocket) for real-time result notification
         this.connection = new signalR.HubConnectionBuilder()
           .withUrl('/hub/judge')
           .withAutomaticReconnect()

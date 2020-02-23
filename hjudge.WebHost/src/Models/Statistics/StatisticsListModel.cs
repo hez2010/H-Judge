@@ -15,6 +15,9 @@ namespace hjudge.WebHost.Models.Statistics
             public int ResultId { get; set; }
             public string UserId { get; set; } = string.Empty;
             public string UserName { get; set; } = string.Empty;
+            /// <summary>
+            /// 结果类型，参考 <see cref="ResultCode"/>
+            /// </summary>
             public int ResultType { get; set; } = -1;
             public string Result => Enum.GetName(typeof(ResultCode), ResultType)?.Replace("_", " ") ?? "Unknown Error";
             public DateTime Time { get; set; }

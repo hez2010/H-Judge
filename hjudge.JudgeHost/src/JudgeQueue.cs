@@ -25,6 +25,25 @@ namespace hjudge.JudgeHost
         private readonly ConcurrentDictionary<string, long> fileCache = new ConcurrentDictionary<string, long>();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
         private readonly Channel fileHostChannel;
+        private bool _disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+                queueFactory.Dispose();
+                semaphore.Dispose();
+            }
+            _disposed = true;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         public JudgeQueue(
             ILogger<JudgeQueue> logger,
@@ -33,7 +52,7 @@ namespace hjudge.JudgeHost
             this.logger = logger;
             this.options = options.Value;
 
-            if (this.options.MessageQueue == null) throw new InvalidOperationException("Message queue config cannot be null.");
+            if (this.options.MessageQueue is null) throw new InvalidOperationException("Message queue config cannot be null.");
 
             queueFactory = new MessageQueueFactory(new MessageQueueFactory.HostOptions
             {
@@ -113,7 +132,7 @@ namespace hjudge.JudgeHost
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (!Directory.Exists(options.DataCacheDirectory)) Directory.CreateDirectory(options.DataCacheDirectory);
-            if (semaphore == null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
+            if (semaphore is null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
             try
             {
                 stoppingToken.ThrowIfCancellationRequested();
@@ -134,7 +153,7 @@ namespace hjudge.JudgeHost
                             });
 
                             var judge = new JudgeMain("", logger);
-                            if (judgeInfo.JudgeOptions == null || judgeInfo.BuildOptions == null)
+                            if (judgeInfo.JudgeOptions is null || judgeInfo.BuildOptions is null)
                             {
                                 await ReportJudgeResultAsync(new JudgeReportInfo
                                 {

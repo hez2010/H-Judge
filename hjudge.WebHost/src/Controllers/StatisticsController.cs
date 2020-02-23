@@ -26,13 +26,14 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
-        enum LastNamingState
-        {
-            Start, Blank, Other
-        }
-
+        /// <summary>
+        /// 查询提交状态
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Route("list")]
         [HttpPost]
+        [ProducesResponseType(200)]
         public async Task<StatisticsListModel> StatisticsList([FromBody]StatisticsListQueryModel model)
         {
             int? resultType = null;

@@ -52,7 +52,9 @@ export default class Group extends React.Component<GroupProps & CommonProps, Gro
     };
   }
 
+  // a cache for converting `Skip query` to `Where query`
   private idRecord = new Map<number, number>();
+  // debounce
   private disableNavi = false;
   private userId = this.global.userInfo.userId;
 

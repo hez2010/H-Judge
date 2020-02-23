@@ -26,11 +26,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Miscs", "Miscs", "{272848C8-5F02-41D5-80F5-35B729A861A2}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
-		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		build.fsx = build.fsx
 		hjudge_ci.yml = hjudge_ci.yml
-		nuget.config = nuget.config
 		README.md = README.md
 		renovate.json = renovate.json
 	EndProjectSection

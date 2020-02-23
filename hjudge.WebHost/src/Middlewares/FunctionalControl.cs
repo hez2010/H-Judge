@@ -8,7 +8,7 @@ namespace hjudge.WebHost.Middlewares
     public static class FunctionalControl
     {
         [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
-        public class DisabledApiAttribute : Attribute, IAsyncActionFilter
+        public sealed class DisabledApiAttribute : Attribute, IAsyncActionFilter
         {
             public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {

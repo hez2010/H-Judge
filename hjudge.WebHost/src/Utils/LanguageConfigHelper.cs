@@ -5,13 +5,13 @@ using hjudge.WebHost.Models.Language;
 
 namespace hjudge.WebHost.Utils
 {
-    public class LanguageConfigHelper
+    public static class LanguageConfigHelper
     {
         public static IEnumerable<LanguageModel> GenerateLanguageConfig(IEnumerable<LanguageConfig> langConfig, string[]? languages)
         {
             foreach (var i in langConfig)
             {
-                if (languages == null || languages.Length == 0 || languages.Contains(i.Name))
+                if (languages is null || languages.Length == 0 || languages.Contains(i.Name))
                 {
                     yield return new LanguageModel
                     {

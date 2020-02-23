@@ -25,9 +25,22 @@ namespace hjudge.WebHost.Services
             factory = options.Value.MessageQueueFactory ?? throw new NullReferenceException();
         }
 
+        private bool _disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+                factory.Dispose();
+            }
+            _disposed = true;
+        }
+
         public void Dispose()
         {
-            factory.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public (IModel, ProducerOptions) GetInstance(string queueName)

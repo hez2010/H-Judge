@@ -22,7 +22,7 @@ namespace hjudge.WebHost.Data.Identity
         public string Signature { get; set; } = string.Empty;
     }
 
-    public class ItemNameAttribute : Attribute
+    public sealed class ItemNameAttribute : Attribute
     {
         public ItemNameAttribute(string v)
         {

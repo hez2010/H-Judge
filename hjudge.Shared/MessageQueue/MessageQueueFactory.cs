@@ -129,24 +129,36 @@ namespace hjudge.Shared.MessageQueue
             consumers.Add((connection, consumer, options));
         }
 
+        private bool _disposed;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+                while (consumers.TryTake(out var c))
+                {
+                    c.Consumer.Model.Close();
+                    c.Connection.Close();
+                    c.Consumer.Model.Dispose();
+                    c.Connection.Dispose();
+                }
+
+                foreach (var p in producers)
+                {
+                    p.Value.Model.Close();
+                    p.Value.Connection.Close();
+                    p.Value.Model.Dispose();
+                    p.Value.Connection.Dispose();
+                }
+                producers.Clear();
+            }
+            _disposed = true;
+        }
+
         public void Dispose()
         {
-            while (consumers.TryTake(out var c))
-            {
-                c.Consumer.Model.Close();
-                c.Connection.Close();
-                c.Consumer.Model.Dispose();
-                c.Connection.Dispose();
-            }
-
-            foreach (var p in producers)
-            {
-                p.Value.Model.Close();
-                p.Value.Connection.Close();
-                p.Value.Model.Dispose();
-                p.Value.Connection.Dispose();
-            }
-            producers.Clear();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

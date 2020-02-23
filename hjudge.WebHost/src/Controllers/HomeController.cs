@@ -46,7 +46,7 @@ namespace hjudge.WebHost.Controllers
             };
             var userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (user == null) return new UserInfoModel();
+            if (user is null) return new UserInfoModel();
             userInfoRet.Name = user.Name;
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;
@@ -67,8 +67,13 @@ namespace hjudge.WebHost.Controllers
             return userInfoRet;
         }
 
+        /// <summary>
+        /// 获取首页动态
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("home/activities")]
+        [ProducesResponseType(200)]
         public async Task<ActivityListModel> GetActivities()
         {
             var judges = await judgeService
@@ -81,8 +86,8 @@ namespace hjudge.WebHost.Controllers
                 new
                 {
                     ProblemName = i.Problem.Name,
-                    UserName = i.UserInfo.UserName,
-                    UserId = i.UserId,
+                    i.UserInfo.UserName,
+                    i.UserId,
                     Time = i.JudgeTime,
                     Title = "通过题目",
                     Content = $"成功通过了题目 {i.Problem.Name}"

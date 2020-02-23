@@ -24,7 +24,7 @@ namespace hjudge.Shared.Utils
                 CultureInfo.CurrentCulture);
             var enumerator = (IEnumerator)convertedType.GetMethod("GetEnumerator")!.Invoke(value, null);
             var parse = typeof(TKey).GetMethod("Parse", 0, BindingFlags.Public | BindingFlags.Static, null, CallingConventions.Any, new[] { typeof(string) }, null);
-            if (parse == null) throw new NotSupportedException($"{typeof(TKey)} as TKey in IDictionary<TKey, TValue> is not supported.");
+            if (parse is null) throw new NotSupportedException($"{typeof(TKey)} as TKey in IDictionary<TKey, TValue> is not supported.");
             while (enumerator.MoveNext())
             {
                 var element = (KeyValuePair<string?, TValue>)enumerator.Current;

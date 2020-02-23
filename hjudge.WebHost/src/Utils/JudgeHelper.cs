@@ -11,11 +11,11 @@ using hjudge.WebHost.Services;
 
 namespace hjudge.WebHost.Utils
 {
-    public class JudgeHelper
+    public static class JudgeHelper
     {
         private static string AlphaNumberFilter(string input)
         {
-            if (input == null)
+            if (input is null)
             {
                 return string.Empty;
             }
@@ -38,7 +38,7 @@ namespace hjudge.WebHost.Utils
         public static async Task<(JudgeOptionsBuilder JudgeOptionsBuilder, BuildOptionsBuilder BuildOptionsBuilder)> GetOptionBuilders(IProblemService problemService, Judge judge, List<LanguageConfig> languageConfig)
         {
             var problem = await problemService.GetProblemAsync(judge.ProblemId);
-            if (problem == null) throw new InvalidOperationException("Problem doesn't exists.");
+            if (problem is null) throw new InvalidOperationException("Problem doesn't exists.");
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
             var buildOptionsBuilder = new BuildOptionsBuilder();
 

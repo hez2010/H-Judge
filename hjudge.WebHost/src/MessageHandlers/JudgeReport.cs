@@ -62,15 +62,15 @@ namespace hjudge.WebHost.MessageHandlers
                     try
                     {
                         var judgeService = scope?.ServiceProvider.GetService<IJudgeService>();
-                        if (judgeService == null) throw new InvalidOperationException("IJudgeService was not registed into service collection.");
+                        if (judgeService is null) throw new InvalidOperationException("IJudgeService was not registed into service collection.");
 
                         var dbContext = scope?.ServiceProvider.GetService<WebHostDbContext>();
-                        if (dbContext == null) throw new InvalidOperationException("WebHostDbContext was not registed into service collection.");
+                        if (dbContext is null) throw new InvalidOperationException("WebHostDbContext was not registed into service collection.");
 
                         if (info.Type == JudgeReportInfo.ReportType.PostJudge)
                         {
                             var userManager = scope?.ServiceProvider.GetService<UserManager<UserInfo>>();
-                            if (userManager == null) throw new InvalidOperationException("UserManager<UserInfo> was not registed into service collection.");
+                            if (userManager is null) throw new InvalidOperationException("UserManager<UserInfo> was not registed into service collection.");
 
                             var resultType = JudgeService.ComputeJudgeResultType(info.JudgeResult);
                             
@@ -120,14 +120,14 @@ namespace hjudge.WebHost.MessageHandlers
                         await judgeService.UpdateJudgeResultAsync(info.JudgeId, info.Type, info.JudgeResult);
 
                         var judgeHub = Program.RootServiceProvider?.GetService<IHubContext<JudgeHub, IJudgeHub>>();
-                        if (judgeHub == null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
+                        if (judgeHub is null) throw new InvalidOperationException("IHubContext<JudgeHub, IJudgeHub> was not registed into service collection.");
                         await judgeHub.Clients.Group($"result_{info.JudgeId}").JudgeCompleteSignalReceived(info.JudgeId);
 
                     }
                     catch (Exception ex)
                     {
                         var logger = scope?.ServiceProvider.GetService<ILogger<JudgeReport>>();
-                        if (logger == null) throw new NullReferenceException();
+                        if (logger is null) throw new NullReferenceException();
                         logger.LogError(ex, "Judge report update error.");
                     }
                 }

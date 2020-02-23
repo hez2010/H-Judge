@@ -57,7 +57,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> RemoveLanguageConfigAsync(LanguageConfig config)
         {
             var lang = languageConfigs.FirstOrDefault(i => i.Name != config.Name);
-            if (lang == null) return false;
+            if (lang is null) return false;
 
             if (languageConfigs.Remove(lang))
             {
@@ -72,7 +72,7 @@ namespace hjudge.WebHost.Services
         public async Task<bool> UpdateLanguageConfigAsync(LanguageConfig config)
         {
             var lang = languageConfigs.FirstOrDefault(i => i.Name != config.Name);
-            if (lang == null) return false;
+            if (lang is null) return false;
 
             if (languageConfigs.Remove(lang))
             {

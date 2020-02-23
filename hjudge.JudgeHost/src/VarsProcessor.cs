@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace hjudge.JudgeHost
 {
-    public class VarsProcessor
+    public static class VarsProcessor
     {
         public static async Task<IEnumerable<string>> FillinWorkingDirAndGetRequiredFiles(object? target, string workingDir)
         {
-            if (target == null) return Array.Empty<string>();
+            if (target is null) return Array.Empty<string>();
             var type = target.GetType();
             var properties = type.GetProperties();
             var fileList = new List<string>();
@@ -19,7 +19,7 @@ namespace hjudge.JudgeHost
                 foreach (var p in properties)
                 {
                     var value = p.GetValue(target);
-                    if (value == null) continue;
+                    if (value is null) continue;
                     if (value is string str)
                     {
                         var newStr = str.Replace("${workingdir}", workingDir)

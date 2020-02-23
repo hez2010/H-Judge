@@ -4,7 +4,7 @@ using SixLabors.ImageSharp.Processing;
 
 namespace hjudge.WebHost.Utils
 {
-    public class ImageScaler
+    public static class ImageScaler
     {
         public static byte[] ScaleImage(byte[] content, int height, int weight)
         {

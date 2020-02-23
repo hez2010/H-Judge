@@ -17,6 +17,9 @@ namespace hjudge.WebHost.Models.Contest
         public bool Hidden { get; set; }
         public int Upvote { get; set; }
         public int Downvote { get; set; }
+        /// <summary>
+        /// 我的投票：0 - 未评价，1 - 好评，2 - 差评
+        /// </summary>
         public int MyVote { get; set; }
         public ContestConfig? Config { get; set; }
     }

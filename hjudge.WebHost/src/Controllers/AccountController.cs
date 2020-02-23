@@ -9,6 +9,7 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Properties;
 using hjudge.WebHost.Services;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -44,8 +46,15 @@ namespace hjudge.WebHost.Controllers
             dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
+        /// <summary>
+        /// 登录
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("login")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task Login([FromBody]LoginModel model)
         {
             if (TryValidateModel(model))
@@ -60,8 +69,15 @@ namespace hjudge.WebHost.Controllers
             else throw new BadRequestException();
         }
 
+        /// <summary>
+        /// 注册
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("register")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task Register([FromBody]RegisterModel model)
         {
             if (TryValidateModel(model))
@@ -93,6 +109,10 @@ namespace hjudge.WebHost.Controllers
             }
         }
 
+        /// <summary>
+        /// 退出
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         [Route("logout")]
         public Task Logout()
@@ -100,15 +120,22 @@ namespace hjudge.WebHost.Controllers
             return signInManager.SignOutAsync();
         }
 
+        /// <summary>
+        /// 更新头像
+        /// </summary>
+        /// <param name="avatar"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("avatar")]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [RequireSignedIn]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task UserAvatar(IFormFile avatar)
         {
             var userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
 
-            if (avatar == null) throw new BadRequestException("文件格式不正确");
+            if (avatar is null) throw new BadRequestException("文件格式不正确");
 
             if (!avatar.ContentType.StartsWith("image/")) throw new BadRequestException("文件格式不正确");
 
@@ -124,21 +151,34 @@ namespace hjudge.WebHost.Controllers
             await userManager.UpdateAsync(user);
         }
 
+        /// <summary>
+        /// 获取头像
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("avatar")]
+        [ProducesResponseType(200)]
         [ResponseCache(Duration = 3600, VaryByQueryKeys = new[] { "userId" })]
         public async Task<IActionResult> UserAvatar(string userId)
         {
             if (string.IsNullOrEmpty(userId)) return BadRequest();
             var user = await userManager.FindByIdAsync(userId);
-            return user?.Avatar == null || user.Avatar.Length == 0
+            return user?.Avatar is null || user.Avatar.Length == 0
                 ? File(ImageScaler.ScaleImage(Resource.DefaultAvatar, 128, 128), "image/png")
                 : File(ImageScaler.ScaleImage(user.Avatar, 128, 128), "image/png");
         }
 
+        /// <summary>
+        /// 更新用户信息
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("profiles")]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [RequireSignedIn]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task UserInfo([FromBody]UserInfoModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -190,9 +230,15 @@ namespace hjudge.WebHost.Controllers
             await userManager.UpdateAsync(user);
         }
 
+        /// <summary>
+        /// 获取用户信息
+        /// </summary>
+        /// <param name="userId">可为 null 表示获取用户</param>
+        /// <returns></returns>
         [HttpGet]
         [SendAntiForgeryToken]
         [Route("profiles")]
+        [ProducesResponseType(200)]
         public async Task<UserInfoModel> UserInfo(string? userId = null)
         {
             var signedIn = signInManager.IsSignedIn(User);
@@ -203,7 +249,7 @@ namespace hjudge.WebHost.Controllers
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
             var currentUser = string.IsNullOrEmpty(userId) ? user : await userManager.GetUserAsync(User);
-            if (userId == null || user == null) return new UserInfoModel();
+            if (userId is null || user is null) return new UserInfoModel();
             userInfoRet.UserId = user.Id;
             userInfoRet.UserName = user.UserName;
             userInfoRet.Privilege = user.Privilege;
@@ -223,14 +269,20 @@ namespace hjudge.WebHost.Controllers
             return userInfoRet;
         }
 
+        /// <summary>
+        /// 获取用户做题统计
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("stats")]
+        [ProducesResponseType(200)]
         public async Task<ProblemStatisticsModel> GetUserProblemStatistics(string? userId = null)
         {
             var ret = new ProblemStatisticsModel();
             if (string.IsNullOrEmpty(userId)) userId = userManager.GetUserId(User);
             var user = await userManager.FindByIdAsync(userId);
-            if (userId == null || user == null) return new ProblemStatisticsModel();
+            if (userId is null || user is null) return new ProblemStatisticsModel();
 
             var judges = await judgeService.QueryJudgesAsync(userId);
 
@@ -241,12 +293,18 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 发送重置密码邮件
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("reset-email")]
+        [ProducesResponseType(200)]
         public async Task SendResetPasswordEmailAsync([FromBody]ResetEmailModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
-            if (user == null) return;
+            if (user is null) return;
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var html = $@"<h2>H::Judge</h2>
 <p>您好 {user.UserName}，感谢使用 H::Judge！</p>
@@ -260,14 +318,21 @@ namespace hjudge.WebHost.Controllers
                  new[] { model.Email });
         }
 
+        /// <summary>
+        /// 重置密码
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("reset-password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task ResetPasswordAsync([FromBody]ResetModel model)
         {
             if (TryValidateModel(model))
             {
                 var user = await userManager.FindByEmailAsync(model.Email);
-                if (user == null) return;
+                if (user is null) return;
                 var result = await userManager.ResetPasswordAsync(user, model.Token, model.Password);
                 if (!result.Succeeded)
                 {
@@ -283,36 +348,6 @@ namespace hjudge.WebHost.Controllers
                     new BadRequestException(errors.Aggregate((accu, next) => accu + "\n" + next))
                     : new BadRequestException();
             }
-        }
-
-        [HttpGet]
-        [PrivilegeAuthentication.RequireSignedIn]
-        [Route("query-users")]
-        public async Task<List<UserBasicInfoModel>> QueryUsersAsync(string patterns)
-        {
-            var userId = userManager.GetUserId(User);
-            var userInfo = await userManager.FindByIdAsync(userId);
-            var normalizedPatterns = patterns.ToUpper();
-
-            var users = userManager.Users.Where(i => i.Email.Contains(normalizedPatterns) ||
-                    i.NormalizedUserName.Contains(normalizedPatterns) ||
-                    (i.Name != null && i.Name.Contains(patterns)));
-
-            if (!PrivilegeHelper.IsAdmin(userInfo?.Privilege ?? 0))
-                return await users.Select(i => new UserBasicInfoModel
-                {
-                    Email = i.Email,
-                    UserId = i.Id,
-                    UserName = i.UserName
-                }).ToListAsync();
-            else
-                return await users.Select(i => new UserBasicInfoModel
-                {
-                    Name = i.Name,
-                    Email = i.Email,
-                    UserId = i.Id,
-                    UserName = i.UserName
-                }).ToListAsync();
         }
     }
 }

@@ -61,7 +61,9 @@ export default class Problem extends React.Component<ProblemProps & CommonProps,
     };
   }
 
+  // a cache for converting `Skip query` to `Where query`
   private idRecord = new Map<number, number>();
+  // debounce
   private disableNavi = false;
   private userId = this.global.userInfo.userId;
 

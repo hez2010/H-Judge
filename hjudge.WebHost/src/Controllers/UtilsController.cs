@@ -22,8 +22,14 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
+        /// <summary>
+        /// 查询用户
+        /// </summary>
+        /// <param name="patterns">可以根据邮箱、用户名或姓名查询</param>
+        /// <returns></returns>
         [Route("queryUsers")]
         [PrivilegeAuthentication.RequireSignedIn]
+        [ProducesResponseType(200)]
         public async Task<UserQueryResultListModel> QueryUser(string patterns)
         {
             var user = await userManager.GetUserAsync(User);

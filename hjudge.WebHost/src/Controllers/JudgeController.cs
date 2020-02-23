@@ -10,12 +10,14 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Judge;
 using hjudge.WebHost.Services;
 using hjudge.WebHost.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static hjudge.WebHost.Middlewares.PrivilegeAuthentication;
 
 namespace hjudge.WebHost.Controllers
 {
@@ -43,23 +45,40 @@ namespace hjudge.WebHost.Controllers
             this.languageService = languageService;
         }
 
-        [PrivilegeAuthentication.RequireSignedIn]
+        /// <summary>
+        /// 重新评测
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [RequireSignedIn]
         [HttpPost]
         [Route("rejudge")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403, Type = typeof(ErrorModel))]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task Rejudge([FromBody]RejudgeModel model)
         {
             var judge = await judgeService.GetJudgeAsync(model.ResultId);
-            if (judge == null) throw new NotFoundException("该提交不存在");
+            if (judge is null) throw new NotFoundException("该提交不存在");
 
             // For older version compatibility
             if (judge.AdditionalInfo != "v2") throw new ForbiddenException("旧版系统提交不支持重新评测");
             await judgeService.QueueJudgeAsync(judge);
         }
 
-        [PrivilegeAuthentication.RequireSignedIn]
+        /// <summary>
+        /// 提交解答
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [RequireSignedIn]
         [HttpPost]
         [RequestSizeLimit(10485760)]
         [Route("submit")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
+        [ProducesResponseType(403, Type = typeof(ErrorModel))]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<SubmitSuccessModel> SubmitSolution([FromBody]SubmitModel model)
         {
             var user = await userManager.GetUserAsync(User);
@@ -75,7 +94,7 @@ namespace hjudge.WebHost.Controllers
             }
 
             var problem = await problemService.GetProblemAsync(model.ProblemId);
-            if (problem == null) throw new NotFoundException("该题目不存在");
+            if (problem is null) throw new NotFoundException("该题目不存在");
             var problemConfig = problem.Config.DeserializeJson<ProblemConfig>(false);
 
             // For older version compatibility
@@ -162,14 +181,21 @@ namespace hjudge.WebHost.Controllers
             };
         }
 
+        /// <summary>
+        /// 获取评测结果
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Route("result")]
         [HttpGet]
-        [PrivilegeAuthentication.RequireSignedIn]
+        [RequireSignedIn]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<ResultModel> GetJudgeResult(int id)
         {
             var user = await userManager.GetUserAsync(User);
             var judge = await judgeService.GetJudgeAsync(id);
-            if (judge == null) throw new NotFoundException("评测结果不存在");
+            if (judge is null) throw new NotFoundException("评测结果不存在");
             if (!PrivilegeHelper.IsTeacher(user.Privilege) && judge.UserId != user.Id && !judge.IsPublic) throw new ForbiddenException("没有权限查看该评测结果");
 
             var ret = new ResultModel

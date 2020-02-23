@@ -79,7 +79,9 @@ export default class Statistics extends React.Component<StatisticsProps & Common
     };
   }
 
+  // a cache for converting `Skip query` to `Where query`
   private idRecord = new Map<number, number>();
+  // debounce
   private disableNavi = false;
   private expandParamsInUri = false;
   private prevUserId = this.global.userInfo.userId;
@@ -139,8 +141,19 @@ export default class Statistics extends React.Component<StatisticsProps & Common
   }
 
   componentDidMount() {
+    // if parameters are passsed via props, the component is embedded to other page.
+    // under the circumstance, the title of window should not be changed
     if (!this.props.problemId && !this.props.contestId && !this.props.groupId) setTitle('状态');
 
+    // parameter can be passed from
+    //   1. router params
+    //   2. props
+    // priority: props > router params
+
+    // router parameter value (take contestId as an example):
+    // -1 -- query results without contest filter and include results among all contests
+    // 0 -- query results which do not belong to a contest
+    // other -- query results in a specific contest
     if (this.props.groupId) this.groupId = this.props.groupId;
     else if (this.props.match.params.groupId) {
       this.groupId = parseInt(this.props.match.params.groupId);

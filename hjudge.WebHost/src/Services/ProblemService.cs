@@ -71,7 +71,7 @@ namespace hjudge.WebHost.Services
             var user = await userManager.FindByIdAsync(userId);
 
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) throw new NotFoundException("找不到该比赛");
+            if (contest is null) throw new NotFoundException("找不到该比赛");
 
             if (!PrivilegeHelper.IsTeacher(user?.Privilege))
             {
@@ -92,10 +92,10 @@ namespace hjudge.WebHost.Services
             var user = await userManager.FindByIdAsync(userId);
 
             var contest = await contestService.GetContestAsync(contestId);
-            if (contest == null) throw new NotFoundException("找不到该比赛");
+            if (contest is null) throw new NotFoundException("找不到该比赛");
 
             var group = await groupService.GetGroupAsync(groupId);
-            if (group == null) throw new NotFoundException("找不到该小组");
+            if (group is null) throw new NotFoundException("找不到该小组");
 
             if (!dbContext.GroupContestConfig.Any(i => i.GroupId == groupId && i.ContestId == contestId))
                 throw new NotFoundException("找不到该比赛");
@@ -120,7 +120,7 @@ namespace hjudge.WebHost.Services
         public async Task RemoveProblemAsync(int problemId)
         {
             var problem = await GetProblemAsync(problemId);
-            if (problem == null) return;
+            if (problem is null) return;
             dbContext.Problem.Remove(problem);
             await dbContext.SaveChangesAsync();
         }
