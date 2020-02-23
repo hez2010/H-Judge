@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using hjudge.WebHost.Models.Language;
 
@@ -17,11 +17,17 @@ namespace hjudge.WebHost.Models.Problem
         public int AcceptCount { get; set; }
         public int SubmissionCount { get; set; }
         public List<LanguageModel> Languages { get; set; } = new List<LanguageModel>();
+        /// <summary>
+        /// 需要提交的文件名列表
+        /// </summary>
         public List<string> Sources { get; set; } = new List<string>();
         public int Status { get; set; }
         public bool Hidden { get; set; }
         public int Upvote { get; set; }
         public int Downvote { get; set; }
+        /// <summary>
+        /// 我的投票：0 - 未评价，1 - 好评，2 - 差评
+        /// </summary>
         public int MyVote { get; set; }
     }
 }

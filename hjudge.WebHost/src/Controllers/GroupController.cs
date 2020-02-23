@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Group;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Identity;
@@ -28,7 +29,13 @@ namespace hjudge.WebHost.Controllers
 
         private static readonly int[] allStatus = { 0, 1 };
 
+        /// <summary>
+        /// 查询小组
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [Route("list")]
+        [ProducesResponseType(200)]
         public async Task<GroupListModel> GroupList([FromBody]GroupListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -86,8 +93,15 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 获取小组详情
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
         [Route("details")]
         [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<GroupModel> GroupDetails(int groupId)
         {
             var user = await userManager.GetUserAsync(User);

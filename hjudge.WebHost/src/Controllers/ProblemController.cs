@@ -13,6 +13,7 @@ using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Problem;
 using hjudge.WebHost.Services;
 using hjudge.WebHost.Utils;
@@ -60,8 +61,14 @@ namespace hjudge.WebHost.Controllers
 
         private static readonly int[] allStatus = { 0, 1, 2 };
 
+        /// <summary>
+        /// 查询题目
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("list")]
+        [ProducesResponseType(200)]
         public async Task<ProblemListModel> ProblemList([FromBody]ProblemListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -165,8 +172,15 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 获取题目详情
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("details")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<ProblemModel> ProblemDetails([FromBody]ProblemQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -287,17 +301,29 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 删除题目
+        /// </summary>
+        /// <param name="problemId"></param>
+        /// <returns></returns>
         [HttpDelete]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
         public Task RemoveProblem(int problemId)
         {
             return problemService.RemoveProblemAsync(problemId);
         }
 
+        /// <summary>
+        /// 创建题目
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
         public async Task<ProblemEditModel> CreateProblem([FromBody]ProblemEditModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -315,7 +341,6 @@ namespace hjudge.WebHost.Controllers
             };
 
             problem.Id = await problemService.CreateProblemAsync(problem);
-            Directory.CreateDirectory($"AppData/Data/{problem.Id}");
 
             return new ProblemEditModel
             {
@@ -329,9 +354,16 @@ namespace hjudge.WebHost.Controllers
             };
         }
 
+        /// <summary>
+        /// 更新题目
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task UpdateProblem([FromBody]ProblemEditModel model)
         {
             var problem = await problemService.GetProblemAsync(model.Id);
@@ -347,9 +379,16 @@ namespace hjudge.WebHost.Controllers
             await problemService.UpdateProblemAsync(problem);
         }
 
+        /// <summary>
+        /// 获取题目和题目配置
+        /// </summary>
+        /// <param name="problemId"></param>
+        /// <returns></returns>
         [HttpGet]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<ProblemEditModel> GetProblem(int problemId)
         {
             var problem = await problemService.GetProblemAsync(problemId);
@@ -375,10 +414,19 @@ namespace hjudge.WebHost.Controllers
             return model;
         }
 
+        /// <summary>
+        /// 上传题目数据
+        /// </summary>
+        /// <param name="problemId"></param>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPut]
         [RequireTeacher]
         [Route("data")]
         [RequestSizeLimit(135000000)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<ProblemDataUploadModel> UploadData([FromForm]int problemId, IFormFile file)
         {
             if ((await problemService.GetProblemAsync(problemId)) is null) throw new NotFoundException("找不到该题目");
@@ -407,9 +455,16 @@ namespace hjudge.WebHost.Controllers
             return failedList;
         }
 
+        /// <summary>
+        /// 获取题目数据
+        /// </summary>
+        /// <param name="problemId"></param>
+        /// <returns></returns>
         [HttpGet]
         [RequireTeacher]
         [Route("data")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<IActionResult> GetData(int problemId)
         {
             if ((await problemService.GetProblemAsync(problemId)) is null) throw new NotFoundException("找不到该题目");
@@ -435,9 +490,16 @@ namespace hjudge.WebHost.Controllers
             return File(stream, "application/x-zip-compressed", $"Data_{problemId}_{DateTime.Now:yyyyMMddHHmmssffff}.zip", true);
         }
 
+        /// <summary>
+        /// 获取题目数据文件列表
+        /// </summary>
+        /// <param name="problemId"></param>
+        /// <returns></returns>
         [HttpGet]
         [RequireTeacher]
         [Route("data-view")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<IActionResult> GetDataFileList(int problemId)
         {
             if ((await problemService.GetProblemAsync(problemId)) is null) throw new NotFoundException("找不到该题目");
@@ -450,9 +512,15 @@ namespace hjudge.WebHost.Controllers
             return Content(sb.ToString());
         }
 
+        /// <summary>
+        /// 删除题目数据
+        /// </summary>
+        /// <param name="problemId"></param>
+        /// <returns></returns>
         [HttpDelete]
         [RequireTeacher]
         [Route("data")]
+        [ProducesResponseType(200)]
         public async Task DeleteData(int problemId)
         {
             if ((await problemService.GetProblemAsync(problemId)) is null) return;

@@ -9,6 +9,7 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Account;
 using hjudge.WebHost.Models.Contest;
 using hjudge.WebHost.Services;
@@ -42,8 +43,15 @@ namespace hjudge.WebHost.Controllers
         }
 
         private static readonly int[] allStatus = { 0, 1, 2 };
+
+        /// <summary>
+        /// 查询比赛
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("list")]
+        [ProducesResponseType(200)]
         public async Task<ContestListModel> ContestList([FromBody]ContestListQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -115,8 +123,15 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 获取比赛详情
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("details")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<ContestModel> ContestDetails([FromBody]ContestQueryModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -162,17 +177,29 @@ namespace hjudge.WebHost.Controllers
             };
         }
 
+        /// <summary>
+        /// 删除比赛
+        /// </summary>
+        /// <param name="contestId"></param>
+        /// <returns></returns>
         [HttpDelete]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
         public Task RemoveContest(int contestId)
         {
             return contestService.RemoveContestAsync(contestId);
         }
 
+        /// <summary>
+        /// 创建比赛
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPut]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
         public async Task<ContestEditModel> CreateContest([FromBody]ContestEditModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -205,9 +232,16 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 更新比赛
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task UpdateContest([FromBody]ContestEditModel model)
         {
             var contest = await contestService.GetContestAsync(model.Id);
@@ -225,9 +259,16 @@ namespace hjudge.WebHost.Controllers
             await contestService.UpdateContestProblemAsync(contest.Id, model.Problems);
         }
 
+        /// <summary>
+        /// 获取比赛和比赛配置
+        /// </summary>
+        /// <param name="contestId"></param>
+        /// <returns></returns>
         [HttpGet]
         [RequireTeacher]
         [Route("edit")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<ContestEditModel> GetContest(int contestId)
         {
             var userId = userManager.GetUserId(User);
@@ -250,10 +291,16 @@ namespace hjudge.WebHost.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 获取参赛者，该 API 当前未启用
+        /// </summary>
+        /// <param name="contestId"></param>
+        /// <returns></returns>
         [HttpGet]
         [RequireTeacher]
         [FunctionalControl.DisabledApi]
         [Route("competitors")]
+        [ProducesResponseType(200)]
         public async Task<List<UserBasicInfoModel>> GetCompetitorsListAsync(int contestId)
         {
             return await (await contestService.QueryCompetitorsAsync(contestId))
@@ -266,19 +313,31 @@ namespace hjudge.WebHost.Controllers
                 }).ToListAsync();
         }
 
+        /// <summary>
+        /// 将用户加入比赛，该 API 当前未启用
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [RequireTeacher]
         [FunctionalControl.DisabledApi]
         [Route("competitors/add")]
+        [ProducesResponseType(200)]
         public Task JoinContestAsync([FromBody]JoinQuitContestModel model)
         {
             return contestService.JoinContestAsync(model.ContestId, model.UserIds);
         }
 
+        /// <summary>
+        /// 将用户移出比赛，该 API 当前未启用
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [RequireTeacher]
         [FunctionalControl.DisabledApi]
         [Route("competitors/remove")]
+        [ProducesResponseType(200)]
         public Task QuitContestAsync([FromBody]JoinQuitContestModel model)
         {
             return contestService.QuitContestAsync(model.ContestId, model.UserIds);

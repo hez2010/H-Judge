@@ -22,6 +22,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using React.AspNet;
 
 namespace hjudge.WebHost
@@ -42,6 +44,22 @@ namespace hjudge.WebHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
+            services.AddOpenApiDocument(options =>
+            {
+                options.Version = "1.0";
+                options.Title = "H::Judge";
+                options.DocumentName = "Api";
+                options.ActualSerializerSettings.ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy
+                    {
+                        OverrideSpecifiedNames = false
+                    }
+                };
+                options.ActualSerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+            });
+
             services.AddResponseCaching();
             services.AddResponseCompression(options =>
             {
@@ -228,6 +246,21 @@ namespace hjudge.WebHost
 
                     endpoints.MapRazorPages();
                 }
+            });
+
+            app.UseOpenApi(o =>
+            {
+                o.DocumentName = "Api";
+                o.Path = "/v1/api.json";
+            });
+            app.UseReDoc(o =>
+            {
+                o.Path = "/docs";
+                o.DocumentPath = "/v1/api.json";
+            });
+            app.UseSwaggerUi3(o => {
+                o.Path = "/swagger";
+                o.DocumentPath = "/v1/api.json";
             });
 
             if (environment.IsDevelopment())

@@ -3,7 +3,9 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Utils;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +15,7 @@ namespace hjudge.WebHost.Middlewares
     public static class PrivilegeAuthentication
     {
         [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
+        [ProducesResponseType(401, Type = typeof(ErrorModel))]
         public sealed class RequireSignedInAttribute : Attribute, IAsyncActionFilter
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -29,6 +32,8 @@ namespace hjudge.WebHost.Middlewares
         }
 
         [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
+        [ProducesResponseType(401, Type = typeof(ErrorModel))]
+        [ProducesResponseType(403, Type = typeof(ErrorModel))]
         public sealed class RequireAdminAttribute : Attribute, IAsyncActionFilter
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -46,6 +51,8 @@ namespace hjudge.WebHost.Middlewares
         }
 
         [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
+        [ProducesResponseType(401, Type = typeof(ErrorModel))]
+        [ProducesResponseType(403, Type = typeof(ErrorModel))]
         public sealed class RequireTeacherAttribute : Attribute, IAsyncActionFilter
         {
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

@@ -7,6 +7,7 @@ using hjudge.Shared.Utils;
 using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Rank;
 using hjudge.WebHost.Services;
 using hjudge.WebHost.Utils;
@@ -34,8 +35,17 @@ namespace hjudge.WebHost.Controllers
             this.groupService = groupService;
         }
 
+        /// <summary>
+        /// 获取比赛排名信息
+        /// </summary>
+        /// <param name="contestId"></param>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
         [Route("contest")]
         [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403, Type = typeof(ErrorModel))]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<RankContestStatisticsModel> GetRankForContest(int contestId, int groupId)
         {
             var user = await userManager.GetUserAsync(User);

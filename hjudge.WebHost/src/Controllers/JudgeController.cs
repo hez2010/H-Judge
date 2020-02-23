@@ -10,6 +10,7 @@ using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Judge;
 using hjudge.WebHost.Services;
 using hjudge.WebHost.Utils;
@@ -44,9 +45,17 @@ namespace hjudge.WebHost.Controllers
             this.languageService = languageService;
         }
 
+        /// <summary>
+        /// 重新评测
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [RequireSignedIn]
         [HttpPost]
         [Route("rejudge")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403, Type = typeof(ErrorModel))]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task Rejudge([FromBody]RejudgeModel model)
         {
             var judge = await judgeService.GetJudgeAsync(model.ResultId);
@@ -57,10 +66,19 @@ namespace hjudge.WebHost.Controllers
             await judgeService.QueueJudgeAsync(judge);
         }
 
+        /// <summary>
+        /// 提交解答
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [RequireSignedIn]
         [HttpPost]
         [RequestSizeLimit(10485760)]
         [Route("submit")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
+        [ProducesResponseType(403, Type = typeof(ErrorModel))]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<SubmitSuccessModel> SubmitSolution([FromBody]SubmitModel model)
         {
             var user = await userManager.GetUserAsync(User);
@@ -163,9 +181,16 @@ namespace hjudge.WebHost.Controllers
             };
         }
 
+        /// <summary>
+        /// 获取评测结果
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Route("result")]
         [HttpGet]
         [RequireSignedIn]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404, Type = typeof(ErrorModel))]
         public async Task<ResultModel> GetJudgeResult(int id)
         {
             var user = await userManager.GetUserAsync(User);

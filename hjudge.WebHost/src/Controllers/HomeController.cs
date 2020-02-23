@@ -67,8 +67,13 @@ namespace hjudge.WebHost.Controllers
             return userInfoRet;
         }
 
+        /// <summary>
+        /// 获取首页动态
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("home/activities")]
+        [ProducesResponseType(200)]
         public async Task<ActivityListModel> GetActivities()
         {
             var judges = await judgeService

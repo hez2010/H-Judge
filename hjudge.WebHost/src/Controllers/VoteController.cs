@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
 using hjudge.WebHost.Middlewares;
+using hjudge.WebHost.Models;
 using hjudge.WebHost.Models.Vote;
 using hjudge.WebHost.Services;
 using Microsoft.AspNetCore.Identity;
@@ -23,9 +24,16 @@ namespace hjudge.WebHost.Controllers
             this.userManager = userManager;
         }
 
+        /// <summary>
+        /// 为题目投票
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [PrivilegeAuthentication.RequireSignedIn]
         [Route("problem")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task VoteProblem([FromBody]ProblemVoteModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -38,9 +46,16 @@ namespace hjudge.WebHost.Controllers
             if (!result) throw new BadRequestException("评价失败");
         }
 
+        /// <summary>
+        /// 为比赛投票
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [PrivilegeAuthentication.RequireSignedIn]
         [Route("contest")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task VoteContest([FromBody]ContestVoteModel model)
         {
             var userId = userManager.GetUserId(User);
@@ -53,9 +68,16 @@ namespace hjudge.WebHost.Controllers
             if (!result) throw new BadRequestException("评价失败");
         }
 
+        /// <summary>
+        /// 取消投票
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [PrivilegeAuthentication.RequireSignedIn]
         [Route("cancel")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400, Type = typeof(ErrorModel))]
         public async Task CancelVote([FromBody]CancelVoteModel model)
         {
             var userId = userManager.GetUserId(User);
