@@ -218,14 +218,6 @@ namespace hjudge.WebHost
                 });
             }
 
-            app.UseSpaStaticFiles();
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
             app.UseOpenApi(o =>
             {
                 o.DocumentName = "Api";
@@ -236,10 +228,19 @@ namespace hjudge.WebHost
                 o.Path = "/docs";
                 o.DocumentPath = "/v1/api.json";
             });
-            app.UseSwaggerUi3(o => {
+            app.UseSwaggerUi3(o =>
+            {
                 o.Path = "/swagger";
                 o.DocumentPath = "/v1/api.json";
             });
+
+            app.UseSpaStaticFiles();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

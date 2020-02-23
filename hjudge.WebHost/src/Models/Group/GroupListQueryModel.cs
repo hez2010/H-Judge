@@ -8,6 +8,9 @@ namespace hjudge.WebHost.Models.Group
         {
             public int Id { get; set; } = 0;
             public string Name { get; set; } = string.Empty;
+            /// <summary>
+            /// 状态筛选：0 - 已加入，1 - 未加入
+            /// </summary>
             public List<int> Status { get; set; } = new List<int>();
         }
         /// <summary>
