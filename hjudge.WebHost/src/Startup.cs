@@ -226,6 +226,21 @@ namespace hjudge.WebHost
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseOpenApi(o =>
+            {
+                o.DocumentName = "Api";
+                o.Path = "/v1/api.json";
+            });
+            app.UseReDoc(o =>
+            {
+                o.Path = "/docs";
+                o.DocumentPath = "/v1/api.json";
+            });
+            app.UseSwaggerUi3(o => {
+                o.Path = "/swagger";
+                o.DocumentPath = "/v1/api.json";
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
@@ -246,21 +261,6 @@ namespace hjudge.WebHost
 
                     endpoints.MapRazorPages();
                 }
-            });
-
-            app.UseOpenApi(o =>
-            {
-                o.DocumentName = "Api";
-                o.Path = "/v1/api.json";
-            });
-            app.UseReDoc(o =>
-            {
-                o.Path = "/docs";
-                o.DocumentPath = "/v1/api.json";
-            });
-            app.UseSwaggerUi3(o => {
-                o.Path = "/swagger";
-                o.DocumentPath = "/v1/api.json";
             });
 
             if (environment.IsDevelopment())
