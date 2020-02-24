@@ -43,7 +43,6 @@ namespace hjudge.WebHost.Controllers
             this.signInManager = signInManager;
             this.judgeService = judgeService;
             this.emailSender = emailSender;
-            dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         /// <summary>

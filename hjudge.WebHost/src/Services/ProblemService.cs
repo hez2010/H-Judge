@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
@@ -48,8 +49,8 @@ namespace hjudge.WebHost.Services
         public Task<Problem?> GetProblemAsync(int problemId)
         {
             return dbContext.Problem
-                .Where(i => i.Id == problemId)
-                .FirstOrDefaultAsync();
+                    .Where(i => i.Id == problemId)
+                    .FirstOrDefaultAsync();
         }
 
         public async Task<IQueryable<Problem>> QueryProblemAsync(string? userId)
@@ -79,7 +80,6 @@ namespace hjudge.WebHost.Services
             }
 
             IQueryable<Problem> problems = dbContext.ContestProblemConfig
-
                                                 .Where(i => i.ContestId == contestId)
                                                 .OrderBy(i => i.Id)
                                                 .Select(i => i.Problem);

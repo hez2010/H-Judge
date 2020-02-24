@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Core;
 using hjudge.Shared.Utils;
 using hjudge.WebHost.Configurations;
@@ -77,7 +78,7 @@ namespace hjudge.WebHost.Controllers
                 GroupId = groupId
             };
 
-            var results = judges.OrderBy(i => i.Id).Select(i => new
+            var results = judges.Include(i => i.Problem).OrderBy(i => i.Id).Select(i => new
             {
                 i.Id,
                 i.ProblemId,
@@ -88,7 +89,7 @@ namespace hjudge.WebHost.Controllers
                 i.ResultType,
                 Time = i.JudgeTime,
                 Score = i.FullScore
-            });
+            }).Cacheable();
 
             var isAccepted = new Dictionary<(string UserId, int ProblemId), bool>();
 

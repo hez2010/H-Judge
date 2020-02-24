@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.Utils;
@@ -40,8 +41,7 @@ namespace hjudge.WebHost.Services
         {
             var judges = dbContext.Judge.Where(i => i.Id == judgeId);
 
-            return judges
-                .FirstOrDefaultAsync();
+            return judges.FirstOrDefaultAsync();
         }
 
         public Task<IQueryable<Judge>> QueryJudgesAsync(string? userId = null, int? groupId = 0, int? contestId = 0, int? problemId = 0, int? resultType = null)

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Middlewares;
@@ -52,13 +53,14 @@ namespace hjudge.WebHost.Test
             services.AddScoped<IFileService, FileService>();
             services.AddSingleton<ILanguageService, LocalLanguageService>();
 
+            services.AddEFSecondLevelCache(options => options.UseMemoryCacheProvider());
+
             services.AddDbContext<WebHostDbContext>(options =>
             {
                 options.UseInMemoryDatabase("test");
                 options.EnableServiceProviderCaching();
+                options.AddInterceptors(new SecondLevelCacheInterceptor());
             });
-
-            services.AddEntityFrameworkInMemoryDatabase();
 
             services.AddAuthentication(o =>
             {
