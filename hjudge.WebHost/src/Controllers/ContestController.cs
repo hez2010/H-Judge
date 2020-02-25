@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Shared.Utils;
 using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data;
@@ -100,7 +101,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).Cacheable().CountAsync();
 
             if (model.GroupId == 0) contests = contests.OrderByDescending(i => i.Id);
             else model.StartId = 0; // keep original order while fetching contests in a group
@@ -117,7 +118,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
-            }).ToListAsync();
+            }).Cacheable().ToListAsync();
 
             ret.CurrentTime = DateTime.Now;
             return ret;
@@ -152,7 +153,7 @@ namespace hjudge.WebHost.Controllers
                 throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var contest = await contests.Where(i => i.Id == model.ContestId).FirstOrDefaultAsync();
+            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).Cacheable().FirstOrDefaultAsync();
 
             if (contest is null) throw new NotFoundException("找不到该比赛");
 
@@ -287,7 +288,7 @@ namespace hjudge.WebHost.Controllers
             ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
 
             var problems = await problemService.QueryProblemAsync(userId, contestId);
-            ret.Problems = problems.Select(i => i.Id).ToList();
+            ret.Problems = await problems.Select(i => i.Id).Cacheable().ToListAsync();
             return ret;
         }
 
@@ -310,7 +311,7 @@ namespace hjudge.WebHost.Controllers
                     Name = i.Name,
                     UserName = i.UserName,
                     Email = i.Email
-                }).ToListAsync();
+                }).Cacheable().ToListAsync();
         }
 
         /// <summary>

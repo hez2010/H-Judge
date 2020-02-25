@@ -25,11 +25,11 @@ namespace hjudge.Core
             IgnoreNullValues = true
         };
 
-        [DllImport("hjudge.Exec.Windows", CallingConvention = CallingConvention.Cdecl, EntryPoint = "execute", CharSet = CharSet.Unicode)]
-        static extern bool ExecuteWindows(string prarm, [MarshalAs(UnmanagedType.LPWStr)]StringBuilder ret);
+        [DllImport("hjudge.Exec.Windows", CallingConvention = CallingConvention.Cdecl, EntryPoint = "execute", CharSet = CharSet.Ansi)]
+        static extern bool ExecuteWindows(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
 
-        [DllImport("hjudge.Exec.Linux", CallingConvention = CallingConvention.Cdecl, EntryPoint = "execute", CharSet = CharSet.Unicode)]
-        static extern bool ExecuteLinux(string prarm, [MarshalAs(UnmanagedType.LPWStr)]StringBuilder ret);
+        [DllImport("hjudge.Exec.Linux", CallingConvention = CallingConvention.Cdecl, EntryPoint = "execute", CharSet = CharSet.Ansi)]
+        static extern bool ExecuteLinux(string prarm, [MarshalAs(UnmanagedType.LPStr)]StringBuilder ret);
 
         static (bool Succeeded, JudgePoint? Result) Execute(string param)
         {

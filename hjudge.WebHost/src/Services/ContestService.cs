@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
@@ -50,8 +51,8 @@ namespace hjudge.WebHost.Services
         public Task<Contest?> GetContestAsync(int contestId)
         {
             return dbContext.Contest
-                .Where(i => i.Id == contestId)
-                .FirstOrDefaultAsync();
+                    .Where(i => i.Id == contestId)
+                    .FirstOrDefaultAsync();
         }
 
         public Task<bool> HasJoinedContestAsync(int contestId, string userId)
@@ -138,6 +139,7 @@ namespace hjudge.WebHost.Services
         public async Task RemoveContestAsync(int contestId)
         {
             var contest = await GetContestAsync(contestId);
+            if (contest is null) return;
             dbContext.Contest.Remove(contest);
             await dbContext.SaveChangesAsync();
         }

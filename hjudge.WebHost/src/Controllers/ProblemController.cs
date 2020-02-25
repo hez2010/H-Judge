@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using Google.Protobuf;
 using hjudge.Core;
 using hjudge.Shared.Utils;
@@ -123,7 +124,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).Cacheable().CountAsync();
 
             if (model.ContestId == 0) problems = problems.OrderBy(i => i.Id);
             else model.StartId = 0; // keep original order while fetching problems in a contest
@@ -145,7 +146,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).ToListAsync();
+                }).Cacheable().ToListAsync();
             }
             else
             {
@@ -166,7 +167,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).ToListAsync();
+                }).Cacheable().ToListAsync();
             }
 
             return ret;
@@ -201,18 +202,18 @@ namespace hjudge.WebHost.Controllers
                 throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var problem = await problems.Where(i => i.Id == model.ProblemId).FirstOrDefaultAsync();
+            var problem = await problems.Include(i => i.UserInfo).Where(i => i.Id == model.ProblemId).Cacheable().FirstOrDefaultAsync();
             if (problem is null) throw new NotFoundException("找不到该题目");
 
             // use an invalid value when userId is empty or null
             var judges = await judgeService.QueryJudgesAsync(string.IsNullOrEmpty(userId) ? "-1" : userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
 
             if (await judges.Where(i => i.ProblemId == problem.Id)
-                    .AnyAsync())
+                    .Cacheable().AnyAsync())
             {
                 ret.Status = 1;
                 if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                        .AnyAsync())
+                        .Cacheable().AnyAsync())
                 {
                     ret.Status = 2;
                 }
@@ -226,7 +227,7 @@ namespace hjudge.WebHost.Controllers
                 var data = await dbContext.ContestProblemConfig
                     .Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id)
                     .Select(i => new { i.AcceptCount, i.SubmissionCount })
-                    
+                    .Cacheable()
                     .FirstOrDefaultAsync();
                 if (data != null)
                 {
@@ -237,24 +238,23 @@ namespace hjudge.WebHost.Controllers
 
             if (!string.IsNullOrEmpty(userId))
             {
-                if (await judges.Where(i => i.ProblemId == problem.Id).AnyAsync())
+                if (await judges.Where(i => i.ProblemId == problem.Id).Cacheable().AnyAsync())
                 {
                     ret.Status = 1;
                     if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                            .AnyAsync())
+                            .Cacheable().AnyAsync())
                     {
                         ret.Status = 2;
                     }
                 }
             }
 
-            var user = await userManager.FindByIdAsync(problem.UserId);
             ret.Name = problem.Name;
             ret.Hidden = problem.Hidden;
             ret.Level = problem.Level;
             ret.Type = problem.Type;
             ret.UserId = problem.UserId;
-            ret.UserName = user?.UserName ?? string.Empty;
+            ret.UserName = problem.UserInfo.UserName;
             ret.Id = problem.Id;
             ret.Description = problem.Description;
             ret.CreationTime = problem.CreationTime;

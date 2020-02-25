@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Utils;
@@ -43,8 +44,8 @@ namespace hjudge.WebHost.Services
         public Task<Group?> GetGroupAsync(int groupId)
         {
             return dbContext.Group
-                .Where(i => i.Id == groupId)
-                .FirstOrDefaultAsync();
+                    .Where(i => i.Id == groupId)
+                    .FirstOrDefaultAsync();
         }
 
         public Task<bool> IsInGroupAsync(string userId, int groupId)
@@ -112,6 +113,7 @@ namespace hjudge.WebHost.Services
         public async Task RemoveGroupAsync(int groupId)
         {
             var group = await GetGroupAsync(groupId);
+            if (group is null) return;
             dbContext.Group.Remove(group);
             await dbContext.SaveChangesAsync();
         }

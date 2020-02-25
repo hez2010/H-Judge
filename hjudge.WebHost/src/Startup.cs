@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Shared.MessageQueue;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
@@ -105,6 +106,11 @@ namespace hjudge.WebHost
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
 
+            services.AddEFSecondLevelCache(options =>
+            {
+                options.UseRedisCacheProvider(configuration["Redis:HostName"] + ":" + configuration["Redis:Port"]);
+            });
+
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = configuration["Redis:HostName"] + ":" + configuration["Redis:Port"];
@@ -116,9 +122,8 @@ namespace hjudge.WebHost
                 options.UseLazyLoadingProxies();
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
                 options.EnableServiceProviderCaching();
+                options.AddInterceptors(new SecondLevelCacheInterceptor());
             });
-
-            services.AddEntityFrameworkNpgsql();
 
             services.AddAuthentication(o =>
             {

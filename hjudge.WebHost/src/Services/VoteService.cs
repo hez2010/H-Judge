@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.WebHost.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -108,8 +109,8 @@ namespace hjudge.WebHost.Services
         public Task<VotesRecord?> GetVoteAsync(string userId, int? problemId, int? contestId)
         {
             return dbContext.VotesRecord
-                .Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == contestId)
-                .FirstOrDefaultAsync();
+                    .Where(i => i.UserId == userId && i.ProblemId == problemId && i.ContestId == contestId)
+                    .FirstOrDefaultAsync();
         }
 
         public async Task<bool> UpvoteContestAsync(string userId, int contestId, string? title = null, string? content = null)

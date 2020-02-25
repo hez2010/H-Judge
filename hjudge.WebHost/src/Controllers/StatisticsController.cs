@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Core;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
@@ -55,7 +56,7 @@ namespace hjudge.WebHost.Controllers
 
             var ret = new StatisticsListModel();
 
-            if (model.RequireTotalCount) ret.TotalCount = await query.Select(i => i.Id).CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await query.Select(i => i.Id).Cacheable().CountAsync();
 
             query = query.OrderByDescending(i => i.Id);
 
@@ -75,7 +76,7 @@ namespace hjudge.WebHost.Controllers
                 ProblemName = i.Problem.Name,
                 Language = i.Language,
                 Score = i.FullScore
-            }).ToListAsync();
+            }).Cacheable().ToListAsync();
 
             return ret;
         }
