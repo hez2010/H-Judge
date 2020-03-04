@@ -75,7 +75,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await groups.Include(i => i.UserInfo).Select(i => i.Id).Cacheable().CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await groups.Select(i => i.Id).Cacheable().CountAsync();
 
             groups = groups.OrderByDescending(i => i.Id);
             if (model.StartId == 0) groups = groups.Skip(model.Start);
@@ -107,7 +107,7 @@ namespace hjudge.WebHost.Controllers
         {
             var user = await userManager.GetUserAsync(User);
             var groups = await groupService.QueryGroupAsync(user?.Id);
-            var group = await groups.Include(i => i.UserInfo).Where(i => i.Id == groupId).Cacheable().FirstOrDefaultAsync();
+            var group = await groups.Where(i => i.Id == groupId).FirstOrDefaultAsync();
             if (group is null) throw new NotFoundException("该小组不存在");
 
             return new GroupModel

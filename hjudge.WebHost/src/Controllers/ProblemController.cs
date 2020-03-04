@@ -202,7 +202,7 @@ namespace hjudge.WebHost.Controllers
                 throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var problem = await problems.Include(i => i.UserInfo).Where(i => i.Id == model.ProblemId).Cacheable().FirstOrDefaultAsync();
+            var problem = await problems.Where(i => i.Id == model.ProblemId).FirstOrDefaultAsync();
             if (problem is null) throw new NotFoundException("找不到该题目");
 
             // use an invalid value when userId is empty or null
