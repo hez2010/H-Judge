@@ -153,7 +153,7 @@ namespace hjudge.WebHost.Controllers
                 throw new InterfaceException((HttpStatusCode)ex.HResult, ex.Message);
             }
 
-            var contest = await contests.Include(i => i.UserInfo).Where(i => i.Id == model.ContestId).Cacheable().FirstOrDefaultAsync();
+            var contest = await contests.Where(i => i.Id == model.ContestId).FirstOrDefaultAsync();
 
             if (contest is null) throw new NotFoundException("找不到该比赛");
 
