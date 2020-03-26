@@ -1,0 +1,18 @@
+[package]
+name = "hjudge_Exec"
+version = "0.1.0"
+authors = ["Steven He <hez2010@outlook.com>"]
+edition = "2018"
+
+[lib]
+name = "hjudge_Exec"
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = {version = "1.0", features=["derive"]}
+serde_json = "1.0"
+
+[target.'cfg(windows)'.dependencies]
+winapi = {version = "0.3", features=["winbase", "errhandlingapi", "timeapi", "jobapi2", "winnt"]}
