@@ -6,8 +6,9 @@ edition = "2018"
 
 [lib]
 name = "hjudge_Exec_Linux"
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+json = "0.12.4"
