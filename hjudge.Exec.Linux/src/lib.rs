@@ -8,7 +8,7 @@ use std::slice;
 pub unsafe extern "C" fn execute(param: *const c_char, ret: *mut c_char) -> bool {
     let input = CStr::from_ptr(param).to_string_lossy().into_owned();
     let result = judge(&input);
-    let buffer = CString::new("test123456").unwrap().into_bytes_with_nul();
+    let buffer = CString::new(result.0).unwrap().into_bytes_with_nul();
     let slice = slice::from_raw_parts_mut(ret, result.0.len());
     for index in 0..(result.0.len()) {
         slice[index] = buffer[index] as i8;
@@ -22,5 +22,5 @@ fn judge(param: &str) -> (&str, bool) {
         return ("Failed to parse JSON.", false);
     }
     let json = jsonResult.unwrap();
-    return ("test", true);
+    return ("result", true);
 }
