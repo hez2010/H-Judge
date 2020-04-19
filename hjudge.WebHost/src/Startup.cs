@@ -48,6 +48,7 @@ namespace hjudge.WebHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks();
+#if DEBUG
             services.AddOpenApiDocument(options =>
             {
                 options.Version = "1.0";
@@ -70,7 +71,7 @@ namespace hjudge.WebHost
                     In = OpenApiSecurityApiKeyLocation.Header
                 }));
             });
-
+#endif
             services.AddResponseCaching();
             services.AddResponseCompression(options =>
             {
@@ -232,7 +233,7 @@ namespace hjudge.WebHost
                     config.AddScriptWithoutTransform("~/dist/vendors~server.bundle.js");
                 });
             }
-
+#if DEBUG
             app.UseOpenApi(o =>
             {
                 o.DocumentName = "Api";
@@ -248,7 +249,7 @@ namespace hjudge.WebHost
                 o.Path = "/swagger";
                 o.DocumentPath = "/v1/api.json";
             });
-
+#endif
             app.UseSpaStaticFiles();
             app.UseStaticFiles();
 
