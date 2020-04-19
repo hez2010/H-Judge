@@ -9,7 +9,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '3.1.102'
+    version: '3.1.201'
     includePreviewVersions: false
 - task: CmdLine@2
   inputs:
@@ -63,14 +63,14 @@ steps:
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Windows.zip'
     replaceExistingArchive: true
-- task: ArchiveFiles@2
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
-  inputs:
-    rootFolderOrFile: 'hjudge.Exec.Linux/target/release'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Linux.zip'
-    replaceExistingArchive: true
+# - task: ArchiveFiles@2
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+#   inputs:
+#     rootFolderOrFile: 'hjudge.Exec.Linux/target/release'
+#     includeRootFolder: false
+#     archiveType: 'zip'
+#     archiveFile: '$(Build.ArtifactStagingDirectory)/hjudge.Exec.Linux.zip'
+#     replaceExistingArchive: true
 - task: PublishPipelineArtifact@1
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   inputs:
