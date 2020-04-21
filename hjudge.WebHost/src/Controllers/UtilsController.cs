@@ -23,12 +23,13 @@ namespace hjudge.WebHost.Controllers
         }
 
         /// <summary>
-        /// 查询用户
+        /// 查询用户，该 API 未启用
         /// </summary>
         /// <param name="patterns">可以根据邮箱、用户名或姓名查询</param>
         /// <returns></returns>
         [Route("queryUsers")]
         [PrivilegeAuthentication.RequireSignedIn]
+        [FunctionalControl.DisabledApi]
         [ProducesResponseType(200)]
         public async Task<UserQueryResultListModel> QueryUser(string patterns)
         {
