@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.4" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0-rc1" />
     <PackageReference Include="Google.Protobuf" Version="3.11.4" />
-    <PackageReference Include="Grpc" Version="2.28.1" />
+    <PackageReference Include="Grpc" Version="2.29.0" />
   </ItemGroup>
 
   <ItemGroup>
