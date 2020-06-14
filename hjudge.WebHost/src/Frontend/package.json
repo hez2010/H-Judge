@@ -24,7 +24,7 @@
     "astroturf": "0.10.4",
     "autoprefixer": "9.8.0",
     "babel-loader": "8.1.0",
-    "css-loader": "3.5.3",
+    "css-loader": "3.6.0",
     "eslint": "7.2.0",
     "eslint-config-react-app": "5.2.1",
     "eslint-loader": "4.0.2",
