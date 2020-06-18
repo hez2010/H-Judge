@@ -57,7 +57,7 @@
     "react-router-dom": "5.2.0",
     "reactn": "2.2.7",
     "semantic-ui-react": "0.88.2",
-    "webpack-cli": "3.3.11"
+    "webpack-cli": "3.3.12"
   },
   "scripts": {
     "start": "rimraf ./build && webpack-dev-server",
