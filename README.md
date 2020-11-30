@@ -8,7 +8,7 @@ A cross-platform, full-featured and fast online judge system.
 - [x] Problem management
 - [x] Contest management
 - [x] Group management
-- [x] Rand and statistics
+- [x] Rank and statistics
 - [x] Messaging and notifications
 - [x] System console
 - [x] Support for special judge
