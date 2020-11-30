@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.Utils;

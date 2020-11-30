@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Shared.Utils;
 using hjudge.WebHost.Configurations;
 using hjudge.WebHost.Data;
@@ -101,7 +100,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).Cacheable().CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await contests.Select(i => i.Id).CountAsync();
 
             if (model.GroupId == 0) contests = contests.OrderByDescending(i => i.Id);
             else model.StartId = 0; // keep original order while fetching contests in a group
@@ -118,7 +117,7 @@ namespace hjudge.WebHost.Controllers
                 Name = i.Name,
                 StartTime = i.StartTime,
                 Upvote = i.Upvote
-            }).Cacheable().ToListAsync();
+            }).ToListAsync();
 
             ret.CurrentTime = DateTime.Now;
             return ret;
@@ -288,7 +287,7 @@ namespace hjudge.WebHost.Controllers
             ret.Config = contest.Config.DeserializeJson<ContestConfig>(false);
 
             var problems = await problemService.QueryProblemAsync(userId, contestId);
-            ret.Problems = await problems.Select(i => i.Id).Cacheable().ToListAsync();
+            ret.Problems = await problems.Select(i => i.Id).ToListAsync();
             return ret;
         }
 
@@ -311,7 +310,7 @@ namespace hjudge.WebHost.Controllers
                     Name = i.Name,
                     UserName = i.UserName,
                     Email = i.Email
-                }).Cacheable().ToListAsync();
+                }).ToListAsync();
         }
 
         /// <summary>
