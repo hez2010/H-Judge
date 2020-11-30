@@ -30,7 +30,7 @@ namespace hjudge.WebHost.MessageHandlers
 
             try
             {
-                queue.Enqueue(args.Body.DeserializeJson<JudgeReportInfo>(false));
+                queue.Enqueue(args.Body.Span.DeserializeJson<JudgeReportInfo>(false));
             }
             catch
             {

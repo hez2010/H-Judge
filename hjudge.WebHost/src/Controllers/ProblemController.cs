@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using EFCoreSecondLevelCacheInterceptor;
 using Google.Protobuf;
 using hjudge.Core;
 using hjudge.Shared.Utils;
@@ -124,7 +123,7 @@ namespace hjudge.WebHost.Controllers
                 }
             }
 
-            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).Cacheable().CountAsync();
+            if (model.RequireTotalCount) ret.TotalCount = await problems.Select(i => i.Id).CountAsync();
 
             if (model.ContestId == 0) problems = problems.OrderBy(i => i.Id);
             else model.StartId = 0; // keep original order while fetching problems in a contest
@@ -146,7 +145,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).Cacheable().ToListAsync();
+                }).ToListAsync();
             }
             else
             {
@@ -167,7 +166,7 @@ namespace hjudge.WebHost.Controllers
                     Downvote = i.Downvote,
                     Status = judges.Any(j => j.ProblemId == i.Id) ?
                         (judges.Any(j => j.ProblemId == i.Id && j.ResultType == (int)ResultCode.Accepted) ? 2 : 1) : 0
-                }).Cacheable().ToListAsync();
+                }).ToListAsync();
             }
 
             return ret;
@@ -209,11 +208,11 @@ namespace hjudge.WebHost.Controllers
             var judges = await judgeService.QueryJudgesAsync(string.IsNullOrEmpty(userId) ? "-1" : userId, model.GroupId == 0 ? null : (int?)model.GroupId, model.ContestId == 0 ? null : (int?)model.ContestId);
 
             if (await judges.Where(i => i.ProblemId == problem.Id)
-                    .Cacheable().AnyAsync())
+                    .AnyAsync())
             {
                 ret.Status = 1;
                 if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                        .Cacheable().AnyAsync())
+                        .AnyAsync())
                 {
                     ret.Status = 2;
                 }
@@ -227,7 +226,6 @@ namespace hjudge.WebHost.Controllers
                 var data = await dbContext.ContestProblemConfig
                     .Where(i => i.ContestId == model.ContestId && i.ProblemId == problem.Id)
                     .Select(i => new { i.AcceptCount, i.SubmissionCount })
-                    .Cacheable()
                     .FirstOrDefaultAsync();
                 if (data != null)
                 {
@@ -238,11 +236,11 @@ namespace hjudge.WebHost.Controllers
 
             if (!string.IsNullOrEmpty(userId))
             {
-                if (await judges.Where(i => i.ProblemId == problem.Id).Cacheable().AnyAsync())
+                if (await judges.Where(i => i.ProblemId == problem.Id).AnyAsync())
                 {
                     ret.Status = 1;
                     if (await judges.Where(i => i.ProblemId == problem.Id && i.ResultType == (int)ResultCode.Accepted)
-                            .Cacheable().AnyAsync())
+                            .AnyAsync())
                     {
                         ret.Status = 2;
                     }

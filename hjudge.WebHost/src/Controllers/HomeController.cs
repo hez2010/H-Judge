@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Core;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
@@ -101,7 +100,7 @@ namespace hjudge.WebHost.Controllers
                 TotalCount = 10
             };
 
-            foreach (var i in result.Cacheable().Take(10))
+            foreach (var i in result.Take(10))
             {
                 model.Activities.Add(new ActivityModel
                 {

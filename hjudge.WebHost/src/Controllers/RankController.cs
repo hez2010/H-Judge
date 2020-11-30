@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EFCoreSecondLevelCacheInterceptor;
 using hjudge.Core;
 using hjudge.Shared.Utils;
 using hjudge.WebHost.Configurations;
@@ -89,7 +88,7 @@ namespace hjudge.WebHost.Controllers
                 i.ResultType,
                 Time = i.JudgeTime,
                 Score = i.FullScore
-            }).Cacheable();
+            });
 
             var isAccepted = new Dictionary<(string UserId, int ProblemId), bool>();
 

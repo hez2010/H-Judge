@@ -96,7 +96,7 @@ namespace hjudge.JudgeHost
 
                 try
                 {
-                    info = args.Body.DeserializeJson<JudgeInfo>(false);
+                    info = args.Body.Span.DeserializeJson<JudgeInfo>(false);
                 }
                 catch
                 {

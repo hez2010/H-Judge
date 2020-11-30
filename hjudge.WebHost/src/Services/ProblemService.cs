@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using EFCoreSecondLevelCacheInterceptor;
 using hjudge.WebHost.Data;
 using hjudge.WebHost.Data.Identity;
 using hjudge.WebHost.Exceptions;
