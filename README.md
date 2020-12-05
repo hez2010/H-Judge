@@ -54,6 +54,8 @@ A cross-platform, full-featured and fast online judge system.
     ```
     cd hjudge.WebHost/src
     dotnet ef database update
+    cd ../../hjudge.FileHost/src
+    dotnet ef database update
     ```
 3. Run hjudge.JudgeHost (can be skipped if you don't use solution submission in Web)
     ```
