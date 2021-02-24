@@ -1,16 +1,20 @@
 # H::Judge
 This is the official repository for [H::Judge](https://hjudge.com).
 
+Note: 
+- The official site of H-Judge has been closed since there're almost no active users, for keeping running the website will lead to unnecessary cost.
+- I currently don't have enough time to continue developing new features for this Online Judge System, but PRs are always welcomed.
+
 ## Description
 A cross-platform, full-featured and fast online judge system.  
 
 #### Featrues
 - [x] Problem management
 - [x] Contest management
-- [x] Group management
+- [ ] Group management
 - [x] Rank and statistics
-- [x] Messaging and notifications
-- [x] System console
+- [ ] Messaging and notifications
+- [ ] System console
 - [x] Support for special judge
 - [x] Cross platform
 - [x] And more...
