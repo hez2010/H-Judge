@@ -11,7 +11,7 @@
     "@babel/preset-env": "7.14.2",
     "@babel/preset-react": "7.13.13",
     "@babel/preset-typescript": "7.13.0",
-    "@svgr/webpack": "5.4.0",
+    "@svgr/webpack": "5.5.0",
     "@types/highlight.js": "9.12.4",
     "@types/katex": "0.11.0",
     "@types/markdown-it": "10.0.3",
