@@ -42,7 +42,7 @@
     "typescript": "3.9.9",
     "url-loader": "4.1.1",
     "webpack": "4.43.0",
-    "webpack-dev-server": "3.11.0"
+    "webpack-dev-server": "3.11.2"
   },
   "dependencies": {
     "@microsoft/signalr": "3.1.5",
