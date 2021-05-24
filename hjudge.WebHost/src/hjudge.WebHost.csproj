@@ -34,7 +34,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.9.4" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.11.1" />
     <PackageReference Include="RabbitMQ.Client" Version="6.2.1" />
     <PackageReference Include="React.AspNet" Version="5.2.11" />
     <PackageReference Include="React.Router" Version="5.2.11" />
