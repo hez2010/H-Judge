@@ -41,7 +41,7 @@
     "sass-loader": "8.0.2",
     "typescript": "3.9.9",
     "url-loader": "4.1.1",
-    "webpack": "4.46.0",
+    "webpack": "5.37.1",
     "webpack-dev-server": "3.11.2"
   },
   "dependencies": {
