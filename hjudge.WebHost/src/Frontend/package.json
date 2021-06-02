@@ -52,7 +52,7 @@
     "katex": "0.13.11",
     "markdown-it": "11.0.1",
     "react": "16.14.0",
-    "react-ace": "9.0.0",
+    "react-ace": "9.4.0",
     "react-dom": "16.14.0",
     "react-router-dom": "5.2.0",
     "reactn": "2.2.7",
