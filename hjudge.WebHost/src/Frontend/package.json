@@ -38,7 +38,7 @@
     "node-sass": "6.0.0",
     "postcss-loader": "6.1.0",
     "rimraf": "3.0.2",
-    "sass-loader": "8.0.2",
+    "sass-loader": "12.1.0",
     "typescript": "3.9.9",
     "url-loader": "4.1.1",
     "webpack": "5.38.1",
