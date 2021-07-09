@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Core;
+using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
 
 namespace hjudge.WebHost.Services
@@ -16,7 +16,7 @@ namespace hjudge.WebHost.Services
     }
     public class FileService : Files.FilesClient, IFileService, IAsyncDisposable
     {
-        private Channel? channel;
+        private GrpcChannel? channel;
         private Files.FilesClient? client;
         private readonly IConfiguration configuration;
 
@@ -29,10 +29,10 @@ namespace hjudge.WebHost.Services
         {
             if (client != null) return;
             var section = configuration.GetSection("FileServer");
-            channel = new Channel($"{section["HostName"]}:{section["Port"]}", ChannelCredentials.Insecure, new[]
+            channel = GrpcChannel.ForAddress($"{section["HostName"]}:{section["Port"]}", new GrpcChannelOptions
             {
-                new ChannelOption(ChannelOptions.MaxReceiveMessageLength, 2147483647),
-                new ChannelOption(ChannelOptions.MaxSendMessageLength, 150 * 1048576)
+                MaxReceiveMessageSize = 2147483647,
+                MaxSendMessageSize = 150 * 1048576
             });
             client = new Files.FilesClient(channel);
         }

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Grpc.Core;
+using Grpc.Net.Client;
 using hjudge.Core;
 using hjudge.Shared.Judge;
 using hjudge.Shared.MessageQueue;
@@ -24,7 +24,7 @@ namespace hjudge.JudgeHost
         private readonly ConcurrentPriorityQueue<((ulong DeliveryTag, AsyncEventingBasicConsumer Consumer) Sender, JudgeInfo JudgeInfo)> pools = new ConcurrentPriorityQueue<((ulong DeliveryTag, AsyncEventingBasicConsumer Consumer) Sender, JudgeInfo JudgeInfo)>();
         private readonly ConcurrentDictionary<string, long> fileCache = new ConcurrentDictionary<string, long>();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
-        private readonly Channel fileHostChannel;
+        private readonly GrpcChannel fileHostChannel;
         private bool _disposed;
 
         protected virtual void Dispose(bool disposing)
@@ -85,7 +85,11 @@ namespace hjudge.JudgeHost
                 }
             }
 
-            fileHostChannel = new Channel(this.options.FileHost, ChannelCredentials.Insecure);
+            fileHostChannel = GrpcChannel.ForAddress(this.options.FileHost, new GrpcChannelOptions
+            {
+                MaxReceiveMessageSize = 2147483647,
+                MaxSendMessageSize = 150 * 1048576
+            });
         }
 
         private Task JudgeRequest_Received(object sender, BasicDeliverEventArgs args)
@@ -133,6 +137,7 @@ namespace hjudge.JudgeHost
         {
             if (!Directory.Exists(options.DataCacheDirectory)) Directory.CreateDirectory(options.DataCacheDirectory);
             if (semaphore is null) throw new InvalidOperationException("JudgeQueue.Semaphore cannot be null.");
+
             try
             {
                 stoppingToken.ThrowIfCancellationRequested();
@@ -172,8 +177,6 @@ namespace hjudge.JudgeHost
                             if (filesRequired.Count != 0)
                             {
                                 logger.LogInformation($"Started downloading files for #{judgeInfo.JudgeId}");
-
-                                if (fileHostChannel.State != ChannelState.Ready) await fileHostChannel.ConnectAsync();
 
                                 var fileService = new Files.FilesClient(fileHostChannel);
 

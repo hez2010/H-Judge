@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.352
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31423.177
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.Core", "hjudge.Core\src\hjudge.Core.csproj", "{E95E0A4D-633B-4D73-815E-BA26D8AD6EEF}"
 EndProject
@@ -12,8 +12,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.FileHost.Test", "hjudge.FileHost\test\hjudge.FileHost.Test.csproj", "{D8DA3FDD-E2F7-4716-A3F1-DD317A91837B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.JudgeHost", "hjudge.JudgeHost\src\hjudge.JudgeHost.csproj", "{4347BBD3-78E1-49FE-A3EE-44A3826EEA13}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.RpcInterface", "hjudge.RpcInterface\hjudge.RpcInterface.csproj", "{B3192363-D3D9-4414-873F-B8E6286C8C1D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hjudge.Shared", "hjudge.Shared\hjudge.Shared.csproj", "{7F5FA45C-4DAB-4EAD-90CA-D3CD03489F1F}"
 EndProject
@@ -143,26 +141,6 @@ Global
 		{4347BBD3-78E1-49FE-A3EE-44A3826EEA13}.Release|x64.Build.0 = Release|Any CPU
 		{4347BBD3-78E1-49FE-A3EE-44A3826EEA13}.Release|x86.ActiveCfg = Release|Any CPU
 		{4347BBD3-78E1-49FE-A3EE-44A3826EEA13}.Release|x86.Build.0 = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|ARM.Build.0 = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|x64.Build.0 = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Debug|x86.Build.0 = Debug|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|ARM.ActiveCfg = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|ARM.Build.0 = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|ARM64.Build.0 = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|x64.ActiveCfg = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|x64.Build.0 = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|x86.ActiveCfg = Release|Any CPU
-		{B3192363-D3D9-4414-873F-B8E6286C8C1D}.Release|x86.Build.0 = Release|Any CPU
 		{7F5FA45C-4DAB-4EAD-90CA-D3CD03489F1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7F5FA45C-4DAB-4EAD-90CA-D3CD03489F1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F5FA45C-4DAB-4EAD-90CA-D3CD03489F1F}.Debug|ARM.ActiveCfg = Debug|Any CPU
