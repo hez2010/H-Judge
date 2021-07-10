@@ -1,4 +1,4 @@
-import * as React from 'reactn';
+import * as React from 'react';
 import { Header, Item, Popup, Button, Segment, Grid, Label, Loader, Responsive, Placeholder, Tab } from 'semantic-ui-react';
 import { NavLink } from 'react-router-dom';
 import MarkdownViewer from '../viewer/markdown';
