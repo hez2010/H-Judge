@@ -1,4 +1,4 @@
-import * as React from 'reactn';
+import * as React from 'react';
 import { setTitle } from '../../utils/titleHelper';
 import { Button, Pagination, Table, Form, Input, Select, Placeholder, Rating, Confirm, Popup } from 'semantic-ui-react';
 import { Post, Delete } from '../../utils/requestHelper';
@@ -6,9 +6,9 @@ import { SerializeForm } from '../../utils/formHelper';
 import { ErrorModel } from '../../interfaces/errorModel';
 import { isTeacher } from '../../utils/privilegeHelper';
 import { CommonProps } from '../../interfaces/commonProps';
-import { GlobalState } from '../../interfaces/globalState';
 import { tryJson } from '../../utils/responseHelper';
 import { getRating } from '../../utils/ratingHelper';
+import AppContext from '../../AppContext';
 
 interface ProblemProps {
   contestId?: number,
@@ -32,133 +32,94 @@ interface ProblemListModel {
   totalCount: number
 }
 
-interface ProblemState {
-  problemList: ProblemListModel,
-  statusFilter: number[],
-  deleteItem: number,
-  page: number,
-  loaded: boolean
-}
-
-export default class Problem extends React.Component<ProblemProps & CommonProps, ProblemState, GlobalState> {
-  constructor() {
-    super();
-    this.renderProblemList = this.renderProblemList.bind(this);
-    this.fetchProblemList = this.fetchProblemList.bind(this);
-    this.gotoDetails = this.gotoDetails.bind(this);
-    this.editProblem = this.editProblem.bind(this);
-    this.deleteProblem = this.deleteProblem.bind(this);
-
-    this.state = {
-      problemList: {
-        problems: [],
-        totalCount: 0
-      },
-      statusFilter: [0, 1, 2],
-      deleteItem: 0,
-      page: 0,
-      loaded: false
-    };
-  }
-
-  // a cache for converting `Skip query` to `Where query`
-  private idRecord = new Map<number, number>();
+const Problem = (props: ProblemProps & CommonProps) => {
+  const [problemList, setProblemList] = React.useState<ProblemListModel>({ problems: [], totalCount: 0 });
+  const [statusFilter, setStatusFilter] = React.useState([0, 1, 2]);
+  const [deleteItem, setDeleteItem] = React.useState(0);
+  const [page, setPage] = React.useState(0);
+  const [loaded, setLoaded] = React.useState(false);
+  const { userInfo, commonFuncs } = React.useContext(AppContext);
+  const idRecord = React.useRef(new Map<number, number>());
   // debounce
-  private disableNavi = false;
-  private userId = this.global.userInfo.userId;
+  const disableNavi = React.useRef(false);
+  const userId = React.useRef(userInfo!.userId);
+  const firstRender = React.useRef(true);
 
-  componentWillUpdate(_nextProps: ProblemProps, _nextState: ProblemState) {
-    if (this.userId !== this.global.userInfo.userId) {
-      this.userId = this.global.userInfo.userId;
-      this.idRecord.clear();
-      if (!this.props.match.params.page) this.fetchProblemList(true, 1);
-      else this.fetchProblemList(true, this.props.match.params.page);
-    }
-  }
-
-  fetchProblemList(requireTotalCount: boolean, page: number) {
-    if (!this.props.contestId && page.toString() !== this.props.match.params.page)
-      this.props.history.replace(`/problem/${page}`);
+  const fetchProblemList = (requireTotalCount: boolean, page: number) => {
+    if (!props.contestId && page.toString() !== props.match.params.page)
+      props.history.replace(`/problem/${page}`);
     let form = document.querySelector('#filterForm') as HTMLFormElement;
     let req: any = {};
     req.filter = SerializeForm(form);
     if (!req.filter.id) req.filter.id = 0;
-    req.filter.status = this.state.statusFilter;
+    req.filter.status = statusFilter;
     req.start = (page - 1) * 10;
     req.count = 10;
     req.requireTotalCount = requireTotalCount;
-    req.contestId = this.props.contestId;
-    req.groupId = this.props.groupId;
-    if (this.idRecord.has(page)) req.startId = this.idRecord.get(page)! + 1;
+    req.contestId = props.contestId;
+    req.groupId = props.groupId;
+    if (idRecord.current.has(page)) req.startId = idRecord.current.get(page)! + 1;
 
     Post('/problem/list', req)
       .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
-          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          commonFuncs?.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
           return;
         }
         let result = data as ProblemListModel;
-        let countBackup = this.state.problemList.totalCount;
+        let countBackup = problemList.totalCount;
         if (!requireTotalCount) result.totalCount = countBackup;
 
         if (result.problems.length > 0)
-          this.idRecord.set(page + 1, result.problems[result.problems.length - 1].id);
-        this.setState({
-          problemList: result,
-          page: page,
-          loaded: true
-        } as ProblemState);
+          idRecord.current.set(page + 1, result.problems[result.problems.length - 1].id);
+
+        setProblemList(result);
+        setPage(page);
+        setLoaded(true);
       })
       .catch(err => {
-        this.global.commonFuncs.openPortal('错误', '题目列表加载失败', 'red');
+        commonFuncs?.openPortal('错误', '题目列表加载失败', 'red');
         console.log(err);
       })
   }
 
-  componentDidMount() {
-    if (!this.props.contestId && !this.props.groupId) setTitle('题库');
-
-    if (!this.props.match.params.page) this.fetchProblemList(true, 1);
-    else this.fetchProblemList(true, this.props.match.params.page);
-  }
-
-  gotoDetails(index: number) {
-    if (this.disableNavi) {
-      this.disableNavi = false;
+  const gotoDetails = (index: number) => {
+    if (disableNavi.current) {
+      disableNavi.current = false;
       return;
     }
-    if (!this.props.contestId) this.props.history.push(`/details/problem/${index}`);
-    else if (!this.props.groupId) this.props.history.push(`/details/problem/${index}/${this.props.contestId}`);
-    else this.props.history.push(`/details/problem/${index}/${this.props.contestId}/${this.props.groupId}`);
+    if (!props.contestId) props.history.push(`/details/problem/${index}`);
+    else if (!props.groupId) props.history.push(`/details/problem/${index}/${props.contestId}`);
+    else props.history.push(`/details/problem/${index}/${props.contestId}/${props.groupId}`);
   }
 
-  editProblem(id: number) {
-    this.disableNavi = true;
-    this.props.history.push(`/edit/problem/${id}`);
+  const editProblem = (id: number) => {
+    disableNavi.current = true;
+    props.history.push(`/edit/problem/${id}`);
   }
 
-  deleteProblem(id: number) {
-    this.setState({ deleteItem: 0 } as ProblemState);
+  const deleteProblem = (id: number) => {
+    setDeleteItem(0);
     Delete('/problem/edit', { problemId: id })
       .then(tryJson)
       .then(data => {
         let error = data as ErrorModel;
         if (error.errorCode) {
-          this.global.commonFuncs.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
+          commonFuncs?.openPortal(`错误 (${error.errorCode})`, `${error.errorMessage}`, 'red');
           return;
         }
-        this.global.commonFuncs.openPortal('成功', '题目删除成功', 'green');
-        this.fetchProblemList(true, this.state.page);
+        commonFuncs?.openPortal('成功', '题目删除成功', 'green');
+        fetchProblemList(true, page);
       })
       .catch(err => {
-        this.global.commonFuncs.openPortal('错误', '题目删除失败', 'red');
+        commonFuncs?.openPortal('错误', '题目删除失败', 'red');
         console.log(err);
       })
   }
 
-  renderProblemList() {
+  const renderProblemList = () => {
     const renderRating = (upvote: number, downvote: number) => {
       let rating = getRating(upvote, downvote);
       return <Popup content={rating.toString()} trigger={<Rating icon='star' rating={Math.round(rating)} maxRating={5} disabled={true} />} />;
@@ -174,13 +135,13 @@ export default class Problem extends React.Component<ProblemProps & CommonProps,
             <Table.HeaderCell>评分</Table.HeaderCell>
             <Table.HeaderCell>通过量/提交量</Table.HeaderCell>
             <Table.HeaderCell>通过率</Table.HeaderCell>
-            {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
+            {userInfo?.userId && isTeacher(userInfo.privilege) ? <Table.HeaderCell textAlign='center'>操作</Table.HeaderCell> : null}
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {
-            this.state.problemList.problems.map((v, i) =>
-              <Table.Row key={i} warning={v.hidden} onClick={() => this.gotoDetails(v.id)} style={{ cursor: 'pointer' }}>
+            problemList.problems.map((v, i) =>
+              <Table.Row key={i} warning={v.hidden} onClick={() => gotoDetails(v.id)} style={{ cursor: 'pointer' }}>
                 <Table.Cell>{v.id}</Table.Cell>
                 <Table.Cell>{v.name}</Table.Cell>
                 <Table.Cell><span role='img' aria-label='level'>⭐</span>×{v.level}</Table.Cell>
@@ -188,7 +149,7 @@ export default class Problem extends React.Component<ProblemProps & CommonProps,
                 <Table.Cell>{renderRating(v.upvote, v.downvote)}</Table.Cell>
                 <Table.Cell>{v.acceptCount}/{v.submissionCount}</Table.Cell>
                 <Table.Cell>{v.submissionCount === 0 ? 0 : Math.round(v.acceptCount * 10000 / v.submissionCount) / 100.0} %</Table.Cell>
-                {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => this.editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { this.disableNavi = true; this.setState({ deleteItem: v.id } as ProblemState); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
+                {userInfo?.userId && isTeacher(userInfo.privilege) ? <Table.Cell textAlign='center'><Button.Group><Button onClick={() => editProblem(v.id)} color='grey'>编辑</Button><Button onClick={() => { disableNavi.current = true; setDeleteItem(v.id); }} color='red'>删除</Button></Button.Group></Table.Cell> : null}
               </Table.Row>)
           }
         </Table.Body>
@@ -196,62 +157,83 @@ export default class Problem extends React.Component<ProblemProps & CommonProps,
     </>;
   }
 
-  render() {
-    const placeHolder = <Placeholder>
-      <Placeholder.Paragraph>
-        <Placeholder.Line />
-        <Placeholder.Line />
-        <Placeholder.Line />
-        <Placeholder.Line />
-      </Placeholder.Paragraph>
-    </Placeholder>;
+  React.useEffect(() => {
+    if (!props.contestId && !props.groupId) setTitle('题库');
 
-    return <>
-      <Form id='filterForm'>
-        <Form.Group widths={'equal'}>
-          <Form.Field width={4}>
-            <label>题目编号</label>
-            <Input fluid name='id' type='number' onChange={() => this.idRecord.clear()}></Input>
-          </Form.Field>
-          <Form.Field width={8}>
-            <label>题目名称</label>
-            <Input fluid name='name' onChange={() => this.idRecord.clear()}></Input>
-          </Form.Field>
-          <Form.Field width={8}>
-            <label>题目状态</label>
-            <Select onChange={(_event, data) => { this.setState({ statusFilter: data.value as number[] } as ProblemState); this.idRecord.clear(); }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未尝试', value: 0 }, { text: '已尝试', value: 1 }, { text: '已通过', value: 2 }]}></Select>
-          </Form.Field>
-          <Form.Field width={4}>
-            <label>题目操作</label>
-            <Button.Group fluid>
-              <Button type='button' primary onClick={() => this.fetchProblemList(true, 1)}>筛选</Button>
-              {this.global.userInfo.userId && isTeacher(this.global.userInfo.privilege) ? <Button type='button' secondary onClick={() => this.editProblem(0)}>添加</Button> : null}
-            </Button.Group>
-          </Form.Field>
-        </Form.Group>
-      </Form>
-      {this.renderProblemList()}
-      {this.state.loaded ? (this.state.problemList.problems.length === 0 ? <p>没有数据</p> : null) : placeHolder}
-      <div style={{ textAlign: 'center' }}>
-        <Pagination
-          activePage={this.state.page}
-          onPageChange={(_event, data) => this.fetchProblemList(false, data.activePage as number)}
-          size='small'
-          siblingRange={2}
-          boundaryRange={1}
-          totalPages={this.state.problemList.totalCount === 0 ? 0 : Math.floor(this.state.problemList.totalCount / 10) + (this.state.problemList.totalCount % 10 === 0 ? 0 : 1)}
-          firstItem={null}
-          lastItem={null}
-        />
-      </div>
-      <Confirm
-        open={this.state.deleteItem !== 0}
-        cancelButton='取消'
-        confirmButton='确定'
-        onCancel={() => this.setState({ deleteItem: 0 } as ProblemState)}
-        onConfirm={() => this.deleteProblem(this.state.deleteItem)}
-        content={"删除后不可恢复，确定继续？"}
+    if (!props.match.params.page) fetchProblemList(true, 1);
+    else fetchProblemList(true, props.match.params.page);
+  }, []);
+
+  React.useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
+    if (userInfo && userId.current !== userInfo.userId) {
+      userId.current = userInfo.userId;
+      idRecord.current.clear();
+      if (!props.match.params.page) fetchProblemList(true, 1);
+      else fetchProblemList(true, props.match.params.page);
+    }
+  });
+
+  const placeHolder = <Placeholder>
+    <Placeholder.Paragraph>
+      <Placeholder.Line />
+      <Placeholder.Line />
+      <Placeholder.Line />
+      <Placeholder.Line />
+    </Placeholder.Paragraph>
+  </Placeholder>;
+
+  return <>
+    <Form id='filterForm'>
+      <Form.Group widths={'equal'}>
+        <Form.Field width={4}>
+          <label>题目编号</label>
+          <Input fluid name='id' type='number' onChange={() => idRecord.current.clear()}></Input>
+        </Form.Field>
+        <Form.Field width={8}>
+          <label>题目名称</label>
+          <Input fluid name='name' onChange={() => idRecord.current.clear()}></Input>
+        </Form.Field>
+        <Form.Field width={8}>
+          <label>题目状态</label>
+          <Select onChange={(_event, data) => { setStatusFilter(data.value as number[]); idRecord.current.clear(); }} fluid name='status' multiple defaultValue={[0, 1, 2]} options={[{ text: '未尝试', value: 0 }, { text: '已尝试', value: 1 }, { text: '已通过', value: 2 }]}></Select>
+        </Form.Field>
+        <Form.Field width={4}>
+          <label>题目操作</label>
+          <Button.Group fluid>
+            <Button type='button' primary onClick={() => fetchProblemList(true, 1)}>筛选</Button>
+            {userInfo?.userId && isTeacher(userInfo.privilege) ? <Button type='button' secondary onClick={() => editProblem(0)}>添加</Button> : null}
+          </Button.Group>
+        </Form.Field>
+      </Form.Group>
+    </Form>
+    {renderProblemList()}
+    {loaded ? (problemList.problems.length === 0 ? <p>没有数据</p> : null) : placeHolder}
+    <div style={{ textAlign: 'center' }}>
+      <Pagination
+        activePage={page}
+        onPageChange={(_event, data) => fetchProblemList(false, data.activePage as number)}
+        size='small'
+        siblingRange={2}
+        boundaryRange={1}
+        totalPages={problemList.totalCount === 0 ? 0 : Math.floor(problemList.totalCount / 10) + (problemList.totalCount % 10 === 0 ? 0 : 1)}
+        firstItem={null}
+        lastItem={null}
       />
-    </>;
-  }
-}
+    </div>
+    <Confirm
+      open={deleteItem !== 0}
+      cancelButton='取消'
+      confirmButton='确定'
+      onCancel={() => setDeleteItem(0)}
+      onConfirm={() => deleteProblem(deleteItem)}
+      content={"删除后不可恢复，确定继续？"}
+    />
+  </>;
+};
+
+export default Problem;

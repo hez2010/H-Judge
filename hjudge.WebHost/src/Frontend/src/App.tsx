@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import { useGlobal } from 'reactn';
 import { Route, Switch, BrowserRouter, StaticRouter } from 'react-router-dom';
 import Layout from './components/layout/layout';
 import NotFound from './components/notfound/notfound';
@@ -17,12 +16,27 @@ import ContestDetails from './components/contest/details';
 import Statistics from './components/statistics/statistics';
 import ProblemEdit from './components/problem/edit';
 import ContestEdit from './components/contest/edit';
-import { getTargetState } from './utils/reactnHelper';
-import { GlobalState } from './interfaces/globalState';
+import AppContext from './AppContext';
 import { ErrorModel } from './interfaces/errorModel';
 import { tryJson } from './utils/responseHelper';
 import Result from './components/result/result';
 import { CommonFuncs } from './interfaces/commonFuncs';
+
+const getInitUserInfo = (userInfo?: UserInfo) => userInfo ? userInfo : {
+  userId: '',
+  userName: '',
+  privilege: 4,
+  name: '',
+  email: '',
+  signedIn: false,
+  emailConfirmed: false,
+  coins: 0,
+  experience: 0,
+  otherInfo: [],
+  phoneNumber: '',
+  phoneNumberConfirmed: false
+};
+
 
 interface PortalState {
   open: boolean,
@@ -32,9 +46,7 @@ interface PortalState {
 }
 
 const App = (props: any) => {
-  const [userInfo, setUserInfo] = getTargetState<UserInfo>(useGlobal<GlobalState>('userInfo'));
-  const [, setCommonFuncs] = getTargetState<CommonFuncs>(useGlobal<GlobalState>('commonFuncs'));
-  const [portal, setPortal] = React.useState<PortalState>({ open: false, header: '', message: '', color: 'green' });
+  const [userInfo, setUserInfo] = React.useState<UserInfo>(typeof window === 'undefined' ? getInitUserInfo(undefined) : getInitUserInfo(props ? props.userInfo : undefined));
 
   const openPortal = (header: string, message: string, color: SemanticCOLORS) => {
     if (portal.open) {
@@ -74,98 +86,101 @@ const App = (props: any) => {
       });
   }
 
+  const [commonFuncs, setCommonFuncs] = React.useState<CommonFuncs>({ openPortal, refreshUserInfo });
+  const [portal, setPortal] = React.useState<PortalState>({ open: false, header: '', message: '', color: 'green' });
+
   React.useEffect(() => {
     setCommonFuncs({ openPortal: openPortal, refreshUserInfo: refreshUserInfo });
     if (!userInfo.userId) refreshUserInfo();
   }, []);
 
-  const renderContent = <>
-      <Layout>
-        <Switch>
-          <Route
-            exact
-            path='/'
-            component={Home}>
-          </Route>
-          <Route
-            path='/problem/:page?'
-            component={Problem}>
-          </Route>
-          <Route
-            path='/details/problem/:problemId/:contestId?/:groupId?'
-            component={ProblemDetails}>
-          </Route>
-          <Route
-            path='/edit/problem/:problemId'
-            component={ProblemEdit}>
-          </Route>
-          <Route
-            path='/contest/:page?'
-            component={Contest}>
-          </Route>
-          <Route
-            path='/details/contest/:contestId/:groupId?'
-            component={ContestDetails}>
-          </Route>
-          <Route
-            path='/edit/contest/:contestId'
-            component={ContestEdit}>
-          </Route>
-          <Route
-            path='/group/:page?'
-            component={Group}>
-          </Route>
-          <Route
-            path='/message'
-            component={() => <p>此功能正在开发中，敬请期待</p>}>
-          </Route>
-          <Route
-            path='/statistics/:userName/:groupId/:contestId/:problemId/:result/:page?'
-            component={Statistics}>
-          </Route>
-          <Route
-            path='/statistics/:page?'
-            component={Statistics}>
-          </Route>
-          <Route
-            path='/result/:resultId'
-            component={Result}>
-          </Route>
-          <Route
-            path='/discussion'
-            component={() => <p>此功能正在开发中，敬请期待</p>}>
-          </Route>
-          <Route
-            path='/article'
-            component={() => <p>此功能正在开发中，敬请期待</p>}>
-          </Route>
-          <Route
-            exact
-            path='/about'
-            component={About}>
-          </Route>
-          <Route
-            path='/user/:userId?'
-            component={User}>
-          </Route>
-          <Route
-            component={NotFound}>
-          </Route>
-        </Switch>
-      </Layout>
-      <TransitionablePortal open={portal.open} onClose={closePortal} transition={{ animation: 'drop', duration: 500 }}>
-        <Segment style={{ bottom: '5em', position: 'fixed', right: '2em', zIndex: 1048576, maxHeight: '10em', width: '20em' }} color={portal.color} inverted>
-          <Header>
-            {portal.header}
-            <div style={{ display: 'inline', cursor: 'pointer', float: 'right' }} onClick={closePortal}>
-              <Icon name='close' size='small'></Icon>
-            </div>
-          </Header>
-          <Divider />
-          <pre style={{ wordBreak: 'break-all', wordWrap: 'break-word', overflow: 'auto', scrollBehavior: 'auto', width: '18em', maxHeight: '5em' }}>{portal.message}</pre>
-        </Segment>
-      </TransitionablePortal>
-    </>;
+  const renderContent = <AppContext.Provider value={{ userInfo, setUserInfo, commonFuncs }}>
+    <Layout>
+      <Switch>
+        <Route
+          exact
+          path='/'
+          component={Home}>
+        </Route>
+        <Route
+          path='/problem/:page?'
+          component={Problem}>
+        </Route>
+        <Route
+          path='/details/problem/:problemId/:contestId?/:groupId?'
+          component={ProblemDetails}>
+        </Route>
+        <Route
+          path='/edit/problem/:problemId'
+          component={ProblemEdit}>
+        </Route>
+        <Route
+          path='/contest/:page?'
+          component={Contest}>
+        </Route>
+        <Route
+          path='/details/contest/:contestId/:groupId?'
+          component={ContestDetails}>
+        </Route>
+        <Route
+          path='/edit/contest/:contestId'
+          component={ContestEdit}>
+        </Route>
+        <Route
+          path='/group/:page?'
+          component={Group}>
+        </Route>
+        <Route
+          path='/message'
+          component={() => <p>此功能正在开发中，敬请期待</p>}>
+        </Route>
+        <Route
+          path='/statistics/:userName/:groupId/:contestId/:problemId/:result/:page?'
+          component={Statistics}>
+        </Route>
+        <Route
+          path='/statistics/:page?'
+          component={Statistics}>
+        </Route>
+        <Route
+          path='/result/:resultId'
+          component={Result}>
+        </Route>
+        <Route
+          path='/discussion'
+          component={() => <p>此功能正在开发中，敬请期待</p>}>
+        </Route>
+        <Route
+          path='/article'
+          component={() => <p>此功能正在开发中，敬请期待</p>}>
+        </Route>
+        <Route
+          exact
+          path='/about'
+          component={About}>
+        </Route>
+        <Route
+          path='/user/:userId?'
+          component={User}>
+        </Route>
+        <Route
+          component={NotFound}>
+        </Route>
+      </Switch>
+    </Layout>
+    <TransitionablePortal open={portal.open} onClose={closePortal} transition={{ animation: 'drop', duration: 500 }}>
+      <Segment style={{ bottom: '5em', position: 'fixed', right: '2em', zIndex: 1048576, maxHeight: '10em', width: '20em' }} color={portal.color} inverted>
+        <Header>
+          {portal.header}
+          <div style={{ display: 'inline', cursor: 'pointer', float: 'right' }} onClick={closePortal}>
+            <Icon name='close' size='small'></Icon>
+          </div>
+        </Header>
+        <Divider />
+        <pre style={{ wordBreak: 'break-all', wordWrap: 'break-word', overflow: 'auto', scrollBehavior: 'auto', width: '18em', maxHeight: '5em' }}>{portal.message}</pre>
+      </Segment>
+    </TransitionablePortal>
+  </AppContext.Provider>;
 
   if (typeof window === 'undefined') return <StaticRouter context={props.context} location={props.location}>{renderContent}</StaticRouter>;
   return <BrowserRouter>{renderContent}</BrowserRouter>;
