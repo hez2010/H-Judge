@@ -48,7 +48,7 @@
     "@microsoft/signalr": "5.0.17",
     "es6-promise": "4.2.8",
     "fetch-ponyfill": "7.1.0",
-    "highlight.js": "11.1.0",
+    "highlight.js": "11.9.0",
     "katex": "0.13.11",
     "markdown-it": "12.1.0",
     "react": "17.0.2",
