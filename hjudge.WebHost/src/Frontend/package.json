@@ -21,7 +21,7 @@
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
     "astroturf": "1.0.0-beta.22",
-    "autoprefixer": "10.2.6",
+    "autoprefixer": "10.4.19",
     "babel-loader": "8.2.5",
     "css-loader": "5.2.7",
     "eslint": "7.30.0",
