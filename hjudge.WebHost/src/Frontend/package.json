@@ -49,7 +49,7 @@
     "es6-promise": "4.2.8",
     "fetch-ponyfill": "7.1.0",
     "highlight.js": "11.1.0",
-    "katex": "0.13.11",
+    "katex": "0.16.10",
     "markdown-it": "12.1.0",
     "react": "17.0.2",
     "react-ace": "9.4.1",
